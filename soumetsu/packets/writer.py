@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import struct
+from typing import Optional
 
 from soumetsu.packets.constants import PacketID
 
@@ -58,4 +59,33 @@ def write_str(value: str) -> bytes:
 
     return bytes(
         bytearray(write_i8(0xB)) + write_uleb128(len(value)) + value.encode("utf-8"),
+    )
+
+
+def write_i32_array(array: list[int]) -> bytes:
+    if not array:
+        return write_u16(0)
+
+    buffer = bytearray(write_u16(len(array)))
+    for elem in array:
+        buffer += write_i32(elem)
+
+    return bytes(buffer)
+
+
+def prefix_header(packet_id: PacketID, data: Optional[bytes] = None) -> bytes:
+    if not data:
+        return struct.pack(
+            "<HxI",
+            packet_id.value,
+            0,
+        )
+
+    return (
+        struct.pack(
+            "<HxI",
+            packet_id.value,
+            len(data),
+        )
+        + data
     )
