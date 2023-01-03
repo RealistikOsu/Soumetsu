@@ -95,3 +95,72 @@ def channel_join_notify(channel_name: str) -> bytes:
         PacketID.SRV_CHANNEL_JOIN_SUCCESS,
         writer.write_str(channel_name),
     )
+
+
+def channel_info(
+    name: str,
+    description: str,
+    member_count: int,
+) -> bytes:
+    return writer.prefix_header(
+        PacketID.SRV_CHANNEL_INFO,
+        writer.write_str(name)
+        + writer.write_str(description)
+        + writer.write_i16(member_count),
+    )
+
+
+def user_presence(
+    user_id: int,
+    username: str,
+    utc_offset: int,
+    country_enum: int,
+    bancho_privileges: int,
+    longitude: float,
+    latitude: float,
+    rank: int,
+) -> bytes:
+    return writer.prefix_header(
+        PacketID.SRV_USER_PRESENCE,
+        writer.write_i32(user_id)
+        + writer.write_str(username)
+        + writer.write_u8(utc_offset + 24)
+        + writer.write_u8(country_enum)
+        + writer.write_u8(bancho_privileges)
+        + writer.write_f32(longitude)
+        + writer.write_f32(latitude)
+        + writer.write_i32(rank),
+    )
+
+
+def user_stats(
+    user_id: int,
+    action_id: int,
+    action_text: str,
+    beatmap_md5: str,
+    beatmap_id: int,
+    mods: int,
+    mode: int,
+    ranked_score: int,
+    total_score: int,
+    accuracy: float,
+    play_count: int,
+    rank: int,
+    pp: int,
+) -> bytes:
+    return writer.prefix_header(
+        PacketID.SRV_USER_STATS,
+        writer.write_i32(user_id)
+        + writer.write_u8(action_id)
+        + writer.write_str(action_text)
+        + writer.write_str(beatmap_md5)
+        + writer.write_i32(mods)
+        + writer.write_u8(mode)
+        + writer.write_i32(beatmap_id)
+        + writer.write_i64(ranked_score)
+        + writer.write_f32(accuracy / 100)
+        + writer.write_i32(play_count)
+        + writer.write_i64(total_score)
+        + writer.write_i32(rank)
+        + writer.write_i16(pp),
+    )
