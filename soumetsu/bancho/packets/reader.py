@@ -3,7 +3,7 @@ from __future__ import annotations
 import struct
 from typing import Union
 
-from soumetsu.packets.constants import PacketID
+from soumetsu.bancho.packets.constants import PacketID
 
 ByteLike = Union[bytes, bytearray]
 

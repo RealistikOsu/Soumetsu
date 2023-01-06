@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from soumetsu.bancho.handler import router as bancho_handler
+
 
 def init_routers(app: FastAPI) -> None:
-    ...
+    app.include_router(bancho_handler)
 
 
 def init_events(app: FastAPI) -> None:

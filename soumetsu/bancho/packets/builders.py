@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from soumetsu.packets import writer
-from soumetsu.packets.constants import PacketID
+from soumetsu.bancho.packets import writer
+from soumetsu.bancho.packets.constants import PacketID
 
 
 def notification(text: str) -> bytes:
