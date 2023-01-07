@@ -16,6 +16,12 @@ class Config:
     http_host: str = "127.0.0.1"
     http_port: int = 8080
     log_level: str = "INFO"
+    mysql_host: str = "127.0.0.1"
+    mysql_port: int = 3306
+    mysql_database: str = "rosu"
+    mysql_username: str = "rosu"
+    mysql_password: str = ""
+    geoloc_db_dir: str = "/home/db/ip.mmdb"
 
 
 def read_config_json() -> dict[str, Any]:

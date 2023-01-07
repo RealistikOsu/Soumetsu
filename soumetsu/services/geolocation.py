@@ -25,6 +25,13 @@ class GeolocationDatabase:
     def load_database(self, location: str) -> None:
         self._db = database.Reader(location)
 
+    def unload(self) -> None:
+        if self._db is None:
+            raise RuntimeError("Attempted to unload a non-existent db.")
+
+        self._db.close()
+        self._db = None
+
     def __ensure_db(self) -> database.Reader:
         if self._db is None:
             raise RuntimeError(
@@ -33,7 +40,7 @@ class GeolocationDatabase:
 
         return self._db
 
-    def get(self, ip: str, default: T = None) -> Union[GeolocationResult, T]:
+    def get(self, ip: str, default: T = None) -> Union[GeolocationResult, Optional[T]]:
         db = self.__ensure_db()
         res = db.city(ip)
 
