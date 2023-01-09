@@ -80,7 +80,10 @@ class PacketRouter:
         self._routes = dict[PacketID, WrappedPacketHandler]()
 
     # Decorator
-    def register(self, packet_id: PacketID) -> ...:
+    def register(
+        self,
+        packet_id: PacketID,
+    ) -> Callable[[PacketHandlerProtocol], WrappedPacketHandler]:
         def wrapper(func: PacketHandlerProtocol) -> WrappedPacketHandler:
             wrapped_func = _wrap_packet_handler(func)
             self._routes[packet_id] = wrapped_func
