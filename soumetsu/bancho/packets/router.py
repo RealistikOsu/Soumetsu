@@ -11,6 +11,7 @@ from typing import Union
 from soumetsu.bancho.packets.constants import PacketID
 from soumetsu.bancho.packets.reader import PacketReader
 from soumetsu.bancho.packets.types import *
+from soumetsu.bancho.session import Session
 
 ReadableType = Union[
     float,
@@ -40,7 +41,7 @@ _READER_TYPE_MAP = {
 
 @dataclass
 class PacketContext:
-    session: ...
+    session: Session
     reader: PacketReader
 
 
@@ -102,7 +103,7 @@ class PacketRouter:
 
     async def handle(
         self,
-        session: ...,
+        session: Session,
         body: bytes,
     ) -> bytearray:
         res_buffer = bytearray()
