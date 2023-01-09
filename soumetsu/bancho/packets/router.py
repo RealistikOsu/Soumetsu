@@ -66,7 +66,7 @@ def _wrap_packet_handler(func: PacketHandlerProtocol) -> WrappedPacketHandler:
         args = []
         for arg_type in get_type_hints(func).values():
             if issubclass(arg_type, PacketContext):
-                args.append(reader)
+                args.append(ctx)
             else:
                 args.append(_READER_TYPE_MAP[arg_type](reader))
 
