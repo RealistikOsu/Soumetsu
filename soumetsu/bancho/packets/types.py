@@ -1,6 +1,18 @@
 from __future__ import annotations
 
 
+__all__ = (
+    "u8",
+    "i8",
+    "u16",
+    "i16",
+    "u32",
+    "i32",
+    "u64",
+    "i64",
+)
+
+
 class u8(int):
     pass
 
