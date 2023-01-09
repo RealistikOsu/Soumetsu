@@ -52,7 +52,7 @@ class PacketHandlerProtocol(Protocol):
 
 
 WrappedPacketHandler = Callable[
-    [PacketContext, PacketReader],
+    [PacketContext],
     Awaitable[Optional[bytes]],
 ]
 
@@ -60,7 +60,6 @@ WrappedPacketHandler = Callable[
 def _wrap_packet_handler(func: PacketHandlerProtocol) -> WrappedPacketHandler:
     async def new_packet_func(
         ctx: PacketContext,
-        reader: PacketReader,
     ) -> Optional[bytes]:
         # Read based on func signature
         args = []
@@ -68,7 +67,7 @@ def _wrap_packet_handler(func: PacketHandlerProtocol) -> WrappedPacketHandler:
             if issubclass(arg_type, PacketContext):
                 args.append(ctx)
             else:
-                args.append(_READER_TYPE_MAP[arg_type](reader))
+                args.append(_READER_TYPE_MAP[arg_type](ctx.reader))
 
         return await func(*args)
 
@@ -100,3 +99,28 @@ class PacketRouter:
     ) -> None:
         wrapped_func = _wrap_packet_handler(handler)
         self._routes[packet_id] = wrapped_func
+
+    async def handle(
+        self,
+        session: ...,
+        body: bytes,
+    ) -> bytearray:
+        res_buffer = bytearray()
+        reader = PacketReader(body)
+
+        ctx = PacketContext(
+            session=session,
+            reader=reader,
+        )
+
+        # TODO: Create reader instance per packet to avoid misreads.
+        for packet_id, packet_len in reader:
+            handler = self._routes.get(packet_id)
+            if handler is not None:
+                handler_res = await handler(ctx)
+                if handler_res is not None:
+                    res_buffer += handler_res
+            else:
+                reader.skip(packet_len)
+
+        return res_buffer
