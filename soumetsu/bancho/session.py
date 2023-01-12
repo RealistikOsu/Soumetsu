@@ -15,3 +15,6 @@ class Session:
     buffer: bytearray
 
     # TODO: Actions, beatmaps, offsets, etc
+
+    def send(self, buffer: bytes) -> None:
+        self.buffer += buffer
