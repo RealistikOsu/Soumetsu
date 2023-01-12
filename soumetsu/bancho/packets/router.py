@@ -125,3 +125,6 @@ class PacketRouter:
                 reader.skip(packet_len)
 
         return res_buffer
+
+    def include_router(self, router: PacketRouter) -> None:
+        self._routes |= router._routes

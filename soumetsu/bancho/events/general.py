@@ -1,12 +1,3 @@
-# TODO: Maybe split up into sections for major packet groups?
-# eg:
-# - General
-# - Chat
-# - Spectator
-# - Multiplayer
-# - Tourney
-# That might require some tweaking with the router, possibly requiring the support for multiple routers?
-# Issue for another day.
 from __future__ import annotations
 
 from soumetsu.bancho.packets.constants import PacketID
