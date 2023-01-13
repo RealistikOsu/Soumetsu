@@ -20,6 +20,11 @@ def init_events(app: FastAPI) -> None:
         logger.info("Connecting to MySQL...")
         await state.services.mysql.connect()
 
+        logger.info("Configuring Bancho Streams...")
+        state.collections.configure_streams()
+
+        logger.info("Done!")
+
     @app.on_event("shutdown")
     async def on_shutdown() -> None:
         logger.info("Unloading Geolocation Database...")

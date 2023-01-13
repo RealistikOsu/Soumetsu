@@ -3,7 +3,7 @@ from __future__ import annotations
 import struct
 from typing import Optional
 
-from soumetsu.packets.constants import PacketID
+from soumetsu.bancho.packets.constants import PacketID
 
 
 def write_u8(value: int) -> bytes:
