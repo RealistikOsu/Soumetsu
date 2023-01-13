@@ -69,6 +69,9 @@ async def from_db(user_id: int) -> Optional[User]:
     return from_db_mapping(res_db)
 
 
+from_id = from_db  # Later on we might have some caching.
+
+
 async def update_db(user: User) -> None:
     await services.mysql.execute(
         "UPDATE users SET username = :username, username_safe = :username_safe,"

@@ -11,3 +11,4 @@ class HWIDLog:
     unique_hash: str
     disk_hash: str
     occurences: int
+    activated: bool
