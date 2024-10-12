@@ -5,7 +5,14 @@ MinPrivileges=2
 KyutGrill=friends.jpg
 */}}
 {{ define "tpl" }}
+{{ $isSupporter := has .Context.User.Privileges 4 }}
 <div class="ui container">
+	{{ if $isSupporter }}
+		<div class="ui two item bottom attached menu">
+			<a class="item active" href="/friends">Friends</a>
+			<a class="item" href="/followers">Followers</a>
+		</div>
+	{{ end }}
 	<div class="ui segments">
 		<div class="ui segment">
 			{{ .T "On this page you can see all of your friends, and unfriend them as you see fit." }}

@@ -1,11 +1,15 @@
 {{/*###
 Handler=/followers
 TitleBar=Followers
-MinPrivileges=3
+MinPrivileges=7
 KyutGrill=friends.jpg
 */}}
 {{ define "tpl" }}
 <div class="ui container">
+	<div class="ui two item bottom attached menu">
+		<a class="item" href="/friends">Friends</a>
+		<a class="item active" href="/followers">Followers</a>
+	</div>
 	<div class="ui segments">
 		<div class="ui segment">
 			{{ .T "On this page you can see all of your followers, and add new friends if you see fit." }}
@@ -14,7 +18,6 @@ KyutGrill=friends.jpg
 		{{ $ := . }}
 		{{ $page := or (atoint (.Gin.Query "p")) 1 }}
 		{{ $followers := .Get "mitsuha/followers_friends?p=%d&l=40&sort=username,asc" $page }}
-
 			{{ with $followers }}
 				<div class="ui four column stackable grid">
 				{{ range .subs }}
