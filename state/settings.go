@@ -1,7 +1,9 @@
 package state
 
 import (
+	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -80,7 +82,45 @@ type Settings struct {
 var settings = Settings{}
 
 func LoadSettings() Settings {
-	godotenv.Load()
+	// Try multiple locations for .env file
+	envLoaded := false
+	
+	// 1. Try current working directory
+	if err := godotenv.Load(); err == nil {
+		envLoaded = true
+		slog.Info("Loaded .env from current directory")
+	} else {
+		// 2. Try executable's directory
+		exe, err := os.Executable()
+		if err == nil {
+			// Resolve symlinks to get actual path
+			exe, err = filepath.EvalSymlinks(exe)
+			if err == nil {
+				exeDir := filepath.Dir(exe)
+				envPath := filepath.Join(exeDir, ".env")
+				if err := godotenv.Load(envPath); err == nil {
+					envLoaded = true
+					slog.Info("Loaded .env from executable directory", "path", envPath)
+				}
+			}
+		}
+		
+		// 3. Try source directory (for development)
+		wd, err := os.Getwd()
+		if err == nil {
+			envPath := filepath.Join(wd, ".env")
+			if _, err := os.Stat(envPath); err == nil {
+				if err := godotenv.Load(envPath); err == nil {
+					envLoaded = true
+					slog.Info("Loaded .env from working directory", "path", envPath)
+				}
+			}
+		}
+	}
+	
+	if !envLoaded {
+		slog.Warn("No .env file found, using environment variables only")
+	}
 
 	settings.APP_PORT = strToInt(getEnv("APP_PORT"))
 	settings.APP_COOKIE_SECRET = getEnv("APP_COOKIE_SECRET")

@@ -1,53 +1,67 @@
 {{/*###
 Handler=/followers
-TitleBar=Followers
 MinPrivileges=3
 KyutGrill=friends.jpg
+DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="ui container">
-	<div class="ui segments">
-		<div class="ui segment">
-			{{ .T "On this page you can see all of your followers, and add new friends if you see fit." }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/friends.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-users text-blue-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Followers" }}</h1>
+				<p class="text-gray-400">{{ .T "On this page you can see all of your followers, and add new friends if you see fit." }}</p>
+			</div>
 		</div>
-		<div class="ui segment">
+
 		{{ $ := . }}
 		{{ $page := or (atoint (.Gin.Query "p")) 1 }}
 		{{ $followers := .Get "mitsuha/followers_friends?p=%d&l=40&sort=username,asc" $page }}
 
-			{{ with $followers }}
-				<div class="ui four column stackable grid">
+		{{ with $followers }}
+			<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
 				{{ range .subs }}
-					<div class="ui column">
-						<h4 class="ui image header">
-							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" alt="Avatar" class="ui mini rounded image"{{ if not (has .privileges 1) }} style="opacity: 0.5"{{ end }}>
-							<div class="content">
-								<a href="/users/{{ .id }}"{{ if not (has .privileges 1) }} style="opacity: 0.5"{{ end }}>{{ .username }}</a>
-							</div>
-						</h4>
+					<div class="card hover:border-primary transition-colors text-center">
+						<a href="/users/{{ .id }}" class="block">
+							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+								alt="Avatar" 
+								class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-dark-border{{ if not (has .privileges 1) }} opacity-50{{ end }}">
+							<p class="font-medium text-sm{{ if not (has .privileges 1) }} opacity-50{{ end }}">{{ .username }}</p>
+						</a>
 					</div>
 				{{ end }}
-				</div>
-			{{ end }}
-		</div>
-	{{ $left := gt $page 1 }}
-	{{ $right := eq (len (rsin $followers.subs)) 40 }}
-	{{ if or $left $right }}
-		<div class="ui right aligned segment">
-			<div class="ui pagination menu">
-			{{ if $left }}
-				<a class="icon item" href="/subs?p={{ minus (float $page) 1 }}">
-					<i class="left chevron icon"></i>
-				</a>
-			{{ end }}
-			{{ if $right }}
-				<a class="icon item" href="/subs?p={{ plus (float $page) 1 }}">
-					<i class="right chevron icon"></i>
-				</a>
-			{{ end }}
 			</div>
-		</div>
-	{{ end }}
+		{{ end }}
+
+		{{ $left := gt $page 1 }}
+		{{ $right := eq (len (rsin $followers.subs)) 40 }}
+		{{ if or $left $right }}
+			<div class="flex justify-center gap-2">
+				{{ if $left }}
+					<a href="/subs?p={{ minus (float $page) 1 }}" class="btn-secondary">
+						<i class="fas fa-chevron-left mr-2"></i>
+						Previous
+					</a>
+				{{ end }}
+				{{ if $right }}
+					<a href="/subs?p={{ plus (float $page) 1 }}" class="btn-secondary">
+						Next
+						<i class="fas fa-chevron-right ml-2"></i>
+					</a>
+				{{ end }}
+			</div>
+		{{ end }}
 	</div>
 </div>
 {{ end }}

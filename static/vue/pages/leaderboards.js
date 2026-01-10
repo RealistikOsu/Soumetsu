@@ -3,19 +3,26 @@ new Vue({
     delimiters: ["<%", "%>"],
     data() {
         return {
-            data: {},
-            mode: 'std',
-            relax: 'vn',
+            data: [],
+            mode: window.mode || 'std',
+            relax: window.relax || 'vn',
             relaxInt: 0,
             modeInt: 0,
-            sort: 'pp',
-            load: false,
-            page: 1,
-            country: '',
+            sort: window.sort || 'pp',
+            load: true,
+            page: window.page || 1,
+            country: window.country || '',
         }
     },
     created() {
-        this.loadLeaderboardData(sort, mode, relax, page, country)
+        // Use window variables set by Go template
+        this.loadLeaderboardData(
+            window.sort || 'pp', 
+            window.mode || 'std', 
+            window.relax || 'vn', 
+            window.page || 1, 
+            window.country || ''
+        )
     },
     methods: {
         loadLeaderboardData(sort, mode, relax, page, country) {
@@ -60,7 +67,7 @@ new Vue({
             if (vm.page <= 0 || vm.page == null)
                 vm.page = 1;
             window.history.replaceState('', document.title, `/leaderboard?m=${vm.mode}&rx=${vm.relax}&sort=${vm.sort}&p=${vm.page}&c=${vm.country}`);
-            vm.$axios.get("https://ussr.pl/api/v1/leaderboard", {
+            vm.$axios.get(hanayoConf.baseAPI + "/api/v1/leaderboard", {
                 params: {
                     mode: vm.modeInt,
                     sort: vm.sort,
@@ -70,7 +77,12 @@ new Vue({
                 }
             })
                 .then(function (response) {
-                    vm.data = response.data.users;
+                    vm.data = response.data.users || [];
+                    vm.load = false;
+                })
+                .catch(function (error) {
+                    console.error('Leaderboard error:', error);
+                    vm.data = [];
                     vm.load = false;
                 });
         },
@@ -113,6 +125,13 @@ new Vue({
         countryName(str) {
             var getCountryNames = new Intl.DisplayNames(['en'], { type: 'region' });
             return getCountryNames.of(str.toUpperCase())
+        },
+        formatAccuracy(acc) {
+            if (acc === undefined || acc === null) return '0.00';
+            return parseFloat(acc).toFixed(2);
+        },
+        safeValue(val, def) {
+            return val !== undefined && val !== null ? val : def;
         }
     },
     computed: {

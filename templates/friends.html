@@ -1,60 +1,74 @@
 {{/*###
 Handler=/friends
-TitleBar=Friends
 MinPrivileges=2
 KyutGrill=friends.jpg
+DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="ui container">
-	<div class="ui segments">
-		<div class="ui segment">
-			{{ .T "On this page you can see all of your friends, and unfriend them as you see fit." }}
-		</div>
-		<div class="ui segment">
-			{{ $ := . }}
-			{{ $page := or (atoint (.Gin.Query "p")) 1 }}
-			{{ $friends := .Get "friends?p=%d&l=40&sort=username,asc" $page }}
-			{{ with $friends }}
-				<div class="ui five column stackable grid">
-					{{ range .friends }}
-					<div class="column" {{ if not (has .privileges 1) }}style="opacity: 0.5"{{ end }}>
-						<div class="ui fluid card profile-card" style="border-radius: 1rem;text-align: center;">
-							<div class="image" style="border-radius: 1rem !important;display: flex;justify-content: center;">
-								<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" alt="Avatar" style="border-radius: 1rem;width: 197px;height: 197px;object-fit: cover;">
-							</div>
-							<div class="extra content">
-								<a class="header link-text" href="/users/{{ .id }}" style="display: flex;align-items: center;gap: 5px;justify-content: center;margin-bottom: 10px;">
-									{{ country .country false }} {{ .username }}
-								</a>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/friends.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
 
-								<div id="friend-button" class="ui compact labeled button link-text" style="display:flex;justify-content: center;"
-									data-userid="{{ .id }}">
-									<i class="{{ if .is_mutual }}red heart{{ else }}green minus{{ end }} icon"></i>
-									<span>{{ if .is_mutual }}{{ $.T "Mutual" }}{{ else }}{{ $.T "Remove" }}{{ end }}</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					{{ end }}
-				</div>
-			{{ end }}
+	<div class="container mx-auto px-4">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-pink-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-user-friends text-pink-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Friends" }}</h1>
+				<p class="text-gray-400">{{ .T "On this page you can see all of your friends, and unfriend them as you see fit." }}</p>
+			</div>
 		</div>
+
+		{{ $ := . }}
+		{{ $page := or (atoint (.Gin.Query "p")) 1 }}
+		{{ $friends := .Get "friends?p=%d&l=40&sort=username,asc" $page }}
+		
+		{{ with $friends }}
+			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
+				{{ range .friends }}
+					<div class="card text-center hover:border-primary transition-colors{{ if not (has .privileges 1) }} opacity-50{{ end }}">
+						<a href="/users/{{ .id }}" class="block">
+							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+								alt="Avatar" 
+								class="w-full aspect-square rounded-lg mb-4 object-cover border-2 border-dark-border">
+							<div class="flex items-center justify-center gap-2 mb-3">
+								{{ country .country false }}
+								<span class="font-semibold">{{ .username }}</span>
+							</div>
+							<button class="btn-secondary w-full text-sm py-2" 
+								data-userid="{{ .id }}"
+								onclick="handleFriendAction(this)">
+								<i class="fas {{ if .is_mutual }}fa-heart text-red-400{{ else }}fa-minus text-green-400{{ end }} mr-2"></i>
+								<span>{{ if .is_mutual }}{{ $.T "Mutual" }}{{ else }}{{ $.T "Remove" }}{{ end }}</span>
+							</button>
+						</a>
+					</div>
+				{{ end }}
+			</div>
+		{{ end }}
+
 		{{ $left := gt $page 1 }}
 		{{ $right := eq (len (rsin $friends.friends)) 40 }}
 		{{ if or $left $right }}
-			<div class="ui right aligned segment">
-				<div class="ui pagination menu">
-					{{ if $left }}
-						<a class="icon item" href="/friends?p={{ minus (float $page) 1 }}">
-							<i class="left chevron icon"></i>
-						</a>
-					{{ end }}
-					{{ if $right }}
-						<a class="icon item" href="/friends?p={{ plus (float $page) 1 }}">
-							<i class="right chevron icon"></i>
-						</a>
-					{{ end }}
-				</div>
+			<div class="flex justify-center gap-2">
+				{{ if $left }}
+					<a href="/friends?p={{ minus (float $page) 1 }}" class="btn-secondary">
+						<i class="fas fa-chevron-left mr-2"></i>
+						Previous
+					</a>
+				{{ end }}
+				{{ if $right }}
+					<a href="/friends?p={{ plus (float $page) 1 }}" class="btn-secondary">
+						Next
+						<i class="fas fa-chevron-right ml-2"></i>
+					</a>
+				{{ end }}
 			</div>
 		{{ end }}
 	</div>

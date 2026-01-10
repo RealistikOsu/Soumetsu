@@ -1,79 +1,500 @@
 {{/*###
 Handler=/settings/profbanner
-TitleBar=Profile Banner
 KyutGrill=settings2.jpg
 Include=menu.html
+DisableHH=true
 AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
 */}}
 {{ define "tpl" }}
 {{ $isSupporter := has .Context.User.Privileges 4 }}
-<div class="ui container">
-	<div class="ui stackable grid">
-		{{ template "settingsSidebar" . }}
-		<div class="twelve wide column {{ if not $isSupporter }}center aligned{{ end }}" {{ if not $isSupporter }}style="align-self: center !important;"{{ end }}>
-			<div class="ui {{ if $isSupporter }}center aligned{{ end }} segment">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.css">
+<style>
+	.minicolors-theme-default .minicolors-input { background: #1a1a2e !important; border-color: #2d2d44 !important; color: white !important; }
+	.minicolors-theme-default .minicolors-swatch { border-color: #2d2d44 !important; }
+</style>
+
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+			
+			<div class="flex-1">
 				{{ if not $isSupporter }}
-				{{ template "supporter_only" . }}
+					{{ template "supporter_only" . }}
 				{{ else }}
-				{{ $d := qb "SELECT type, value FROM profile_backgrounds WHERE uid = ? LIMIT 1" .Context.User.ID }}
-				{{ $type  := or $d.type.Int -1 }}
-				{{ $value := or $d.value.String "" }}
-				<p>
-					<select class="ui dropdown" id="background-type" name="type">
-						<option value="">{{ .T "Banner type" }}</option>
-						<option value="0">{{ .T "None" }}</option>
-						<option value="1"{{ if eq $type 1 }} selected{{ end }}>{{ .T "Image" }}</option>
-						<option value="2"{{ if eq $type 2 }} selected{{ end }}>{{ .T "Solid colour" }}</option>
-					</select>
-				</p>
-				<div class="ui compact segment" id="image-background" style="margin: 0 auto; max-width: 400px; max-height: 700px;" data-type="1"{{ if ne $type 1 }} hidden{{ end }}>
-					{{ if and (eq $type 1) $value }}
-						<img src="/static/profbackgrounds/{{ $value }}">
-					{{ else }}
-						No image selected
-					{{ end }}
-				</div>
-				{{ $csrf := csrfGenerate .Context.User.ID }}
-				<form action="/settings/profbanner/0" method="post" class="little top margin ui form" data-type="0"{{ if and (ne $type 0) }} hidden{{ end }}>
-					{{ $csrf }}
-					{{ ieForm .Gin }}
-					<button type="submit" class="ui right labeled inverted blue icon button">
-						<i class="save icon"></i>
-						Save					
-					</button>
-				</form>
-				<form action="/settings/profbanner/1" method="post" enctype="multipart/form-data" class="little top margin ui form" data-type="1"{{ if ne $type 1 }} hidden{{ end }}>
-					{{ $csrf }}
-					<div class="ui buttons">
-						<label for="file" class="ui inverted green labeled icon button">
-							<i class="file icon"></i>
-							{{ .T "Open File" }}
-						</label>
-						{{ ieForm .Gin }}
-						<button type="submit" class="ui right labeled inverted blue icon button">
-							<i class="save icon"></i>
-							{{ .T "Save" }}
-						</button>
+					{{ $d := qb "SELECT type, value FROM profile_backgrounds WHERE uid = ? LIMIT 1" .Context.User.ID }}
+					{{ $type  := or $d.type.Int -1 }}
+					{{ $value := or $d.value.String "" }}
+					
+					<div class="card">
+						<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+							<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+								<i class="fas fa-panorama text-primary text-xl"></i>
+							</div>
+							<div>
+								<h2 class="text-2xl font-display font-bold text-white">{{ .T "Profile Banner" }}</h2>
+								<p class="text-sm text-gray-400">{{ .T "Customize your profile background" }}</p>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<!-- Left: Profile Card Preview -->
+							<div class="space-y-6">
+								<div>
+									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-id-card"></i>
+										{{ .T "Profile Card Preview" }}
+									</h3>
+									
+									<!-- Preview Card -->
+									<div class="card p-0 overflow-hidden relative" id="preview-card">
+										<!-- Change indicator badge -->
+										<div id="change-badge" class="hidden absolute top-2 left-2 z-20 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
+											<i class="fas fa-sparkles mr-1"></i>{{ .T "Preview" }}
+										</div>
+										
+										<!-- Banner Area -->
+										<div class="relative h-32 overflow-hidden" id="banner-preview">
+											{{ if eq $type 1 }}
+												<img src="/static/profbackgrounds/{{ $value }}" 
+													id="banner-image"
+													class="absolute inset-0 w-full h-full object-cover">
+											{{ else if eq $type 2 }}
+												<div id="banner-color" class="absolute inset-0" style="background-color: {{ $value }};"></div>
+											{{ else }}
+												<div id="banner-default" class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
+											{{ end }}
+											<div class="absolute inset-0 bg-gradient-to-t from-dark-card to-transparent"></div>
+											
+											<!-- Rank badges -->
+											<div class="absolute top-2 right-2 flex flex-col items-end gap-1">
+												<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">
+													<i class="fas fa-globe text-gray-400"></i>
+													<span class="font-semibold">#1,234</span>
+												</div>
+												<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">
+													<i class="fas fa-flag text-gray-400"></i>
+													<span class="font-semibold">#56</span>
+												</div>
+											</div>
+										</div>
+										
+										<!-- User Info -->
+										<div class="p-4 -mt-8 relative z-10">
+											<div class="flex items-end gap-3 mb-3">
+												<div class="relative">
+													<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg">
+													<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-dark-card"></div>
+												</div>
+												<div class="pb-1">
+													<h4 class="text-lg font-display font-bold text-white">{{ .Context.User.Username }}</h4>
+													<div class="flex items-center gap-2 text-xs text-gray-400">
+														<i class="fas fa-user"></i>
+														<span>{{ .T "Player" }}</span>
+													</div>
+												</div>
+											</div>
+											
+											<div class="bg-dark-bg rounded-lg p-3">
+												<div class="grid grid-cols-3 gap-2 text-center">
+													<div>
+														<div class="text-white font-bold">4,130</div>
+														<div class="text-xs text-gray-500">PP</div>
+													</div>
+													<div>
+														<div class="text-white font-bold">95.47%</div>
+														<div class="text-xs text-gray-500">Acc</div>
+													</div>
+													<div>
+														<div class="text-white font-bold">2.4k</div>
+														<div class="text-xs text-gray-500">Plays</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<p id="preview-hint" class="text-xs text-gray-500 mt-2 text-center">
+										<i class="fas fa-info-circle mr-1"></i>{{ .T "Changes will be reflected here in real-time" }}
+									</p>
+								</div>
+
+								<!-- Current Banner Info -->
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+										<i class="fas fa-image"></i>
+										{{ .T "Current Banner" }}
+									</h4>
+									<div class="flex items-center gap-3">
+										{{ if eq $type 1 }}
+											<div class="w-16 h-10 rounded overflow-hidden border border-dark-border">
+												<img src="/static/profbackgrounds/{{ $value }}" class="w-full h-full object-cover">
+											</div>
+											<div>
+												<p class="text-white text-sm">{{ .T "Custom Image" }}</p>
+												<p class="text-xs text-gray-500">{{ .T "Uploaded image" }}</p>
+											</div>
+										{{ else if eq $type 2 }}
+											<div class="w-16 h-10 rounded border border-dark-border" style="background-color: {{ $value }};"></div>
+											<div>
+												<p class="text-white text-sm">{{ .T "Solid Colour" }}</p>
+												<p class="text-xs text-gray-500">{{ $value }}</p>
+											</div>
+										{{ else }}
+											<div class="w-16 h-10 rounded border border-dark-border bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
+											<div>
+												<p class="text-white text-sm">{{ .T "Default" }}</p>
+												<p class="text-xs text-gray-500">{{ .T "Using default gradient" }}</p>
+											</div>
+										{{ end }}
+									</div>
+								</div>
+							</div>
+
+							<!-- Right: Banner Options -->
+							<div class="space-y-6">
+								<!-- Banner Type Selection -->
+								<div>
+									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-palette"></i>
+										{{ .T "Banner Type" }}
+									</h3>
+									
+									<div class="grid grid-cols-3 gap-3" id="type-selector">
+										<button type="button" data-type="0" 
+											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if or (eq $type 0) (eq $type -1) }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
+											<i class="fas fa-ban text-2xl mb-2 {{ if or (eq $type 0) (eq $type -1) }}text-primary{{ else }}text-gray-500{{ end }}"></i>
+											<p class="text-sm {{ if or (eq $type 0) (eq $type -1) }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "None" }}</p>
+										</button>
+										<button type="button" data-type="1" 
+											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 1 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
+											<i class="fas fa-image text-2xl mb-2 {{ if eq $type 1 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
+											<p class="text-sm {{ if eq $type 1 }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "Image" }}</p>
+										</button>
+										<button type="button" data-type="2" 
+											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 2 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
+											<i class="fas fa-fill-drip text-2xl mb-2 {{ if eq $type 2 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
+											<p class="text-sm {{ if eq $type 2 }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "Colour" }}</p>
+										</button>
+									</div>
+								</div>
+
+								{{ $csrf := csrfGenerate .Context.User.ID }}
+
+								<!-- None Form -->
+								<div id="form-none" class="{{ if and (ne $type 0) (ne $type -1) }}hidden{{ end }}">
+									<form action="/settings/profbanner/0" method="post">
+										{{ $csrf }}
+										{{ ieForm .Gin }}
+										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border text-center">
+											<div class="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
+												<i class="fas fa-ban text-3xl text-gray-600"></i>
+											</div>
+											<p class="text-gray-400 mb-4">{{ .T "Use the default gradient banner" }}</p>
+											<button type="submit" class="btn-primary inline-flex items-center gap-2">
+												<i class="fas fa-save"></i>
+												{{ .T "Use Default" }}
+											</button>
+										</div>
+									</form>
+								</div>
+
+								<!-- Image Upload Form -->
+								<div id="form-image" class="{{ if ne $type 1 }}hidden{{ end }}">
+									<form action="/settings/profbanner/1" method="post" enctype="multipart/form-data" id="image-form">
+										{{ $csrf }}
+										{{ ieForm .Gin }}
+										
+										<!-- Drag & Drop Zone -->
+										<label for="file" 
+											id="drop-zone"
+											class="block border-2 border-dashed border-dark-border rounded-xl p-6 text-center cursor-pointer transition-all hover:border-primary hover:bg-primary/5 group">
+											<div class="space-y-3">
+												<div class="w-12 h-12 mx-auto bg-dark-bg rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+													<i class="fas fa-cloud-upload-alt text-2xl text-gray-500 group-hover:text-primary transition-colors"></i>
+												</div>
+												<div>
+													<p class="text-white font-medium">{{ .T "Drop your image here" }}</p>
+													<p class="text-sm text-gray-500">{{ .T "or click to browse" }}</p>
+												</div>
+												<div class="flex items-center justify-center gap-2 text-xs text-gray-500">
+													<span class="px-2 py-1 bg-dark-bg rounded">PNG</span>
+													<span class="px-2 py-1 bg-dark-bg rounded">JPG</span>
+													<span class="px-2 py-1 bg-dark-bg rounded">GIF</span>
+												</div>
+											</div>
+										</label>
+										
+										<input type="file" id="file" class="hidden" required accept="image/*" name="value">
+
+										<!-- File Info -->
+										<div id="file-info" class="hidden mt-4 p-4 bg-green-900/20 border border-green-700 rounded-lg">
+											<div class="flex items-center gap-3">
+												<i class="fas fa-check-circle text-green-400 text-xl"></i>
+												<div class="flex-1 min-w-0">
+													<p class="text-white font-medium truncate" id="file-name">filename.png</p>
+													<p class="text-sm text-gray-400" id="file-size">0 KB</p>
+												</div>
+												<button type="button" id="clear-file" class="text-gray-400 hover:text-red-400 transition-colors">
+													<i class="fas fa-times"></i>
+												</button>
+											</div>
+										</div>
+
+										<button type="submit" id="image-submit" disabled class="btn-primary w-full mt-4 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+											<i class="fas fa-save"></i>
+											{{ .T "Save Banner" }}
+										</button>
+									</form>
+								</div>
+
+								<!-- Color Picker Form -->
+								<div id="form-color" class="{{ if ne $type 2 }}hidden{{ end }}">
+									<form action="/settings/profbanner/2" method="post" id="color-form">
+										{{ $csrf }}
+										{{ ieForm .Gin }}
+										
+										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border">
+											<div class="flex flex-col items-center gap-4">
+												<p class="text-sm text-gray-400 text-center">{{ .T "Pick a color for your profile banner" }}</p>
+												<input type="text" 
+													id="colorpicker" 
+													name="value" 
+													value="{{ if and (eq $type 2) $value }}{{ $value }}{{ else }}#6366f1{{ end }}"
+													class="input-field text-center">
+												
+												<!-- Quick color presets -->
+												<div class="flex flex-wrap justify-center gap-2">
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #6366f1;" data-color="#6366f1"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #8b5cf6;" data-color="#8b5cf6"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #ec4899;" data-color="#ec4899"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #ef4444;" data-color="#ef4444"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #f97316;" data-color="#f97316"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #22c55e;" data-color="#22c55e"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #06b6d4;" data-color="#06b6d4"></button>
+													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #1e1e2e;" data-color="#1e1e2e"></button>
+												</div>
+											</div>
+										</div>
+
+										<button type="submit" class="btn-primary w-full mt-4 inline-flex items-center justify-center gap-2">
+											<i class="fas fa-save"></i>
+											{{ .T "Save Colour" }}
+										</button>
+									</form>
+								</div>
+
+								<!-- Guidelines -->
+								<div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+									<h4 class="text-blue-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										{{ .T "Banner Guidelines" }}
+									</h4>
+									<ul class="text-sm text-gray-400 space-y-1">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											{{ .T "Recommended size: 1920x400 pixels" }}
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											{{ .T "Wide, landscape images work best" }}
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
+											{{ .T "No inappropriate or offensive content" }}
+										</li>
+									</ul>
+								</div>
+
+								<!-- Supporter Badge -->
+								<div class="p-4 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-700/50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<div class="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
+											<i class="fas fa-heart text-yellow-400"></i>
+										</div>
+										<div>
+											<p class="text-yellow-300 font-medium">{{ .T "Supporter Feature" }}</p>
+											<p class="text-sm text-gray-400">{{ .T "Thank you for supporting us!" }}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
-					<input type="file" id="file" style="display:none" required accept="image/*" name="value">
-				</form>
-				<form action="/settings/profbanner/2" method="post" class="little top margin ui form" data-type="2"{{ if ne $type 2 }} hidden{{ end }}>
-					{{ $csrf }}
-					<div class="ui compact segment" style="margin: 0 auto;">
-						<input type="text"{{ if and (eq $type 2) $value }} value="{{ $value }}"{{ end }} id="colorpicker" name="value">
-					</div>
-					<p class="little top margin">
-						{{ ieForm .Gin }}
-						<button type="submit" class="ui right labeled inverted blue icon button">
-							<i class="save icon"></i>
-							Save					
-						</button>
-					</p>
-				</form>
-				{{end}}
+
+					<script>
+					(function() {
+						var typeButtons = document.querySelectorAll('.type-btn');
+						var formNone = document.getElementById('form-none');
+						var formImage = document.getElementById('form-image');
+						var formColor = document.getElementById('form-color');
+						var bannerPreview = document.getElementById('banner-preview');
+						var changeBadge = document.getElementById('change-badge');
+						var fileInput = document.getElementById('file');
+						var dropZone = document.getElementById('drop-zone');
+						var fileInfo = document.getElementById('file-info');
+						var fileName = document.getElementById('file-name');
+						var fileSize = document.getElementById('file-size');
+						var clearBtn = document.getElementById('clear-file');
+						var imageSubmit = document.getElementById('image-submit');
+						var colorInput = document.getElementById('colorpicker');
+
+						// Type selection
+						typeButtons.forEach(function(btn) {
+							btn.addEventListener('click', function() {
+								var type = this.dataset.type;
+								
+								// Update button styles
+								typeButtons.forEach(function(b) {
+									b.classList.remove('border-primary', 'bg-primary/10');
+									b.classList.add('border-dark-border');
+									b.querySelector('i').classList.remove('text-primary');
+									b.querySelector('i').classList.add('text-gray-500');
+									b.querySelector('p').classList.remove('text-white');
+									b.querySelector('p').classList.add('text-gray-400');
+								});
+								this.classList.remove('border-dark-border');
+								this.classList.add('border-primary', 'bg-primary/10');
+								this.querySelector('i').classList.remove('text-gray-500');
+								this.querySelector('i').classList.add('text-primary');
+								this.querySelector('p').classList.remove('text-gray-400');
+								this.querySelector('p').classList.add('text-white');
+								
+								// Show/hide forms
+								formNone.classList.add('hidden');
+								formImage.classList.add('hidden');
+								formColor.classList.add('hidden');
+								
+								if (type === '0') {
+									formNone.classList.remove('hidden');
+									updateBannerPreview('none');
+								} else if (type === '1') {
+									formImage.classList.remove('hidden');
+								} else if (type === '2') {
+									formColor.classList.remove('hidden');
+									updateBannerPreview('color', colorInput.value);
+								}
+							});
+						});
+
+						function updateBannerPreview(type, value) {
+							changeBadge.classList.remove('hidden');
+							bannerPreview.innerHTML = '';
+							
+							var overlay = document.createElement('div');
+							overlay.className = 'absolute inset-0 bg-gradient-to-t from-dark-card to-transparent';
+							
+							var badges = '<div class="absolute top-2 right-2 flex flex-col items-end gap-1">' +
+								'<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">' +
+								'<i class="fas fa-globe text-gray-400"></i><span class="font-semibold">#1,234</span></div>' +
+								'<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">' +
+								'<i class="fas fa-flag text-gray-400"></i>' +
+								'<span class="font-semibold">#56</span></div></div>';
+							
+							if (type === 'none') {
+								bannerPreview.innerHTML = '<div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30"></div>' + badges;
+							} else if (type === 'image') {
+								bannerPreview.innerHTML = '<img src="' + value + '" class="absolute inset-0 w-full h-full object-cover">' + badges;
+							} else if (type === 'color') {
+								bannerPreview.innerHTML = '<div class="absolute inset-0" style="background-color: ' + value + ';"></div>' + badges;
+							}
+							
+							bannerPreview.appendChild(overlay);
+						}
+
+						function formatFileSize(bytes) {
+							if (bytes < 1024) return bytes + ' B';
+							if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+							return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+						}
+
+						function showImagePreview(file) {
+							if (!file) return;
+							var url = URL.createObjectURL(file);
+							updateBannerPreview('image', url);
+							fileName.textContent = file.name;
+							fileSize.textContent = formatFileSize(file.size);
+							fileInfo.classList.remove('hidden');
+							imageSubmit.disabled = false;
+							dropZone.classList.add('border-primary', 'bg-primary/5');
+						}
+
+						function clearImagePreview() {
+							fileInput.value = '';
+							fileInfo.classList.add('hidden');
+							imageSubmit.disabled = true;
+							dropZone.classList.remove('border-primary', 'bg-primary/5');
+							changeBadge.classList.add('hidden');
+						}
+
+						fileInput.addEventListener('change', function() {
+							if (this.files && this.files[0]) {
+								showImagePreview(this.files[0]);
+							}
+						});
+
+						clearBtn.addEventListener('click', clearImagePreview);
+
+						// Drag and drop
+						['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(eventName) {
+							dropZone.addEventListener(eventName, function(e) {
+								e.preventDefault();
+								e.stopPropagation();
+							});
+						});
+
+						['dragenter', 'dragover'].forEach(function(eventName) {
+							dropZone.addEventListener(eventName, function() {
+								dropZone.classList.add('border-primary', 'bg-primary/10');
+							});
+						});
+
+						['dragleave', 'drop'].forEach(function(eventName) {
+							dropZone.addEventListener(eventName, function() {
+								dropZone.classList.remove('bg-primary/10');
+							});
+						});
+
+						dropZone.addEventListener('drop', function(e) {
+							var files = e.dataTransfer.files;
+							if (files && files[0] && files[0].type.startsWith('image/')) {
+								fileInput.files = files;
+								showImagePreview(files[0]);
+							}
+						});
+
+						// Color picker
+						$(document).ready(function() {
+							$('#colorpicker').minicolors({
+								theme: 'default',
+								position: 'bottom left',
+								change: function(value) {
+									updateBannerPreview('color', value);
+								}
+							});
+						});
+
+						// Color presets
+						document.querySelectorAll('.color-preset').forEach(function(btn) {
+							btn.addEventListener('click', function() {
+								var color = this.dataset.color;
+								$('#colorpicker').minicolors('value', color);
+								updateBannerPreview('color', color);
+							});
+						});
+					})();
+					</script>
+				{{ end }}
 			</div>
 		</div>
 	</div>
 </div>
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.css">
 {{ end }}

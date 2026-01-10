@@ -1,32 +1,42 @@
+{{/*###
+KyutGrill=register.jpg
+DisableHH=true
+*/}}
 {{ define "tpl" }}
-<div class="ui container">
-	<div class="ui segments">
-		{{/* Dirty hack to detect if it's a multi */}}
-		{{ if eq .TitleBar (.T "Welcome back!") }}
-			<div class="ui segment">
-				{{ .T "Congratulations for not reading things!" }}
+<div class="relative min-h-screen flex items-center justify-center py-12 px-4">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/register.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal-overlay">
+		<div class="modal-content">
+			<!-- Title -->
+			<h1 class="text-3xl font-display font-bold mb-2">Waiting for Verification</h1>
+			<p class="text-gray-400 mb-8">yeah your account was created. but you should verify it first</p>
+
+			<!-- Instructions -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+				<!-- Left placeholder -->
+				<div class="bg-dark-bg rounded-lg border border-dark-border p-6 h-48 flex items-center justify-center">
+					<span class="text-gray-500 text-sm">Instruction Image/Content</span>
+				</div>
+
+				<!-- Right placeholder -->
+				<div class="bg-dark-bg rounded-lg border border-dark-border p-6 h-48 flex items-center justify-center">
+					<span class="text-gray-500 text-sm">Instruction Image/Content</span>
+				</div>
 			</div>
-			<div class="ui center aligned segment">
-				<h1 class="ui heading">{{ .T "Multiaccounts are not allowed on RealistikOsu!" }}</h1>
+
+			<!-- Instructions Text -->
+			<div class="space-y-4 text-gray-300 text-sm">
+				<p>Creating a shortcut and add start in "-devserver ussr.cl" and start it</p>
+				<p>Sign in with account you created in this website and yeah it's verification finished</p>
 			</div>
-			<div class="ui segment">
-				{{ .T "Your new account has been <b>banned</b> and your main account has been <b>restricted</b>. You can appeal in a month by joining our <b><a href='https://discord.gg/8ySdzhyMtt'>Discord server</a></b> and contacting one of our staff member. You better read the rules next time." | html }}
-			</div>
-		{{ else }}
-			<div class="ui segment">
-				<h1 class="ui heading">{{ .T "Welcome to RealistikOsu!!" }}</h1>
-			</div>
-			<div class="ui segment">
-				<p>{{ .T "We're glad to have you here. <b>Your account is now active.</b> You can now play on RealistikOsu! and <a href='/login'>log in</a> on the website!" | html }}</p>
-				<p>{{ .T "Here's a few things you might want to check out:" }}</p>
-				<ul class="ui list">
-					<li><b><a href="/login">{{ .T "Login" }}</a></b>{{ .T " - in case you don't know where to start" }}</li>
-					<li><b><a href="/doc/rules">{{ .T "Rules" }}</a></b>{{ .T " - in case you haven't already read them" }}</li>
-					<li><b><a href="/doc">{{ .T "Documentation" }}</a></b>{{ .T " - in case, well, you need help doing stuff" }}</li>
-					<li><b><a href="https://discord.gg/8ySdzhyMtt">{{ .T "Discord" }}</a></b>{{ .T " - if you want to talk to other RealistikOsu! players" }}</li>
-				</ul>
-			</div>
-		{{ end }}
+		</div>
 	</div>
 </div>
 {{ end }}

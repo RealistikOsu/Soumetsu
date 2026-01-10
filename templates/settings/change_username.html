@@ -1,78 +1,391 @@
 {{/*###
 Handler=/settings/change-username
-TitleBar=Change Username
 KyutGrill=settings2.jpg
 Include=menu.html
-AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
+DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $isSupporter := has .Context.User.Privileges 4 }}
-<div class="ui container">
-    <div class="ui stackable grid">
-        {{ template "settingsSidebar" . }}
-        <div class="twelve wide column" {{ if not $isSupporter }}style="align-self: center !important;"{{ end }}>
-            <div class="ui segment">
-                {{ if not $isSupporter }}
-                {{ template "supporter_only" . }}
-                {{ else }}
-                <script>
-                    document.addEventListener('DOMContentLoaded', (event) => {
-                        // hello there!
-                        let newUsername = document.getElementById("new-username");
-                        let progressBar = document.getElementById("progress-bar");
-                        let changeTimestamp = document.getElementById("change-time");
-                        let submitButton = document.querySelector('.button[type=submit]');
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
 
-                        if (!progressBar || !changeTimestamp)
-                            return; // ?
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+			
+			<div class="flex-1">
+				{{ if not $isSupporter }}
+					{{ template "supporter_only" . }}
+				{{ else }}
+					{{ $last := (qb "SELECT replaced_at FROM user_name_history WHERE user_id = ? ORDER BY replaced_at DESC LIMIT 1" .Context.User.ID) }}
+					
+					<div class="card">
+						<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+							<div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
+								<i class="fas fa-at text-yellow-400 text-xl"></i>
+							</div>
+							<div>
+								<h2 class="text-2xl font-display font-bold text-white">{{ .T "Change Username" }}</h2>
+								<p class="text-sm text-gray-400">{{ .T "Update your display name" }}</p>
+							</div>
+						</div>
 
-                        if (!isNaN(changeTimestamp.textContent)) {
-                            let ts = new Date(Number(changeTimestamp.textContent) + (7 * 60 * 60 * 24) /* 7 days */);
-                            let days = ts.getUTCDay();
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<!-- Left: Preview Card -->
+							<div class="space-y-6">
+								<div>
+									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-eye"></i>
+										{{ .T "Preview" }}
+									</h3>
+									
+									<!-- Profile Card Preview -->
+									<div class="card p-0 overflow-hidden relative" id="preview-card">
+										<!-- Change indicator badge -->
+										<div id="change-badge" class="hidden absolute top-2 left-2 z-20 bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-medium shadow-lg">
+											<i class="fas fa-sparkles mr-1"></i>{{ .T "New Name" }}
+										</div>
+										
+										<!-- Banner -->
+										<div class="relative h-24 overflow-hidden">
+											<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/30 to-orange-500/30"></div>
+											<div class="absolute inset-0 bg-gradient-to-t from-dark-card to-transparent"></div>
+										</div>
+										
+										<!-- User Info -->
+										<div class="p-4 -mt-8 relative z-10">
+											<div class="flex items-end gap-3 mb-3">
+												<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+													class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg">
+												<div class="pb-1">
+													<h4 id="preview-username" class="text-lg font-display font-bold text-white transition-all">{{ .Context.User.Username }}</h4>
+													<div class="flex items-center gap-2 text-xs text-gray-400">
+														<i class="fas fa-user"></i>
+														<span>{{ .T "Player" }}</span>
+													</div>
+												</div>
+											</div>
+											
+											<div class="bg-dark-bg rounded-lg p-3">
+												<div class="grid grid-cols-3 gap-2 text-center">
+													<div>
+														<div class="text-white font-bold">4,130</div>
+														<div class="text-xs text-gray-500">PP</div>
+													</div>
+													<div>
+														<div class="text-white font-bold">95.47%</div>
+														<div class="text-xs text-gray-500">Acc</div>
+													</div>
+													<div>
+														<div class="text-white font-bold">2.4k</div>
+														<div class="text-xs text-gray-500">Plays</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 
-                            changeTimestamp.textContent = `${days} day${days > 1 ? "s" : ""}`;
-                            progressBar.style.width = `${Math.floor(days / 7)}%`
-                            submitButton.classList.add("disabled");
-                            newUsername.classList.add("disabled");
-                        }
-                    });
-                </script>
-                <form class="ui form" method="post">
-                    <h3 class="ui header">{{ .T "Change Username" }}</h3>
-                    <div class="ui warning message black">
-                        <div class="content">
-                            <b>Do not use inappropriate or abusive names.</b> Doing so may result in
-                            your account's restriction.
-                        </div>
-                    </div>
+								<!-- Current Username Info -->
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-user-tag"></i>
+										{{ .T "Current Username" }}
+									</h4>
+									<div class="flex items-center gap-3">
+										<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+											class="w-12 h-12 rounded-full border-2 border-dark-border">
+										<div>
+											<p class="text-white font-bold text-lg">{{ .Context.User.Username }}</p>
+											<p class="text-xs text-gray-500">{{ .T "Your current display name" }}</p>
+										</div>
+									</div>
+								</div>
 
-                    <div class="field">
-						<label><a class="link-text" href="https://ussr.pl/discord"><b>{{ .T "New Username" }}</b></a></label>
-						<input id="new-username" name="newuser" type="text" value="{{ .Context.User.Username }}">
+								<!-- Leaderboard Preview -->
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-trophy"></i>
+										{{ .T "Leaderboard Preview" }}
+									</h4>
+									<div class="space-y-2">
+										<div class="flex items-center gap-3 p-2 bg-dark-card rounded-lg opacity-50">
+											<span class="text-gray-500 font-bold w-6">#1</span>
+											<div class="w-8 h-8 bg-gray-700 rounded-full"></div>
+											<span class="text-gray-500">SomePlayer</span>
+										</div>
+										<div class="flex items-center gap-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+											<span class="text-yellow-400 font-bold w-6">#2</span>
+											<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" class="w-8 h-8 rounded-full">
+											<span id="leaderboard-username" class="text-white font-medium">{{ .Context.User.Username }}</span>
+										</div>
+										<div class="flex items-center gap-3 p-2 bg-dark-card rounded-lg opacity-50">
+											<span class="text-gray-500 font-bold w-6">#3</span>
+											<div class="w-8 h-8 bg-gray-700 rounded-full"></div>
+											<span class="text-gray-500">AnotherPlayer</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Right: Form -->
+							<div class="space-y-6">
+								<form method="post" id="username-form">
+									<!-- Username Input -->
+									<div class="mb-6">
+										<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+											<i class="fas fa-edit"></i>
+											{{ .T "New Username" }}
+										</h3>
+										<div class="relative">
+											<input id="new-username" 
+												name="newuser" 
+												type="text" 
+												value="{{ .Context.User.Username }}"
+												class="input-field pr-12 text-lg"
+												required
+												minlength="3"
+												maxlength="16"
+												pattern="[a-zA-Z0-9_\- ]+"
+												oninput="updatePreview(this.value)">
+											<div class="absolute right-3 top-1/2 -translate-y-1/2">
+												<span id="char-count" class="text-xs text-gray-500">0/16</span>
+											</div>
+										</div>
+										
+										<!-- Validation Messages -->
+										<div id="validation-messages" class="mt-3 space-y-2">
+											<div id="val-length" class="flex items-center gap-2 text-xs text-gray-500">
+												<i class="fas fa-circle text-[6px]"></i>
+												<span>{{ .T "3-16 characters" }}</span>
+											</div>
+											<div id="val-chars" class="flex items-center gap-2 text-xs text-gray-500">
+												<i class="fas fa-circle text-[6px]"></i>
+												<span>{{ .T "Letters, numbers, spaces, - and _ only" }}</span>
+											</div>
+											<div id="val-different" class="flex items-center gap-2 text-xs text-gray-500">
+												<i class="fas fa-circle text-[6px]"></i>
+												<span>{{ .T "Different from current username" }}</span>
+											</div>
+										</div>
+									</div>
+
+									<!-- Cooldown Timer -->
+									<div class="mb-6">
+										<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+											<i class="fas fa-clock"></i>
+											{{ .T "Cooldown Status" }}
+										</h3>
+										<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+											{{ if $last }}
+												<div class="flex items-center justify-between mb-2">
+													<span class="text-sm text-gray-400">{{ .T "Next change available" }}</span>
+													<span id="change-time" class="text-sm font-medium text-white" data-timestamp="{{ $last.replaced_at }}">{{ .T "Calculating..." }}</span>
+												</div>
+												<div class="h-2 bg-dark-border rounded-full overflow-hidden">
+													<div id="progress-bar" class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+												</div>
+												<p id="cooldown-message" class="text-xs text-gray-500 mt-2"></p>
+											{{ else }}
+												<div class="flex items-center gap-3">
+													<div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+														<i class="fas fa-check text-green-400"></i>
+													</div>
+													<div>
+														<p class="text-green-400 font-medium">{{ .T "Ready to change!" }}</p>
+														<p class="text-xs text-gray-500">{{ .T "You can change your username now" }}</p>
+													</div>
+												</div>
+											{{ end }}
+										</div>
+									</div>
+
+									{{ csrfGenerate .Context.User.ID }}
+									{{ ieForm .Gin }}
+
+									<button type="submit" id="submit-btn" class="btn-primary w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-0">
+										<i class="fas fa-save"></i>
+										{{ .T "Change Username" }}
+									</button>
+								</form>
+
+								<!-- Warning -->
+								<div class="p-4 bg-orange-900/20 border border-orange-700/50 rounded-lg">
+									<h4 class="text-orange-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-exclamation-triangle"></i>
+										{{ .T "Important" }}
+									</h4>
+									<ul class="text-sm text-gray-400 space-y-2">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
+											<span>{{ .T "Do not use inappropriate or offensive names" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
+											<span>{{ .T "Do not impersonate other players or staff" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-info-circle text-blue-400 mt-1 text-xs"></i>
+											<span>{{ .T "Violations may result in account restriction" }}</span>
+										</li>
+									</ul>
+								</div>
+
+								<!-- Guidelines -->
+								<div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+									<h4 class="text-blue-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										{{ .T "Username Guidelines" }}
+									</h4>
+									<ul class="text-sm text-gray-400 space-y-1">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "Must be between 3 and 16 characters" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "Can contain letters, numbers, spaces, - and _" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "7 day cooldown between changes" }}</span>
+										</li>
+									</ul>
+								</div>
+
+								<!-- Supporter Badge -->
+								<div class="p-4 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-700/50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<div class="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
+											<i class="fas fa-heart text-yellow-400"></i>
+										</div>
+										<div>
+											<p class="text-yellow-300 font-medium">{{ .T "Supporter Feature" }}</p>
+											<p class="text-sm text-gray-400">{{ .T "Thank you for supporting us!" }}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 
-                    <h3 class="ui header">{{ .T "You can change your username in:" }}</h3>
-                    <div style="height: 10px; border-radius: 1rem; background: #000; display: block; position: relative; width: 100%;">
-                        {{ $last := (qb "SELECT replaced_at FROM user_name_history WHERE user_id = ? AND replaced_at > UNIX_TIMESTAMP() AND replaced_at < (UNIX_TIMESTAMP() - 7 * 60 * 60 * 24) LIMIT 1" .Context.User.ID) }}
-                        {{ if $last }}
-                            <div id="progress-bar" style="height: 100%; border-radius: 1rem; background-color: #0f97ff; width: 0%"></div>
-                            <div id="change-time" style="right: 0; position: absolute; top: 100%; margin-top: 2px">{{ $last.replaced_at }}</div>
-                        {{ else }}
-                            <div style="height: 100%; border-radius: 1rem; background-color: #0f97ff; width: 100%"></div>
-                            <div style="right: 0; position: absolute; top: 100%; margin-top: 2px">Today</div>
-                        {{ end }}
-                    </div>
-                    <br>
-                    <div class="ui divider"></div>
-                    <div style="text-align: right">
-						<button type="submit" class="ui inverted yellow button">{{ .T "Change" }}</button>
-					</div>
-                    {{ csrfGenerate .Context.User.ID }}
+					<script>
+					(function() {
+						var newUsernameInput = document.getElementById('new-username');
+						var previewUsername = document.getElementById('preview-username');
+						var leaderboardUsername = document.getElementById('leaderboard-username');
+						var changeBadge = document.getElementById('change-badge');
+						var charCount = document.getElementById('char-count');
+						var submitBtn = document.getElementById('submit-btn');
+						var progressBar = document.getElementById('progress-bar');
+						var changeTime = document.getElementById('change-time');
+						var cooldownMessage = document.getElementById('cooldown-message');
+						var currentUsername = '{{ .Context.User.Username }}';
+						var canChange = true;
 
-                </form>
-                {{ end }}
-            </div>
-        </div>
-    </div>
+						// Validation elements
+						var valLength = document.getElementById('val-length');
+						var valChars = document.getElementById('val-chars');
+						var valDifferent = document.getElementById('val-different');
+
+						function updateValidation(el, valid) {
+							var icon = el.querySelector('i');
+							if (valid) {
+								el.classList.remove('text-gray-500', 'text-red-400');
+								el.classList.add('text-green-400');
+								icon.classList.remove('fa-circle', 'fa-times');
+								icon.classList.add('fa-check');
+							} else {
+								el.classList.remove('text-green-400', 'text-red-400');
+								el.classList.add('text-gray-500');
+								icon.classList.remove('fa-check', 'fa-times');
+								icon.classList.add('fa-circle');
+							}
+						}
+
+						window.updatePreview = function(value) {
+							// Update previews
+							previewUsername.textContent = value || currentUsername;
+							leaderboardUsername.textContent = value || currentUsername;
+							charCount.textContent = value.length + '/16';
+
+							// Show/hide change badge
+							if (value && value !== currentUsername) {
+								changeBadge.classList.remove('hidden');
+							} else {
+								changeBadge.classList.add('hidden');
+							}
+
+							// Validate
+							var isValidLength = value.length >= 3 && value.length <= 16;
+							var isValidChars = /^[a-zA-Z0-9_\- ]+$/.test(value);
+							var isDifferent = value !== currentUsername;
+
+							updateValidation(valLength, isValidLength);
+							updateValidation(valChars, value.length === 0 || isValidChars);
+							updateValidation(valDifferent, isDifferent);
+
+							// Update char count color
+							if (value.length > 16) {
+								charCount.classList.add('text-red-400');
+								charCount.classList.remove('text-gray-500', 'text-green-400');
+							} else if (value.length >= 3) {
+								charCount.classList.add('text-green-400');
+								charCount.classList.remove('text-gray-500', 'text-red-400');
+							} else {
+								charCount.classList.add('text-gray-500');
+								charCount.classList.remove('text-green-400', 'text-red-400');
+							}
+
+							// Enable/disable submit
+							var isValid = isValidLength && isValidChars && isDifferent && canChange;
+							submitBtn.disabled = !isValid;
+							if (isValid) {
+								submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+							} else {
+								submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+							}
+						};
+
+						// Initial validation
+						updatePreview(newUsernameInput.value);
+
+						// Cooldown calculation
+						if (changeTime && progressBar) {
+							var timestamp = parseInt(changeTime.dataset.timestamp) * 1000;
+							var cooldownEnd = timestamp + (7 * 24 * 60 * 60 * 1000);
+							var now = Date.now();
+							var diff = cooldownEnd - now;
+
+							if (diff > 0) {
+								canChange = false;
+								var days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+								var percent = Math.max(0, Math.min(100, ((7 - days) / 7) * 100));
+								
+								changeTime.textContent = days + ' day' + (days > 1 ? 's' : '');
+								progressBar.style.width = percent + '%';
+								cooldownMessage.textContent = '{{ .T "Please wait before changing your username again" }}';
+								
+								newUsernameInput.disabled = true;
+								submitBtn.disabled = true;
+								submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+							} else {
+								changeTime.textContent = '{{ .T "Now!" }}';
+								progressBar.style.width = '100%';
+								cooldownMessage.textContent = '{{ .T "You can change your username now" }}';
+								cooldownMessage.classList.add('text-green-400');
+							}
+						}
+					})();
+					</script>
+				{{ end }}
+			</div>
+		</div>
+	</div>
 </div>
 {{ end }}

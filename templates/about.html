@@ -1,68 +1,124 @@
 {{/*###
 Handler=/about
-TitleBar=About
+DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="ui container">
-	<div class="ui centered segments">
-		<div class="ui segment">
-			<!--<img src="/static/logos/logo-1.png">-->
-			<h1 class="ui no bottom margin header">
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/default.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-5xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-info-circle text-primary text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "About RealistikOsu!" }}</h1>
+				<p class="text-gray-400">{{ .T "Learn more about our server" }}</p>
+			</div>
+		</div>
+
+		<!-- Hero Section -->
+		<div class="card text-center mb-8">
+			<h2 class="text-4xl font-display font-bold mb-4">
 				{{ .T "Welcome to RealistikOsu!" }}
-			</h1>
-			<div class="about subtitle">{{ .T "RealistikOsu is a custom server for the popular rhythm game osu!" }}<br>
-			{{ .T "It extends upon the core osu! online experience and provides countless fun features!" }}</div>
-		</div>
-		<div class="ui segment">
-			<img src="/static/about/intro.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="list ul icon"></i>{{ .T "Leaderboards" }}</h4>
-			<img src="/static/about/leaderboards.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="globe icon"></i>Online Users</h4>
-			<img src="/static/about/onlineusers.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="download icon"></i>Free Beatmap Downloads</h4>
-			<img src="/static/about/osudirect.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="trophy icon"></i>Global Leaderboards</h4>
-			<img src="/static/about/global_leaderboards.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="question icon"></i>Beatmap Rank Requests</h4>
-			<img src="/static/about/request_beatmaps.jpg">
-		</div>
-		<div class="ui segment">
-			<h1 class="ui header">
-				<h4 class="ui horizontal divider header"><i class="eye icon"></i>Spectator</h4>
-			</h1>
-			<img src="/static/about/spectator.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="users icon"></i>Multiplayer</h4>
-			<img src="/static/about/multi.jpg">
-		</div>
-		<div class="ui segment">
-			<h4 class="ui horizontal divider header"><i class="plane icon"></i>RealistikBot (in-game bot)</h4>
-			<img src="/static/about/relestobot.jpg">
-		</div>
-		<div class="ui segment">
-			<h1 class="ui header">
-				{{ .T "And a lot more!" }}
-			</h1>
-			<p class="about title">
-				{{ .T "RealistikOsu! was first released to the public in early 2020 and ever since we have grown an unbelievable amount!" }}
+			</h2>
+			<p class="text-xl text-gray-300 mb-2">
+				{{ .T "RealistikOsu is a custom server for the popular rhythm game osu!" }}
 			</p>
-			<p class="about title twemoji">
-				{{ .T "We have a long journey ahead of us! Come along and register and witness it unfold!" }}
+			<p class="text-lg text-gray-400">
+				{{ .T "It extends upon the core osu! online experience and provides countless fun features!" }}
 			</p>
-			<p class="about subtitle">
-				{{ .T "We are also open source! This means you are free to see the exact code we are currently running and even contribute to it! Check out the <a href=\"https://github.com/RealistikOsu\">source code</a> RealistikOsu! is running on." | html }}
-			</p>
+		</div>
+
+		<!-- Feature Sections -->
+		<div class="space-y-8">
+			<div class="card">
+				<img src="/static/about/intro.jpg" alt="Introduction" class="w-full rounded-lg mb-4">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-list-ul text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Leaderboards" }}</h3>
+				</div>
+				<img src="/static/about/leaderboards.jpg" alt="Leaderboards" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-globe text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Online Users</h3>
+				</div>
+				<img src="/static/about/onlineusers.jpg" alt="Online Users" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-download text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Free Beatmap Downloads</h3>
+				</div>
+				<img src="/static/about/osudirect.jpg" alt="osu!direct" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-trophy text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Global Leaderboards</h3>
+				</div>
+				<img src="/static/about/global_leaderboards.jpg" alt="Global Leaderboards" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-question-circle text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Beatmap Rank Requests</h3>
+				</div>
+				<img src="/static/about/request_beatmaps.jpg" alt="Rank Requests" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-eye text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Spectator</h3>
+				</div>
+				<img src="/static/about/spectator.jpg" alt="Spectator" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-users text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Multiplayer</h3>
+				</div>
+				<img src="/static/about/multi.jpg" alt="Multiplayer" class="w-full rounded-lg">
+			</div>
+
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4">
+					<i class="fas fa-plane text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">RealistikBot (in-game bot)</h3>
+				</div>
+				<img src="/static/about/relestobot.jpg" alt="RealistikBot" class="w-full rounded-lg">
+			</div>
+
+			<!-- Final CTA -->
+			<div class="card text-center">
+				<h2 class="text-4xl font-display font-bold mb-6">{{ .T "And a lot more!" }}</h2>
+				<p class="text-xl text-gray-300 mb-4">
+					{{ .T "RealistikOsu! was first released to the public in early 2020 and ever since we have grown an unbelievable amount!" }}
+				</p>
+				<p class="text-lg text-gray-400 mb-6">
+					{{ .T "We have a long journey ahead of us! Come along and register and witness it unfold!" }}
+				</p>
+				<p class="text-gray-300">
+					{{ .T "We are also open source! This means you are free to see the exact code we are currently running and even contribute to it! Check out the <a href=\"https://github.com/RealistikOsu\" class=\"text-primary hover:underline\">source code</a> RealistikOsu! is running on." | html }}
+				</p>
+			</div>
 		</div>
 	</div>
 </div>

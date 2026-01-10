@@ -1,46 +1,92 @@
 {{/*###
 Handler=/rank-request
-TitleBar=Request Beatmap Ranking
 KyutGrill=request_beatmap_ranking.jpg
 MinPrivileges=2
+DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $ := . }}
-<div class="ui container">
-	<div class="ui raised segment center aligned">
-		{{ $f := ieForm .Gin }}
-		<h4>{{ .T "Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!" }}</h4>
-		{{ with .Get "beatmaps/rank_requests/status" }}
-			<h4 class="ui horizontal divider header">
-				<i class="wait icon"></i>
-				{{ $.T "Queue status" }}
-			</h4>
-			<h2 style="display: inline; font-weight: normal;"><span id="queue-info">{{ .submitted }}/{{ .queue_size }}</span> <i{{ if not .submitted_by_user }} hidden{{ end }} id="by-you">(<span id="submitted-by-user">{{ .submitted_by_user }}</span>/<span id="max-per-user">{{ .max_per_user }}</span> {{ $.T "by you" }})</i></h2><br>
-			<h3 style="display: inline; font-weight: normal;">{{ $.T "Requests submitted" }}</h3><br>
-			<h4 style="display: inline; font-weight: normal;">{{ $.T "In the past 24 hours" }}</h4><br>
-			{{ $perc := perc .submitted .queue_size }}
-			<div class="ui container" style="width: 50%; margin-top: 8px; margin-bottom: 30px;">
-				<div style="height: 10px; border-radius: 1rem; background: #000; display: block; position: relative; width: 100%;">
-					<div style="height: 100%; border-radius: 1rem; background-color: #0f97ff; width: {{ $perc }}%"></div>
-					<div style="right: 0; position: absolute; top: 100%; margin-top: 2px">{{ $perc }}%</div>
-				</div>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/request_beatmap_ranking.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-3xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-star text-yellow-400 text-2xl"></i>
 			</div>
-			{{ if .can_submit }}
-				<form class="ui form" id="b-form" style="position: relative; top: 5px;">
-					<div class="ui fluid action input">
-						<input style="border-top-left-radius: 1rem !important;border-bottom-left-radius: 1rem !important;" tabindex="1" type="text" placeholder="eg. https://ussr.pl/beatmaps/1918979" id="beatmap" required>
-						{{ $f }}
-						<button tabindex="2" class="ui button inverted blue">
-							{{ $.T "Submit" }}
-							<i class="fas fa-arrow-right" style="position: relative;top: 1px;left:4px;"></i>
-						</button>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Rank Request" }}</h1>
+				<p class="text-gray-400">{{ .T "Submit beatmaps for ranking consideration" }}</p>
+			</div>
+		</div>
+
+		<div class="card text-center">
+			<h4 class="text-xl font-semibold mb-8">{{ .T "Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!" }}</h4>
+			
+			{{ $f := ieForm .Gin }}
+			{{ with .Get "beatmaps/rank_requests/status" }}
+				<div class="flex items-center gap-4 mb-6">
+					<div class="flex-1 h-px bg-dark-border"></div>
+					<div class="flex items-center gap-2">
+						<i class="fas fa-clock text-primary"></i>
+						<h3 class="text-xl font-semibold">{{ $.T "Queue status" }}</h3>
 					</div>
-				</form>
-			{{ else }}
-				<h3 class="ui header">{{ $.T "You have reached your daily limit for requesting beatmaps!" }}</h3>
-				{{ with .next_expiration }}<p>{{ $.T "Please try again " }}<b>{{ timeAddDay . }}</b></p>{{ end }}
+					<div class="flex-1 h-px bg-dark-border"></div>
+				</div>
+
+				<div class="mb-6">
+					<h2 class="text-4xl font-bold mb-2">
+						<span id="queue-info">{{ .submitted }}/{{ .queue_size }}</span>
+						<i{{ if not .submitted_by_user }} hidden{{ end }} id="by-you" class="text-lg font-normal text-gray-400">
+							(<span id="submitted-by-user">{{ .submitted_by_user }}</span>/<span id="max-per-user">{{ .max_per_user }}</span> {{ $.T "by you" }})
+						</i>
+					</h2>
+					<p class="text-gray-400 mb-1">{{ $.T "Requests submitted" }}</p>
+					<p class="text-sm text-gray-500">{{ $.T "In the past 24 hours" }}</p>
+				</div>
+
+				{{ $perc := perc .submitted .queue_size }}
+				<div class="mb-8 max-w-md mx-auto">
+					<div class="relative h-3 bg-dark-border rounded-full overflow-hidden">
+						<div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ $perc }}%"></div>
+					</div>
+					<p class="text-right text-sm text-gray-400 mt-1">{{ $perc }}%</p>
+				</div>
+
+				{{ if .can_submit }}
+					<form class="space-y-4" id="b-form">
+						<div class="flex gap-2">
+							<input type="text" 
+								placeholder="eg. https://ussr.pl/beatmaps/1918979" 
+								id="beatmap" 
+								required
+								class="flex-1 input-field rounded-r-none"
+								tabindex="1">
+							{{ $f }}
+							<button type="submit" 
+								class="btn-primary rounded-l-none whitespace-nowrap"
+								tabindex="2">
+								{{ $.T "Submit" }}
+								<i class="fas fa-arrow-right ml-2"></i>
+							</button>
+						</div>
+					</form>
+				{{ else }}
+					<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4">
+						<h3 class="text-lg font-semibold text-orange-300 mb-2">{{ $.T "You have reached your daily limit for requesting beatmaps!" }}</h3>
+						{{ with .next_expiration }}
+							<p class="text-gray-300">{{ $.T "Please try again " }}<b>{{ timeAddDay . }}</b></p>
+						{{ end }}
+					</div>
+				{{ end }}
 			{{ end }}
-		{{ end }}
+		</div>
 	</div>
 </div>
 {{ end }}

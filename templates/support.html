@@ -1,147 +1,551 @@
 {{/*###
 Handler=/donate
-TitleBar=Support RealistikOsu!
 KyutGrill=ripplechick.png
-AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.0.0/nouislider.min.js
+DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $global := .Context }}
 {{ $ := $ }}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.0.0/nouislider.min.css" rel="stylesheet" type="text/css">
-<div class="ui container">
-	{{ $ief := ieForm .Gin }}
-	{{ with .Get "users/self/donor_info" }}
-		{{ if .has_donor }}
-			<div class="ui segment">
-				<h1 class="ui center aligned header no bottom margin" style="margin: 0 auto; display: table;">
-					<i class="red heart icon" style="font-size: 90%;"></i> <div class="content">{{ $.T "You are already a supporter!" }}</div>
-				</h1>
-				<div class="ui centered subtitle" style="font-size:1.2rem;">
-					{{ $.T "Your donor expires <b>%s</b>. Thank you for helping us keep RealistikOsu up and alive!" (time .expiration) | html }} &lt;3
+{{ $ief := ieForm .Gin }}
+{{ $donorInfo := .Get "users/self/donor_info" }}
+
+<div class="min-h-screen py-8">
+	<div class="container mx-auto px-4 max-w-6xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
+				<i class="fas fa-heart text-white text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Support RealistikOsu!" }}</h1>
+				<p class="text-gray-400">{{ .T "Help keep the server running and get awesome perks" }}</p>
+			</div>
+		</div>
+
+		<!-- Current Supporter Status -->
+		{{ if and $donorInfo $donorInfo.has_donor }}
+			<div class="card mb-8 border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/10 to-transparent">
+				<div class="flex items-center gap-4">
+					<div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
+						<i class="fas fa-heart text-red-400 text-xl animate-pulse"></i>
+					</div>
+					<div>
+						<h2 class="text-2xl font-display font-bold text-white">{{ $.T "You're a Supporter!" }}</h2>
+						<p class="text-gray-300">
+							{{ $.T "Your supporter status expires <b>%s</b>. Thank you for helping us!" (time $donorInfo.expiration) | html }}
+						</p>
+					</div>
 				</div>
 			</div>
 		{{ end }}
-		<div class="ui segments">
-			<div class="ui segment">
-				<h2 class="ui header">
-					{{ $.T "Did you know?" }}
+
+		<!-- Hero Section -->
+		<div class="card mb-8 overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-red-500/20 pointer-events-none"></div>
+			<div class="relative text-center py-8">
+				<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+					{{ $.T "Why Support Us?" }}
 				</h2>
-			</div>
-			<div class="ui segment">
-				<h3 class="ui header no top margin">
-					<i class="money icon"></i><div class="content">{{ $.T "We don't run it for free." }}</div>
-				</h3>
-				<blockquote>
-					{{ $.T "While this server is free and always will be, it is not the same on our end. We pay from our pockets to provide a good service our users can freely enjoy." }}
-				</blockquote>
-				<h3 class="ui header">
-					<i class="book icon"></i><div class="content">{{ $.T "We are still students." }}</div>
-				</h3>
-				<blockquote>
-					{{ $.T "All of our staff are students. This means we do not have a stable source of income to upkeep and maintain our hobby projects. Even a small donation could help us reach miles further." }}
-				</blockquote>
-				<h3 class="ui header">
-					<i class="mouse pointer icon"></i><div class="content">{{ $.T "We do not try to get money in shady ways." }}</div>
-				</h3>
-				<blockquote>
-					{{ $.T "In fact, we don't even try to get your money other than this optional donation. We will never misuse your data and will never use sketchy ways such as selling data to make profit." }}
-				</blockquote>
-			</div>
-		</div>
-		<div class="ui segment">
-			<h1 class="ui center aligned header">
-				{{ $.T "So what can you do?" }}
-				<div class="sub header">
-					{{ if .has_donor }}{{ $.T "Well, you can increase your donation." }}{{ else }}{{ $.T "Well, you can donate to us." }}{{ end }}
-				</div>
-			</h1>
-			<h4 class="ui horizontal divider header">
-				{{ $.T "Here's what you receive:" }}
-			</h4>
-			<div class="ui internally celled stackable grid">
-				<div class="row">
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "Unlimited username changes" }}</h3>
-						{{ $.T "You can request to have your name changed as many times as you want! Just make sure it follows our rules." | html }}
-					</div>
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "Supporter badge" }}</h3>
-						{{ $.T "You receive an <b>incredibly cool</b> supporter badge to show off your support!" | html }}
-					</div>
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "Profile perks" }}</h3>
-						{{ $.T "Spice up your profile! With supporter, you will gain the ability to set your own profile banner, add a custom badge and an animated username!" | html }}
-					</div>
-				</div>
-				<div class="row">
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "Discord privileges" }}</h3>
-						{{ $.T "You'll gain a special role in the RealistikOsu discord server! This role will let you stand out from the crowd and give you access to special supporter only channels." | html }}
-					</div>
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "Account wipe" }}</h3>
-						{{ $.T "Do you want to hide your ridiculous play count or your 500 retries on Padoru? With supporter, you can request an account wipe." | html }}
-					</div>
-					<div class="five wide column">
-						<h3 class="ui header">{{ $.T "More to come!" }}</h3>
-						{{ $.T "We have more features planned for supporters, such as animated profile pictures coming soon™️." | html }}
-					</div>
-				</div>
-			</div>
-			{{ if $global.User.ID }}
-				<h4 class="ui horizontal divider header">
-					{{ $.T "And this is how you join" }}
-				</h4>
-				<p>
-					{{ $.T "You may donate via <b>PayPal</b> (or credit/debit card linked to PayPal). Use the slider below to choose the amount of months you'd like to have the donor benefits, and the cost will be instantly calculated. Remember that if, for instance, you choose to donate £3 instead of £2.16, you will only be given one donor month." | html }}
+				<p class="text-gray-400 max-w-2xl mx-auto mb-8">
+					{{ $.T "RealistikOsu is a passion project run by students. Your support helps us keep the servers running and develop new features." }}
 				</p>
-				<div id="months-slider" style="margin: 0 auto; max-width: 500px"></div>
-				<br>
-				<div id="cost" class="centered"><b>{{ $.T "Loading..." }}</b></div>
-				<br>
-				<div class="ui internally celled two column center aligned stackable grid">
-					<div class="column">
-						<h2 class="ui header">
-							<i class="paypal icon"></i>
-							{{ $.T "PayPal" }}
-						</h2>
-						<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_self">
-							<input type="hidden" name="on0" value="Period">
-							<input type="hidden" name="os0"	value="1 month">
-							{{ range _range 24 }}
-								{{ $months := plus (float .) 1 }}
-								<input type="hidden" name="option_select{{ . }}" value="{{ $months }} month{{ if . }}s{{ end }}">
-								<input type="hidden" name="option_amount{{ . }}" value="{{ calculateDonorPrice $months }}">
-							{{ end }}
-							<input type="hidden" name="on1" value="RealistikOsu! user to give donor">
-							<input type="hidden" name="custom" value="username={{ $global.User.Username }}" id="ipn-username">
-							<input type="hidden" name="amount" value="{{ calculateDonorPrice 1 }}" id="paypal-amt">
-							<div class="ui fluid labeled action input">
-								<div class="ui label">
-									{{ $.T "User:" }}
-								</div>
-								<input name="os1" type="text" placeholder="{{ $.T "User" }}" value="{{ $global.User.Username }}" id="username-input">
-								<button type="submit" class="ui button inverted blue">{{ $.T "Buy" }}</button>
-							</div>
-							{{ $ief }}
-							<input type="hidden"
-							name="business" value="realistikdash@gmail.com">
-							<input type="hidden" name="cmd" value="_xclick">
-							<input type="hidden" name="lc" value="GB">
-							<input type="hidden" name="no_note" value="0">
-							<input type="hidden" name="currency_code" value="GBP">
-							<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-						</form>
 				
-				<h4 class="ui horizontal divider header">
-					{{ $.T "I've donated, now what?" }}
-				</h4>
-				{{ $.T "Upon purchase, you will be required to contact the owner or an admin to ensure you gain your benefits as soon as possible. This may be done via the RealistikOsu discord server or direct messages." | html }}
-			{{ else }}
-				<div class="ui divider"></div>
-				<h1 class="ui center aligned header">{{ $.T "Please log in to be able to get supporter" }}</h1>
-			{{ end }}
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+					<div class="text-center p-4">
+						<div class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+							<i class="fas fa-server text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-lg font-semibold text-white mb-2">{{ $.T "Server Costs" }}</h3>
+						<p class="text-sm text-gray-400">{{ $.T "We pay out of pocket to provide a free service for everyone to enjoy." }}</p>
+					</div>
+					<div class="text-center p-4">
+						<div class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+							<i class="fas fa-graduation-cap text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-lg font-semibold text-white mb-2">{{ $.T "Student Run" }}</h3>
+						<p class="text-sm text-gray-400">{{ $.T "Our team are students without stable income. Every donation helps us go further." }}</p>
+					</div>
+					<div class="text-center p-4">
+						<div class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+							<i class="fas fa-shield-alt text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-lg font-semibold text-white mb-2">{{ $.T "No Shady Stuff" }}</h3>
+						<p class="text-sm text-gray-400">{{ $.T "We never sell data or use sketchy monetisation. Just optional donations." }}</p>
+					</div>
+				</div>
+			</div>
 		</div>
-	{{ end }}
+
+		<!-- Benefits Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-crown text-yellow-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">{{ $.T "Supporter Benefits" }}</h2>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-edit text-primary text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "Unlimited Name Changes" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Change your username as many times as you want!" }}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-heart text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "Supporter Badge" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Show off your support with an exclusive badge!" }}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
+							<i class="fas fa-palette text-purple-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "Profile Customisation" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Custom banner, badge, and animated username!" }}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500/30 transition-colors">
+							<i class="fab fa-discord text-indigo-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "Discord Perks" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Special role and exclusive channels on Discord!" }}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
+							<i class="fas fa-eraser text-orange-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "Account Wipe" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Start fresh by requesting an account wipe!" }}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-primary/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-green-500/30 transition-colors">
+							<i class="fas fa-sparkles text-green-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">{{ $.T "More Coming Soon" }}</h3>
+							<p class="text-sm text-gray-400">{{ $.T "Animated avatars and more features planned!" }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{{ if $global.User.ID }}
+			<!-- Donation Form -->
+			<div class="card">
+				<div class="flex items-center gap-4 mb-6">
+					<div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+						<i class="fab fa-paypal text-blue-400"></i>
+					</div>
+					<h2 class="text-2xl font-display font-bold text-white">{{ $.T "Get Supporter" }}</h2>
+				</div>
+
+				<p class="text-gray-400 mb-6">
+					{{ $.T "Choose how many months you'd like to support us for. Payment is processed securely through PayPal." }}
+				</p>
+
+				<!-- Month Selection -->
+				<div class="mb-8">
+					<label class="block text-sm font-medium text-gray-300 mb-3">{{ $.T "Select Duration" }}</label>
+					<div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="month-buttons">
+						{{ range _range 6 }}
+							{{ $months := plus (float .) 1 }}
+							<button type="button" 
+								class="month-btn py-3 px-4 rounded-xl border-2 border-dark-border bg-dark-bg hover:border-primary/50 transition-all text-center {{ if eq . 0 }}border-primary bg-primary/10{{ end }}"
+								data-months="{{ $months }}"
+								data-price="{{ calculateDonorPrice $months }}">
+								<div class="text-xl font-bold text-white">{{ $months }}</div>
+								<div class="text-xs text-gray-400">{{ if eq . 0 }}month{{ else }}months{{ end }}</div>
+							</button>
+						{{ end }}
+					</div>
+					<div class="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
+						{{ range _range 6 }}
+							{{ $months := plus (float .) 7 }}
+							<button type="button" 
+								class="month-btn py-3 px-4 rounded-xl border-2 border-dark-border bg-dark-bg hover:border-primary/50 transition-all text-center"
+								data-months="{{ $months }}"
+								data-price="{{ calculateDonorPrice $months }}">
+								<div class="text-xl font-bold text-white">{{ $months }}</div>
+								<div class="text-xs text-gray-400">months</div>
+							</button>
+						{{ end }}
+					</div>
+				</div>
+
+				<!-- Price Display -->
+				<div class="bg-dark-bg rounded-xl p-6 border border-dark-border mb-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<div class="text-sm text-gray-400 mb-1">{{ $.T "Total Cost" }}</div>
+							<div class="text-3xl font-bold text-white">£<span id="price-display">{{ calculateDonorPrice 1 }}</span></div>
+						</div>
+						<div class="text-right">
+							<div class="text-sm text-gray-400 mb-1">{{ $.T "Duration" }}</div>
+							<div class="text-xl font-semibold text-primary"><span id="months-display">1</span> {{ $.T "month(s)" }}</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- PayPal Form -->
+				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_self" id="donate-form">
+					<input type="hidden" name="on0" value="Period">
+					<input type="hidden" name="os0" value="1 month" id="period-input">
+					{{ range _range 24 }}
+						{{ $months := plus (float .) 1 }}
+						<input type="hidden" name="option_select{{ . }}" value="{{ $months }} month{{ if . }}s{{ end }}">
+						<input type="hidden" name="option_amount{{ . }}" value="{{ calculateDonorPrice $months }}">
+					{{ end }}
+					<input type="hidden" name="on1" value="RealistikOsu! user to give donor">
+					<input type="hidden" name="custom" value="username={{ $global.User.Username }}" id="ipn-username">
+					<input type="hidden" name="amount" value="{{ calculateDonorPrice 1 }}" id="paypal-amt">
+					
+					<div class="mb-6">
+						<label class="block text-sm font-medium text-gray-300 mb-3">{{ $.T "Gift to User" }}</label>
+						
+						<!-- Selected User Card -->
+						<div id="selected-user-card" class="bg-dark-bg border border-dark-border rounded-xl p-4 mb-3">
+							<div class="flex items-center gap-4">
+								<div class="relative">
+									<img id="selected-avatar" src="{{ .Conf.APP_AVATAR_URL }}/{{ $global.User.ID }}" class="w-16 h-16 rounded-xl object-cover border-2 border-dark-border">
+									<div id="selected-supporter-badge" class="absolute -bottom-1 -right-1 w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-bg hidden">
+										<i class="fas fa-heart text-white text-xs"></i>
+									</div>
+								</div>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2 flex-wrap">
+										<span id="selected-username" class="text-xl font-bold text-white">{{ $global.User.Username }}</span>
+										<span id="selected-role" class="text-xs px-2 py-1 rounded-full bg-gray-500/20 text-gray-400">Player</span>
+									</div>
+									<div class="flex items-center gap-3 mt-1 text-sm text-gray-400">
+										<span id="selected-rank"><i class="fas fa-globe-americas mr-1"></i>Global #--</span>
+										<span id="selected-pp"><i class="fas fa-chart-line mr-1"></i>-- pp</span>
+									</div>
+								</div>
+								<button type="button" id="change-user-btn" class="btn-secondary text-sm">
+									<i class="fas fa-exchange-alt mr-2"></i>{{ $.T "Change" }}
+								</button>
+							</div>
+						</div>
+						
+						<!-- Search Input (initially hidden) -->
+						<div id="search-input-wrapper" class="hidden relative" >
+							<div class="relative">
+								<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+								<input type="text" 
+									id="user-search-input"
+									placeholder="{{ $.T "Search for a user..." }}"
+									class="input-field w-full pl-11"
+									autocomplete="off">
+								<button type="button" id="cancel-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
+									<i class="fas fa-times"></i>
+								</button>
+							</div>
+							
+							<!-- Search Results Dropdown -->
+							<div id="user-search-results" class="hidden absolute z-50 w-full mt-2 bg-dark-card border border-dark-border rounded-xl shadow-xl max-h-80 overflow-y-auto">
+								<div id="user-search-loading" class="hidden p-4 text-center text-gray-400">
+									<i class="fas fa-spinner fa-spin mr-2"></i>{{ $.T "Searching..." }}
+								</div>
+								<div id="user-search-list"></div>
+								<div id="user-search-empty" class="hidden p-4 text-center text-gray-400">
+									<i class="fas fa-user-slash mr-2"></i>{{ $.T "No users found" }}
+								</div>
+							</div>
+						</div>
+						
+						<!-- Hidden form input -->
+						<input name="os1" type="hidden" value="{{ $global.User.Username }}" id="username-input">
+					</div>
+
+					{{ $ief }}
+					<input type="hidden" name="business" value="realistikdash@gmail.com">
+					<input type="hidden" name="cmd" value="_xclick">
+					<input type="hidden" name="lc" value="GB">
+					<input type="hidden" name="no_note" value="0">
+					<input type="hidden" name="currency_code" value="GBP">
+
+					<button type="submit" class="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-3">
+						<i class="fab fa-paypal"></i>
+						{{ $.T "Pay with PayPal" }}
+					</button>
+				</form>
+
+				<div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+					<div class="flex items-start gap-3">
+						<i class="fas fa-info-circle text-yellow-400 mt-1"></i>
+						<p class="text-sm text-gray-300">
+							{{ $.T "After payment, please contact an admin on Discord to activate your supporter status. This is usually done within 24 hours." }}
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				var avatarUrl = hanayoConf.avatars;
+				var apiUrl = hanayoConf.baseAPI;
+				
+				const monthButtons = document.querySelectorAll('.month-btn');
+				const priceDisplay = document.getElementById('price-display');
+				const monthsDisplay = document.getElementById('months-display');
+				const paypalAmt = document.getElementById('paypal-amt');
+				const periodInput = document.getElementById('period-input');
+				const usernameInput = document.getElementById('username-input');
+				const ipnUsername = document.getElementById('ipn-username');
+
+				// Month selection
+				monthButtons.forEach(btn => {
+					btn.addEventListener('click', function() {
+						monthButtons.forEach(b => {
+							b.classList.remove('border-primary', 'bg-primary/10');
+							b.classList.add('border-dark-border');
+						});
+						this.classList.remove('border-dark-border');
+						this.classList.add('border-primary', 'bg-primary/10');
+
+						const months = this.dataset.months;
+						const price = this.dataset.price;
+						
+						priceDisplay.textContent = price;
+						monthsDisplay.textContent = months;
+						paypalAmt.value = price;
+						periodInput.value = months + ' month' + (months > 1 ? 's' : '');
+					});
+				});
+
+				// User search functionality
+				const searchInput = document.getElementById('user-search-input');
+				const searchResults = document.getElementById('user-search-results');
+				const searchList = document.getElementById('user-search-list');
+				const searchLoading = document.getElementById('user-search-loading');
+				const searchEmpty = document.getElementById('user-search-empty');
+				const selectedUserCard = document.getElementById('selected-user-card');
+				const searchInputWrapper = document.getElementById('search-input-wrapper');
+				const changeUserBtn = document.getElementById('change-user-btn');
+				const cancelSearchBtn = document.getElementById('cancel-search-btn');
+				
+				let searchTimeout;
+				let currentUserId = {{ $global.User.ID }};
+				const defaultUsername = '{{ $global.User.Username }}';
+
+				function getUserRole(privileges) {
+					if (privileges & 8192) return { name: 'Admin', class: 'bg-red-500/20 text-red-400' };
+					if (privileges & 4096) return { name: 'Moderator', class: 'bg-purple-500/20 text-purple-400' };
+					if (privileges & 4) return { name: 'Supporter', class: 'bg-pink-500/20 text-pink-400' };
+					return { name: 'Player', class: 'bg-gray-500/20 text-gray-400' };
+				}
+				
+				function extractUserStats(user) {
+					// Extract stats from the nested structure (from lookup API)
+					var rank = null;
+					var pp = null;
+					
+					if (user.stats && user.stats.vn && user.stats.vn.std) {
+						rank = user.stats.vn.std.global_leaderboard_rank;
+						pp = Math.round(user.stats.vn.std.pp || 0);
+					}
+					
+					return { rank: rank, pp: pp };
+				}
+
+				function updateUserCard(user) {
+					const role = getUserRole(user.privileges || 0);
+					const stats = extractUserStats(user);
+					
+					document.getElementById('selected-avatar').src = avatarUrl + '/' + user.id;
+					document.getElementById('selected-username').textContent = user.username;
+					document.getElementById('selected-role').textContent = role.name;
+					document.getElementById('selected-role').className = 'text-xs px-2 py-1 rounded-full ' + role.class;
+					document.getElementById('selected-rank').innerHTML = '<i class="fas fa-globe-americas mr-1"></i>Global #' + (stats.rank ? stats.rank.toLocaleString() : '--');
+					document.getElementById('selected-pp').innerHTML = '<i class="fas fa-chart-line mr-1"></i>' + (stats.pp ? stats.pp.toLocaleString() : '0') + ' pp';
+					
+					// Show supporter badge if they have it
+					const supporterBadge = document.getElementById('selected-supporter-badge');
+					if (user.privileges & 4) {
+						supporterBadge.classList.remove('hidden');
+					} else {
+						supporterBadge.classList.add('hidden');
+					}
+					
+					usernameInput.value = user.username;
+					ipnUsername.value = 'username=' + user.username;
+					currentUserId = user.id;
+				}
+
+				function selectUser(user) {
+					updateUserCard(user);
+					selectedUserCard.classList.remove('hidden');
+					searchInputWrapper.classList.add('hidden');
+					searchResults.classList.add('hidden');
+					searchInput.value = '';
+				}
+
+				function showSearch() {
+					selectedUserCard.classList.add('hidden');
+					searchInputWrapper.classList.remove('hidden');
+					searchInput.focus();
+				}
+
+				function cancelSearch() {
+					searchInputWrapper.classList.add('hidden');
+					selectedUserCard.classList.remove('hidden');
+					searchResults.classList.add('hidden');
+					searchInput.value = '';
+				}
+				
+				function renderUserResult(user) {
+					const role = getUserRole(user.privileges || 0);
+					const stats = extractUserStats(user);
+					const isSupporter = user.privileges & 4;
+					
+					var countryHtml = '';
+					if (user.country) {
+						countryHtml = '<img src="/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg" class="w-4 h-3 rounded" alt="' + user.country + '">';
+					}
+					
+					const item = document.createElement('div');
+					item.className = 'flex items-center gap-3 p-3 hover:bg-dark-border/50 cursor-pointer transition-colors border-b border-dark-border last:border-0';
+					item.innerHTML = 
+						'<div class="relative flex-shrink-0">' +
+							'<img src="' + avatarUrl + '/' + user.id + '" class="w-12 h-12 rounded-xl object-cover border-2 border-dark-border" onerror="this.src=\'/static/images/default-avatar.png\'">' +
+							(isSupporter ? '<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-card"><i class="fas fa-heart text-white" style="font-size: 8px;"></i></div>' : '') +
+						'</div>' +
+						'<div class="flex-1 min-w-0">' +
+							'<div class="flex items-center gap-2">' +
+								'<span class="font-semibold text-white truncate">' + user.username + '</span>' +
+								countryHtml +
+								'<span class="text-xs px-2 py-0.5 rounded-full ' + role.class + '">' + role.name + '</span>' +
+							'</div>' +
+							'<div class="flex items-center gap-3 text-xs text-gray-400 mt-0.5">' +
+								'<span><i class="fas fa-globe-americas mr-1"></i>#' + (stats.rank ? stats.rank.toLocaleString() : '?') + '</span>' +
+								'<span><i class="fas fa-chart-line mr-1"></i>' + (stats.pp ? stats.pp.toLocaleString() : '0') + 'pp</span>' +
+							'</div>' +
+						'</div>' +
+						'<i class="fas fa-chevron-right text-gray-500 text-xs"></i>';
+					
+					item.addEventListener('click', function() { selectUser(user); });
+					return item;
+				}
+
+				// Load current user's data on page load
+				fetch(apiUrl + '/api/v1/users/lookup?name=' + encodeURIComponent(defaultUsername))
+					.then(function(res) { return res.json(); })
+					.then(function(data) {
+						if (data.code === 200 && data.users && data.users.length > 0) {
+							// Find exact match
+							var user = data.users.find(function(u) { 
+								return u.username.toLowerCase() === defaultUsername.toLowerCase(); 
+							}) || data.users[0];
+							updateUserCard(user);
+						}
+					})
+					.catch(function(err) { console.log('Could not load user data', err); });
+
+				changeUserBtn.addEventListener('click', showSearch);
+				cancelSearchBtn.addEventListener('click', cancelSearch);
+
+				searchInput.addEventListener('input', function() {
+					const query = this.value.trim();
+					
+					clearTimeout(searchTimeout);
+					
+					if (query.length < 2) {
+						searchResults.classList.add('hidden');
+						return;
+					}
+
+					searchTimeout = setTimeout(function() {
+						searchResults.classList.remove('hidden');
+						searchLoading.classList.remove('hidden');
+						searchList.innerHTML = '';
+						searchList.classList.add('hidden');
+						searchEmpty.classList.add('hidden');
+
+						fetch(apiUrl + '/api/v1/users/lookup?name=' + encodeURIComponent(query))
+							.then(function(res) { return res.json(); })
+							.then(function(data) {
+								searchLoading.classList.add('hidden');
+								
+								if (data.code === 200 && data.users && data.users.length > 0) {
+									searchList.innerHTML = '';
+									searchList.classList.remove('hidden');
+									
+									data.users.slice(0, 8).forEach(function(user) {
+										searchList.appendChild(renderUserResult(user));
+									});
+								} else {
+									searchEmpty.classList.remove('hidden');
+								}
+							})
+							.catch(function(error) {
+								console.error('Search error:', error);
+								searchLoading.classList.add('hidden');
+								searchEmpty.classList.remove('hidden');
+							});
+					}, 300);
+				});
+
+				// Close dropdown when clicking outside
+				document.addEventListener('click', function(e) {
+					const wrapper = document.getElementById('search-input-wrapper');
+					if (!wrapper.contains(e.target) && !changeUserBtn.contains(e.target)) {
+						searchResults.classList.add('hidden');
+					}
+				});
+
+				// Focus shows results if there's a query
+				searchInput.addEventListener('focus', function() {
+					if (this.value.trim().length >= 2) {
+						searchResults.classList.remove('hidden');
+					}
+				});
+			});
+			</script>
+		{{ else }}
+			<!-- Login Prompt -->
+			<div class="card text-center py-12">
+				<div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+					<i class="fas fa-sign-in-alt text-primary text-3xl"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white mb-4">{{ $.T "Log in to Get Supporter" }}</h2>
+				<p class="text-gray-400 mb-6">{{ $.T "You need to be logged in to purchase supporter status." }}</p>
+				<a href="/login" class="btn-primary inline-flex items-center gap-2">
+					<i class="fas fa-sign-in-alt"></i>
+					{{ $.T "Log In" }}
+				</a>
+			</div>
+		{{ end }}
+	</div>
 </div>
 {{ end }}

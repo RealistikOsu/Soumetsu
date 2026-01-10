@@ -57,6 +57,24 @@ var funcMap = template.FuncMap{
 	"hasAdmin": func(privs common.UserPrivileges) bool {
 		return privs&common.AdminPrivilegeAccessRAP > 0
 	},
+	// getUserRole returns the role name based on user privileges
+	"getUserRole": func(privs common.UserPrivileges) string {
+		// Check from highest to lowest priority
+		if privs&common.AdminPrivilegeManageUsers > 0 {
+			return "Admin"
+		}
+		if privs&common.AdminPrivilegeAccessRAP > 0 {
+			return "Moderator"
+		}
+		if privs&common.UserPrivilegeDonor > 0 {
+			return "Supporter"
+		}
+		return ""
+	},
+	// isStaff returns whether a user has any staff privileges
+	"isStaff": func(privs common.UserPrivileges) bool {
+		return privs&common.AdminPrivilegeAccessRAP > 0
+	},
 	// isRAP returns whether the current page is in RAP.
 	"isRAP": func(p string) bool {
 		parts := strings.Split(p, "/")
@@ -83,6 +101,51 @@ var funcMap = template.FuncMap{
 	//  {{ range slice 1 2 3 }}{{ . }}{{ end }}
 	"slice": func(els ...interface{}) []interface{} {
 		return els
+	},
+	// sliceArray slices an array/slice from start to end (exclusive)
+	"sliceArray": func(arr interface{}, start, end int) []interface{} {
+		if arr == nil {
+			return []interface{}{}
+		}
+		var result []interface{}
+		switch v := arr.(type) {
+		case []interface{}:
+			if start < 0 {
+				start = 0
+			}
+			if end > len(v) {
+				end = len(v)
+			}
+			if start >= end {
+				return []interface{}{}
+			}
+			return v[start:end]
+		case []map[string]interface{}:
+			if start < 0 {
+				start = 0
+			}
+			if end > len(v) {
+				end = len(v)
+			}
+			if start >= end {
+				return []interface{}{}
+			}
+			for i := start; i < end; i++ {
+				result = append(result, v[i])
+			}
+			return result
+		}
+		return []interface{}{}
+	},
+	// get retrieves a value from a map[string]interface{} by key
+	"get": func(m interface{}, key string) interface{} {
+		if m == nil {
+			return nil
+		}
+		if mMap, ok := m.(map[string]interface{}); ok {
+			return mMap[key]
+		}
+		return nil
 	},
 	// int converts a float/int to an int.
 	"int": func(f interface{}) int {

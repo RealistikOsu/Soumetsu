@@ -3,30 +3,30 @@ NoCompile=true
 */}}
 {{ define "clanMembers" }}
 {{ with . }}
-	<div class="ui five column center aligned stackable grid" id="main-column-grid">
+	<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="main-column-grid">
 		{{ $teamJSON := teamJSON }}
 		{{ range .members }}
 			{{/* ignore fokabot */}}
 			{{ if ne (int .id) 999 }}
 				{{ $tj := index $teamJSON (print .id)}}
-				<a class="column profile-card-column" href="/users/{{ .id }}">
-					<div class="ui fluid card profile-card" style="border-radius: 1rem;text-align: center;">
-						<div class="image" style="border-radius: 1rem !important;display: flex;justify-content: center;">
-							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" alt="Avatar" style="border-radius: 1rem;width: 197px;height: 197px;object-fit: cover;">
+				<a href="/users/{{ .id }}" class="card text-center hover:border-primary transition-colors">
+					<div class="mb-4">
+						<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+							alt="Avatar" 
+							class="w-full aspect-square rounded-lg object-cover border-2 border-dark-border mx-auto">
+					</div>
+					<div class="space-y-2">
+						<div class="flex items-center justify-center gap-2 font-semibold">
+							{{ country .country false }}
+							<span>{{ .username }}</span>
 						</div>
-						<div class="extra content">
-							<div class="header" style="display: flex;align-items: center;gap: 5px;justify-content: center;margin-bottom: 10px;">
-								{{ country .country false }} {{ .username }}
-							</div>
-
-							<div title="Registered">
-								<i class="sign in icon"></i>
-								{{ time .registered_on }}
-							</div>
-							<div title="Latest activity">
-								<i class="sign out icon"></i>
-								{{ time .latest_activity }}
-							</div>
+						<div class="text-sm text-gray-400" title="Registered">
+							<i class="fas fa-sign-in-alt mr-1"></i>
+							{{ time .registered_on }}
+						</div>
+						<div class="text-sm text-gray-400" title="Latest activity">
+							<i class="fas fa-sign-out-alt mr-1"></i>
+							{{ time .latest_activity }}
 						</div>
 					</div>
 				</a>
@@ -38,30 +38,30 @@ NoCompile=true
 
 {{ define "clanGroup" }}
 {{ with . }}
-	<div style="display: flex;justify-content: center;">
+	<div class="flex flex-wrap justify-center gap-6">
 		{{ $teamJSON := teamJSON }}
 		{{ range .members }}
 			{{/* ignore fokabot */}}
 			{{ if ne (int .id) 999 }}
 				{{ $tj := index $teamJSON (print .id)}}
-				<a class="column profile-card-column" href="/users/{{ .id }}">
-					<div class="ui fluid card profile-card" style="border-radius: 1rem;text-align: center;">
-						<div class="image" style="border-radius: 1rem !important;display: flex;justify-content: center;">
-							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" alt="Avatar" style="border-radius: 1rem;width: 197px;height: 197px;object-fit: cover;">
+				<a href="/users/{{ .id }}" class="card text-center hover:border-primary transition-colors w-48">
+					<div class="mb-4">
+						<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+							alt="Avatar" 
+							class="w-full aspect-square rounded-lg object-cover border-2 border-dark-border">
+					</div>
+					<div class="space-y-2">
+						<div class="flex items-center justify-center gap-2 font-semibold">
+							{{ country .country false }}
+							<span>{{ .username }}</span>
 						</div>
-						<div class="extra content">
-							<div class="header" style="display: flex;align-items: center;gap: 5px;justify-content: center;margin-bottom: 10px;">
-								{{ country .country false }} {{ .username }}
-							</div>
-
-							<div title="Registered">
-								<i class="sign in icon"></i>
-								{{ time .registered_on }}
-							</div>
-							<div title="Latest activity">
-								<i class="sign out icon"></i>
-								{{ time .latest_activity }}
-							</div>
+						<div class="text-sm text-gray-400" title="Registered">
+							<i class="fas fa-sign-in-alt mr-1"></i>
+							{{ time .registered_on }}
+						</div>
+						<div class="text-sm text-gray-400" title="Latest activity">
+							<i class="fas fa-sign-out-alt mr-1"></i>
+							{{ time .latest_activity }}
 						</div>
 					</div>
 				</a>

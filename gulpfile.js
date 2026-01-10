@@ -5,14 +5,29 @@ var uglify  = require("gulp-uglify")
 var flatten = require("gulp-flatten")
 var concat  = require("gulp-concat")
 var babel   = require("gulp-babel")
+var postcss = require("gulp-postcss")
+var tailwindcss = require("tailwindcss")
+var autoprefixer = require("autoprefixer")
 
 gulp.task("default", ["build"])
 gulp.task("build", [
+	"build-tailwind",
 	"minify-js",
 ])
 
+gulp.task("build-tailwind", function() {
+	return gulp.src("static/css/input.css")
+		.pipe(postcss([
+			tailwindcss("./tailwind.config.js"),
+			autoprefixer()
+		]))
+		.pipe(concat("output.css"))
+		.pipe(gulp.dest("static/css"))
+})
+
 gulp.task("watch", function() {
 	gulp.watch(["static/*.js", "!static/dist.min.js"], ["minify-js"])
+	gulp.watch(["templates/**/*.html", "static/css/input.css", "tailwind.config.js"], ["build-tailwind"])
 	gulp.watch("semantic/src/**/*", ["build-semantic"])
 })
 

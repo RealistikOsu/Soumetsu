@@ -1,512 +1,631 @@
+{{/*###
+KyutGrill=score_feed.jpg
+DisableHH=true
+*/}}
 {{ define "tpl" }}
-{{ $isLinked := qb "SELECT discord_id FROM discord_oauth WHERE user_id = ?" .UserID }}
-{{ $discordID := $isLinked.discord_id.String }}
 <link rel="stylesheet" href="/static/profiles/profile.css">
-<link rel="stylesheet" href="/static/profiles/comments.css">
-<div class="ui container">
-	{{ if .UserID }}
-		{{ $realistik := eq .UserID 1000 }}
-		{{ $gqm := atoi (.Gin.Query "mode") }}
-		{{ $relax := _or (atoi (.Gin.Query "rx")) (int 0)}}
-		{{ $global := . }}
-		{{ with (.Get "users/full?id=%d" .UserID) }}
-			{{ $favouritemode := _or $gqm .favourite_mode }}
-			<script>
-				window.preferRelax = {{ $relax }};
-				window.favouriteMode = {{ $favouritemode }};
-				window.userID = {{ .id }};
-				window.userProfileName = {{ .username }};
-				window.pastNames = {{ .past_usernames }};
-				window.followers = {{ with $.Get "users/followers?userid=%d" $.UserID }} {{ .allFriended }} {{ end }};
-				window.hasAdmin = {{ hasAdmin $global.Context.User.Privileges }};
-				window.graphType = "rank";
 
-				// Credits: @lenforiee
-				function resizeUsername() {
-					var username = document.querySelector('#username-span');
-					var container = document.querySelector('#username-container');
-					var clanName = document.querySelector('#clan-span');
+<script>
+	window.profileUserParam = {{ .UserID }};
+	window.profileIsNumeric = {{ .IsNumeric }};
+	window.currentUserID = {{ .Context.User.ID }};
+	window.hasAdmin = {{ hasAdmin .Context.User.Privileges }};
+</script>
 
-					var widthContainer = container.offsetWidth;
-					var widthUsername = username.offsetWidth;
+<script src="/static/vue/vue.js"></script>
+<script src="/static/vue/vue-axios.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-					if (clanName) {
-						widthUsername += clanName.offsetWidth;
-					}
+<div id="profile-app" class="relative min-h-screen py-8">
+	<!-- Loading State -->
+	<div v-if="loading" class="container mx-auto px-4">
+		<div class="card">
+			<div class="flex items-center justify-center py-12">
+				<i class="fas fa-spinner fa-spin text-primary text-4xl"></i>
+			</div>
+		</div>
+	</div>
 
-					
-					while (widthUsername >= widthContainer) {
-						console.log(widthUsername, widthContainer)
+	<!-- Error State -->
+	<div v-else-if="error" class="container mx-auto px-4">
+		<div class="card text-center py-12">
+			<i class="fas fa-user-slash text-gray-500 text-5xl mb-4"></i>
+			<h2 class="text-2xl font-bold text-white mb-2">User Not Found</h2>
+			<p class="text-gray-400"><% error %></p>
+		</div>
+	</div>
 
-						var fontSizeUsername = parseInt(window.getComputedStyle(username).fontSize);
-						console.log(fontSizeUsername)
-						username.style.fontSize = (fontSizeUsername - 1) + 'px';
+	<!-- Profile Content -->
+	<div v-else-if="user" class="container mx-auto px-4">
+		<!-- Status Banners -->
+		<div v-if="hasAdmin" class="space-y-4 mb-4">
+			<!-- Restricted -->
+			<div v-if="!(user.privileges & 1) && !(user.privileges & 2)" class="bg-red-900/30 border border-red-700 rounded-lg p-4 flex items-start gap-3">
+				<i class="fas fa-ban text-red-400 mt-1"></i>
+				<p class="text-red-300" v-if="user.privileges & 1048576">User is <b>pending verification</b></p>
+				<p class="text-red-300" v-else>User is <b>banned</b></p>
+			</div>
+			<div v-else-if="!(user.privileges & 1)" class="bg-red-900/30 border border-red-700 rounded-lg p-4 flex items-start gap-3">
+				<i class="fas fa-ban text-red-400 mt-1"></i>
+				<p class="text-red-300">User is <b>restricted</b></p>
+			</div>
+			<div v-else-if="!(user.privileges & 2)" class="bg-red-900/30 border border-red-700 rounded-lg p-4 flex items-start gap-3">
+				<i class="fas fa-lock text-red-400 mt-1"></i>
+				<p class="text-red-300">User is <b>locked</b></p>
+			</div>
+		</div>
 
-						if (clanName) {
-							var fontSizeClan = parseInt(window.getComputedStyle(clanName).fontSize);
-							console.log(fontSizeClan)
-							clanName.style.fontSize = (fontSizeClan - 1) + 'px';
-						}
+		<!-- Bot Account Banner -->
+		<div v-if="user.privileges & 1073741824" class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+			<i class="fas fa-robot text-blue-400 mt-1"></i>
+			<p class="text-blue-300">This is a <b>bot account</b>. This means that it does not represent a player, but rather is meant to offer in-game functionality.</p>
+		</div>
 
-						widthUsername = username.offsetWidth;
-						if (clanName) {
-							widthUsername += clanName.offsetWidth;
-						}
-					}
-				}
-
-				events = ["load", "resize"];
-				for (var i = 0; i < events.length; i++) {
-					window.addEventListener(events[i], resizeUsername);
-				}
-
-				//swap them round on mobile so the order isnt weird for them
-				document.addEventListener('DOMContentLoaded', (event) => {
-					if (MobileCheck()) {
-						var left = document.getElementById("left");
-						var right = document.getElementById("right");
-
-						var RightText = right.innerHTML
-						right.innerHTML = left.innerHTML
-						left.innerHTML = RightText;
-					}
-
-					// Fill past names.
-					if (window.pastNames != null) {
-						let pastNamesString = "Previously known as: " + window.pastNames.join(" ")
-						let pastNamesIcon = document.getElementById("user-name-history");
-						pastNamesIcon.setAttribute("data-tooltip", pastNamesString)
-						pastNamesIcon.removeAttribute("hidden")
-					}
-				})
-			</script>
-			{{ if after .silence_info.end }}
-				<div class="ui error centered message black">
-					<div class="content">
-						{{ $global.T "<p>User is <b>silenced</b> for %s, expires %s.</p>" (.silence_info.reason | htmlescaper) (time .silence_info.end) | html }}
-					</div>
-				</div>
-			{{ end }}
-			{{ if hasAdmin $global.Context.User.Privileges }}
-				{{ $restr := not (has .privileges 1) }}
-				{{ $disab := not (has .privileges 2) }}
-				{{ $pend  := has .privileges 1048576 }}
-				{{ if and $disab $restr }}
-					{{ if $pend }}
-						<div class="ui warning centered message black">
-							<div class="content">
-								{{ $global.T "<p>User is <b>pending verification</b></p>" | html }}.
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Left Column: Profile Sidebar -->
+			<div class="lg:col-span-1 order-first lg:order-first">
+				<div class="card p-0 overflow-hidden sticky top-4">
+					<!-- Profile Banner -->
+					<div class="relative h-48 overflow-hidden">
+						<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20"></div>
+						<div class="absolute top-4 right-4 flex flex-col items-end gap-2">
+							<!-- Global Rank -->
+							<div v-if="currentStats" class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
+								<i :class="'fas fa-globe ' + (currentStats.global_leaderboard_rank === 1 ? 'text-yellow-400' : currentStats.global_leaderboard_rank === 2 ? 'text-gray-300' : currentStats.global_leaderboard_rank === 3 ? 'text-orange-600' : 'text-gray-400')"></i>
+								<span class="font-semibold">#<% currentStats.global_leaderboard_rank || '-' %></span>
+							</div>
+							<!-- Country Rank -->
+							<div v-if="currentStats && user.country" class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
+								<img :src="'/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg'" class="w-5 h-4 rounded">
+								<span class="font-semibold">#<% currentStats.country_leaderboard_rank || '-' %></span>
 							</div>
 						</div>
-					{{ else }}
-						<div class="ui error centered message black">
-							<div class="content">
-								{{ $global.T "<p>User is <b>banned</b>.</p>" | html }}
+					</div>
+
+					<!-- Profile Info -->
+					<div class="p-6 -mt-16 relative z-10">
+						<div class="flex items-start gap-4 mb-4">
+							<img :src="avatarURL + '/' + user.id" :alt="user.username" class="w-24 h-24 rounded-full border-4 border-dark-card object-cover">
+							<div v-if="user.badges?.length || user.custom_badge" class="flex flex-wrap gap-2 mt-2">
+								<span v-for="badge in user.badges" :key="badge.id" class="text-primary text-xl" :title="badge.name">
+									<i :class="badge.icon"></i>
+								</span>
+								<span v-if="user.custom_badge" class="text-primary text-xl" :title="user.custom_badge.name">
+									<i :class="user.custom_badge.icon"></i>
+								</span>
 							</div>
 						</div>
-					{{ end }}
-				{{ else if $restr }}
-					<div class="ui error centered message black">
-						<div class="content">
-							{{ $global.T "<p>User is <b>restricted</b>.</p>" | html }}
-						</div>
-					</div>
-				{{ else if $disab }}
-					<div class="ui error centered message black">
-						<div class="content">
-							{{ $global.T "<p>User is <b>locked</b></p>." | html }}
-						</div>
-					</div>
-				{{ end }}
-			{{ end }}
-			{{ if $global.Frozen }}
-				<div class="ui warning centered message black">
-					<div class="content">
-						{{ $global.T "<p>User is <b>frozen</b>. This means they have to provide a liveplay or else they will be automatically restricted.</p>" | html }}
-					</div>
-				</div>
-			{{ else if has .privileges 1073741824 }}
-				<div class="ui warning centered message black">
-					<div class="content">
-						{{ $global.T "<p>This is a <b>bot account</b>. This means that it does not represent a player, but rather is meant to offer in-game functionality.</p>" | html }}
-					</div>
-				</div>
-			{{ end }}
-			
-			{{ $user := . }}
-			<meta name="og:image" content="https://a.ussr.pl/{{ $user.id }}"/>
-			<meta property="og:type" content="website" />
-			<meta property="og:url" content="https://ussr.pl/users/{{ $user.id }}" />
-			<meta property="og:title" content={{ $global.T "<b>%s</b>" .username }} />
-			<meta property="og:description" content={{ $global.T "<b>%s</b> is a RealistikOsu! player from <b>%s</b>." .username (country .country true) }} />
-			<meta property="og:image" content="https://ussr.pl/{{ $user.id }}" />
-			<div class="ui stackable column grid">
-				<div class="ten wide column" id="left">
-					{{ with $global.Get "users/userpage?id=%.0f" .id }}
-						{{ if .userpage }}
-							{{ with parseUserpage .userpage }}
-								<div class="ui raised segment twemoji" style="padding: 1em 0;">
-									<h4 class="ui horizontal divider header" style="padding: 0 1em;">
-										<div style="display: flex; align-items: center; gap: 0.5em; font-weight: 600;">
-											<i class="fa-solid fa-address-card"></i>
-											{{ $global.T "me!" }}
-										</div>
-									</h4>
-									<div id="userpage-content">
-										{{ html . }}
-									</div>
+
+						<div class="bg-dark-bg rounded-lg p-4 mb-4">
+							<h1 class="text-2xl font-display font-bold mb-3 text-white">
+								<a v-if="user.clan?.id" :href="'/c/' + user.clan.id" class="text-primary hover:underline mr-2">[<% user.clan.tag %>]</a>
+								<span><% user.username %></span>
+							</h1>
+
+							<div class="flex items-center justify-between mb-3">
+								<div class="flex items-center gap-2">
+									<img v-if="user.country" :src="'/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg'" class="w-6 h-4 rounded">
+									<span class="text-sm text-gray-300"><% getCountryName(user.country) %></span>
 								</div>
-							{{ end }}
-						{{ end }}
-					{{ end }}
-					<div
-						class="ui segment"
-						id="profile-history-content">
-						<h4 class="ui horizontal divider header">
-							<div style="display: flex; align-items: center; gap: 0.5em; font-weight: 600;">
-								<i class="fa-solid fa-chart-line"></i>
-								{{ $global.T "Profile Graph" }}
 							</div>
-						</h4>
-						<div class="ui small buttons">
-							<button
-							class="ui button black active"
-							id="chart-btn-rank"
-							onclick="changeChart('rank')">
-							{{ $global.T "Rank" }}
-							</button>
-							<button
-							class="ui black button"
-							id="chart-btn-pp"
-							onclick="changeChart('pp')">
-							{{ $global.T "PP" }}
+
+							<div class="border-t border-dark-border pt-3 space-y-2 text-sm text-gray-300">
+								<div>Join Date: <b><% formatDate(user.registered_on) %></b></div>
+								<div>Last Seen: <b><% formatDate(user.latest_activity) %></b></div>
+							</div>
+
+							<div class="flex gap-2 mt-4">
+								<button v-if="canInteract" @click="toggleFriend" 
+									:class="'btn-secondary flex-1 text-sm py-2 ' + (friendStatus === 2 ? 'bg-red-600/20 border-red-500/50' : friendStatus === 1 ? 'bg-green-600/20 border-green-500/50' : 'bg-blue-600/20 border-blue-500/50')"
+									:disabled="friendLoading">
+									<i :class="friendStatus === 2 ? 'fas fa-user-friends' : friendStatus === 1 ? 'fas fa-user-times' : 'fas fa-user-plus'"></i>
+									<% followers.allFriended %>
+								</button>
+								<a v-if="hasAdmin" :href="'https://old.ussr.pl/user/edit/' + userID" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-sm py-2 px-3" title="Edit user">
+									<i class="fas fa-edit"></i>
+								</a>
+							</div>
+						</div>
+
+						<!-- Mode/Relax Tabs -->
+						<div class="grid grid-cols-3 gap-2 mb-4">
+							<button @click="setRelax(0)" :class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">Vanilla</button>
+							<button @click="setRelax(1)" :disabled="mode === 3" :class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode === 3 ? ' opacity-50 cursor-not-allowed' : '')">Relax</button>
+							<button @click="setRelax(2)" :disabled="mode !== 0" :class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode !== 0 ? ' opacity-50 cursor-not-allowed' : '')">Autopilot</button>
+						</div>
+
+						<div class="grid grid-cols-4 gap-2 mb-4">
+							<button v-for="(modeName, modeIdx) in ['std', 'taiko', 'ctb', 'mania']" :key="modeIdx" 
+								@click="setMode(modeIdx)"
+								:class="'px-3 py-2 rounded-lg border text-center text-sm transition-colors ' + (mode === modeIdx ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">
+								<% modeName %>
 							</button>
 						</div>
-						<div id="profile-history-graph" style="display: none;"></div>
-						<div id="profile-history-not-found" style="display: none; text-align: center;">
-							<div class="ui icon message" style="background: rgb(34, 33, 33)">
-							<div class="content">
-								<div class="header">
-								{{ $global.T "No graph data found" }}
-								</div>
-								<p>
-								{{ $global.T "No graph data found for this user" }}
-								</p>
-							</div>
-							</div>
-						</div>
-					</div>
-					<div id="scores-zone">
-						{{ range _range 4 }}
-							<div data-mode="{{ . }}" data-rx="0" {{ if _or (ne . (int $favouritemode)) (ne 0 (int $relax)) }} hidden{{ end }} data-loaded="0"></div>
-							<div data-mode="{{ . }}" data-rx="1" {{ if _or (ne . (int $favouritemode)) (ne 1 (int $relax)) }} hidden{{ end }} data-loaded="0"></div>
-							<div data-mode="{{ . }}" data-rx="2" {{ if _or (ne . (int $favouritemode)) (ne 2 (int $relax)) }} hidden{{ end }} data-loaded="0"></div>
-						{{ end }}
-					</div>
-					<div class="ui segment sui">
-						<h4 class="ui horizontal divider header">
-							<div style="display: flex; align-items: center; gap: 0.5em; font-weight: 600;">
-								<i class="fa-solid fa-gamepad"></i> Achievements
-							</div>
-						</h4>
-						<div id="achievements" class="ui grid achivement-data" style="margin-bottom: 10px"></div>
-						<div class='profile-scores-btn-container'>
-							<div class='ui floated pagination'>
-								<a id="load-more-achievements" class='ui button load-more-button inverted violet disabled'>Load more</a>
-							</div>
-						</div>
-					</div>
-					<div class="ui modal">
-						<i class="close icon"></i>
-						<div class="content">
-							<table class="ui definition table" id="score-data-table">
-							</table>
-						</div>
-					</div>
-				</div>
-				<div class="six wide column" id="right">
-					<div style="margin: 0 !important;padding: 0;" class="ui top attached segment auto">
-						<div style="margin: 0;">
-						{{ if $.ProfileBackground }}
-							<div style="background-image: url({{ $.ProfileBackground }});min-height: 200px;width: 100%;background-size: cover;background-position: center;box-shadow: 0px 5px 10px #090909;" class="">
-						{{ else if $.ProfileColour }}
-							<div style="background-color: {{ $.ProfileColour }};min-height: 200px;width: 100%;background-size: cover;background-position: center;box-shadow: 0px 5px 10px #090909;" class="">
-						{{ else }}
-							<div style="background-image: url(/static/image/banner_bg.png);min-height: 200px;width: 100%;background-size: cover;background-position: center;box-shadow: 0px 5px 10px #090909;" class="">
-						{{ end }}
-								<div class="profile-ranks">
-									{{ range $kp, $vp := (slice .stats.vn .stats.rx .stats.ap) }}
-										{{ range $k, $v := (slice $vp.std $vp.taiko $vp.ctb $vp.mania) }}
-											<div id="global-rank-{{ $kp }}-{{ $k }}" data-rx="{{ $kp }}" data-mode="{{ $k }}"{{ if _or (ne $k (int $favouritemode)) (ne $kp (int $relax)) }} hidden{{ end }} class="profile-global-rank">
-												<span>
-													{{ if eq (int $v.global_leaderboard_rank) (int 1) }}
-														<i class="globe line small icon yellow"></i>
-													{{ else if eq (int $v.global_leaderboard_rank) (int 2)}}
-														<i class="globe line small icon grey"></i>
-													{{ else if eq (int $v.global_leaderboard_rank) (int 3)}}
-														<i class="globe line small icon brown"></i>
-													{{ else }}
-														<i class="globe line small icon"></i>
-													{{ end }}
-												</span>
-												<span>
-													{{ with and $v $v.global_leaderboard_rank }}
-														#{{ . }}
-													{{ else }}
-														{{ $global.T "-" }}
-													{{ end }}
-												</span>
-											</div>
-											<div data-rx="{{ $kp }}" data-mode="{{ $k }}"{{ if _or (ne $k (int $favouritemode)) (ne $kp (int $relax)) }} hidden{{ end }}  class="profile-country-rank">
-												<img class="nopad" src="/static/images/new-flags/flag-{{ stringLower $user.country }}.svg" width="20">
-												<span>
-													{{ with and $v $v.country_leaderboard_rank }}
-														#{{ . }}
-													{{ else }}
-														{{ $global.T "-" }}
-													{{ end }}
-												</span>
-											</div>
-										{{ end }}
-									{{ end }}
-								</div>
-							</div>
-						</div>
-						<div class="profile-metadata-container">
-							<div class="profile-upper-container">
-								<img alt="avatar" class="avatar-canvas" src="https://a.ussr.pl/{{ $user.id }}">
-								{{ if _or .badges .custom_badge }}
-									<div class="badge-container">
-										{{ if .badges }}
-											{{ range .badges }}
-												<span class data-tooltip="{{ .name }}">
-													<i class="{{ faIcon .icon }} small icon circular" style="box-shadow: none;display: inline;margin: 10px;font-size: 1em !important;padding: 0 !important;"></i>
-												</span>
-											{{ end }}
-										{{ end }}
-										{{ if .custom_badge  }}
-											{{ with .custom_badge }}
-												<span class data-tooltip="{{ .name }}">
-													<i class="{{ faIcon .icon }} small icon circular" style="box-shadow: none;display: inline;margin: 10px;font-size: 1em !important;padding: 0 !important;"></i>
-												</span>
-											{{ end }}
-										{{ end }}
-									</div>
-								{{ end }}
-							</div>
-							<!--Hello fellow developers! Please do not steal this like you did with the score beatmap images.
-							At least if you do, please credit me (RealistikDash) in your team changes. I know who did it as
-							I have a very distinct code style.
-							Plus your implementations did not remove the rosu specific theme aspects, meaning they were
-							direct copies without adaptations for your site.
-							-->
-							<!--Bottom part-->
-							<div style="margin-top: 1rem;margin-bottom: 1rem;padding: 1rem;background: #1B1B1C;border-radius: 1rem;">
 
-								<h1 class="ui header" style="font-size: 30px;font-weight:normal;margin-bottom: 0.5rem;">
-									<div style="display:flex;align-items: center;gap:6px;white-space:nowrap;" id="username-container">
-										{{ if ne .clan.name "" }}
-											<a href="/c/{{ .clan.id }}" class="link-text" style="font-size:27px"><b id="clan-span">{{ $global.T "%s" (.clan.tag) }}</b></a>
-										{{ end }}
-										<span id="username-span">
-											{{ .username }}
-											<span id="user-name-history" data-tooltip="They have no previous name history." hidden>
-												<i class="address book small icon circular" style="box-shadow: none;display: inline;margin: 10px;font-size: 0.7em !important;padding: 0 !important;"></i>
-											</span>
-										<span>
-									</div>
-								</h1>
-
-								<div class="profile-country-online">
-									<div class="profile-country-flag">
-										<img class="nopad" src="/static/images/new-flags/flag-{{ stringLower .country }}.svg" width="27">
-										<span>{{ countryReadable .country }}</span>
-									</div>
-									<div class="profile-online-status">
-										{{ if isOnline (int $user.id) }}
-											<i class="green circle icon"></i>
-											<span>{{ $global.T "Online" }}</span>
-										{{ else }}
-											<i class="red circle icon"></i>
-											<span>{{ $global.T "Offline" }}</span>
-										{{ end }}
-									</div>
+						<!-- Statistics -->
+						<div v-if="currentStats" class="card">
+							<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+								<i class="fas fa-chart-simple text-primary"></i>
+								<h3 class="text-lg font-display font-bold text-white">Statistics</h3>
+							</div>
+							<div class="space-y-3">
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">PP</span>
+									<span class="text-white font-semibold"><% addCommas(Math.round(currentStats.pp || 0)) %></span>
 								</div>
-								<div class="ui divider" style="margin: 1rem 0.1rem auto auto !important;"></div>
-								<div class="profile-misc-information" style="display: flex;gap: 5px;justify-content: space-between;">
-									<div>
-										{{ if $isLinked }}
-											{{ with dcAPI $discordID }}
-												{{ if .raw.username }}
-													<br>{{ $global.T "Discord: <b>@%s</b>" .raw.username | html }}
-												{{ end }}
-											{{ end }}
-										{{ end }}
-										<br>{{ $global.T "Join Date: <b>%s</b>" (time $user.registered_on) | html }}
-										<br>{{ $global.T "Last Seen: <b>%s</b>" (time $user.latest_activity) | html }}
-										{{ with playstyle $user.play_style $global }}<br>{{ $global.T "Playing with: <b>%s</b>" . | html }}{{ end }}
-									</div>
-									<div style="width: 24%;margin-top: 20px;display: flex;flex-flow: column-reverse;gap:5px">
-										{{ if and (ne $global.Context.User.ID $global.UserID) (ne $global.Context.User.ID 0) }}
-											<a class="ui button inverted loading" id="add-friend-button" style="border-radius: 1rem;display: flex;gap: 5px;justify-content: center;height: 30px;align-items: center;"></a>
-										{{ end }}
-										{{ if hasAdmin $global.Context.User.Privileges }}
-											<a href="https://old.ussr.pl/user/edit/{{ $global.UserID }}" class="ui button red inverted" style="border-radius: 1rem;display: flex;gap: 5px;justify-content: center;height: 30px;align-items: center;" title="Edit user"><i class="fas fa-edit"></i></a>
-										{{ end }}
-									</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Accuracy</span>
+									<span class="text-white font-semibold"><% formatAccuracy(currentStats.accuracy) %>%</span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Maximum Combo</span>
+									<span class="text-white font-semibold"><% addCommas(currentStats.max_combo || 0) %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Ranked Score</span>
+									<span class="text-white font-semibold"><% humanize(currentStats.ranked_score || 0) %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Total Score</span>
+									<span class="text-white font-semibold"><% humanize(currentStats.total_score || 0) %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Playcount</span>
+									<span class="text-white font-semibold"><% addCommas(currentStats.playcount || 0) %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Followers</span>
+									<span class="text-white font-semibold"><% followers.subscount || 0 %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Replay Views</span>
+									<span class="text-white font-semibold"><% addCommas(currentStats.replays_watched || 0) %></span>
+								</div>
+								<div class="flex justify-between">
+									<span class="text-gray-400 font-medium">Total Hits</span>
+									<span class="text-white font-semibold"><% addCommas(currentStats.total_hits || 0) %></span>
+								</div>
+							</div>
+							<div class="mt-6">
+								<div class="relative h-2 bg-dark-border rounded-full overflow-hidden mb-2">
+									<div class="h-full bg-primary rounded-full transition-all" :style="'width: ' + levelPercent + '%'"></div>
+								</div>
+								<div class="text-center text-sm text-gray-400">
+									Level <% levelInt %> (<% levelPercent %>%)
 								</div>
 							</div>
 						</div>
-					</div>
-					<div class="ui three item bottom attached menu" id="rx-menu" style="margin-bottom: 0;">
-						<a id="clickVanilla" class="item {{ if eq 0 (int $relax) }}active{{ end }}" data-rx="0" href="/users/{{ $user.id }}?mode={{ $favouritemode }}&rx=0">Vanilla</a>
-						<a id="clickRelax" class="item {{ if eq 1 (int $relax) }}active{{ end }}" data-rx="1" href="/users/{{ $user.id }}?mode={{ $favouritemode }}&rx=1">Relax</a>
-						<a id="clickAutopilot" class="item {{ if eq 2 (int $relax) }}active{{ end }}" data-rx="2" href="/users/{{ $user.id }}?mode={{ $favouritemode }}&rx=2">Autopilot</a>
-					</div>
-					<div class="ui four item bottom attached menu" id="mode-menu">
-						{{ range $k, $v := modes }}
-							<a id="click{{ $v }}" class="{{ favMode $favouritemode $k }}item" data-mode="{{ $k }}" href="/users/{{ $user.id }}?mode={{ $k }}&rx={{ $relax }}">{{ $v }}</a>
-						{{ end }}
-					</div>
-					<div class="ui segment">
-						{{ range $rxk, $rxv := (slice .stats.vn .stats.rx .stats.ap) }}
-							{{ range $k, $v := (slice $rxv.std $rxv.taiko $rxv.ctb $rxv.mania) }}
-								<div data-mode="{{ $k }}" data-rx="{{ $rxk }}" {{ if _or (ne $k (int $favouritemode)) (ne $rxk (int $relax)) }} hidden{{ end }}>
-									<h4 class="ui horizontal divider header">
-										<div style="display: flex; align-items: center; gap: 0.5em; font-weight: 600;">
-											<i class="fa-solid fa-chart-simple"></i>
-											{{ $global.T "Statistics" }}
-										</div>
-									</h4>
-									<table class="ui very basic two column compact table nopad unstackable">
-										<tbody>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "PP" }}</b>
-													<span class="stats-mobile-view">{{ humanize .pp }}</spa>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .pp }}</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Accuracy" }}</b>
-													<span class="stats-mobile-view">{{ printf "%.2f" .accuracy }}%</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ printf "%.2f" .accuracy }}%</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Maximum Combo" }}</b>
-													<span class="stats-mobile-view">{{ humanize .max_combo }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .max_combo }}</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Ranked Score" }}</b>
-													<span class="stats-mobile-view">{{ humanize .ranked_score }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .ranked_score }}</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Total Score" }}</b>
-													<span class="stats-mobile-view">{{ humanize .total_score }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .total_score }}</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Playcount" }}</b>
-													<span class="stats-mobile-view">{{ humanize .playcount }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .playcount }}</td>
-											</tr>
-											{{ with $.Get "users/followers?userid=%d" $.UserID }}
-												<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-													<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-														<b>{{ $global.T "Followers" }}</b>
-														<span class="stats-mobile-view">{{ .subscount }}</span>
-													</td>
-													<td class="right aligned stats-desktop-view">{{ .subscount }}</td>
-												</tr>
-											{{ end }}
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Replay Views" }}</b>
-													<span class="stats-mobile-view">{{ humanize .replays_watched }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .replays_watched }}</td>
-											</tr>
-											<tr style="box-shadow: none !important; border: none !important; white-space: nowrap;">
-												<td style="display: flex !important; justify-content: space-between !important; width: 100%;">
-													<b>{{ $global.T "Total Hits" }}</b>
-													<span class="stats-mobile-view">{{ humanize .total_hits }}</span>
-												</td>
-												<td class="right aligned stats-desktop-view">{{ humanize .total_hits }}</td>
-											</tr>
-										</tbody>
-									</table>
-									<div style="text-align: center;margin-top: 10px;">
-										<div style="height: 10px; border-radius: 1rem; background: #000; display: block; position: relative; width: 100%;">
-											<div style="height: 100%; border-radius: 1rem; background-color: #0f97ff; width: {{ levelPercent .level }}%"></div>
-											<div style="right: 0; position: absolute; top: 100%; margin-top: 2px">{{ levelPercent .level }}%</div>
-										</div>
-										<div style="font-size: 15px;margin-top: 5px;">{{ $global.T "Level" }} {{ level .level }}</div>
-									</div>
-								</div>
-							{{ end }}
-						{{ end }}
 					</div>
 				</div>
 			</div>
-		{{ end }}
 
-		<div id="comments">
-			{{ with (.Get "users/comments/info?id=%d" .UserID) }}
-				<h4 class="ui horizontal divider header">
-					<div style="display: flex; align-items: center; font-weight: 600;">
-						<i class="fa-solid fa-comment" style="margin-right: 0.5em"></i>
-						Comments (<span id="total-comments" style="font-weight: 600;">{{ if .disabled }}0{{ else }}{{ .total }}{{ end }}</span>)
+			<!-- Right Column: Main Content -->
+			<div class="lg:col-span-2 space-y-6">
+				<!-- Userpage -->
+				<div v-if="userpage" class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-address-card text-primary"></i>
+						<h3 class="text-xl font-display font-bold text-white">me!</h3>
 					</div>
-				</h4>
+					<div class="prose prose-invert max-w-none" v-html="userpage"></div>
+				</div>
 
-				{{ if .disabled }}
-					<div class="ui segment comment-login">
-						<div class="ui icon message black ds">
-							<i class="lock icon"></i>
-							<p>This user has disabled comments!</p>
+				<!-- Profile Graph -->
+				<div class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-chart-line text-primary"></i>
+						<h3 class="text-xl font-display font-bold text-white">Profile Graph</h3>
+					</div>
+					<div class="flex gap-2 mb-4">
+						<button @click="changeGraphType('rank')" 
+							:class="'px-4 py-2 rounded-lg border transition-colors ' + (graphType === 'rank' ? 'bg-primary border-primary text-white' : 'border-dark-border text-gray-300 hover:border-primary')">
+							Rank
+						</button>
+						<button @click="changeGraphType('pp')" 
+							:class="'px-4 py-2 rounded-lg border transition-colors ' + (graphType === 'pp' ? 'bg-primary border-primary text-white' : 'border-dark-border text-gray-300 hover:border-primary')">
+							PP
+						</button>
+					</div>
+					<div v-if="graphData" ref="chartContainer" style="height: 160px;"></div>
+					<div v-else class="py-8 text-center">
+						<div class="bg-dark-bg rounded-lg p-6 border border-dark-border">
+							<i class="fas fa-chart-line text-gray-500 text-4xl mb-4"></i>
+							<p class="text-gray-400">No graph data found for this user</p>
 						</div>
 					</div>
-				{{ else }}
-					{{ if $global.Context.User.Username }}
-						<div style="display: flex;justify-content: center;gap: 20px;color: #fff;">
-							<div><img src="https://a.ussr.pl/{{ $global.Context.User.ID }}" style="  border-radius: 1rem;width: 90px;height: 90px;max-width: none;"></div>	
-							<div style="width: 100%">
-								<textarea id="comment-text" placeholder="Write a comment..." maxlength="380"></textarea>
-								<span id="comment-max">0/380</span>
-								<button id="comment-submit" class="disabled ui button inverted pink" onclick="post()">Comment</button>
+				</div>
+
+				<!-- Scores Sections -->
+				<!-- Pinned Scores -->
+				<div v-if="scores.pinned.data.length > 0" class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-star text-yellow-400"></i>
+						<h3 class="text-xl font-display font-bold text-white">Pinned Scores</h3>
+					</div>
+					<div class="space-y-2">
+						<div v-for="score in scores.pinned.data" :key="score.id" 
+							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							@click="viewScore(score)">
+							<div class="p-4 flex items-center gap-4 overflow-hidden">
+								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
+									<p class="text-gray-400 text-sm truncate">
+										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+									</p>
+									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+								</div>
+								<div class="text-right flex-shrink-0 pl-2">
+									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								</div>
 							</div>
 						</div>
-					{{ else }}
-						<div class="ui segment comment-login">
-							<div class="ui icon message black ds">
-								<i class="lock icon"></i>
-								<p>Please login to submit a comment!</p>
+					</div>
+					<div v-if="scores.pinned.hasMore" class="mt-4 text-center">
+						<button @click="loadScores('pinned')" :disabled="scores.pinned.loading" class="btn-secondary">
+							<span v-if="scores.pinned.loading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</div>
+
+				<!-- Best Scores -->
+				<div class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-angles-up text-primary"></i>
+						<h3 class="text-xl font-display font-bold text-white">Best Scores</h3>
+					</div>
+					<div v-if="scores.best.data.length === 0 && !scores.best.loading" class="py-8 text-center">
+						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
+						<p class="text-gray-400">No scores have been found</p>
+					</div>
+					<div v-else class="space-y-2">
+						<div v-for="(score, index) in scores.best.data" :key="score.id" 
+							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							@click="viewScore(score)">
+							<div class="p-4 flex items-center gap-4 overflow-hidden">
+								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
+									<p class="text-gray-400 text-sm truncate">
+										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+									</p>
+									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+								</div>
+								<div class="text-right flex-shrink-0 pl-2">
+									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								</div>
+								<div v-if="isOwnProfile && score.completed >= 2" class="flex-shrink-0">
+									<button @click.stop="openPinModal(score)" class="text-gray-400 hover:text-yellow-400 p-2" title="Pin Score">
+										<i class="fas fa-thumbtack"></i>
+									</button>
+								</div>
 							</div>
 						</div>
-					{{ end }}
-					
-					<div id="user-comments">
-						<div id="comments-list" class="ui comments"></div>
-						<div style="display: flex;justify-content: center;align-content: center;" id="comment-load-container">
-							<button id="comment-load" onclick="moreComments()" class="ui button inverted purple">Load more</button>
+					</div>
+					<div v-if="scores.best.hasMore && scores.best.data.length > 0" class="mt-4 text-center">
+						<button @click="loadScores('best')" :disabled="scores.best.loading" class="btn-secondary">
+							<span v-if="scores.best.loading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</div>
+
+				<!-- Most Played -->
+				<div class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-play text-primary"></i>
+						<h3 class="text-xl font-display font-bold text-white">Most Played Beatmaps <span v-if="scores.mostPlayed.total" class="text-gray-400">(<% scores.mostPlayed.total %>)</span></h3>
+					</div>
+					<div v-if="scores.mostPlayed.data.length === 0 && !scores.mostPlayed.loading" class="py-8 text-center">
+						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
+						<p class="text-gray-400">No beatmaps found</p>
+					</div>
+					<div v-else class="space-y-2">
+						<div v-for="beatmap in scores.mostPlayed.data" :key="beatmap.beatmap.beatmap_id" 
+							class="bg-cover bg-center rounded-lg overflow-hidden"
+							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + beatmap.beatmap.beatmapset_id + '/covers/cover.jpg)'">
+							<div class="p-4 flex items-center gap-4">
+								<div class="flex-1 min-w-0">
+									<a :href="'/b/' + beatmap.beatmap.beatmap_id" class="text-white font-medium hover:text-primary truncate block"><% escapeHTML(beatmap.beatmap.song_name) %></a>
+								</div>
+								<div class="text-right">
+									<div class="text-primary font-bold"><i class="fas fa-play mr-1"></i><% addCommas(beatmap.playcount) %></div>
+								</div>
+							</div>
 						</div>
 					</div>
-				{{ end }}
-			{{ end }}
+					<div v-if="scores.mostPlayed.hasMore && scores.mostPlayed.data.length > 0" class="mt-4 text-center">
+						<button @click="loadMostPlayed()" :disabled="scores.mostPlayed.loading" class="btn-secondary">
+							<span v-if="scores.mostPlayed.loading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</div>
+
+				<!-- Recent Scores -->
+				<div class="card">
+					<div class="flex items-center justify-between mb-4 pb-4 border-b border-dark-border">
+						<div class="flex items-center gap-3">
+							<i class="fas fa-clock-rotate-left text-primary"></i>
+							<h3 class="text-xl font-display font-bold text-white">Recent Scores</h3>
+						</div>
+						<label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+							<input type="checkbox" v-model="filterFailed" @change="scores.recent = { data: [], page: 0, loading: false, hasMore: true }; loadScores('recent')" class="rounded">
+							Hide failed
+						</label>
+					</div>
+					<div v-if="scores.recent.data.length === 0 && !scores.recent.loading" class="py-8 text-center">
+						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
+						<p class="text-gray-400">No scores have been found</p>
+					</div>
+					<div v-else class="space-y-2">
+						<div v-for="score in scores.recent.data" :key="score.id" 
+							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+							:style="'background: linear-gradient(to right, ' + (score.completed < 2 ? 'rgba(107, 32, 31, 0.9)' : 'rgba(30, 41, 59, 0.95)') + ', rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							@click="viewScore(score)">
+							<div class="p-4 flex items-center gap-4 overflow-hidden">
+								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
+									<p class="text-gray-400 text-sm truncate">
+										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+									</p>
+									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+								</div>
+								<div class="text-right flex-shrink-0 pl-2">
+									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-if="scores.recent.hasMore && scores.recent.data.length > 0" class="mt-4 text-center">
+						<button @click="loadScores('recent')" :disabled="scores.recent.loading" class="btn-secondary">
+							<span v-if="scores.recent.loading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</div>
+
+				<!-- First Place Scores -->
+				<div class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-trophy text-yellow-400"></i>
+						<h3 class="text-xl font-display font-bold text-white">First Places <span v-if="scores.first.total" class="text-gray-400">(<% scores.first.total %>)</span></h3>
+					</div>
+					<div v-if="scores.first.data.length === 0 && !scores.first.loading" class="py-8 text-center">
+						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
+						<p class="text-gray-400">No first place scores</p>
+					</div>
+					<div v-else class="space-y-2">
+						<div v-for="score in scores.first.data" :key="score.id" 
+							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							@click="viewScore(score)">
+							<div class="p-4 flex items-center gap-4 overflow-hidden">
+								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
+									<p class="text-gray-400 text-sm truncate">
+										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+									</p>
+									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+								</div>
+								<div class="text-right flex-shrink-0 pl-2">
+									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-if="scores.first.hasMore && scores.first.data.length > 0" class="mt-4 text-center">
+						<button @click="loadScores('first')" :disabled="scores.first.loading" class="btn-secondary">
+							<span v-if="scores.first.loading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</div>
+
+				<!-- Achievements -->
+				<div class="card">
+					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+						<i class="fas fa-gamepad text-primary"></i>
+						<h3 class="text-xl font-display font-bold text-white">Achievements</h3>
+					</div>
+					<div v-if="achievements.length === 0" class="py-8 text-center">
+						<p class="text-gray-400">Nothing here. Yet.</p>
+					</div>
+					<div v-else class="grid grid-cols-4 md:grid-cols-8 gap-4 mb-4">
+						<div v-for="ach in displayedAchievements" :key="ach.file" class="text-center group relative">
+							<img :src="'https://assets.ppy.sh/medals/web/' + ach.file + '.png'" 
+								:alt="ach.name"
+								:class="'w-12 h-12 mx-auto transition-transform group-hover:scale-110 ' + (!ach.achieved ? 'opacity-30 grayscale' : '')"
+								:title="ach.name + ' - ' + ach.desc">
+						</div>
+					</div>
+					<div v-if="hasMoreAchievements && !achievementsExpanded" class="text-center">
+						<button @click="achievementsExpanded = true" class="btn-secondary">Load more</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		<script src="/static/profiles/comments.js"></script>
-	{{ end }}
+
+		<!-- Comments Section -->
+		<div v-if="commentsInfo" class="mt-6">
+			<div class="card">
+				<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+					<i class="fas fa-comment text-primary"></i>
+					<h3 class="text-xl font-display font-bold text-white">
+						Comments (<% commentsInfo.disabled ? 0 : (commentsInfo.total || 0) %>)
+					</h3>
+				</div>
+
+				<div v-if="commentsInfo.disabled" class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center">
+					<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
+					<p class="text-gray-400">This user has disabled comments!</p>
+				</div>
+
+				<template v-else>
+					<!-- Comment Form -->
+					<div v-if="currentUserID" class="flex gap-4 mb-6">
+						<img :src="avatarURL + '/' + currentUserID" class="w-16 h-16 rounded-full border-2 border-dark-border flex-shrink-0">
+						<div class="flex-1">
+							<textarea v-model="commentText" placeholder="Write a comment..." maxlength="380"
+								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white resize-none focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+								rows="3"></textarea>
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-400"><% commentText.length %>/380</span>
+								<button @click="postComment" :disabled="!commentText.trim() || commentText.length > 380" class="btn-primary">Comment</button>
+							</div>
+						</div>
+					</div>
+					<div v-else class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center mb-6">
+						<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
+						<p class="text-gray-400 mb-4">Please login to submit a comment!</p>
+						<a href="/login" class="btn-primary inline-block">Log In</a>
+					</div>
+
+					<!-- Comments List -->
+					<div class="space-y-4">
+						<div v-for="comment in comments" :key="comment.id" class="flex gap-4">
+							<a :href="'/users/' + comment.user_id">
+								<img :src="avatarURL + '/' + comment.user_id" class="w-12 h-12 rounded-full border-2 border-dark-border flex-shrink-0">
+							</a>
+							<div class="flex-1 bg-dark-bg rounded-lg p-4 border border-dark-border">
+								<div class="flex items-center justify-between mb-2">
+									<a :href="'/users/' + comment.user_id" class="font-semibold text-white hover:text-primary"><% comment.username %></a>
+									<div class="flex items-center gap-2">
+										<span class="text-xs text-gray-500"><% timeAgo(comment.time) %></span>
+										<button v-if="currentUserID === comment.user_id || hasAdmin" @click="deleteComment(comment.id)" class="text-red-400 hover:text-red-300 text-sm">
+											<i class="fas fa-trash"></i>
+										</button>
+									</div>
+								</div>
+								<p class="text-gray-300"><% comment.comment %></p>
+							</div>
+						</div>
+					</div>
+
+					<div v-if="hasMoreComments && comments.length > 0" class="mt-6 text-center">
+						<button @click="loadComments" :disabled="commentLoading" class="btn-secondary">
+							<span v-if="commentLoading"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+							Load more
+						</button>
+					</div>
+				</template>
+			</div>
+		</div>
+	</div>
+
+	<!-- Score Detail Modal -->
+	<div v-if="showScoreModal && selectedScore" class="fixed inset-0 z-50 flex items-center justify-center">
+		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeScoreModal"></div>
+		<div class="relative bg-dark-card rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-dark-border">
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-2xl font-display font-bold text-white">Score Details</h2>
+				<button @click="closeScoreModal" class="text-gray-400 hover:text-white">
+					<i class="fas fa-times text-2xl"></i>
+				</button>
+			</div>
+			<table class="w-full">
+				<tbody>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Beatmap</td>
+						<td class="py-2 text-white"><a :href="'/b/' + selectedScore.beatmap.beatmap_id" class="hover:text-primary"><% selectedScore.beatmap.song_name %></a></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Score</td>
+						<td class="py-2 text-white"><% addCommas(selectedScore.score) %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">PP</td>
+						<td class="py-2 text-white"><% addCommas(selectedScore.pp?.toFixed(2) || 0) %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Accuracy</td>
+						<td class="py-2 text-white"><% formatAccuracy(selectedScore.accuracy) %>%</td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Max Combo</td>
+						<td class="py-2 text-white"><% addCommas(selectedScore.max_combo) %>/<% addCommas(selectedScore.beatmap.max_combo) %>x</td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Mods</td>
+						<td class="py-2 text-white"><% getScoreMods(selectedScore.mods) %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">300s</td>
+						<td class="py-2 text-white"><% selectedScore.count_300 %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">100s</td>
+						<td class="py-2 text-white"><% selectedScore.count_100 %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">50s</td>
+						<td class="py-2 text-white"><% selectedScore.count_50 %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Misses</td>
+						<td class="py-2 text-white"><% selectedScore.count_miss %></td>
+					</tr>
+					<tr class="border-b border-dark-border">
+						<td class="py-2 text-gray-400">Achieved</td>
+						<td class="py-2 text-white"><% timeAgo(selectedScore.time) %></td>
+					</tr>
+				</tbody>
+			</table>
+			<div v-if="selectedScore.completed === 3" class="mt-4">
+				<a :href="'/web/replays/' + selectedScore.id" class="btn-primary inline-block">
+					<i class="fas fa-download mr-2"></i>Download Replay
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pin Modal -->
+	<div v-if="showPinModal && pinModalScore" class="fixed inset-0 z-50 flex items-center justify-center">
+		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showPinModal = false"></div>
+		<div class="relative bg-dark-card rounded-lg p-6 max-w-md w-full mx-4 border border-dark-border">
+			<h2 class="text-xl font-display font-bold text-white mb-4"><% pinnedInfo ? 'Unpin' : 'Pin' %> Score</h2>
+			<p class="text-gray-300 mb-4"><% pinModalScore.beatmap.song_name %></p>
+			<p v-if="pinnedInfo" class="text-gray-400 text-sm mb-4">
+				Pinned on <% formatDate(pinnedInfo.pinned_at) %>
+			</p>
+			<div class="flex gap-2">
+				<button @click="togglePin" :class="'btn-primary flex-1 ' + (pinnedInfo ? 'bg-red-600 hover:bg-red-700' : '')">
+					<% pinnedInfo ? 'Unpin' : 'Pin' %> Score
+				</button>
+				<button @click="showPinModal = false" class="btn-secondary">Cancel</button>
+			</div>
+		</div>
+	</div>
 </div>
+
+<style>
+.rank-badge {
+	@apply w-12 h-12 flex items-center justify-center rounded-lg font-bold text-lg;
+}
+.rank-ss, .rank-ssh { @apply bg-gradient-to-br from-yellow-400 to-yellow-600 text-white; }
+.rank-s, .rank-sh { @apply bg-gradient-to-br from-yellow-300 to-yellow-500 text-white; }
+.rank-a { @apply bg-gradient-to-br from-green-400 to-green-600 text-white; }
+.rank-b { @apply bg-gradient-to-br from-blue-400 to-blue-600 text-white; }
+.rank-c { @apply bg-gradient-to-br from-purple-400 to-purple-600 text-white; }
+.rank-d { @apply bg-gradient-to-br from-red-400 to-red-600 text-white; }
+</style>
+
+<script src="/static/vue/pages/profile.js"></script>
 {{ end }}

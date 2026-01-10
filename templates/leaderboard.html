@@ -1,7 +1,8 @@
 {{/*###
 Handler=/leaderboard
-TitleBar=Leaderboard
 KyutGrill=score_feed.jpg
+DisableHH=true
+AdditionalJS=/static/vue/pages/leaderboards.js
 */}}
 {{ define "tpl" }}
 
@@ -21,172 +22,353 @@ KyutGrill=score_feed.jpg
 		relax = "vn"
 	}
 	var page = {{ $page }};
+	if (page <= 0) page = 1;
 	var sort = {{ $sortType }}.toLowerCase();
 	if (sort == "")
 		sort = "pp";
 	var country = {{ $country }}.toUpperCase();
+
+	// Helper function to get role info
+	function getPlayerRole(privileges) {
+		if (privileges & 8388608) return { name: 'Admin', color: 'text-red-400', bg: 'bg-red-500/20', icon: 'fa-shield-alt' };
+		if (privileges & 4194304) return { name: 'Moderator', color: 'text-purple-400', bg: 'bg-purple-500/20', icon: 'fa-gavel' };
+		if (privileges & 256) return { name: 'BAT', color: 'text-blue-400', bg: 'bg-blue-500/20', icon: 'fa-music' };
+		if (privileges & 4) return { name: 'Supporter', color: 'text-pink-400', bg: 'bg-pink-500/20', icon: 'fa-heart' };
+		return null;
+	}
 </script>
 
 <script src="/static/vue/vue.js"></script>
 <script src="/static/vue/vue-axios.js"></script>
 
-<div class="ui container" style="padding: 22px; background: #212121;" id="app">
-	<div class="ui grid">
-		<div class="six wide column">
-			<div class="ui two item menu" id="sort-menu">
-				<a :href="'/leaderboard?m='+mode+'&sort=pp'" @click="loadLeaderboardData('pp', mode, relax, 1, '')" :class="(sort == 'pp' ? 'active ' : '')+'item'" >
-					<% (mobileCheck() == false ? "PP Leaderboard" : "PP" ) %>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/score_feed.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4" id="app">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-trophy text-primary text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Leaderboard" }}</h1>
+				<p class="text-gray-400">{{ .T "Top players ranked by performance" }}</p>
+			</div>
+		</div>
+
+		<!-- Top 3 Players Cards - Dynamic -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" v-if="data && data.length >= 3 && page === 1">
+			<!-- Gold - #1 -->
+			<a :href="'/users/' + data[0].id" class="card border-yellow-500/50 bg-gradient-to-br from-yellow-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+				<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+				<div class="absolute top-3 right-3 flex items-center gap-2">
+					<span class="text-3xl font-display font-black text-yellow-400/30">#1</span>
+				</div>
+				<div class="relative flex items-center gap-4">
+					<div class="relative">
+						<img :src="hanayoConf.avatars + '/' + data[0].id" :alt="data[0].username" class="w-20 h-20 rounded-full border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
+						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+							<i class="fas fa-crown text-yellow-900 text-sm"></i>
+						</div>
+					</div>
+					<div class="flex-1 min-w-0">
+						<div class="flex items-center gap-2 mb-1">
+							<p class="font-display font-bold text-xl truncate text-white"><% data[0].username %></p>
+						</div>
+						<div class="flex items-center gap-2 mb-2">
+							<img v-if="data[0].country" :src="'/static/images/new-flags/flag-' + data[0].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
+							<span v-if="getPlayerRole(data[0].privileges)" :class="'text-xs px-2 py-0.5 rounded-full ' + getPlayerRole(data[0].privileges).bg + ' ' + getPlayerRole(data[0].privileges).color">
+								<i :class="'fas ' + getPlayerRole(data[0].privileges).icon + ' mr-1'"></i><% getPlayerRole(data[0].privileges).name %>
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1">
+							<span class="text-2xl font-bold text-yellow-400"><% addCommas(Math.round(safeValue(data[0].chosen_mode?.pp, 0))) %></span>
+							<span class="text-yellow-400/70 text-sm">pp</span>
+						</div>
+						<div class="text-xs text-gray-400 mt-1">
+							<span><% formatAccuracy(data[0].chosen_mode?.accuracy) %>% accuracy</span>
+						</div>
+					</div>
+				</div>
+			</a>
+			
+			<!-- Silver - #2 -->
+			<a :href="'/users/' + data[1].id" class="card border-gray-400/50 bg-gradient-to-br from-gray-700/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+				<div class="absolute inset-0 bg-gradient-to-br from-gray-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+				<div class="absolute top-3 right-3 flex items-center gap-2">
+					<span class="text-3xl font-display font-black text-gray-400/30">#2</span>
+				</div>
+				<div class="relative flex items-center gap-4">
+					<div class="relative">
+						<img :src="hanayoConf.avatars + '/' + data[1].id" :alt="data[1].username" class="w-20 h-20 rounded-full border-4 border-gray-400/50 shadow-lg">
+						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center shadow-lg">
+							<i class="fas fa-medal text-gray-700 text-sm"></i>
+						</div>
+					</div>
+					<div class="flex-1 min-w-0">
+						<div class="flex items-center gap-2 mb-1">
+							<p class="font-display font-bold text-xl truncate text-white"><% data[1].username %></p>
+						</div>
+						<div class="flex items-center gap-2 mb-2">
+							<img v-if="data[1].country" :src="'/static/images/new-flags/flag-' + data[1].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
+							<span v-if="getPlayerRole(data[1].privileges)" :class="'text-xs px-2 py-0.5 rounded-full ' + getPlayerRole(data[1].privileges).bg + ' ' + getPlayerRole(data[1].privileges).color">
+								<i :class="'fas ' + getPlayerRole(data[1].privileges).icon + ' mr-1'"></i><% getPlayerRole(data[1].privileges).name %>
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1">
+							<span class="text-2xl font-bold text-gray-300"><% addCommas(Math.round(safeValue(data[1].chosen_mode?.pp, 0))) %></span>
+							<span class="text-gray-400/70 text-sm">pp</span>
+						</div>
+						<div class="text-xs text-gray-400 mt-1">
+							<span><% formatAccuracy(data[1].chosen_mode?.accuracy) %>% accuracy</span>
+						</div>
+					</div>
+				</div>
+			</a>
+			
+			<!-- Bronze - #3 -->
+			<a :href="'/users/' + data[2].id" class="card border-orange-600/50 bg-gradient-to-br from-orange-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+				<div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+				<div class="absolute top-3 right-3 flex items-center gap-2">
+					<span class="text-3xl font-display font-black text-orange-400/30">#3</span>
+				</div>
+				<div class="relative flex items-center gap-4">
+					<div class="relative">
+						<img :src="hanayoConf.avatars + '/' + data[2].id" :alt="data[2].username" class="w-20 h-20 rounded-full border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
+						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+							<i class="fas fa-award text-orange-900 text-sm"></i>
+						</div>
+					</div>
+					<div class="flex-1 min-w-0">
+						<div class="flex items-center gap-2 mb-1">
+							<p class="font-display font-bold text-xl truncate text-white"><% data[2].username %></p>
+						</div>
+						<div class="flex items-center gap-2 mb-2">
+							<img v-if="data[2].country" :src="'/static/images/new-flags/flag-' + data[2].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
+							<span v-if="getPlayerRole(data[2].privileges)" :class="'text-xs px-2 py-0.5 rounded-full ' + getPlayerRole(data[2].privileges).bg + ' ' + getPlayerRole(data[2].privileges).color">
+								<i :class="'fas ' + getPlayerRole(data[2].privileges).icon + ' mr-1'"></i><% getPlayerRole(data[2].privileges).name %>
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1">
+							<span class="text-2xl font-bold text-orange-400"><% addCommas(Math.round(safeValue(data[2].chosen_mode?.pp, 0))) %></span>
+							<span class="text-orange-400/70 text-sm">pp</span>
+						</div>
+						<div class="text-xs text-gray-400 mt-1">
+							<span><% formatAccuracy(data[2].chosen_mode?.accuracy) %>% accuracy</span>
+						</div>
+					</div>
+				</div>
+			</a>
+		</div>
+		
+		<!-- Loading State for Top 3 -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" v-else-if="load && page === 1">
+			<div class="card border-yellow-500/30 animate-pulse" v-for="n in 3" :key="n">
+				<div class="flex items-center gap-4">
+					<div class="w-20 h-20 rounded-full bg-dark-border"></div>
+					<div class="flex-1">
+						<div class="h-6 w-32 bg-dark-border rounded mb-2"></div>
+						<div class="h-4 w-20 bg-dark-border rounded mb-2"></div>
+						<div class="h-8 w-24 bg-dark-border rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filters Card -->
+		<div class="card mb-6">
+			<div class="flex items-center gap-2 mb-4">
+				<i class="fas fa-filter text-primary"></i>
+				<h3 class="font-semibold text-white">{{ .T "Filters" }}</h3>
+			</div>
+			
+			<div class="space-y-4">
+				<!-- Mode Selection -->
+				<div>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Game Mode" }}</p>
+					<div class="flex flex-wrap gap-2">
+						<a :href="'/leaderboard?m=std&sort='+sort+'&rx='+relax+'&p=1'"
+							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							@click="loadLeaderboardData(sort, 'std', relax, 1, '')">
+							<i class="fas fa-circle mr-2 text-xs"></i>osu!standard
+						</a>
+						<a :href="'/leaderboard?m=taiko&sort='+sort+'&rx='+relax+'&p=1'"
+							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							@click="loadLeaderboardData(sort, 'taiko', relax, 1, '')">
+							<i class="fas fa-drum mr-2 text-xs"></i>osu!taiko
+						</a>
+						<a :href="'/leaderboard?m=fruits&sort='+sort+'&rx='+relax+'&p=1'"
+							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							@click="loadLeaderboardData(sort, 'fruits', relax, 1, '')">
+							<i class="fas fa-apple-alt mr-2 text-xs"></i>osu!catch
+						</a>
+						<a :href="'/leaderboard?m=mania&sort='+sort+'&rx='+relax+'&p=1'"
+							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							@click="loadLeaderboardData(sort, 'mania', relax, 1, '')">
+							<i class="fas fa-keyboard mr-2 text-xs"></i>osu!mania
+						</a>
+					</div>
+				</div>
+
+				<!-- Type & Sort Selection -->
+				<div class="flex flex-wrap gap-6">
+					<div>
+						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Play Type" }}</p>
+						<div class="flex flex-wrap gap-2">
+							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=vn&p=1'"
+								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (relax == 'vn' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
+								@click="loadLeaderboardData(sort, mode, 'vn', 1, '')">Vanilla</a>
+							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=rx&p=1'"
+								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (relax == 'rx' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+								@click="if(mode != 'mania') loadLeaderboardData(sort, mode, 'rx', 1, '')">Relax</a>
+							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=ap&p=1'"
+								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (relax == 'ap' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+								@click="if(mode != 'mania' && mode != 'fruits' && mode != 'taiko') loadLeaderboardData(sort, mode, 'ap', 1, '')">Autopilot</a>
+						</div>
+					</div>
+					
+					<div>
+						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Sort By" }}</p>
+						<div class="flex flex-wrap gap-2">
+							<a :href="'/leaderboard?m='+mode+'&sort=pp&rx='+relax+'&p=1'"
+								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'pp' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
+								@click="loadLeaderboardData('pp', mode, relax, 1, '')">
+								<i class="fas fa-chart-line mr-2"></i>PP
+							</a>
+							<a :href="'/leaderboard?m='+mode+'&sort=score&rx='+relax+'&p=1'"
+								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'score' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
+								@click="loadLeaderboardData('score', mode, relax, 1, '')">
+								<i class="fas fa-star mr-2"></i>Score
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		<div class="flex items-center justify-between mb-6">
+			<div class="flex items-center gap-2">
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page-1)+'&c='+country"
+					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="if(page > 1) loadLeaderboardData(sort, mode, relax, page - 1, country)">
+					<i class="fas fa-chevron-left"></i> {{ .T "Previous" }}
 				</a>
-				<a :href="'/leaderboard?m='+mode+'&sort=score'" @click="loadLeaderboardData('score', mode, relax, 1, '')" :class="(sort == 'score' ? 'active ' : '')+'item'">
-					<% (mobileCheck() == false ? "Score Leaderboard" : "Score" ) %>
-				</a>			
+				<span class="px-4 py-2 bg-primary/10 rounded-lg border border-primary/30 text-sm">
+					{{ .T "Page" }} <span class="text-primary font-bold"><% page %></span>
+				</span>
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page+1)+'&c='+country"
+					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="if(data.length >= 50) loadLeaderboardData(sort, mode, relax, page + 1, country)">
+					{{ .T "Next" }} <i class="fas fa-chevron-right"></i>
+				</a>
 			</div>
+			<p class="text-gray-400 text-sm hidden sm:block">
+				<i class="fas fa-users mr-1"></i>{{ .T "Showing" }} <span class="text-white font-medium"><% data.length %></span> {{ .T "players" }}
+			</p>
 		</div>
-		<div class="ten wide column">
-			<div class="ui three item menu">
-				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=vn'"
-	                :class="'item '+(relax == 'vn' ? 'active' : '')"
-	                @click="loadLeaderboardData(sort, mode, 'vn', 1, '')">Vanilla</a>
-	            <a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=rx'"
-	                :class="'item '+(relax == 'rx' ? 'active' : '')+(mode == 'mania' ? 'disabled':'')"
-	                @click="loadLeaderboardData(sort, mode, 'rx', 1, '')">Relax</a>
-	            <a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=ap'"
-	                :class="'item '+(relax == 'ap' ? 'active' : '')+(mode == 'mania' ? 'disabled':'')+(mode == 'fruits' ? 'disabled':'')+(mode == 'taiko' ? 'disabled':'')"
-	                @click="loadLeaderboardData(sort, mode, 'ap', 1, '')">Autopilot</a>
+
+		<!-- Leaderboard Table -->
+		<div class="card p-0 overflow-hidden">
+			<!-- Loading State -->
+			<div v-if="load" class="py-16 text-center">
+				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+					<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
+				</div>
+				<p class="text-gray-400">{{ .T "Loading leaderboard..." }}</p>
 			</div>
-		</div>
-	</div>
-	<div class="ui four item menu" id="mode-menu">
-		<a :href="'/leaderboard?m=osu&sort='+sort+'&rx='+relax"
-            :class="'item '+(mode == 'std' ? 'active ' : '')"
-            @click="loadLeaderboardData(sort, 'std', relax, 1, '')">osu!</a>
-        <a :href="'/leaderboard?m=taiko&sort='+sort+'&rx='+relax"
-            :class="'item '+(mode == 'taiko' ? 'active ' : '')+(relax == 'ap' ? 'disabled':'')"
-            @click="loadLeaderboardData(sort, 'taiko', relax, 1, '')">Taiko</a>
-        <a :href="'/leaderboard?m=fruits&sort='+sort+'&rx='+relax"
-            :class="'item '+(mode == 'fruits' ? 'active ' : '')+(relax == 'ap' ? 'disabled':'')"
-            @click="loadLeaderboardData(sort, 'fruits', relax, 1, '')">Catch</a>
-        <a :href="'/leaderboard?m=mania&sort='+sort+'&rx='+relax" 
-			:class="'item '+(mode == 'mania' ? 'active ' : '')+(relax == 'ap' ? 'disabled':'')+(relax == 'rx' ? 'disabled':'')"
-            @click="loadLeaderboardData(sort, 'mania', relax, 1, '')">Mania</a>
-	</div>
-	<div class="ui twelve item stackable menu">
-		{{ range countryList 11 }}
-			{{ $code := . }}
-			{{ with country . false }}
-				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&c={{$code}}'" :class="'item lb-country '+(country == '{{$code}}' ? 'active ' : '')" @click="loadLeaderboardData(sort, mode, relax, 1, '{{$code}}')">{{.}}</a>
-			{{ end }}
-		{{ end }}
-		<a class="item" id="country-chooser-modal">...</a>
-	</div>
-	<table class="ui table leaderboard-table">
-		<thead>
-			<tr>
-				<th colspan="5">
-					<div class="simplepag">
-						<div class="ui left floated pagination menu">
-							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page-1)+'&c='+country" :class="'icon item '+((page - 1) == 0 ? 'disabled' : '')"
-					            @click="loadLeaderboardData(sort, mode, relax, page - 1, country)">
-					            <i class="left chevron icon"></i>
-					        </a>
-						</div>
-						<div class="ui right floated pagination menu">
-							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+addOne(page)+'&c='+country" :class="'icon item '+(data.length != 50 ? 'disabled' : '')"
-					            @click="loadLeaderboardData(sort, mode, relax, addOne(page), country)">
-					            <i class="right chevron icon"></i>
-					        </a>
-						</div>
-					</div>
-				</th>
-			</tr>
-			<tr>
-				<th class="t-heading center aligned">Rank</th>
-				<th id="t-player" :class="'t-heading t-player'+(mobileCheck()==true ? 'center aligned' : '')">Player Name</th>
-				<th v-if="sort == 'pp' || sort == 'score'" class="t-heading center aligned">
-					<% (sort=='pp' ? "Performance Points" : "" ) %>
-					<% (sort=='score' ? "Score" : "" ) %>
-				</th>
-				<th class="t-heading center aligned">Accuracy</th>
-				<th class="t-heading center aligned">Playcount</th>
-			</tr>
-		</thead>
-		<tbody id="table-scores">
-			<tr :class="'l-player index-'+(index + 1 + (50 * (page - 1)))" v-for="(user, index) in data">
-				<td :class="(mobileCheck()==false ? 'center aligned' : '')">
-					#<% index + 1 + (50 * (page - 1)) %>
-				</td>
-				<td>
-					<a class="link-text" title='View profile' :href="'/users/'+user.id+'?m='+modeInt+'&rx='+relaxInt" style="color: #ffffff;">
-						<div class="lb-username">
-							<img class="new-flag nopad" :src="'/static/images/new-flags/flag-'+user.country.toLowerCase()+'.svg'">
-							<% user.username %>
-						</div>
-					</a>
-				</td>
-				<td class="center aligned" v-if="sort == 'pp'">
-					<b><% addCommas(user.chosen_mode.pp) %>pp</b>
-                </td>
-                <td class="center aligned" v-else-if="sort == 'score'">
-                	<span v-if="mobileCheck() == false" :data-tooltip=addCommas(user.chosen_mode.ranked_score)>
-                		<b><% convertIntToLabel(user.chosen_mode.ranked_score) %></b>
-                	</span>
-                	<span v-else-if="mobileCheck() == true">
-                		<b><% convertIntToLabel(user.chosen_mode.ranked_score) %></b>
-                	</span>
-                </td>
-                <td class="center aligned">
-                	<% user.chosen_mode.accuracy.toFixed(2) %>%
-                </td>
-                <td class="center aligned">
-                	<% addCommas(user.chosen_mode.playcount) %>
-                </td>
-			</tr>
-		</tbody>
-		<tfoot>
-			<tr>
-				<th colspan="5">
-					<div class="simplepag">
-						<div class="ui left floated pagination menu">
-							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page-1)+'&c='+country" :class="'icon item '+((page - 1) == 0 ? 'disabled' : '')"
-					            @click="loadLeaderboardData(sort, mode, relax, page - 1, country)">
-					            <i class="left chevron icon"></i>
-					        </a>
-						</div>
-						<div class="ui right floated pagination menu">
-							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+addOne(page)+'&c='+country" :class="'icon item '+(data.length != 50 ? 'disabled' : '')"
-					            @click="loadLeaderboardData(sort, mode, relax, addOne(page), country)">
-					            <i class="right chevron icon"></i>
-					        </a>
-						</div>
-					</div>
-				</th>
-			</tr>
-		</tfoot>
-	</table>
-	<div class="ui modal">
-		<div class="content">
-			<div :class="'ui ' + (mobileCheck() == false ? 'four' : 'two') + ' column grid'">
-				{{ range countryList 500 }}
-					{{ $short := . }}
-					{{ with country . true }}
-						<div :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&c={{$short}}'" class="ui clickable column lb-country link-text" @click="loadLeaderboardData(sort, mode, relax, 1, '{{$short}}')">{{ . }}</div>
-					{{ end }}
-				{{ end }}
+			
+			<!-- Data Table -->
+			<table class="w-full" v-else>
+				<thead class="bg-dark-bg/50">
+					<tr class="border-b border-dark-border">
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider w-20">{{ .T "Rank" }}</th>
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">{{ .T "Player" }}</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">PP</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden md:table-cell">{{ .T "Accuracy" }}</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden lg:table-cell">{{ .T "Play Count" }}</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden xl:table-cell">{{ .T "Level" }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(player, index) in data" :key="player.id" 
+						:class="'border-b border-dark-border/50 hover:bg-primary/5 transition-all cursor-pointer ' + ((page - 1) * 50 + index < 3 && page === 1 ? 'bg-dark-bg/30' : '')"
+						@click="window.location.href='/users/' + player.id">
+						<td class="py-4 px-4">
+							<div class="flex items-center gap-2">
+								<span v-if="(page - 1) * 50 + index === 0 && page === 1" class="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+									<i class="fas fa-crown text-yellow-400 text-sm"></i>
+								</span>
+								<span v-else-if="(page - 1) * 50 + index === 1 && page === 1" class="w-8 h-8 bg-gray-400/20 rounded-full flex items-center justify-center">
+									<i class="fas fa-medal text-gray-400 text-sm"></i>
+								</span>
+								<span v-else-if="(page - 1) * 50 + index === 2 && page === 1" class="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
+									<i class="fas fa-award text-orange-400 text-sm"></i>
+								</span>
+								<span v-else :class="'font-bold text-lg ' + ((page - 1) * 50 + index < 10 ? 'text-gray-300' : 'text-gray-500')">
+									#<% (page - 1) * 50 + index + 1 %>
+								</span>
+							</div>
+						</td>
+						<td class="py-4 px-4">
+							<div class="flex items-center gap-3">
+								<div class="relative">
+									<img :src="hanayoConf.avatars + '/' + player.id" 
+										:alt="player.username" 
+										class="w-12 h-12 rounded-full border-2 border-dark-border object-cover">
+									<div v-if="player.privileges & 4" class="absolute -bottom-1 -right-1 w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-card">
+										<i class="fas fa-heart text-white text-[8px]"></i>
+									</div>
+								</div>
+								<div class="min-w-0">
+									<div class="flex items-center gap-2 flex-wrap">
+										<span class="font-semibold text-white hover:text-primary transition-colors truncate"><% player.username %></span>
+										<span v-if="getPlayerRole(player.privileges)" :class="'text-xs px-2 py-0.5 rounded-full whitespace-nowrap ' + getPlayerRole(player.privileges).bg + ' ' + getPlayerRole(player.privileges).color">
+											<i :class="'fas ' + getPlayerRole(player.privileges).icon + ' mr-1'"></i><% getPlayerRole(player.privileges).name %>
+										</span>
+									</div>
+									<div class="flex items-center gap-2 mt-1">
+										<img v-if="player.country" 
+											:src="'/static/images/new-flags/flag-' + player.country.toLowerCase() + '.svg'" 
+											:alt="player.country" 
+											class="w-5 h-3 rounded-sm">
+										<span class="text-xs text-gray-500"><% player.country %></span>
+									</div>
+								</div>
+							</div>
+						</td>
+						<td class="py-4 px-4 text-right">
+							<div class="flex flex-col items-end">
+								<span class="text-primary font-bold text-lg"><% addCommas(Math.round(safeValue(player.chosen_mode?.pp, 0))) %></span>
+								<span class="text-gray-500 text-xs">pp</span>
+							</div>
+						</td>
+						<td class="py-4 px-4 text-right hidden md:table-cell">
+							<span class="text-gray-300 font-medium"><% formatAccuracy(player.chosen_mode?.accuracy) %>%</span>
+						</td>
+						<td class="py-4 px-4 text-right hidden lg:table-cell">
+							<span class="text-gray-400"><% addCommas(safeValue(player.chosen_mode?.playcount, 0)) %></span>
+						</td>
+						<td class="py-4 px-4 text-right hidden xl:table-cell">
+							<span class="px-2 py-1 bg-dark-bg rounded text-gray-400 text-sm">Lv.<% Math.floor(safeValue(player.chosen_mode?.level, 0)) %></span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<!-- Empty State -->
+			<div v-if="!load && data.length === 0" class="py-16 text-center">
+				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-500/20 flex items-center justify-center">
+					<i class="fas fa-users-slash text-gray-500 text-2xl"></i>
+				</div>
+				<p class="text-gray-400">{{ .T "No players found" }}</p>
 			</div>
 		</div>
 	</div>
 </div>
-<script>
-	$(document).ready(function() {
-		$("#country-chooser-modal")
-	      .click(function() {
-	        $(".ui.modal").modal("show");
-	    });
-	    $(".lb-country")
-		  .click(function() {
-		    $(".ui.modal").modal("hide");
-		});
-	})
-</script>
-<script src="/static/vue/pages/leaderboards.js"></script>
 {{ end }}

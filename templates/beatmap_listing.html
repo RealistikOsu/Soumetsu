@@ -1,53 +1,81 @@
 {{/*###
 Handler=/beatmap_listing
-TitleBar=Beatmap Listing
 KyutGrill=leaderboard2.jpg
+DisableHH=true
 */}}
 {{ define "tpl" }}
 <head>
-<link rel="stylesheet" type="text/css" href="/static/beatmaps.css">
-<script src="/static/js/bmap-search.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/beatmaps.css">
+	<script src="/static/js/bmap-search.js"></script>
 </head>
-<div class="ui container">
-    <div id="bm-search">
-        <style id="progressCSS"></style>
-        <div>
-            <div class="ui segment">
-                <div class="ui one column stackable center aligned page grid">
-                    <div class="column sixteen wide">
-                        <div class="row">
-                            <div class="ui icon input" style="width: 100%;">
-                                <input type="text" id="searchTerms" placeholder="write here anything you want!" style="border-radius: 1rem;">
-                                <i class="search link icon" style="color: white;"></i>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="ui segment wow-links" style="height: 20%;">
-                                <a id="mode-button" data-modeosu="">Any</a>
-                                <a id="mode-button" data-modeosu="0">osu!</a>
-                                <a id="mode-button" data-modeosu="1">Taiko</a>
-                                <a id="mode-button" data-modeosu="2">Catch</a>
-                                <a id="mode-button" data-modeosu="3">Mania</a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="ui segment wow-links" style="height: 20%;">
-                                <a id="status-button" data-rankstatus="NaN">Any</a>
-                                <a id="status-button" data-rankstatus="1">Ranked</a>
-                                <a id="status-button" data-rankstatus="3">Qualified</a>
-                                <a id="status-button" data-rankstatus="4">Loved</a>
-                                <a id="status-button" data-rankstatus="0">Pending</a>
-                                <a id="status-button" data-rankstatus="-1">WIP</a>
-                                <a id="status-button" data-rankstatus="-2">Graveyard</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bodySearching">
-                <div class="ui stackable two grid" id="maps"></div>
-            </div>
-        </div>
-    </div>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/leaderboard2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-music text-green-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Beatmap Listing" }}</h1>
+				<p class="text-gray-400">{{ .T "Browse and search for beatmaps" }}</p>
+			</div>
+		</div>
+
+		<div id="bm-search">
+			<style id="progressCSS"></style>
+			
+			<!-- Search Card -->
+			<div class="card mb-6">
+				<div class="space-y-6">
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">Search Beatmaps</label>
+						<div class="relative">
+							<input type="text" 
+								id="searchTerms" 
+								placeholder="write here anything you want!" 
+								class="input-field pr-12">
+							<i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">Game Mode</label>
+						<div class="flex flex-wrap gap-2">
+							<a id="mode-button" data-modeosu="" class="px-4 py-2 rounded-lg border transition-colors bg-primary border-primary text-white">Any</a>
+							<a id="mode-button" data-modeosu="0" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">osu!</a>
+							<a id="mode-button" data-modeosu="1" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Taiko</a>
+							<a id="mode-button" data-modeosu="2" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Catch</a>
+							<a id="mode-button" data-modeosu="3" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Mania</a>
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">Rank Status</label>
+						<div class="flex flex-wrap gap-2">
+							<a id="status-button" data-rankstatus="NaN" class="px-4 py-2 rounded-lg border transition-colors bg-primary border-primary text-white">Any</a>
+							<a id="status-button" data-rankstatus="1" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Ranked</a>
+							<a id="status-button" data-rankstatus="3" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Qualified</a>
+							<a id="status-button" data-rankstatus="4" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Loved</a>
+							<a id="status-button" data-rankstatus="0" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Pending</a>
+							<a id="status-button" data-rankstatus="-1" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">WIP</a>
+							<a id="status-button" data-rankstatus="-2" class="px-4 py-2 rounded-lg border transition-colors bg-dark-card border-dark-border text-gray-300 hover:border-primary">Graveyard</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Results Grid -->
+			<div class="bodySearching">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="maps"></div>
+			</div>
+		</div>
+	</div>
 </div>
 {{ end }}

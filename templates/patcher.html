@@ -1,54 +1,64 @@
-{{/* prettier-ignore-start */}}
 {{/*###
 Handler=/patcher
-TitleBar=RealistikOsu Patcher
-BannerContent=documentation.jpg
-BannerType=1
+DisableHH=true
 */}}
-{{/* prettier-ignore-end */}}
 {{ define "tpl" }}
-  <!--
-    Stolen 🇷🇴
-  -->
-  <div class="ui container">
-    <div class="ui segment">
-      <div class="ui raised segments">
-        <h3 class="ui centered">
-          RealistikOsu patcher is a simple tool made to enhance your RealistikOsu Relax
-          experience!
-          <br />
-          It restores critical features such as ranking panels to your relax
-          gameplay, sweetening the already great experience.
-          <br />
-          Simply run the installer to install the patcher into your PC. Then just run it to play RealistikOsu!
-        </h3>
-        <div class="ui divider"></div>
-        <div class="ui stackable column grid">
-          <div class="eight wide column">
-            <h2 class="ui centered">Enable Relax Misses</h2>
-            <img src="/static/images/patcher_relax_misses.jpg" />
-          </div>
-          <div class="eight wide column">
-            <h2 class="ui centered">Customisable Feature Set</h2>
-            <img src="/static/images/patcher_settings.jpeg" />
-          </div>
-        </div>
-        <div class="ui raised segments centered aligned">
-          <h4 class="ui horizontal divider header">
-            <i class="save icon"></i>
-            Download
-          </h4>
-          <h5>
-            The RealistikOsu patcher is a simple app that manages the initialisation of the patcher.
-          </h5>
-            <a
-              class="ui green button"
-              href="/static/patcher.exe">
-              <i class="angle double down icon"></i>
-              Download Patcher
-            </a>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/documentation.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-5xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-wrench text-purple-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "RealistikOsu Patcher" }}</h1>
+				<p class="text-gray-400">{{ .T "Enhance your gameplay experience" }}</p>
+			</div>
+		</div>
+
+		<div class="card text-center mb-8">
+			<p class="text-lg text-gray-300 leading-relaxed">
+				{{ .T "RealistikOsu patcher is a simple tool made to enhance your RealistikOsu Relax experience!" }}<br />
+				{{ .T "It restores critical features such as ranking panels to your relax gameplay, sweetening the already great experience." }}<br />
+				{{ .T "Simply run the installer to install the patcher into your PC. Then just run it to play RealistikOsu!" }}
+			</p>
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+			<div class="card text-center">
+				<h2 class="text-2xl font-semibold mb-4">Enable Relax Misses</h2>
+				<img src="/static/images/patcher_relax_misses.jpg" alt="Relax Misses" class="w-full rounded-lg">
+			</div>
+			<div class="card text-center">
+				<h2 class="text-2xl font-semibold mb-4">Customisable Feature Set</h2>
+				<img src="/static/images/patcher_settings.jpeg" alt="Settings" class="w-full rounded-lg">
+			</div>
+		</div>
+
+		<div class="card text-center">
+			<div class="flex items-center justify-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-save text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">Download</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6">
+				The RealistikOsu patcher is a simple app that manages the initialisation of the patcher.
+			</p>
+			<a href="/static/patcher.exe" class="btn-primary inline-flex items-center gap-2">
+				<i class="fas fa-download"></i>
+				Download Patcher
+			</a>
+		</div>
+	</div>
+</div>
 {{ end }}

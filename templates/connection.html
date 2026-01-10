@@ -1,43 +1,68 @@
 {{/*###
 Handler=/connect
-TitleBar=Connecting to RealistikOsu
+DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="ui container">
-	<div class ="ui segment">
-		<h2 class="ui header">Connecting</h2>
-		You are one step away from starting your journey on RealistikOsu! One small step from joining a community 
-		of {{ .T "%s" (rediget "ripple:registered_users")}} dedicated players and competing in the leaderboards.
-		The only thing left to do is to connect to the servers and your profile will become public for the entire 
-		world to see! You will be able to set scores, join clans and play to your heart's content! But how do you 
-		do that, you may ask.
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/default.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
-	<h4 class="ui horizontal divider header"><i class="play icon"></i>Connection Methods</h4>
-	<div class="ui grid" style="justify-content: center;">
-		<div class="eight wide column">
-			<div class="ui segment">
-				<h2 class="ui header">The Shortcut Method <i class="mouse pointer icon"></i></h2>
+
+	<div class="container mx-auto px-4 max-w-4xl">
+		<div class="card mb-8">
+			<h2 class="text-3xl font-display font-bold mb-4">Connecting</h2>
+			<p class="text-gray-300 leading-relaxed">
+				You are one step away from starting your journey on RealistikOsu! One small step from joining a community 
+				of <span class="text-primary font-semibold">{{ .T "%s" (rediget "ripple:registered_users")}}</span> dedicated players and competing in the leaderboards.
+				The only thing left to do is to connect to the servers and your profile will become public for the entire 
+				world to see! You will be able to set scores, join clans and play to your heart's content! But how do you 
+				do that, you may ask.
+			</p>
+		</div>
+
+		<div class="flex items-center gap-4 mb-8">
+			<div class="flex-1 h-px bg-dark-border"></div>
+			<div class="flex items-center gap-2 text-gray-400">
+				<i class="fas fa-play"></i>
+				<span class="font-medium">Connection Methods</span>
+			</div>
+			<div class="flex-1 h-px bg-dark-border"></div>
+		</div>
+
+		<div class="card">
+			<div class="flex items-center gap-3 mb-6">
+				<i class="fas fa-mouse-pointer text-primary text-2xl"></i>
+				<h2 class="text-2xl font-display font-bold">The Shortcut Method</h2>
+			</div>
+			
+			<p class="text-gray-300 mb-6 leading-relaxed">
 				Did you know that osu! nowadays offers a somewhat official private server connection method! The
 				only requirements for this connection method are to have a recent version of the osu client
-				(with the minimum version being <b>stable 20210316</b>). This method only requires the editing of 
+				(with the minimum version being <span class="font-semibold text-primary">stable 20210316</span>). This method only requires the editing of 
 				the osu! shortcut on your desktop, and requires no admin privileges.
-				<ol type="1">
-					<li>
-						Open the osu! shortcut properties. This can be an existing osu! shortcut on your desktop or a 
-						newly created one. You should now see a properties window open up with the "Shortcut" tab 
-						selected by default.
-					</li>
-					<li>
-						Click on the box labeled "Target" and add <code>-devserver ussr.pl</code> to the end of it as 
-						shown in this image.
-						<img src="/static/image/devserver-image.png" alt="Shortcut target image">
-					</li>
-					<li>
-						And that's it! You are now connected to RealistikOsu! You may now log into your account and 
-						enjoy all the features RealistikOsu has to offer.
-					</li>
-				</ol>
-			</div>
+			</p>
+
+			<ol class="space-y-6 list-decimal list-inside text-gray-300">
+				<li class="pl-4">
+					<p class="mb-2">Open the osu! shortcut properties. This can be an existing osu! shortcut on your desktop or a 
+					newly created one. You should now see a properties window open up with the "Shortcut" tab 
+					selected by default.</p>
+				</li>
+				<li class="pl-4">
+					<p class="mb-2">Click on the box labeled "Target" and add <code class="bg-dark-bg px-2 py-1 rounded text-primary font-mono">-devserver ussr.pl</code> to the end of it as 
+					shown in this image.</p>
+					<div class="mt-4 rounded-lg overflow-hidden border border-dark-border">
+						<img src="/static/image/devserver-image.png" alt="Shortcut target image" class="w-full">
+					</div>
+				</li>
+				<li class="pl-4">
+					<p>And that's it! You are now connected to RealistikOsu! You may now log into your account and 
+					enjoy all the features RealistikOsu has to offer.</p>
+				</li>
+			</ol>
 		</div>
 	</div>
 </div>

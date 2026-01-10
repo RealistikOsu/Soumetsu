@@ -1,0 +1,31 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./templates/**/*.html",
+    "./static/**/*.js",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#3B82F6', // Blue for primary buttons
+          dark: '#2563EB',
+        },
+        dark: {
+          bg: '#0F172A', // Dark background
+          card: '#1E293B', // Card background
+          border: '#334155', // Border color
+        },
+      },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        display: ['Comfortaa', 'cursive'],
+      },
+      backgroundImage: {
+        'city-skyline': "url('/static/headers/default.jpg')",
+      },
+    },
+  },
+  plugins: [],
+  darkMode: 'class',
+}

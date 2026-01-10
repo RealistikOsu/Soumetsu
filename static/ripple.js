@@ -257,43 +257,7 @@ var singlePageSnippets = {
   },
 
   "/donate" : function() {
-    var sl = $("#months-slider")[0];
-    noUiSlider.create(sl, {
-      start : [ 1 ],
-      step : 1,
-      connect : [ true, false ],
-      range : {
-        min : [ 1 ],
-        max : [ 24 ],
-      }
-    });
-    var rates = {};
-    var us = sl.noUiSlider;
-    rates = {"EUR":36542.86,"USD":39105.93};
-    us.on('update', function() {
-      var months = us.get();
-      var priceEUR = Math.pow(months * 3, 0.70);
-      var priceBTC = priceEUR / rates.EUR;
-      var priceUSD = priceBTC * rates.USD;
-      $("#cost")
-        .html(T("<b>{{ months }}</b> month costs <b>£{{ eur }}</b>", {
-          count : Math.round(+months),
-          months : (+months).toFixed(0),
-          eur : priceEUR.toFixed(2),
-        }) +
-                "<br>" + T("($ {{ usd }} / BTC {{ btc }})", {
-            usd : priceUSD.toFixed(2),
-            btc : priceBTC.toFixed(10),
-          }));
-      $("input[name='os0']")
-        .attr("value",
-          (+months).toFixed(0) + " month" + (months == 1 ? "" : "s"));
-      $("#bitcoin-amt").text(priceBTC.toFixed(6));
-      $("#paypal-amt").val(priceEUR.toFixed(2));
-    });
-    $("#username-input").on("input", function() {
-      $("#ipn-username").attr("value", "username=" + $(this).val());
-    });
+    // Donation page logic is now handled inline in the template
   },
 
   "/settings/avatar" : function() {
@@ -513,7 +477,7 @@ $(document)
   });
 
 function closeClosestMessage() {
-  $(this).closest('.message').fadeOut(300, function() { $(this).remove(); });
+  $(this).closest('.alert-message').fadeOut(300, function() { $(this).remove(); });
 };
 
 function showMessage(type, message) {
@@ -521,27 +485,63 @@ function showMessage(type, message) {
 
   var icon = "";
   var header = "";
+  var bgColor = "";
+  var borderColor = "";
+  var headerColor = "";
+  var iconColor = "";
 
   switch (type) {
     case "error":
-      header = "Uh oh... There has been an error!"
-      icon = "red fire"
+      header = "Uh oh... There has been an error!";
+      icon = "fas fa-fire";
+      bgColor = "bg-red-900/30";
+      borderColor = "border-red-700";
+      headerColor = "text-red-300";
+      iconColor = "text-red-400";
       break;
     
     case "positive":
     case "success":
-      header = "Action completed successfully!"
-      icon = "green check"
+      header = "Action completed successfully!";
+      icon = "fas fa-check-circle";
+      bgColor = "bg-green-900/30";
+      borderColor = "border-green-700";
+      headerColor = "text-green-300";
+      iconColor = "text-green-400";
       break;
     
     case "warning":
-      header = "Warning!"
-      icon = "orange exclamation"
+      header = "Warning!";
+      icon = "fas fa-exclamation-triangle";
+      bgColor = "bg-orange-900/30";
+      borderColor = "border-orange-700";
+      headerColor = "text-orange-300";
+      iconColor = "text-orange-400";
+      break;
+    
+    default:
+      header = "Notice";
+      icon = "fas fa-info-circle";
+      bgColor = "bg-blue-900/30";
+      borderColor = "border-blue-700";
+      headerColor = "text-blue-300";
+      iconColor = "text-blue-400";
       break;
   }
-  var newEl =
-      $(`<div class="ui icon message black ${type}"> <i class="${icon} icon"></i><div class="content"><div class="header">${header}</div><p>${T(message)}</p></div></div>`);
-  newEl.find(".close.icon").click(closeClosestMessage);
+  
+  var newEl = $(`
+    <div class="alert-message ${bgColor} border ${borderColor} rounded-lg p-4 mb-4 flex items-start gap-3" style="display: none;">
+      <i class="${icon} ${iconColor} mt-1"></i>
+      <div class="flex-grow">
+        <div class="font-semibold ${headerColor} mb-1">${header}</div>
+        <p class="text-sm text-gray-300">${T(message)}</p>
+      </div>
+      <button class="close-btn text-gray-400 hover:text-white transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `);
+  newEl.find(".close-btn").click(closeClosestMessage);
   $("#messages-container").append(newEl);
   newEl.slideDown(300);
 };

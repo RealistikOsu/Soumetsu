@@ -1,69 +1,28 @@
 package main
 
 import (
-	"database/sql"
-	"net/url"
+	"strconv"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: replace with simple ResponseInfo containing userid
+// profileData contains minimal data needed for the client-side profile
 type profileData struct {
 	baseTemplateData
-	UserID int
-	Frozen bool
+	UserID    string // Can be ID or username - resolved client-side
+	IsNumeric bool   // Whether the param looks like a user ID
 }
 
 func userProfile(c *gin.Context) {
-	var (
-		userID     int
-		username   string
-		privileges uint64
-		frozen     bool
-	)
-
-	ctx := getContext(c)
-	u, error := url.PathUnescape(c.Param("user")) // Unquote it.
-	if error != nil {
-		c.Error(error)
-	}
-
-	err := db.QueryRow("SELECT id, username, privileges, frozen FROM users WHERE (username_safe IN (?) OR id IN (?) OR id in (SELECT user_id FROM user_name_history WHERE username LIKE ?)) AND "+ctx.OnlyUserPublic()+" LIMIT 1", common.SafeUsername(u), u, u).Scan(&userID, &username, &privileges, &frozen)
-	if err != nil && err != sql.ErrNoRows {
-		c.Error(err)
-	}
-
 	data := new(profileData)
-	data.UserID = userID
-	data.Frozen = frozen
+	data.UserID = c.Param("user")
 
-	defer resp(c, 200, "profile.html", data)
+	// Check if it's a numeric ID or username
+	_, err := strconv.Atoi(data.UserID)
+	data.IsNumeric = err == nil
 
-	if data.UserID == 0 {
-		data.TitleBar = "User not found"
-		data.Messages = append(data.Messages, warningMessage{T(c, "That user could not be found.")})
-		return
-	}
-
-	if common.UserPrivileges(privileges)&common.UserPrivilegeDonor > 0 {
-		var profileBackground struct {
-			Type  int
-			Value string
-		}
-		db.Get(&profileBackground, "SELECT type, value FROM profile_backgrounds WHERE uid = ?", data.UserID)
-		switch profileBackground.Type {
-		case 1:
-			// data.KyutGrill = "/static/profbackgrounds/" + profileBackground.Value
-			// data.KyutGrillAbsolute = true
-			data.ProfileBackground = "/static/profbackgrounds/" + profileBackground.Value
-		case 2:
-			// data.SolidColour = profileBackground.Value
-			data.ProfileColour = profileBackground.Value
-		}
-	}
-
-	data.TitleBar = T(c, "%s's profile", username)
+	data.TitleBar = "Profile"
 	data.DisableHH = true
-	data.Scripts = append(data.Scripts, "/static/profiles/profile.js")
+
+	resp(c, 200, "profile.html", data)
 }

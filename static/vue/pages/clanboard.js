@@ -3,17 +3,21 @@ new Vue({
     delimiters: ["<%", "%>"],
     data() {
         return {
-            data: {},
-            mode: 'std',
-            relax: 'vn',
+            data: [],
+            mode: window.mode || 'std',
+            relax: window.relax || 'vn',
             relaxInt: 0,
             modeInt: 0,
-            load: false,
-            page: 1,
+            load: true,
+            page: window.page || 1,
         }
     },
     created() {
-        this.loadClanboardData(mode, relax, page)
+        this.loadClanboardData(
+            window.mode || 'std', 
+            window.relax || 'vn', 
+            window.page || 1
+        )
     },
     methods: {
         loadClanboardData(mode, relax, page) {
@@ -57,7 +61,7 @@ new Vue({
             if (vm.page <= 0 || vm.page == null)
                 vm.page = 1;
             window.history.replaceState('', document.title, `/clanboard?mode=${vm.mode}&rx=${vm.relax}&p=${vm.page}`);
-            vm.$axios.get("https://ussr.pl/api/v1/clans/stats/all", {
+            vm.$axios.get(hanayoConf.baseAPI + "/api/v1/clans/stats/all", {
                 params: {
                     m: vm.modeInt,
                     rx: vm.relaxInt,
@@ -65,7 +69,12 @@ new Vue({
                 }
             })
                 .then(function (response) {
-                    vm.data = response.data.clans;
+                    vm.data = response.data.clans || [];
+                    vm.load = false;
+                })
+                .catch(function (error) {
+                    console.error('Clanboard error:', error);
+                    vm.data = [];
                     vm.load = false;
                 });
         },
@@ -98,13 +107,14 @@ new Vue({
             return (parseInt(page) + parseInt(1));
         },
         mobileCheck() {
-
             if (window.innerWidth < 768) {
                 return true;
             }
-
             return false;
         },
+        safeValue(val, def) {
+            return val !== undefined && val !== null ? val : def;
+        }
     },
     computed: {
     }

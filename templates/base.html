@@ -4,135 +4,258 @@
 {{ $   := . }}
 {{ $frozen := qb "SELECT frozen FROM users WHERE id = ?" .Context.User.ID }}
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en" class="{{ if $ds }}dark{{ end }}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ if .TitleBar }}{{ .T .TitleBar }} :: {{ end }}RealistikOsu!</title>
 
-		<title>{{ if .TitleBar }}{{ .T .TitleBar }} :: {{ end }}RealistikOsu!</title>
+	<script>
+		var hanayoConf = {
+			avatars:   {{ .Conf.APP_AVATAR_URL }},
+			banchoAPI: {{ .Conf.APP_BANCHO_URL }},
+			baseAPI:   {{ .Conf.APP_API_URL }},
+			cheesegullAPI: {{ .Conf.BEATMAP_MIRROR_API_URL }},
+			language:  "en",
+		};
+		var currentUserID = {{ .Context.User.ID }};
+	</script>
 
-		<script>
-			var hanayoConf = {
-				avatars:   {{ .Conf.APP_AVATAR_URL }},
-				banchoAPI: {{ .Conf.APP_BANCHO_URL }},
-				baseAPI:   {{ .Conf.APP_BASE_URL }},
-				cheesegullAPI: {{ .Conf.BEATMAP_MIRROR_API_URL }},
-				language:  "en",
-			};
-			var currentUserID = {{ .Context.User.ID }};
-		</script>
-
-		<link rel="stylesheet" type="text/css" href="/static/{{ if $ds }}dark/{{ end }}semantic.min.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-		<link rel="stylesheet" type="text/css" href="/static/snow/snow.css">
-		<link rel="stylesheet" type="text/css" href="/static/realistikosu.css">
-		<!--LOADING BARZZZ-->
-		<script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
-		<link href="/static/css/loadingbar.css" rel="stylesheet" />
-		<script src="/static/dist.min.js"></script>
-
-		<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<!-- Tailwind CSS (Dev CDN - JIT mode) -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			theme: {
+				extend: {
+					colors: {
+						primary: {
+							DEFAULT: '#3B82F6',
+							dark: '#2563EB',
+						},
+						dark: {
+							bg: '#0F172A',
+							card: '#1E293B',
+							border: '#334155',
+						},
+					},
+					fontFamily: {
+						sans: ['Poppins', 'sans-serif'],
+						display: ['Comfortaa', 'cursive'],
+					},
+				},
+			},
+			darkMode: 'class',
+		}
+	</script>
+	<style>
+		/* Custom component styles */
+		.btn-primary {
+			background-color: #3B82F6;
+			color: white;
+			font-weight: 500;
+			padding: 0.75rem 1.5rem;
+			border-radius: 0.5rem;
+			transition: all 0.2s;
+		}
+		.btn-primary:hover {
+			background-color: #2563EB;
+		}
 		
-		<meta name="theme-color" content="#548ACA">
-		<meta name="msapplication-navbutton-color" content="#548ACA">
-		<meta name="apple-mobile-web-app-status-bar-style" content="#548ACA">
-	</head>
-	<body {{ if $ds }} class="ds"{{ end }}>
-		<div class="ui full height main wrapper"
-			{{ if and .DisableHH .KyutGrill }}
-				style="background-image: url('{{ if .KyutGrillAbsolute }}{{ .KyutGrill }}{{ else }}/static/headers/{{ .KyutGrill }}{{ end }}');"
-			{{ else if .SolidColour }}
-				style="background-color: {{ .SolidColour }}"
-			{{ end }}>
-			{{ template "navbar" . }}
-			{{ if not .DisableHH }}
-				<div class="huge heading {{ if .HeadingOnRight }}right{{ end }} dropped" style="position: relative; z-index: -1">
-					<div id="snow-container" style="background-image: url('{{ if .KyutGrillAbsolute }}{{ .KyutGrill }}{{ else }}/static/headers/{{ or .KyutGrill "default.jpg" }}{{ end }}'); filter: blur(4px) brightness(0.7); z-index: 0;background-repeat: no-repeat;background-position: center bottom;background-size: cover;"></div>
-					<div class="ui container" style="z-index: 1">
-						<h1>{{ if .HeadingTitle }}{{ .T .HeadingTitle | html }}{{ else }}{{ .T .TitleBar }}{{ end }}</h1>
-					</div>
-				</div>
-			{{ end }}
+		.btn-secondary {
+			background-color: #1E293B;
+			color: white;
+			font-weight: 500;
+			padding: 0.75rem 1.5rem;
+			border-radius: 0.5rem;
+			border: 1px solid #334155;
+			transition: all 0.2s;
+		}
+		.btn-secondary:hover {
+			background-color: #334155;
+		}
+		
+		.card {
+			background-color: #1E293B;
+			border-radius: 0.5rem;
+			padding: 1.5rem;
+			border: 1px solid #334155;
+		}
+		
+		.input-field {
+			width: 100%;
+			background-color: #1E293B;
+			border: 1px solid #334155;
+			border-radius: 0.5rem;
+			padding: 0.75rem 1rem;
+			color: white;
+		}
+		.input-field::placeholder {
+			color: #9CA3AF;
+		}
+		.input-field:focus {
+			outline: none;
+			ring: 2px;
+			ring-color: #3B82F6;
+			border-color: transparent;
+		}
+		
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background-color: rgba(0, 0, 0, 0.5);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 50;
+		}
+		
+		.modal-content {
+			background-color: #1E293B;
+			border-radius: 0.5rem;
+			padding: 2rem;
+			max-width: 28rem;
+			width: 100%;
+			margin: 0 1rem;
+			border: 1px solid #334155;
+		}
+	</style>
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+	
+	<!-- Loading Bar -->
+	<script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
+	<link href="/static/css/loadingbar.css" rel="stylesheet" />
+	<script src="/static/dist.min.js"></script>
 
-			<div class="h-container" {{ if .DisableHH }}style="padding-top: calc(61.6px + 1rem);"{{ end }}>
-				<div class="ui margined container" id="messages-container">
-				<noscript>
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	
+	<meta name="theme-color" content="#0F172A">
+	<meta name="msapplication-navbutton-color" content="#0F172A">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="bg-dark-bg text-white min-h-screen flex flex-col">
+	{{ template "navbar" . }}
+	
+	<main class="flex-grow relative">
+		{{ if and .DisableHH .KyutGrill }}
+			<div class="fixed inset-0 -z-10">
+				<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-sm" 
+					style="background-image: url('{{ if .KyutGrillAbsolute }}{{ .KyutGrill }}{{ else }}/static/headers/{{ .KyutGrill }}{{ end }}');"></div>
+			</div>
+		{{ end }}
+
+		<div class="container mx-auto px-4 py-8" id="messages-container">
+			<noscript>
+				<div class="bg-yellow-900/50 border border-yellow-700 rounded-lg p-4 mb-4">
 					Please enable JavaScript... The modern web fully relies on it, as keeping it disabled makes you miss
 					out on so much amazing content created every day. Our website, like many others, relies on it to provide
 					you the content. From showing scores to allowing you to see the very people that play here. JavaScript
 					allows us to merge our complex network of software into one, easy to use website. We only use JavaScript
 					where it is necessary. We do not track you. So please, do yourself a service and turn it back on.
-				</noscript>
-				{{ if and .Context.User.Username (not (has .Context.User.Privileges 1)) }}
-					<div class="ui icon message black error">
-						<i class="ban icon red"></i>
-						<div class="content">
-						  <div class="header">You have been restricted!</div>
-						  <p>{{ $.T "Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href='https://discord.gg/8ySdzhyMtt'>Discord Server</a>." | html }}</p>
-						</div>
-					  </div>
-				{{ end }}
-				{{ if $frozen.frozen.Bool }}
-				<div class="ui icon message black error">
-					<i class="asterisk icon red"></i>
-					<div class="content">
-					  <div class="header">You have been frozen!</div>
-					  <p>Your account has been frozen due to suspicion from the staff team! You have 5 days to provide a valid liveplay or else your account will be automatically restricted! You may provide a liveplay to the RealistikOsu staff team via the <a href="https://discord.gg/8ySdzhyMtt">RealistikOsu Discord Server</a>.</p>
-					</div>
-				  </div>
-                {{ end }}
-				{{ if .Messages }}
-						{{ range $i, $v := .Messages }}
-							<script>showMessage("{{ $v.Type }}", "{{ html $v.Content }}")</script>
-						{{ end }}
-				{{ end }}
-				{{ $settings := systemSettings "website_maintenance" "game_maintenance" "website_global_alert" }}
-				{{ with $settings.website_global_alert.String }}
-					<div class="ui icon message black info">
-						<i class="info circle icon blue"></i>
-						<div class="content">
-					  		<div class="header">Something interesting for you about RealistikOsu...</div>
-					  		<p>{{ . | html }}</p>
-						</div>
-					</div>
-				{{ end }}
-				{{ with $settings.game_maintenance.Int }}
-					<div class="ui icon message black warning">
-						<i class="exclamation circle icon orange"></i>
-						<div class="content">
-					  		<div class="header">We are currently working on our score submission server...</div>
-					  		<p>{{ $.T "RealistikOsu!'s score submission is currently in maintenance mode. You will not be allowed to submit scores for the time being." }}</p>
-						</div>
-					</div>
-				{{ end }}
-				{{ with $settings.website_maintenance.Int }}
-					<div class="ui icon message black warning">
-						<i class="exclamation circle icon orange"></i>
-						<div class="content">
-					  		<div class="header">We are currently working on our website...</div>
-					  		<p>{{ $.T "The RealistikOsu website is currently in maintenance mode. Only staff members are allowed to access the entire website." }}</p>
-						</div>
-					</div>
-				{{ end }}
 				</div>
-				{{ template "tpl" . }}
-			</div>
-
-		</div>
-
-		<div class="footer-bg">
-			<div class="ui container centered">
-				© 2024 RealistikOsu! Not affiliated with "ppy" and "osu!" in any way.
-				<a href="https://github.com/RealistikOsu" class="link-text"><b><i class="fa-brands fa-github"></i> Github</b></a>
-			</div>
-		</div>
-		{{/* If we got some more scripts to print, print'em */}}
-		<script src="/static/timeago-locale/jquery.timeago.en.js"></script>
-		{{ if .Scripts }}
-			{{ range .Scripts }}
-				<script src="{{ . }}?{{ unixNano }}"></script>
+			</noscript>
+			
+			{{ if and .Context.User.Username (not (has .Context.User.Privileges 1)) }}
+				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+					<i class="fas fa-ban text-red-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-red-300 mb-1">You have been restricted!</div>
+						<p class="text-sm text-gray-300">{{ $.T "Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href='https://discord.gg/8ySdzhyMtt' class='text-blue-400 hover:underline'>Discord Server</a>." | html }}</p>
+					</div>
+				</div>
 			{{ end }}
+			
+			{{ if $frozen.frozen.Bool }}
+				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+					<i class="fas fa-asterisk text-red-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-red-300 mb-1">You have been frozen!</div>
+						<p class="text-sm text-gray-300">Your account has been frozen due to suspicion from the staff team! You have 5 days to provide a valid liveplay or else your account will be automatically restricted! You may provide a liveplay to the RealistikOsu staff team via the <a href="https://discord.gg/8ySdzhyMtt" class="text-blue-400 hover:underline">RealistikOsu Discord Server</a>.</p>
+					</div>
+				</div>
+			{{ end }}
+			
+			{{ if .Messages }}
+				{{ range $i, $v := .Messages }}
+					<script>showMessage("{{ $v.Type }}", "{{ html $v.Content }}")</script>
+				{{ end }}
+			{{ end }}
+			
+			{{ $settings := systemSettings "website_maintenance" "game_maintenance" "website_global_alert" }}
+			{{ with $settings.website_global_alert.String }}
+				<div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+					<i class="fas fa-info-circle text-blue-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-blue-300 mb-1">Something interesting for you about RealistikOsu...</div>
+						<p class="text-sm text-gray-300">{{ . | html }}</p>
+					</div>
+				</div>
+			{{ end }}
+			
+			{{ with $settings.game_maintenance.Int }}
+				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-orange-300 mb-1">We are currently working on our score submission server...</div>
+						<p class="text-sm text-gray-300">{{ $.T "RealistikOsu!'s score submission is currently in maintenance mode. You will not be allowed to submit scores for the time being." }}</p>
+					</div>
+				</div>
+			{{ end }}
+			
+			{{ with $settings.website_maintenance.Int }}
+				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
+					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-orange-300 mb-1">We are currently working on our website...</div>
+						<p class="text-sm text-gray-300">{{ $.T "The RealistikOsu website is currently in maintenance mode. Only staff members are allowed to access the entire website." }}</p>
+					</div>
+				</div>
+			{{ end }}
+		</div>
+		
+		{{ template "tpl" . }}
+	</main>
+
+	<footer class="bg-dark-card/50 border-t border-dark-border mt-auto">
+		<div class="container mx-auto px-4 py-8">
+			<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+				<!-- Logo & Copyright -->
+				<div class="flex flex-col items-center md:items-start gap-2">
+					<a href="/" class="text-xl font-display font-bold text-white hover:text-primary transition-colors">
+						<span class="text-primary">Realistik</span>
+					</a>
+					<p class="text-gray-500 text-sm">
+						© 2026 RealistikOsu! Not affiliated with "ppy" and "osu!" in any way.
+					</p>
+				</div>
+				
+				<!-- Links -->
+				<div class="flex items-center gap-6">
+					<a href="https://github.com/RealistikOsu" class="text-gray-400 hover:text-white transition-colors text-sm">
+						GitHub
+					</a>
+					<a href="{{ .Conf.DISCORD_SERVER_URL }}" class="text-gray-400 hover:text-white transition-colors text-sm">
+						Discord
+					</a>
+					<a href="https://status.ussr.pl" class="text-primary hover:text-primary-dark transition-colors text-sm font-medium">
+						Status
+					</a>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	{{/* If we got some more scripts to print, print'em */}}
+	<script src="/static/timeago-locale/jquery.timeago.en.js"></script>
+	{{ if .Scripts }}
+		{{ range .Scripts }}
+			<script src="{{ . }}?{{ unixNano }}"></script>
 		{{ end }}
-	</body>
+	{{ end }}
+</body>
 </html>
 {{ end }}
