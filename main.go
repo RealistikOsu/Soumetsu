@@ -55,16 +55,16 @@ func main() {
 
 	// initialise db
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
-		settings.DB_USER,
-		settings.DB_PASS,
-		settings.DB_HOST,
-		settings.DB_PORT,
-		settings.DB_NAME,
+		settings.MYSQL_USER,
+		settings.MYSQL_PASSWORD,
+		settings.MYSQL_HOST,
+		settings.MYSQL_TCP_PORT,
+		settings.MYSQL_DATABASE,
 	)
 
 	// initialise db
 	var err error
-	db, err = sqlx.Open(settings.DB_SCHEME, dsn)
+	db, err = sqlx.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}

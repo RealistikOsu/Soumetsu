@@ -50,12 +50,12 @@ type Settings struct {
 	DISCORD_APP_CLIENT_ID     string
 	DISCORD_APP_CLIENT_SECRET string
 
-	DB_SCHEME string
-	DB_HOST   string
-	DB_PORT   int
-	DB_USER   string
-	DB_PASS   string
-	DB_NAME   string
+	MYSQL_HOST            string
+	MYSQL_TCP_PORT        int
+	MYSQL_ROOT_PASSWORD   string
+	MYSQL_DATABASE        string
+	MYSQL_USER            string
+	MYSQL_PASSWORD        string
 
 	REDIS_MAX_CONNECTIONS int
 	REDIS_NETWORK_TYPE    string
@@ -144,12 +144,12 @@ func LoadSettings() Settings {
 	settings.DISCORD_APP_CLIENT_ID = getEnv("DISCORD_APP_CLIENT_ID")
 	settings.DISCORD_APP_CLIENT_SECRET = getEnv("DISCORD_APP_CLIENT_SECRET")
 
-	settings.DB_SCHEME = getEnv("DB_SCHEME")
-	settings.DB_HOST = getEnv("DB_HOST")
-	settings.DB_PORT = strToInt(getEnv("DB_PORT"))
-	settings.DB_USER = getEnv("DB_USER")
-	settings.DB_PASS = getEnv("DB_PASS")
-	settings.DB_NAME = getEnv("DB_NAME")
+	settings.MYSQL_HOST = getEnv("MYSQL_HOST")
+	settings.MYSQL_TCP_PORT = strToInt(getEnv("MYSQL_TCP_PORT"))
+	settings.MYSQL_ROOT_PASSWORD = getEnv("MYSQL_ROOT_PASSWORD")
+	settings.MYSQL_DATABASE = getEnv("MYSQL_DATABASE")
+	settings.MYSQL_USER = getEnv("MYSQL_USER")
+	settings.MYSQL_PASSWORD = getEnv("MYSQL_PASSWORD")
 
 	settings.REDIS_MAX_CONNECTIONS = strToInt(getEnv("REDIS_MAX_CONNECTIONS"))
 	settings.REDIS_NETWORK_TYPE = getEnv("REDIS_NETWORK_TYPE")
