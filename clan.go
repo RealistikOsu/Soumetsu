@@ -20,7 +20,7 @@ type clanData struct {
 }
 
 func leaveClan(c *gin.Context) {
-	i := c.Param("cid")
+	i := c.Param("id")
 	// login check
 	if getContext(c).User.ID == 0 {
 		resp403(c)
@@ -88,7 +88,7 @@ func leaveClan(c *gin.Context) {
 func clanPage(c *gin.Context) {
 	// Parse clan ID from URL parameter
 	// Can be numeric ID or clan name - Vue will resolve via API
-	cid := c.Param("cid")
+	cid := c.Param("id")
 	clanID, _ := strconv.Atoi(cid)
 
 	data := &clanData{
@@ -214,11 +214,11 @@ func createInvite(c *gin.Context) {
 	}
 	addMessage(c, successMessage{"Success!"})
 	getSession(c).Save()
-	c.Redirect(302, "/clan/manage")
+	c.Redirect(302, "/settings/clans/manage")
 }
 
 func clanInvite(c *gin.Context) {
-	i := c.Param("inv")
+	i := c.Param("inv") // Keep "inv" as parameter name matches route /clans/invites/:inv
 
 	res := resolveInvite(i)
 	s := strconv.Itoa(res)
@@ -242,7 +242,7 @@ func clanInvite(c *gin.Context) {
 
 			addMessage(c, errorMessage{"Seems like we don't found that clan."})
 			getSession(c).Save()
-			c.Redirect(302, "/c/"+s)
+			c.Redirect(302, "/clans/"+s)
 			return
 		}
 		// ไอ้เหี้ยนี้อยู่ในแคลนปะวะ?
@@ -251,7 +251,7 @@ func clanInvite(c *gin.Context) {
 
 			addMessage(c, errorMessage{"Seems like you're already in the clan."})
 			getSession(c).Save()
-			c.Redirect(302, "/c/"+s)
+			c.Redirect(302, "/clans/"+s)
 			return
 		}
 
@@ -264,7 +264,7 @@ func clanInvite(c *gin.Context) {
 		if count >= limit {
 			addMessage(c, errorMessage{"Ow, I'm sorry this clan is already full ;w;"})
 			getSession(c).Save()
-			c.Redirect(302, "/c/"+s)
+			c.Redirect(302, "/clans/"+s)
 			return
 		}
 		// เข้าแคลน
@@ -272,7 +272,7 @@ func clanInvite(c *gin.Context) {
 		rd.Publish("rosu:clan_update", strconv.Itoa(getContext(c).User.ID))
 		addMessage(c, successMessage{"You've joined the clan! Hooray!! \\(^o^)/"})
 		getSession(c).Save()
-		c.Redirect(302, "/c/"+s)
+		c.Redirect(302, "/clans/"+s)
 	} else {
 		resp403(c)
 		addMessage(c, errorMessage{"NO!!!"})
@@ -307,7 +307,7 @@ func clanKick(c *gin.Context) {
 	rd.Publish("rosu:clan_update", c.PostForm("member"))
 	addMessage(c, successMessage{"Success!"})
 	getSession(c).Save()
-	c.Redirect(302, "/clan/manage")
+	c.Redirect(302, "/settings/clans/manage")
 }
 
 func resolveInvite(c string) int {

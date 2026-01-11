@@ -224,28 +224,95 @@ func generateEngine() *gin.Engine {
 		c.Redirect(301, "/beatmaps/"+strconv.Itoa(data.ChildrenBeatmaps[len(data.ChildrenBeatmaps)-1].ID))
 	})
 
-	r.GET("/c/:cid", clanPage)
+	// Modern clan routes
+	r.GET("/clans/:id", clanPage)
+	r.POST("/clans/:id/leave", leaveClan)
+
+	// Legacy clan route redirects
+	r.GET("/c/:cid", func(c *gin.Context) {
+		cid := c.Param("cid")
+		c.Redirect(301, "/clans/"+cid)
+	})
+	r.POST("/c/:cid", func(c *gin.Context) {
+		cid := c.Param("cid")
+		c.Redirect(307, "/clans/"+cid+"/leave")
+	})
+
 	r.GET("/beatmaps/:bid", beatmapInfo)
 
-	r.POST("/pwreset", passwordReset)
-	r.GET("/pwreset/continue", passwordResetContinue)
-	r.POST("/pwreset/continue", passwordResetContinueSubmit)
+	// Modern password reset routes
+	r.POST("/password-reset", passwordReset)
+	r.GET("/password-reset/continue", passwordResetContinue)
+	r.POST("/password-reset/continue", passwordResetContinueSubmit)
+
+	// Legacy password reset route redirects
+	r.POST("/pwreset", func(c *gin.Context) {
+		c.Redirect(307, "/password-reset")
+	})
+	r.GET("/pwreset/continue", func(c *gin.Context) {
+		k := c.Query("k")
+		if k != "" {
+			c.Redirect(301, "/password-reset/continue?k="+k)
+		} else {
+			c.Redirect(301, "/password-reset/continue")
+		}
+	})
+	r.POST("/pwreset/continue", func(c *gin.Context) {
+		c.Redirect(307, "/password-reset/continue")
+	})
 
 	r.GET("/settings/password", changePassword)
 	r.POST("/settings/password", changePasswordSubmit)
-	r.POST("/settings/userpage/parse", parseBBCode)
+
+	// Modern user page routes
+	r.POST("/settings/user-page/parse", parseBBCode)
+
+	// Legacy user page route redirects
+	r.POST("/settings/userpage/parse", func(c *gin.Context) {
+		c.Redirect(307, "/settings/user-page/parse")
+	})
+
 	r.POST("/settings/avatar", avatarSubmit)
-	r.POST("/settings/profbanner/:type", profBackground)
+
+	// Modern profile banner routes
+	r.POST("/settings/profile-banner/:type", profBackground)
+
+	// Legacy profile banner route redirects
+	r.POST("/settings/profbanner/:type", func(c *gin.Context) {
+		routeType := c.Param("type")
+		c.Redirect(307, "/settings/profile-banner/"+routeType)
+	})
+
 	r.POST("/settings/change-username", changeUsername)
 
-	// Discord integration.
-	r.GET("/settings/discord-integration/unlink", discordUnlink)
-	r.GET("/settings/discord-integration/redirect", discordRedirCheck)
+	// Modern Discord integration routes
+	r.GET("/settings/discord/unlink", discordUnlink)
+	r.GET("/settings/discord/redirect", discordRedirCheck)
 
-	r.POST("/settings/clan", createInvite)
-	r.POST("settings/clansettings/k", clanKick)
-	r.GET("/clans/invite/:inv", clanInvite)
-	r.POST("/c/:cid", leaveClan)
+	// Legacy Discord integration route redirects
+	r.GET("/settings/discord-integration/unlink", func(c *gin.Context) {
+		c.Redirect(301, "/settings/discord/unlink")
+	})
+	r.GET("/settings/discord-integration/redirect", func(c *gin.Context) {
+		c.Redirect(301, "/settings/discord/redirect")
+	})
+
+	// Modern clan invite routes
+	r.POST("/settings/clans/invite", createInvite)
+	r.POST("/settings/clans/kick", clanKick)
+	r.GET("/clans/invites/:inv", clanInvite)
+
+	// Legacy clan invite route redirects
+	r.POST("/settings/clan", func(c *gin.Context) {
+		c.Redirect(307, "/settings/clans/invite")
+	})
+	r.POST("/settings/clansettings/k", func(c *gin.Context) {
+		c.Redirect(307, "/settings/clans/kick")
+	})
+	r.GET("/clans/invite/:inv", func(c *gin.Context) {
+		inv := c.Param("inv")
+		c.Redirect(301, "/clans/invites/"+inv)
+	})
 
 	r.GET("/help", func(c *gin.Context) {
 		c.Redirect(301, settings.DISCORD_SERVER_URL)
@@ -253,6 +320,25 @@ func generateEngine() *gin.Engine {
 
 	r.GET("/discord", func(c *gin.Context) {
 		c.Redirect(301, settings.DISCORD_SERVER_URL)
+	})
+
+	// Legacy route redirects for renamed pages
+	r.GET("/clanboard", func(c *gin.Context) {
+		query := c.Request.URL.RawQuery
+		if query != "" {
+			c.Redirect(301, "/clans/leaderboard?"+query)
+		} else {
+			c.Redirect(301, "/clans/leaderboard")
+		}
+	})
+	r.GET("/beatmap_listing", func(c *gin.Context) {
+		c.Redirect(301, "/beatmaps")
+	})
+	r.GET("/connect", func(c *gin.Context) {
+		c.Redirect(301, "/connection")
+	})
+	r.GET("/clan/manage", func(c *gin.Context) {
+		c.Redirect(301, "/settings/clans/manage")
 	})
 
 	loadSimplePages(r)

@@ -111,7 +111,7 @@ func discordUnlink(c *gin.Context) {
 	defer func() {
 		addMessage(c, m)
 		getSession(c).Save()
-		c.Redirect(302, "/settings/discord-integration")
+		c.Redirect(302, "/settings/discord")
 	}()
 
 	// Now we do some checks.
@@ -151,7 +151,7 @@ func getCodeAccess(code string) (token TokenStuff, err error) {
 	data.Set("client_secret", settings.DISCORD_APP_CLIENT_SECRET)
 	data.Set("grant_type", "authorization_code")
 	data.Set("code", code)
-	data.Set("redirect_uri", "https://ussr.pl/settings/discord-integration/redirect")
+		data.Set("redirect_uri", "https://ussr.pl/settings/discord/redirect")
 	responseBody := bytes.NewBuffer([]byte(data.Encode()))
 
 	resp, err := http.Post(
@@ -224,7 +224,7 @@ func discordRedirCheck(c *gin.Context) {
 	defer func() {
 		addMessage(c, m)
 		getSession(c).Save()
-		c.Redirect(302, "/settings/discord-integration")
+		c.Redirect(302, "/settings/discord")
 	}()
 
 	code := c.DefaultQuery("code", "")

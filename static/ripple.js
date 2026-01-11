@@ -772,29 +772,13 @@ function modifyObjectDynamically(obj, inds, set) {
   return obj;
 }
 
-var langWhitelist = [
-  "de", "it", "ko", "es", "ru", "pl", "fr", "nl", "sv", "fi", "ro", "ko", "vi"
-];
-i18next.use(i18nextXHRBackend).init({
-  nsSeparator : false,
-  keySeparator : false,
-  fallbackLng : false,
-  lng : hanayoConf.language,
-  whitelist : langWhitelist,
-  load : "currentOnly",
-  backend : {loadPath : "/static/locale/{{lng}}.json"}
-});
-
-var i18nLoaded = $.inArray(hanayoConf.language, langWhitelist) === -1;
-i18next.on("loaded", function() { i18nLoaded = true });
-
+// T is a stub translation function that returns the string as-is (localisation removed)
 function T(s, settings) {
   if (typeof settings !== "undefined" &&
       typeof settings.count !== "undefined" &&
-      $.inArray(hanayoConf.language, langWhitelist) === -1 &&
       settings.count !== 1)
     s = keyPlurals[s];
-  return i18next.t(s, settings);
+  return s;
 }
 
 var apiPrivileges = [

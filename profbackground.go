@@ -28,7 +28,7 @@ func profBackground(c *gin.Context) {
 	defer func() {
 		addMessage(c, m)
 		getSession(c).Save()
-		c.Redirect(302, "/settings/profbanner")
+		c.Redirect(302, "/settings/profile-banner")
 	}()
 	if ok, _ := CSRF.Validate(ctx.User.ID, c.PostForm("csrf")); !ok {
 		m = errorMessage{"Your session has expired. Please try redoing what you were trying to do."}

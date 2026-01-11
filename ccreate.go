@@ -70,7 +70,7 @@ func ccreateSubmit(c *gin.Context) {
 
 	addMessage(c, successMessage{"Clan created."})
 	getSession(c).Save()
-	c.Redirect(302, "/c/"+strconv.Itoa(int(lid)))
+	c.Redirect(302, "/clans/"+strconv.Itoa(int(lid)))
 }
 
 func ccreateResp(c *gin.Context, messages ...message) {

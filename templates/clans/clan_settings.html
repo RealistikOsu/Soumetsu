@@ -1,5 +1,5 @@
 {{/*###
-Handler=/clan/manage
+Handler=/settings/clans/manage
 KyutGrill=settings2.jpg
 DisableHH=true
 */}}
@@ -100,10 +100,10 @@ DisableHH=true
 							<label class="block text-sm font-medium text-gray-300 mb-2">Invite Link</label>
 							<div class="flex gap-2">
 								<input type="text" 
-									value="https://ussr.pl/clans/invite/{{ .invite }}"
+									value="https://ussr.pl/clans/invites/{{ .invite }}"
 									readonly
 									class="input-field flex-1 bg-dark-bg">
-								<button onclick="navigator.clipboard.writeText('https://ussr.pl/clans/invite/{{ .invite }}')" class="btn-secondary">
+								<button onclick="navigator.clipboard.writeText('https://ussr.pl/clans/invites/{{ .invite }}')" class="btn-secondary">
 									<i class="fas fa-copy"></i>
 								</button>
 							</div>
@@ -111,13 +111,13 @@ DisableHH=true
 					{{ end }}
 
 					<div class="flex gap-3 pt-4 border-t border-dark-border">
-						<form action="/settings/clan" method="POST" class="flex-1">
+						<form action="/settings/clans/invite" method="POST" class="flex-1">
 							{{ ieForm .Gin }}
 							<button type="submit" class="btn-secondary bg-green-600/20 border-green-500/50 hover:bg-green-600/30 w-full">
 								{{ $.T "Generate a new invite!" }}
 							</button>
 						</form>
-						<form action="/c/{{ $o }}" method="POST" class="flex-1">
+						<form action="/clans/{{ $o }}/leave" method="POST" class="flex-1">
 							{{ ieForm .Gin }}
 							<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
 								{{ $.T "Disband Clan!" }}

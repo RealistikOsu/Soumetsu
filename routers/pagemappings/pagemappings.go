@@ -16,7 +16,7 @@ var pageMappings = map[int]interface{}{
 	5:  "/settings/avatar",
 	6:  "/settings",
 	7:  "/settings/password",
-	8:  "/settings/userpage",
+	8:  "/settings/user-page",
 	9:  "/", // some deleted pages
 	10: "/",
 	11: "/",
@@ -28,9 +28,9 @@ var pageMappings = map[int]interface{}{
 		return fmt.Sprintf("/doc/%s", u.Query().Get("id"))
 	},
 	17: "/changelog",
-	18: "/pwreset",
+	18: "/password-reset",
 	19: func(u url.URL) string {
-		return fmt.Sprintf("/pwreset/continue?k=%s", u.Query().Get("k"))
+		return fmt.Sprintf("/password-reset/continue?k=%s", u.Query().Get("k"))
 	},
 	20: "/", // Beta keys
 	21: "/about",
@@ -48,7 +48,7 @@ var pageMappings = map[int]interface{}{
 	33: "/dev/applications", // Theorically, this should be something like /dev/applications/<id>, but no-one ever used that page so who gives a fuck.
 	34: "/donate",
 	35: "/team",
-	37: "/bmaps_listing",
+	37: "/beatmaps",
 	38: "/register/verify",
 	39: "/register/welcome",
 	40: "/settings/discord",

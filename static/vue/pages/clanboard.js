@@ -60,7 +60,7 @@ new Vue({
             vm.page = page;
             if (vm.page <= 0 || vm.page == null)
                 vm.page = 1;
-            window.history.replaceState('', document.title, `/clanboard?mode=${vm.mode}&rx=${vm.relax}&p=${vm.page}`);
+            window.history.replaceState('', document.title, `/clans/leaderboard?mode=${vm.mode}&rx=${vm.relax}&p=${vm.page}`);
             vm.$axios.get(hanayoConf.baseAPI + "/api/v1/clans/stats/all", {
                 params: {
                     m: vm.modeInt,

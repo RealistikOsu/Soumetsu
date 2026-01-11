@@ -83,7 +83,7 @@ func loginSubmit(c *gin.Context) {
 
 	if data.PasswordVersion == 1 {
 		addMessage(c, warningMessage{"Your password is sooooooo old, that we don't even know how to deal with it anymore. Could you please change it?"})
-		c.Redirect(302, "/pwreset")
+		c.Redirect(302, "/password-reset")
 		return
 	}
 

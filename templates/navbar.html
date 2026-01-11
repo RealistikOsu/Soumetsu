@@ -31,7 +31,7 @@
 					<a href="/leaderboard" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/leaderboard" }}text-white font-medium{{ end }}">
 						Leaderboard
 					</a>
-					<a href="/clanboard" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/clanboard" }}text-white font-medium{{ end }}">
+					<a href="/clans/leaderboard" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/clans/leaderboard" }}text-white font-medium{{ end }}">
 						Clan
 					</a>
 					<a href="/donate" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/donate" }}text-white font-medium{{ end }}">
@@ -100,7 +100,7 @@
 									<i class="fas fa-user w-4"></i>
 									My Profile
 								</a>
-								<a href="/settings/userpage" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors">
+								<a href="/settings/user-page" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors">
 									<i class="fas fa-cog w-4"></i>
 									Settings
 								</a>
@@ -109,7 +109,7 @@
 									Friends
 								</a>
 								{{ if .Context.User.Clan }}
-									<a href="/c/{{ .Context.User.Clan }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors">
+									<a href="/clans/{{ .Context.User.Clan }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors">
 										<i class="fas fa-shield-alt w-4"></i>
 										My Clan
 									</a>
@@ -156,7 +156,7 @@
 				<a href="/leaderboard" class="text-gray-400 hover:text-white transition-colors py-2 px-4 rounded-lg hover:bg-dark-card">
 					Leaderboard
 				</a>
-				<a href="/clanboard" class="text-gray-400 hover:text-white transition-colors py-2 px-4 rounded-lg hover:bg-dark-card">
+				<a href="/clans/leaderboard" class="text-gray-400 hover:text-white transition-colors py-2 px-4 rounded-lg hover:bg-dark-card">
 					Clan
 				</a>
 				<a href="/donate" class="text-gray-400 hover:text-white transition-colors py-2 px-4 rounded-lg hover:bg-dark-card">

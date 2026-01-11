@@ -11,8 +11,8 @@ NoCompile=true
 				<span>{{ .T "Profile" }}</span>
 			</a>
 
-			<a href="/settings/userpage" 
-				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/userpage" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
+			<a href="/settings/user-page" 
+				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/user-page" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fas fa-file-alt w-5"></i>
 				<span>{{ .T "Userpage" }}</span>
 			</a>
@@ -29,8 +29,8 @@ NoCompile=true
 				<span>{{ .T "Password" }}</span>
 			</a>
 
-			<a href="/settings/discord-integration" 
-				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/discord-integration" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
+			<a href="/settings/discord" 
+				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/discord" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fab fa-discord w-5"></i>
 				<span>{{ .T "Discord Linking" }}</span>
 			</a>
@@ -39,8 +39,8 @@ NoCompile=true
 			{{ if has .Context.User.Privileges 4 }}
 				<div class="border-t border-dark-border my-2"></div>
 				
-				<a href="/settings/profbanner" 
-					class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/profbanner" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
+				<a href="/settings/profile-banner" 
+					class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/profile-banner" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 					<i class="fas fa-image w-5"></i>
 					<span class="flex-1">{{ .T "Profile Banner" }}</span>
 					<span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded">{{ .T "Supporter" }}</span>

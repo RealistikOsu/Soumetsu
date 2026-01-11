@@ -35,8 +35,6 @@ gulp.task("minify-js", function() {
 			"static/licenseheader.js",
 			"node_modules/jquery/dist/jquery.min.js",
 			"node_modules/timeago/jquery.timeago.js",
-			"node_modules/i18next/i18next.min.js",
-			"node_modules/i18next-xhr-backend/i18nextXHRBackend.min.js",
 			"static/key_plural.js",
 			"static/ripple.js",
 		])
