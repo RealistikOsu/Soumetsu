@@ -3,90 +3,217 @@ Handler=/rank-request
 KyutGrill=request_beatmap_ranking.jpg
 MinPrivileges=2
 DisableHH=true
+AdditionalJS=/static/vue/pages/rank_request.js
 */}}
 {{ define "tpl" }}
-{{ $ := . }}
-<div class="relative min-h-screen py-8">
-	<!-- Background with blur -->
-	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
-			style="background-image: url('/static/headers/request_beatmap_ranking.jpg');"></div>
-		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
-	</div>
-
-	<div class="container mx-auto px-4 max-w-3xl">
-		<!-- Header -->
-		<div class="flex items-center gap-4 mb-8">
-			<div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center">
-				<i class="fas fa-star text-yellow-400 text-2xl"></i>
-			</div>
-			<div>
-				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Rank Request" }}</h1>
-				<p class="text-gray-400">{{ .T "Submit beatmaps for ranking consideration" }}</p>
-			</div>
+	
+	<script src="/static/vue/vue.js"></script>
+	<script src="/static/vue/vue-axios.js"></script>
+	
+	<div class="relative min-h-screen py-10">
+		<!-- Background -->
+		<div class="fixed inset-0 -z-10">
+			<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+				style="background-image: url('/static/headers/request_beatmap_ranking.jpg');"></div>
+			<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 		</div>
-
-		<div class="card text-center">
-			<h4 class="text-xl font-semibold mb-8">{{ .T "Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!" }}</h4>
-			
-			{{ $f := ieForm .Gin }}
-			{{ with .Get "beatmaps/rank_requests/status" }}
-				<div class="flex items-center gap-4 mb-6">
-					<div class="flex-1 h-px bg-dark-border"></div>
-					<div class="flex items-center gap-2">
-						<i class="fas fa-clock text-primary"></i>
-						<h3 class="text-xl font-semibold">{{ $.T "Queue status" }}</h3>
+	
+		<div class="container mx-auto px-4 max-w-6xl" id="app">
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-8">
+				<div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+					<i class="fas fa-star text-white text-2xl"></i>
+				</div>
+				<div class="flex-1">
+					<h1 class="text-4xl md:text-5xl font-display font-bold text-white">{{ .T "Rank Request" }}</h1>
+					<p class="text-gray-400 mt-1">{{ .T "Submit beatmaps for ranking consideration" }}</p>
+				</div>
+			</div>
+	
+			<!-- Main card -->
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-primary/10 pointer-events-none"></div>
+	
+				<div class="relative p-8 md:p-10">
+					<!-- Intro -->
+					<div class="text-center max-w-3xl mx-auto">
+						<h2 class="text-2xl md:text-3xl font-display font-bold text-white mb-3">
+							{{ .T "Request beatmaps for ranking" }}
+						</h2>
+						<p class="text-gray-300 leading-relaxed">
+							{{ .T "Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!" }}
+						</p>
 					</div>
-					<div class="flex-1 h-px bg-dark-border"></div>
-				</div>
-
-				<div class="mb-6">
-					<h2 class="text-4xl font-bold mb-2">
-						<span id="queue-info">{{ .submitted }}/{{ .queue_size }}</span>
-						<i{{ if not .submitted_by_user }} hidden{{ end }} id="by-you" class="text-lg font-normal text-gray-400">
-							(<span id="submitted-by-user">{{ .submitted_by_user }}</span>/<span id="max-per-user">{{ .max_per_user }}</span> {{ $.T "by you" }})
-						</i>
-					</h2>
-					<p class="text-gray-400 mb-1">{{ $.T "Requests submitted" }}</p>
-					<p class="text-sm text-gray-500">{{ $.T "In the past 24 hours" }}</p>
-				</div>
-
-				{{ $perc := perc .submitted .queue_size }}
-				<div class="mb-8 max-w-md mx-auto">
-					<div class="relative h-3 bg-dark-border rounded-full overflow-hidden">
-						<div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ $perc }}%"></div>
-					</div>
-					<p class="text-right text-sm text-gray-400 mt-1">{{ $perc }}%</p>
-				</div>
-
-				{{ if .can_submit }}
-					<form class="space-y-4" id="b-form">
-						<div class="flex gap-2">
-							<input type="text" 
-								placeholder="eg. https://ussr.pl/beatmaps/1918979" 
-								id="beatmap" 
-								required
-								class="flex-1 input-field rounded-r-none"
-								tabindex="1">
-							{{ $f }}
-							<button type="submit" 
-								class="btn-primary rounded-l-none whitespace-nowrap"
-								tabindex="2">
-								{{ $.T "Submit" }}
-								<i class="fas fa-arrow-right ml-2"></i>
-							</button>
+	
+					<!-- Divider -->
+					<div class="flex items-center gap-4 my-10">
+						<div class="flex-1 h-px bg-dark-border"></div>
+						<div class="flex items-center gap-2 text-gray-400">
+							<i class="fas fa-clock text-primary"></i>
+							<span class="font-medium">{{ .T "Queue status" }}</span>
 						</div>
-					</form>
-				{{ else }}
-					<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4">
-						<h3 class="text-lg font-semibold text-orange-300 mb-2">{{ $.T "You have reached your daily limit for requesting beatmaps!" }}</h3>
-						{{ with .next_expiration }}
-							<p class="text-gray-300">{{ $.T "Please try again " }}<b>{{ timeAddDay . }}</b></p>
-						{{ end }}
+						<div class="flex-1 h-px bg-dark-border"></div>
 					</div>
-				{{ end }}
-			{{ end }}
+	
+					<!-- Loading -->
+					<div v-if="load" class="bg-dark-bg/50 border border-dark-border rounded-2xl p-8 text-center">
+						<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/20 flex items-center justify-center">
+							<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white mb-2">{{ .T "Loading queue status..." }}</h3>
+						<p class="text-gray-400">{{ .T "Fetching the latest rank request info." }}</p>
+					</div>
+	
+					<!-- API unavailable -->
+					<div v-else-if="error" class="bg-dark-bg/50 border border-dark-border rounded-2xl p-8 text-center">
+						<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/20 flex items-center justify-center">
+							<i class="fas fa-plug-circle-xmark text-red-400 text-2xl"></i>
+						</div>
+	
+						<h3 class="text-2xl font-display font-bold text-white mb-2">{{ .T "Rank request service unavailable" }}</h3>
+						<p class="text-gray-400 leading-relaxed mb-6">
+							{{ .T "The queue is currently unavailable. This usually means the API is offline or not yet configured." }}
+						</p>
+	
+						<div class="bg-dark-bg border border-dark-border rounded-xl p-4 text-left text-sm text-gray-300 max-w-xl mx-auto">
+							<p class="mb-2">
+								<i class="fas fa-info-circle mr-2 text-primary"></i>
+								{{ .T "What you can do:" }}
+							</p>
+							<ul class="list-disc list-inside space-y-1 text-gray-400">
+								<li>{{ .T "Check back later once the service is online" }}</li>
+								<li>{{ .T "Contact staff if this persists" }}</li>
+								<li>{{ .T "Verify backend API configuration" }}</li>
+							</ul>
+	
+							<p class="mt-3 text-xs text-gray-500">
+								<i class="fas fa-wrench mr-2"></i>
+								{{ .T "Error:" }} <% errorMessage || 'Unknown' %>
+							</p>
+						</div>
+	
+						<button type="button" class="btn-secondary mt-6" @click="fetchStatus">
+							<i class="fas fa-rotate-right mr-2"></i>{{ .T "Retry" }}
+						</button>
+					</div>
+	
+					<!-- Ready -->
+					<div v-else class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+						<!-- Left: Stats -->
+						<div class="lg:col-span-2">
+							<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-6 h-full">
+								<div class="flex items-start justify-between gap-4">
+									<div>
+										<p class="text-sm text-gray-400 mb-1">{{ .T "Requests submitted" }}</p>
+										<p class="text-xs text-gray-500">{{ .T "In the past 24 hours" }}</p>
+									</div>
+	
+									<div v-if="status && status.submitted_by_user" class="text-xs px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+										<i class="fas fa-user mr-2"></i>{{ .T "Includes yours" }}
+									</div>
+								</div>
+	
+								<div class="mt-5">
+									<div class="text-4xl md:text-5xl font-bold text-white leading-none">
+										<span><% safeInt(status.submitted) %>/<% safeInt(status.queue_size) %></span>
+									</div>
+	
+									<div v-if="status && status.submitted_by_user" class="mt-2 text-sm text-gray-400">
+										(<% safeInt(status.submitted_by_user) %>/<% safeInt(status.max_per_user) %> {{ .T "by you" }})
+									</div>
+								</div>
+	
+								<div class="mt-6">
+									<div class="relative h-3 bg-dark-border rounded-full overflow-hidden">
+										<div class="h-full bg-gradient-to-r from-primary to-yellow-400 rounded-full transition-all duration-300" :style="{ width: percent + '%' }"></div>
+									</div>
+									<p class="text-right text-sm text-gray-400 mt-2"><% percent %>%</p>
+								</div>
+							</div>
+						</div>
+	
+						<!-- Right: Submit -->
+						<div class="lg:col-span-3">
+							<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-6 h-full">
+								<div class="flex items-center gap-3 mb-4">
+									<div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+										<i class="fas fa-paper-plane text-yellow-400"></i>
+									</div>
+									<div>
+										<p class="text-white font-semibold">{{ .T "Submit a beatmap" }}</p>
+										<p class="text-xs text-gray-400">{{ .T "Paste a beatmap link from this site" }}</p>
+									</div>
+								</div>
+	
+								<div v-if="status && status.can_submit === false" class="p-5 rounded-2xl border border-orange-500/30 bg-orange-500/10 mb-4">
+									<div class="flex items-start gap-3">
+										<div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+											<i class="fas fa-triangle-exclamation text-orange-400"></i>
+										</div>
+										<div>
+											<h3 class="text-lg font-semibold text-orange-300 mb-1">
+												{{ .T "You have reached your daily limit for requesting beatmaps!" }}
+											</h3>
+											<p v-if="status && status.next_expiration" class="text-gray-300">
+												{{ .T "Please try again " }}<b><% status.next_expiration %></b>
+											</p>
+										</div>
+									</div>
+								</div>
+	
+								<form class="space-y-4" @submit.prevent="submitBeatmap">
+									<label class="block text-sm font-medium text-gray-300">{{ .T "Beatmap URL" }}</label>
+	
+									<div class="flex flex-col sm:flex-row gap-3">
+										<div class="relative flex-1">
+											<i class="fas fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+											<input
+												v-model="beatmapUrl"
+												type="text"
+												placeholder="eg. https://ussr.pl/beatmaps/1918979"
+												class="input-field w-full pl-11"
+												:disabled="submitting || (status && status.can_submit === false) || !apiConfigured"
+											>
+										</div>
+	
+										<button
+											type="submit"
+											class="btn-primary whitespace-nowrap px-6 py-3"
+											:disabled="submitting || (status && status.can_submit === false) || !apiConfigured"
+										>
+											<span v-if="!submitting">
+												{{ .T "Submit" }} <i class="fas fa-arrow-right ml-2"></i>
+											</span>
+											<span v-else>
+												<i class="fas fa-spinner fa-spin mr-2"></i>{{ .T "Submitting..." }}
+											</span>
+										</button>
+									</div>
+	
+									<div v-if="!apiConfigured" class="text-sm text-orange-300">
+										<i class="fas fa-circle-exclamation mr-2"></i>
+										{{ .T "Submission is unavailable: API is not configured." }}
+									</div>
+	
+									<div v-if="submitMessage" class="text-sm" :class="submitOk ? 'text-green-300' : 'text-orange-300'">
+										<i class="fas" :class="submitOk ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
+										<span class="ml-2"><% submitMessage %></span>
+									</div>
+	
+									<div class="mt-2 text-xs text-gray-400">
+										<i class="fas fa-shield-alt mr-2 text-primary"></i>
+										{{ .T "Requests are rate-limited to keep the queue fair for everyone." }}
+									</div>
+								</form>
+	
+							</div>
+						</div>
+					</div>
+	
+				</div>
+			</div>
+	
 		</div>
 	</div>
-</div>
-{{ end }}
+	{{ end }}
+	
