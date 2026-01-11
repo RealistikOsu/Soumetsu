@@ -2,6 +2,8 @@
 package handlers
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -14,6 +16,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
+	"github.com/RealistikOsu/soumetsu/internal/pkg/crypto"
 	"github.com/RealistikOsu/soumetsu/internal/services"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/gorilla/sessions"
@@ -60,10 +63,10 @@ func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.templates.Render(w, "login.html", &response.TemplateData{
-		TitleBar:   "Login",
-		KyutGrill:  "login.jpg",
-		Path:       r.URL.Path,
-		FormData:   normaliseURLValues(r.PostForm),
+		TitleBar:  "Login",
+		KyutGrill: "login.jpg",
+		Path:      r.URL.Path,
+		FormData:  normaliseURLValues(r.PostForm),
 	})
 }
 
@@ -95,24 +98,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Attempt login
-	user, token, err := h.authService.Login(r.Context(), username, password, apicontext.ClientIP(r))
+	loginResult, err := h.authService.Login(r.Context(), auth.LoginInput{
+		Username: username,
+		Password: password,
+	})
 	if err != nil {
+		var pendingErr *auth.PendingVerificationError
+		if errors.As(err, &pendingErr) {
+			h.ensureIdentityCookie(w, r.Context(), pendingErr.UserID)
+			h.addMessage(sess, models.NewWarning("You will need to verify your account first."))
+			sess.Save(r, w)
+			http.Redirect(w, r, "/register/verify?u="+strconv.Itoa(pendingErr.UserID), http.StatusFound)
+			return
+		}
 		if svcErr, ok := err.(*services.ServiceError); ok {
-			// Handle pending verification
-			if svcErr.Code == "pending_verification" {
-				h.authService.SetIdentityCookie(w, user.ID)
-				h.addMessage(sess, models.NewWarning("You will need to verify your account first."))
-				sess.Save(r, w)
-				http.Redirect(w, r, "/register/verify?u="+strconv.Itoa(user.ID), http.StatusFound)
-				return
-			}
-			// Handle old password version
-			if svcErr.Code == "old_password" {
-				h.addMessage(sess, models.NewWarning("Your password is sooooooo old, that we don't even know how to deal with it anymore. Could you please change it?"))
-				sess.Save(r, w)
-				http.Redirect(w, r, "/password-reset", http.StatusFound)
-				return
-			}
 			h.loginResp(w, r, models.NewError(svcErr.Message))
 			return
 		}
@@ -121,13 +120,25 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set identity cookie
-	h.authService.SetIdentityCookie(w, user.ID)
+	h.ensureIdentityCookie(w, r.Context(), loginResult.User.ID)
+
+	logoutKey, err := crypto.GenerateToken()
+	if err != nil {
+		h.templates.InternalError(w, r, err)
+		return
+	}
+
+	apiToken, err := h.authService.CheckOrGenerateToken(r.Context(), sessionString(sess, "token"), loginResult.User.ID, apicontext.ClientIP(r))
+	if err != nil {
+		h.templates.InternalError(w, r, err)
+		return
+	}
 
 	// Set session values
-	sess.Values["userid"] = user.ID
-	sess.Values["pw"] = token.PasswordHash
-	sess.Values["logout"] = token.LogoutKey
-	sess.Values["token"] = token.APIToken
+	sess.Values["userid"] = loginResult.User.ID
+	sess.Values["pw"] = crypto.MD5(loginResult.User.Password)
+	sess.Values["logout"] = logoutKey
+	sess.Values["token"] = apiToken
 
 	// Handle redirect
 	redir := r.FormValue("redir")
@@ -138,7 +149,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		redir = "/"
 	}
 
-	h.addMessage(sess, models.NewSuccess("Welcome back "+user.Username+"! You have been logged into RealistikOsu!"))
+	h.addMessage(sess, models.NewSuccess("Welcome back "+loginResult.User.Username+"! You have been logged into RealistikOsu!"))
 	sess.Save(r, w)
 	http.Redirect(w, r, redir, http.StatusFound)
 }
@@ -197,7 +208,11 @@ func (h *AuthHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 	// Check for potential multi-account
 	if r.URL.Query().Get("stopsign") != "1" {
-		existingUser, _ := h.authService.CheckMultiAccount(r.Context(), apicontext.ClientIP(r), h.getIdentityCookie(r))
+		existingUser, _, err := h.authService.CheckMultiAccount(r.Context(), apicontext.ClientIP(r), h.getIdentityCookie(r))
+		if err != nil {
+			h.templates.InternalError(w, r, err)
+			return
+		}
 		if existingUser != "" {
 			h.templates.Render(w, "register/peppy.html", &response.TemplateData{
 				TitleBar: "Register",
@@ -235,11 +250,10 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Username: strings.TrimSpace(r.FormValue("username")),
 		Email:    r.FormValue("email"),
 		Password: r.FormValue("password"),
-		ClientIP: apicontext.ClientIP(r),
 	}
 
 	// Attempt registration
-	user, err := h.authService.Register(r.Context(), input)
+	userID, err := h.authService.Register(r.Context(), input)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.registerResp(w, r, models.NewError(svcErr.Message))
@@ -250,11 +264,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set identity cookie
-	h.authService.SetIdentityCookie(w, user.ID)
+	h.ensureIdentityCookie(w, r.Context(), int(userID))
 
 	h.addMessage(sess, models.NewSuccess("You have been successfully registered on RealistikOsu! You now need to verify your account."))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/register/verify?u="+strconv.Itoa(user.ID), http.StatusFound)
+	http.Redirect(w, r, "/register/verify?u="+strconv.FormatInt(userID, 10), http.StatusFound)
 }
 
 // VerifyAccountPage renders the account verification page.
@@ -361,6 +375,28 @@ func (h *AuthHandler) getIdentityCookie(r *http.Request) string {
 		return ""
 	}
 	return cookie.Value
+}
+
+func (h *AuthHandler) ensureIdentityCookie(w http.ResponseWriter, ctx context.Context, userID int) {
+	token, err := h.authService.SetIdentityCookie(ctx, userID)
+	if err != nil {
+		return
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:     "y",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func sessionString(sess *sessions.Session, key string) string {
+	val, ok := sess.Values[key].(string)
+	if !ok {
+		return ""
+	}
+	return val
 }
 
 func (h *AuthHandler) validateIdentityCookie(r *http.Request) (int, bool) {

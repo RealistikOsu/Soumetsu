@@ -102,9 +102,10 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 		Description: r.FormValue("description"),
 		Icon:        r.FormValue("icon"),
 		Tag:         r.FormValue("tag"),
+		OwnerID:     reqCtx.User.ID,
 	}
 
-	clanID, err := h.clanService.Create(r.Context(), reqCtx.User.ID, input)
+	clanID, err := h.clanService.Create(r.Context(), input)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.createResp(w, r, models.NewError(svcErr.Message))
@@ -116,7 +117,7 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	h.addMessage(sess, models.NewSuccess("Clan created."))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/clans/"+strconv.Itoa(clanID), http.StatusFound)
+	http.Redirect(w, r, "/clans/"+strconv.FormatInt(clanID, 10), http.StatusFound)
 }
 
 // Leave handles leaving a clan.
@@ -209,7 +210,25 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 
 	inviteCode := chi.URLParam(r, "inv")
 
-	clanID, err := h.clanService.Join(r.Context(), reqCtx.User.ID, inviteCode)
+	clanID, err := h.clanService.ResolveInvite(r.Context(), inviteCode)
+	if err != nil {
+		if svcErr, ok := err.(*services.ServiceError); ok {
+			h.addMessage(sess, models.NewError(svcErr.Message))
+		} else {
+			h.addMessage(sess, models.NewError("NO!!!"))
+		}
+		sess.Save(r, w)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	if clanID == 0 {
+		h.addMessage(sess, models.NewError("Invalid invite code."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	err = h.clanService.Join(r.Context(), reqCtx.User.ID, inviteCode)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))
@@ -309,13 +328,15 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 	if name != "" || description != "" || icon != "" || tag != "" {
 		// Update clan settings
 		input := clan.UpdateInput{
+			ClanID:      reqCtx.User.Clan,
 			Name:        name,
 			Description: description,
 			Icon:        icon,
 			Tag:         tag,
+			RequesterID: reqCtx.User.ID,
 		}
 
-		err = h.clanService.Update(r.Context(), reqCtx.User.ID, input)
+		err = h.clanService.Update(r.Context(), input)
 		if err != nil {
 			if svcErr, ok := err.(*services.ServiceError); ok {
 				h.addMessage(sess, models.NewError(svcErr.Message))

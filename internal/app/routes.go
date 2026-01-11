@@ -155,12 +155,9 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, "/beatmaps/"+id, http.StatusMovedPermanently)
 	})
 	r.Get("/beatmaps/{id}", a.BeatmapHandler.BeatmapPage)
-	r.Get("/beatmapsets/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// This should redirect to the latest beatmap in the set
-		// For now, just redirect to beatmaps
-		id := chi.URLParam(r, "id")
-		http.Redirect(w, r, "/beatmaps/"+id, http.StatusMovedPermanently)
-	})
+	r.Get("/s/{id}", a.BeatmapHandler.BeatmapSetRedirect)
+	r.Get("/beatmapsets/{id}", a.BeatmapHandler.BeatmapSetRedirect)
+	r.Get("/d/{id}", a.BeatmapHandler.DownloadBeatmap)
 	r.Get("/beatmapsets/{id}/download", a.BeatmapHandler.DownloadBeatmap)
 
 	// Simple pages (loaded from template configs)

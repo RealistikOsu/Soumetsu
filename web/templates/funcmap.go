@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"math"
 	"math/rand"
-	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,6 +21,17 @@ import (
 	"github.com/russross/blackfriday"
 	"zxq.co/ripple/playstyle"
 )
+
+type csrfGenerator interface {
+	Generate(userID int) (string, error)
+}
+
+var csrfService csrfGenerator
+
+// SetCSRFService sets the CSRF token generator for templates.
+func SetCSRFService(service csrfGenerator) {
+	csrfService = service
+}
 
 // FuncMap returns the template function map.
 // Note: This version removes all DB queries - data should be passed from handlers.
@@ -444,6 +454,17 @@ func FuncMap() template.FuncMap {
 		},
 		// stringLower converts a string to lowercase
 		"stringLower": strings.ToLower,
+		// csrfGenerate generates a CSRF token for a user.
+		"csrfGenerate": func(userID int) string {
+			if csrfService == nil {
+				return ""
+			}
+			token, err := csrfService.Generate(userID)
+			if err != nil {
+				return ""
+			}
+			return token
+		},
 	}
 }
 

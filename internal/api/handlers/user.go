@@ -127,7 +127,10 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 
 	newUsername := r.FormValue("newuser")
 
-	err = h.userService.ChangeUsername(r.Context(), reqCtx.User.ID, reqCtx.User.Username, newUsername)
+	err = h.userService.ChangeUsername(r.Context(), user.ChangeUsernameInput{
+		UserID:      reqCtx.User.ID,
+		NewUsername: newUsername,
+	})
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))
@@ -239,9 +242,24 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	backgroundID, _ := strconv.Atoi(r.FormValue("bg"))
-
-	err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, backgroundID)
+	backgroundType := chi.URLParam(r, "type")
+	switch backgroundType {
+	case "0":
+		err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, "none", "")
+	case "1":
+		file, _, fileErr := r.FormFile("value")
+		if fileErr != nil {
+			err = fileErr
+			break
+		}
+		defer file.Close()
+		err = h.userService.UploadProfileBanner(r.Context(), reqCtx.User.ID, file)
+	case "2":
+		value := r.FormValue("value")
+		err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, "color", value)
+	default:
+		err = services.NewBadRequest("Invalid background type.")
+	}
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))

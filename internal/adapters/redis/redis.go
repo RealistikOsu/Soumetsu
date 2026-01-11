@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/RealistikOsu/soumetsu/internal/config"
@@ -45,7 +46,7 @@ func (c *Client) Del(ctx context.Context, keys ...string) error {
 
 // Publish publishes a message to a Redis channel.
 func (c *Client) Publish(ctx context.Context, channel string, message any) error {
-	return c.Client.Publish(channel, message).Err()
+	return c.Client.Publish(channel, fmt.Sprint(message)).Err()
 }
 
 // Exists checks if a key exists in Redis.

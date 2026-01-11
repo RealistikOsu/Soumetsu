@@ -189,6 +189,9 @@ func (s *Service) UploadAvatar(ctx context.Context, userID int, file io.Reader, 
 func (s *Service) SetProfileBackground(ctx context.Context, userID int, bgType string, value string) error {
 	var typeInt int
 	switch bgType {
+	case "none":
+		typeInt = 0
+		value = ""
 	case "image":
 		typeInt = 1
 	case "color":

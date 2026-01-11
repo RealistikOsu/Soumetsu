@@ -38,7 +38,7 @@ type BeatmapPageData struct {
 
 // BeatmapPage renders a beatmap page.
 func (h *BeatmapHandler) BeatmapPage(w http.ResponseWriter, r *http.Request) {
-	beatmapID := chi.URLParam(r, "bid")
+	beatmapID := chi.URLParam(r, "id")
 
 	h.templates.Render(w, "beatmap.html", &response.TemplateData{
 		TitleBar:  "Beatmap",
@@ -56,7 +56,7 @@ type BeatmapSetPageData struct {
 
 // BeatmapSetPage renders a beatmap set page.
 func (h *BeatmapHandler) BeatmapSetPage(w http.ResponseWriter, r *http.Request) {
-	setID := chi.URLParam(r, "sid")
+	setID := chi.URLParam(r, "id")
 
 	h.templates.Render(w, "beatmapset.html", &response.TemplateData{
 		TitleBar:  "Beatmap Set",
@@ -69,22 +69,22 @@ func (h *BeatmapHandler) BeatmapSetPage(w http.ResponseWriter, r *http.Request) 
 
 // BeatmapSetRedirect redirects from /beatmapsets/:id to /b/:id (first beatmap in set).
 func (h *BeatmapHandler) BeatmapSetRedirect(w http.ResponseWriter, r *http.Request) {
-	setID := chi.URLParam(r, "bsetid")
+	setID := chi.URLParam(r, "id")
 
 	bset, err := h.beatmapService.GetBeatmapSet(r.Context(), setID)
 	if err != nil || len(bset.ChildrenBeatmaps) == 0 {
-		// Redirect to set page if can't get beatmap data
-		http.Redirect(w, r, "/s/"+setID, http.StatusFound)
+		// Redirect to beatmap page if can't get beatmap data
+		http.Redirect(w, r, "/beatmaps/"+setID, http.StatusFound)
 		return
 	}
 
 	// Redirect to first beatmap in set
-	http.Redirect(w, r, "/b/"+strconv.Itoa(bset.ChildrenBeatmaps[0].ID), http.StatusFound)
+	http.Redirect(w, r, "/beatmaps/"+strconv.Itoa(bset.ChildrenBeatmaps[0].ID), http.StatusFound)
 }
 
 // DownloadBeatmap handles beatmap download requests.
 func (h *BeatmapHandler) DownloadBeatmap(w http.ResponseWriter, r *http.Request) {
-	setID := chi.URLParam(r, "sid")
+	setID := chi.URLParam(r, "id")
 
 	downloadURL := h.beatmapService.GetDownloadURL(setID)
 	http.Redirect(w, r, downloadURL, http.StatusFound)
