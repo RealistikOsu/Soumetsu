@@ -175,8 +175,8 @@
 	var rankEl = document.getElementById('navbar-user-rank');
 	
 	// Fetch online status from Bancho API
-	if (indicator && typeof hanayoConf !== 'undefined' && hanayoConf.banchoAPI) {
-		fetch(hanayoConf.banchoAPI + '/api/v1/isOnline?id=' + userId)
+	if (indicator && typeof soumetsuConf !== 'undefined' && soumetsuConf.banchoAPI) {
+		fetch(soumetsuConf.banchoAPI + '/api/v1/isOnline?id=' + userId)
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
 				if (data.status === 200 && data.result) {
@@ -194,8 +194,8 @@
 	}
 	
 	// Fetch rank if rank element exists (user is not staff)
-	if (rankEl && typeof hanayoConf !== 'undefined' && hanayoConf.baseAPI) {
-		fetch(hanayoConf.baseAPI + '/api/v1/users/full?id=' + userId)
+	if (rankEl && typeof soumetsuConf !== 'undefined' && soumetsuConf.baseAPI) {
+		fetch(soumetsuConf.baseAPI + '/api/v1/users/full?id=' + userId)
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
 				if (data.code === 200 && data.stats) {
@@ -227,8 +227,8 @@
 <!-- User Search Script -->
 <script>
 (function() {
-	var avatarUrl = typeof hanayoConf !== 'undefined' ? hanayoConf.avatars : '';
-	var apiUrl = typeof hanayoConf !== 'undefined' ? hanayoConf.baseAPI : '';
+	var avatarUrl = typeof soumetsuConf !== 'undefined' ? soumetsuConf.avatars : '';
+	var apiUrl = typeof soumetsuConf !== 'undefined' ? soumetsuConf.baseAPI : '';
 	
 	function getRoleInfo(privileges) {
 		// Admin (ManageUsers)

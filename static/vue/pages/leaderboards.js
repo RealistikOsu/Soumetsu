@@ -67,7 +67,7 @@ new Vue({
             if (vm.page <= 0 || vm.page == null)
                 vm.page = 1;
             window.history.replaceState('', document.title, `/leaderboard?m=${vm.mode}&rx=${vm.relax}&sort=${vm.sort}&p=${vm.page}&c=${vm.country}`);
-            vm.$axios.get(hanayoConf.baseAPI + "/api/v1/leaderboard", {
+            vm.$axios.get(soumetsuConf.baseAPI + "/api/v1/leaderboard", {
                 params: {
                     mode: vm.modeInt,
                     sort: vm.sort,

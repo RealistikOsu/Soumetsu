@@ -16,9 +16,9 @@ import (
 	"time"
 
 	"github.com/RealistikOsu/RealistikAPI/common"
-	"github.com/RealistikOsu/frontend/modules/bbcode"
-	"github.com/RealistikOsu/frontend/modules/doc"
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/modules/bbcode"
+	"github.com/RealistikOsu/soumetsu/modules/doc"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -351,9 +351,9 @@ var funcMap = template.FuncMap{
 		}
 		return nil
 	},
-	// unixNano returns the UNIX timestamp of when hanayo was started in nanoseconds.
+	// unixNano returns the UNIX timestamp of when soumetsu was started in nanoseconds.
 	"unixNano": func() string {
-		return strconv.FormatInt(hanayoStarted, 10)
+		return strconv.FormatInt(soumetsuStarted, 10)
 	},
 	// playstyle returns the string representation of a playstyle.
 	"playstyle": func(i float64, f *profileData) string {
@@ -529,7 +529,7 @@ var funcMap = template.FuncMap{
 		}
 		return ieUnfucker
 	},
-	// version gets what's the current Hanayo version.
+	// version gets what's the current Soumetsu version.
 	"version": func() string {
 		return version
 	},
@@ -545,7 +545,7 @@ var funcMap = template.FuncMap{
 		return x.Val()
 	},
 	"countryList": func(n int64) []string {
-		list := rd.ZRevRange("hanayo:country_list", 0, n-1).Val()
+		list := rd.ZRevRange("soumetsu:country_list", 0, n-1).Val()
 
 		var list2 []string
 		for _, c := range list {
@@ -570,7 +570,7 @@ var funcMap = template.FuncMap{
 }
 
 
-var hanayoStarted = time.Now().UnixNano()
+var soumetsuStarted = time.Now().UnixNano()
 
 var servicePrefixes = map[string]string{
 	"github":  "https://github.com/",

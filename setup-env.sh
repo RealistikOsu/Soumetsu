@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup script for frontend environment configuration
+# Setup script for Soumetsu environment configuration
 
 set -e
 
@@ -26,7 +26,7 @@ echo "✅ Created .env file from env.example"
 echo ""
 echo "📝 Please edit .env file and update the following values:"
 echo "   - APP_COOKIE_SECRET (generate a secure random string)"
-echo "   - APP_HANAYO_KEY (get from your API service)"
+echo "   - APP_SOUMETSU_KEY (get from your API service)"
 echo "   - Database credentials (DB_HOST, DB_USER, DB_PASS)"
 echo "   - Redis credentials (REDIS_HOST, REDIS_PASS if needed)"
 echo "   - Mailgun credentials (if using email)"

@@ -16,10 +16,10 @@ import (
 
 	"math/rand"
 
-	"github.com/RealistikOsu/frontend/routers/pagemappings"
-	"github.com/RealistikOsu/frontend/services"
-	"github.com/RealistikOsu/frontend/services/cieca"
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/routers/pagemappings"
+	"github.com/RealistikOsu/soumetsu/services"
+	"github.com/RealistikOsu/soumetsu/services/cieca"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/fatih/structs"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -48,7 +48,7 @@ func main() {
 
 	slog.SetDefault(logger)
 
-	slog.Info("frontend service starting up on", "version", version)
+	slog.Info("soumetsu service starting up on", "version", version)
 
 	settings := state.LoadSettings()
 	configMap = structs.Map(settings)
@@ -164,7 +164,7 @@ func generateEngine() *gin.Engine {
 		sessions.Sessions("session", store),
 		sessionInitializer(),
 		rateLimiter(false),
-		gintrace.Middleware("frontend"),
+		gintrace.Middleware("soumetsu"),
 	)
 
 	r.Static("/static", "static")

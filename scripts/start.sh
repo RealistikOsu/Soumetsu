@@ -12,7 +12,7 @@ if [ -z "$APP_ENV" ]; then
 fi
 
 if [ "$APP_COMPONENT" = "api" ]; then
-    exec ./frontend
+    exec ./soumetsu
 else
     echo "Unknown component: $APP_COMPONENT"
     exit 1

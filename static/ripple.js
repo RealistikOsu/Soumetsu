@@ -160,7 +160,7 @@ var singlePageSnippets = {
   "/register/verify" : function() {
     var qu = query("u");
     setInterval(function() {
-      $.getJSON(hanayoConf.banchoAPI + "/api/v1/verifiedStatus?u=" + qu,
+      $.getJSON(soumetsuConf.banchoAPI + "/api/v1/verifiedStatus?u=" + qu,
         function(data) {
           if (data.result >= 0) {
             window.location.href = "/register/welcome?u=" + qu;
@@ -549,7 +549,7 @@ function _api(base, endpoint, data, success, failure, post, handleAllFailures) {
 };
 
 function api(endpoint, data, success, failure, post, handleAllFailures) {
-  return _api(hanayoConf.baseAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
+  return _api(soumetsuConf.baseAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
 function banchoAPI(endpoint, data, success, failure, post, handleAllFailures) {
@@ -563,7 +563,7 @@ function banchoAPI(endpoint, data, success, failure, post, handleAllFailures) {
       */
     };
   }
-  return _api(hanayoConf.banchoAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
+  return _api(soumetsuConf.banchoAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
 var modes = {

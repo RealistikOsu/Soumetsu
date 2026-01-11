@@ -83,7 +83,7 @@ new Vue({
 
             try {
                 // Fetch beatmap from Cheesegull API
-                this.beatmap = await HanayoAPI.beatmaps.get(this.beatmapId);
+                this.beatmap = await SoumetsuAPI.beatmaps.get(this.beatmapId);
 
                 if (!this.beatmap?.ParentSetID) {
                     this.error = 'Beatmap not found';
@@ -92,7 +92,7 @@ new Vue({
                 }
 
                 // Fetch beatmap set
-                this.beatmapSet = await HanayoAPI.beatmaps.getSet(this.beatmap.ParentSetID);
+                this.beatmapSet = await SoumetsuAPI.beatmaps.getSet(this.beatmap.ParentSetID);
 
                 if (!this.beatmapSet?.SetID) {
                     this.error = 'Beatmap set not found';
@@ -127,7 +127,7 @@ new Vue({
                 // Use score sort for vanilla, pp sort for relax/autopilot
                 const sortField = this.relax === 0 ? 'score,desc' : 'pp,desc';
 
-                const resp = await HanayoAPI.beatmaps.getScores(
+                const resp = await SoumetsuAPI.beatmaps.getScores(
                     this.selectedDiff.BeatmapID,
                     this.mode,
                     this.relax,

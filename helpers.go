@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RealistikOsu/frontend/modules/bbcode"
-	tp "github.com/RealistikOsu/frontend/modules/top-passwords"
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/modules/bbcode"
+	tp "github.com/RealistikOsu/soumetsu/modules/top-passwords"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/gin-gonic/gin"
 )
 

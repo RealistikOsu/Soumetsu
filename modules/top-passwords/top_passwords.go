@@ -4,7 +4,7 @@
 package toppasswords
 
 // TopPassword is a list of the top 10,000 passwords longer or exactly 8
-// characters. This is used in Hanayo to detect common password, and to inform
+// characters. This is used in Soumetsu to detect common password, and to inform
 // the user about it.
 var TopPasswords = []string{
 	"password",

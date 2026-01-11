@@ -71,7 +71,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				</div>
 				<div class="relative flex items-center gap-4">
 					<div class="relative">
-						<img :src="hanayoConf.avatars + '/' + data[0].id" :alt="data[0].username" class="w-20 h-20 rounded-full border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
+						<img :src="soumetsuConf.avatars + '/' + data[0].id" :alt="data[0].username" class="w-20 h-20 rounded-full border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
 						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
 							<i class="fas fa-crown text-yellow-900 text-sm"></i>
 						</div>
@@ -105,7 +105,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				</div>
 				<div class="relative flex items-center gap-4">
 					<div class="relative">
-						<img :src="hanayoConf.avatars + '/' + data[1].id" :alt="data[1].username" class="w-20 h-20 rounded-full border-4 border-gray-400/50 shadow-lg">
+						<img :src="soumetsuConf.avatars + '/' + data[1].id" :alt="data[1].username" class="w-20 h-20 rounded-full border-4 border-gray-400/50 shadow-lg">
 						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center shadow-lg">
 							<i class="fas fa-medal text-gray-700 text-sm"></i>
 						</div>
@@ -139,7 +139,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				</div>
 				<div class="relative flex items-center gap-4">
 					<div class="relative">
-						<img :src="hanayoConf.avatars + '/' + data[2].id" :alt="data[2].username" class="w-20 h-20 rounded-full border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
+						<img :src="soumetsuConf.avatars + '/' + data[2].id" :alt="data[2].username" class="w-20 h-20 rounded-full border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
 						<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
 							<i class="fas fa-award text-orange-900 text-sm"></i>
 						</div>
@@ -318,7 +318,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 						<td class="py-4 px-4">
 							<div class="flex items-center gap-3">
 								<div class="relative">
-									<img :src="hanayoConf.avatars + '/' + player.id" 
+									<img :src="soumetsuConf.avatars + '/' + player.id" 
 										:alt="player.username" 
 										class="w-12 h-12 rounded-full border-2 border-dark-border object-cover">
 									<div v-if="player.privileges & 4" class="absolute -bottom-1 -right-1 w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-card">

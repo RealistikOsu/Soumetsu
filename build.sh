@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for RealistikOsu frontend with Tailwind CSS
+# Build script for RealistikOsu Soumetsu with Tailwind CSS
 
 echo "Installing dependencies..."
 npm install

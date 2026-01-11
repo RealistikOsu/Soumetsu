@@ -1,5 +1,5 @@
 {
-  "name": "hanayo",
+  "name": "soumetsu",
   "version": "1.0.0",
   "scripts": {
     "tailwind:watch": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",

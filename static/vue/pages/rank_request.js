@@ -23,7 +23,7 @@ new Vue({
 
 	computed: {
 		apiBase() {
-			return (window.hanayoConf && window.hanayoConf.baseAPI) ? window.hanayoConf.baseAPI : "";
+			return (window.soumetsuConf && window.soumetsuConf.baseAPI) ? window.soumetsuConf.baseAPI : "";
 		},
 
 		apiConfigured() {
@@ -63,7 +63,7 @@ new Vue({
 			if (!vm.apiConfigured) {
 				vm.load = false;
 				vm.error = true;
-				vm.errorMessage = "hanayoConf.baseAPI is not set";
+				vm.errorMessage = "soumetsuConf.baseAPI is not set";
 				return;
 			}
 

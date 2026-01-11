@@ -1,4 +1,4 @@
-module github.com/RealistikOsu/frontend
+module github.com/RealistikOsu/soumetsu
 
 go 1.21
 

@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/gin-gonic/gin"
 )
 

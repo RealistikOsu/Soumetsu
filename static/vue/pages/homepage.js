@@ -17,7 +17,7 @@ new Vue({
 
             // Config
             currentUserID: window.currentUserID || 0,
-            avatarURL: window.hanayoConf?.avatars || '',
+            avatarURL: window.soumetsuConf?.avatars || '',
         };
     },
 
@@ -36,7 +36,7 @@ new Vue({
             this.loading = true;
 
             try {
-                const stats = await HanayoAPI.statistics.homepage();
+                const stats = await SoumetsuAPI.statistics.homepage();
 
                 if (stats?.data) {
                     this.topPlays = (stats.data.top_scores || []).slice(0, 8);

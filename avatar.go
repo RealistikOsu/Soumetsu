@@ -8,7 +8,7 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
 )

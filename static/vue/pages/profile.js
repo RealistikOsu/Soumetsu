@@ -118,8 +118,8 @@ new Vue({
             userID: 0, // Resolved after API call
             currentUserID: window.currentUserID || 0,
             hasAdmin: window.hasAdmin || false,
-            avatarURL: window.hanayoConf?.avatars || 'https://a.ussr.pl',
-            baseAPI: window.hanayoConf?.baseAPI || '',
+            avatarURL: window.soumetsuConf?.avatars || 'https://a.ussr.pl',
+            baseAPI: window.soumetsuConf?.baseAPI || '',
         }
     },
     computed: {

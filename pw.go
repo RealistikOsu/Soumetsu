@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/RealistikOsu/RealistikAPI/common"
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"zxq.co/x/rs"

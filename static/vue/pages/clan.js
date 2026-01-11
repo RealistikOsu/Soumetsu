@@ -27,7 +27,7 @@ new Vue({
             clanId: window.clanId || 0,
             clanParam: window.clanParam || '',
             currentUserID: window.currentUserID || 0,
-            avatarURL: window.hanayoConf?.avatars || '',
+            avatarURL: window.soumetsuConf?.avatars || '',
         };
     },
 
@@ -67,10 +67,10 @@ new Vue({
                 // Load clan info - try by ID first, then by name
                 let clanResp;
                 if (this.clanId > 0) {
-                    clanResp = await HanayoAPI.clans.get(this.clanId);
+                    clanResp = await SoumetsuAPI.clans.get(this.clanId);
                 } else if (this.clanParam) {
                     // API might support name lookup - try with the param
-                    clanResp = await HanayoAPI.get('clans', { name: this.clanParam });
+                    clanResp = await SoumetsuAPI.get('clans', { name: this.clanParam });
                 }
 
                 if (!clanResp?.clans?.length) {
@@ -103,7 +103,7 @@ new Vue({
 
         async loadMembers() {
             try {
-                const resp = await HanayoAPI.clans.getMembers(this.clanId, 1);
+                const resp = await SoumetsuAPI.clans.getMembers(this.clanId, 1);
                 this.members = resp.members || [];
             } catch (err) {
                 console.error('Error loading members:', err);
@@ -112,7 +112,7 @@ new Vue({
 
         async loadOwner() {
             try {
-                const resp = await HanayoAPI.clans.getMembers(this.clanId, 8);
+                const resp = await SoumetsuAPI.clans.getMembers(this.clanId, 8);
                 this.owner = resp.members?.[0] || null;
             } catch (err) {
                 console.error('Error loading owner:', err);
@@ -136,7 +136,7 @@ new Vue({
             if (this.currentUserID <= 0) return;
 
             try {
-                const resp = await HanayoAPI.clans.isInClan(this.currentUserID);
+                const resp = await SoumetsuAPI.clans.isInClan(this.currentUserID);
                 if (resp.clan?.clan) {
                     this.userClanInfo = resp.clan;
                     this.isCurrentUserInThisClan = resp.clan.clan === this.clanId;

@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/RealistikOsu/RealistikAPI/common"
-	"github.com/RealistikOsu/frontend/state"
+	"github.com/RealistikOsu/soumetsu/state"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/pariz/gountries"
@@ -186,8 +186,8 @@ func (b baseTemplateData) Get(s string, params ...interface{}) map[string]interf
 		b.Gin.Error(err)
 		return nil
 	}
-	req.Header.Set("User-Agent", "hanayo")
-	req.Header.Set("H-Key", settings.APP_HANAYO_KEY)
+	req.Header.Set("User-Agent", "soumetsu")
+	req.Header.Set("H-Key", settings.APP_SOUMETSU_KEY)
 	req.Header.Set("X-Ripple-Token", b.Context.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

@@ -14,7 +14,7 @@ COPY services/ ./services/
 COPY state/ ./state/
 
 # Build the binary
-RUN go build -o frontend
+RUN go build -o soumetsu
 
 # Final stage
 FROM golang:1.21
@@ -22,7 +22,7 @@ FROM golang:1.21
 WORKDIR /srv/root
 
 # Copy the built binary from builder
-COPY --from=builder /srv/root/frontend ./frontend
+COPY --from=builder /srv/root/soumetsu ./soumetsu
 
 # Copy scripts (rarely change)
 COPY scripts/ ./scripts/

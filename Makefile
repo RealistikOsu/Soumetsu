@@ -1,7 +1,7 @@
 #!/usr/bin/make
 
 run:
-	docker run --network=host --env-file=.env frontend:latest
+	docker run --network=host --env-file=.env soumetsu:latest
 
 build:
-	docker build -t frontend:latest .
+	docker build -t soumetsu:latest .

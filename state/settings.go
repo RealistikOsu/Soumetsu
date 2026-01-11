@@ -30,7 +30,7 @@ func strToBool(s string) bool {
 type Settings struct {
 	APP_PORT          int
 	APP_COOKIE_SECRET string
-	APP_HANAYO_KEY    string
+	APP_SOUMETSU_KEY    string
 
 	APP_ENV string
 
@@ -124,7 +124,7 @@ func LoadSettings() Settings {
 
 	settings.APP_PORT = strToInt(getEnv("APP_PORT"))
 	settings.APP_COOKIE_SECRET = getEnv("APP_COOKIE_SECRET")
-	settings.APP_HANAYO_KEY = getEnv("APP_HANAYO_KEY")
+	settings.APP_SOUMETSU_KEY = getEnv("APP_SOUMETSU_KEY")
 
 	settings.APP_ENV = getEnv("APP_ENV")
 
