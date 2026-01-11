@@ -21,16 +21,13 @@ DisableHH=true
 	<section class="relative py-12 md:py-20">
 		<div class="container mx-auto px-4">
 			<div class="flex flex-col md:flex-row gap-8 items-center">
-				<!-- Left: Anime Character Placeholder -->
+				<!-- Left: Character Image -->
 				<div class="hidden md:flex w-1/3 relative items-center justify-center min-h-[400px]">
 					<!-- Decorative glow effect -->
 					<div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl opacity-50"></div>
-					<!-- Character silhouette/placeholder -->
-					<div class="relative z-10 text-center">
-						<div class="w-48 h-48 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border-2 border-primary/30">
-							<i class="fas fa-music text-6xl text-primary/60"></i>
-						</div>
-						<p class="text-gray-500 text-sm italic">♪ Click the circles ♪</p>
+					<!-- Character image -->
+					<div class="relative z-10">
+						<img src="/static/image/bina.png" alt="Bina" class="w-full max-w-xs h-auto drop-shadow-2xl">
 					</div>
 				</div>
 
@@ -218,7 +215,7 @@ DisableHH=true
 	<section class="py-20 relative z-10">
 		<div class="container mx-auto px-4">
 			<div class="bg-dark-card/80 backdrop-blur-sm rounded-xl border border-dark-border overflow-hidden">
-				<div class="flex flex-col md:flex-row items-center">
+				<div class="flex flex-col md:flex-row md:items-stretch">
 					<!-- Left: Content -->
 					<div class="flex-1 p-8 md:p-12">
 						<h2 class="text-3xl md:text-4xl font-display font-bold mb-4">What are you waiting for?</h2>
@@ -237,16 +234,13 @@ DisableHH=true
 							</a>
 						</div>
 					</div>
-
-					<!-- Right: Decorative Element -->
-					<div class="hidden md:flex w-1/3 relative h-80 items-center justify-center">
-						<div class="absolute inset-0 bg-gradient-to-l from-primary/10 to-transparent"></div>
-						<div class="relative z-10 text-center">
-							<div class="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border-2 border-primary/30">
-								<i class="fas fa-gamepad text-5xl text-primary/60"></i>
-							</div>
-							<p class="text-gray-500 text-sm">Start playing today!</p>
-						</div>
+					<!-- Right: Character Image (Rina) -->
+					<div class="hidden md:block w-1/3 relative overflow-hidden">
+						<img
+					src="/static/image/rina.png"
+					class="absolute inset-0 w-full h-full object-cover object-left object-top"
+					>
+						<div class="absolute inset-0 bg-gradient-to-r from-transparent via-dark-card/35 to-transparent pointer-events-none"></div>
 					</div>
 				</div>
 			</div>

@@ -3,67 +3,210 @@ Handler=/connect
 DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="relative min-h-screen py-8">
-	<!-- Background with blur -->
-	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
-			style="background-image: url('/static/headers/default.jpg');"></div>
-		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
-	</div>
-
-	<div class="container mx-auto px-4 max-w-4xl">
-		<div class="card mb-8">
-			<h2 class="text-3xl font-display font-bold mb-4">Connecting</h2>
-			<p class="text-gray-300 leading-relaxed">
-				You are one step away from starting your journey on RealistikOsu! One small step from joining a community 
-				of <span class="text-primary font-semibold">{{ .T "%s" (rediget "ripple:registered_users")}}</span> dedicated players and competing in the leaderboards.
-				The only thing left to do is to connect to the servers and your profile will become public for the entire 
-				world to see! You will be able to set scores, join clans and play to your heart's content! But how do you 
-				do that, you may ask.
-			</p>
+{{ $registered := rediget "ripple:registered_users" }}
+	
+	<div class="relative min-h-screen py-10">
+		<!-- Background -->
+		<div class="fixed inset-0 -z-10">
+			<div
+				class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+				style="background-image: url('/static/headers/default.jpg');"
+			></div>
+			<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 		</div>
-
-		<div class="flex items-center gap-4 mb-8">
-			<div class="flex-1 h-px bg-dark-border"></div>
-			<div class="flex items-center gap-2 text-gray-400">
-				<i class="fas fa-play"></i>
-				<span class="font-medium">Connection Methods</span>
+	
+		<div class="container mx-auto px-4 max-w-6xl">
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-8">
+				<div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+					<i class="fas fa-link text-white text-2xl"></i>
+				</div>
+				<div class="flex-1">
+					<h1 class="text-4xl md:text-5xl font-display font-bold text-white">{{ .T "Connect to RealistikOsu!" }}</h1>
+					<p class="text-gray-400 mt-1">
+						{{ .T "A quick setup and you’re in — no admin rights, no hassle." }}
+					</p>
+				</div>
 			</div>
-			<div class="flex-1 h-px bg-dark-border"></div>
-		</div>
-
-		<div class="card">
-			<div class="flex items-center gap-3 mb-6">
-				<i class="fas fa-mouse-pointer text-primary text-2xl"></i>
-				<h2 class="text-2xl font-display font-bold">The Shortcut Method</h2>
-			</div>
-			
-			<p class="text-gray-300 mb-6 leading-relaxed">
-				Did you know that osu! nowadays offers a somewhat official private server connection method! The
-				only requirements for this connection method are to have a recent version of the osu client
-				(with the minimum version being <span class="font-semibold text-primary">stable 20210316</span>). This method only requires the editing of 
-				the osu! shortcut on your desktop, and requires no admin privileges.
-			</p>
-
-			<ol class="space-y-6 list-decimal list-inside text-gray-300">
-				<li class="pl-4">
-					<p class="mb-2">Open the osu! shortcut properties. This can be an existing osu! shortcut on your desktop or a 
-					newly created one. You should now see a properties window open up with the "Shortcut" tab 
-					selected by default.</p>
-				</li>
-				<li class="pl-4">
-					<p class="mb-2">Click on the box labeled "Target" and add <code class="bg-dark-bg px-2 py-1 rounded text-primary font-mono">-devserver ussr.pl</code> to the end of it as 
-					shown in this image.</p>
-					<div class="mt-4 rounded-lg overflow-hidden border border-dark-border">
-						<img src="/static/image/devserver-image.png" alt="Shortcut target image" class="w-full">
+	
+			<!-- Intro + quick stats -->
+			<div class="card mb-8 overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-purple-500/15 pointer-events-none"></div>
+	
+				<div class="relative p-8 md:p-10">
+					<div class="flex flex-col md:flex-row gap-8 items-start">
+						<div class="flex-1">
+							<h2 class="text-2xl md:text-3xl font-display font-bold text-white mb-3">{{ .T "You’re one step away." }}</h2>
+							<p class="text-gray-300 leading-relaxed">
+								{{ .T "You’re one step away from starting your journey on RealistikOsu — joining a community of" }}
+								<span class="text-primary font-semibold">{{ .T "%s" $registered }}</span>
+								{{ .T "dedicated players and competing on the leaderboards." }}
+								<br><br>
+								{{ .T "Once you connect, your profile becomes visible and you can start setting scores, joining clans, and playing to your heart’s content." }}
+								{{ .T "So… how do you do it?" }}
+							</p>
+						</div>
+	
+						<!-- Quick checklist -->
+						<div class="w-full md:w-80">
+							<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6">
+								<div class="flex items-center gap-3 mb-4">
+									<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+										<i class="fas fa-bolt text-primary"></i>
+									</div>
+									<div>
+										<p class="text-white font-semibold">{{ .T "What you need" }}</p>
+										<p class="text-xs text-gray-400">{{ .T "Before you start" }}</p>
+									</div>
+								</div>
+	
+								<ul class="space-y-3 text-sm text-gray-300">
+									<li class="flex items-start gap-3">
+										<i class="fas fa-check mt-0.5 text-green-400"></i>
+										<span>{{ .T "A recent osu! client" }}</span>
+									</li>
+									<li class="flex items-start gap-3">
+										<i class="fas fa-check mt-0.5 text-green-400"></i>
+										<span>
+											{{ .T "Minimum version:" }}
+											<span class="font-semibold text-primary">stable 20210316</span>
+										</span>
+									</li>
+									<li class="flex items-start gap-3">
+										<i class="fas fa-check mt-0.5 text-green-400"></i>
+										<span>{{ .T "No admin privileges required" }}</span>
+									</li>
+									<li class="flex items-start gap-3">
+										<i class="fas fa-check mt-0.5 text-green-400"></i>
+										<span>{{ .T "One shortcut edit" }}</span>
+									</li>
+								</ul>
+	
+								<div class="mt-5 pt-5 border-t border-dark-border">
+									<p class="text-xs text-gray-400">
+										<i class="fas fa-info-circle mr-2 text-primary"></i>
+										{{ .T "This uses osu!’s modern private server flag for quick switching." }}
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
-				</li>
-				<li class="pl-4">
-					<p>And that's it! You are now connected to RealistikOsu! You may now log into your account and 
-					enjoy all the features RealistikOsu has to offer.</p>
-				</li>
-			</ol>
+				</div>
+			</div>
+	
+			<!-- Section divider -->
+			<div class="flex items-center gap-4 mb-8">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-2 text-gray-400">
+					<i class="fas fa-play"></i>
+					<span class="font-medium">{{ .T "Connection Methods" }}</span>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+	
+			<!-- Method card -->
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 pointer-events-none"></div>
+	
+				<div class="relative p-8 md:p-10">
+					<div class="flex flex-col md:flex-row md:items-start gap-6 mb-8">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+							<i class="fas fa-mouse-pointer text-primary text-2xl"></i>
+						</div>
+						<div class="flex-1">
+							<h2 class="text-2xl md:text-3xl font-display font-bold text-white">{{ .T "The Shortcut Method" }}</h2>
+							<p class="text-gray-400 mt-2 leading-relaxed">
+								{{ .T "osu! now offers a semi-official way to connect to private servers. If you’re on a recent client (minimum" }}
+								<span class="font-semibold text-primary">stable 20210316</span>{{ .T "), you can connect by editing your desktop shortcut — no admin privileges needed." }}
+							</p>
+						</div>
+					</div>
+	
+					<!-- Steps -->
+					<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+						<!-- Steps list -->
+						<div class="lg:col-span-3">
+							<div class="space-y-4">
+								<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-5">
+									<div class="flex items-start gap-4">
+										<div class="w-9 h-9 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-white font-bold">1</div>
+										<div class="flex-1">
+											<p class="text-white font-semibold mb-1">{{ .T "Open shortcut properties" }}</p>
+											<p class="text-gray-300 text-sm leading-relaxed">
+												{{ .T "Right-click your osu! shortcut (existing or newly created) and open Properties. The window should open on the Shortcut tab by default." }}
+											</p>
+										</div>
+									</div>
+								</div>
+	
+								<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-5">
+									<div class="flex items-start gap-4">
+										<div class="w-9 h-9 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-white font-bold">2</div>
+										<div class="flex-1">
+											<p class="text-white font-semibold mb-2">{{ .T "Add the devserver flag" }}</p>
+											<p class="text-gray-300 text-sm leading-relaxed mb-3">
+												{{ .T "Click the Target field and append the following to the end:" }}
+											</p>
+											<div class="bg-dark-bg border border-dark-border rounded-xl px-4 py-3 font-mono text-sm text-primary overflow-x-auto">
+												-devserver ussr.pl
+											</div>
+											<p class="text-xs text-gray-400 mt-3">
+												<i class="fas fa-lock-open mr-2 text-green-400"></i>
+												{{ .T "No admin rights required — it’s just a shortcut argument." }}
+											</p>
+										</div>
+									</div>
+								</div>
+	
+								<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-5">
+									<div class="flex items-start gap-4">
+										<div class="w-9 h-9 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-white font-bold">3</div>
+										<div class="flex-1">
+											<p class="text-white font-semibold mb-1">{{ .T "Launch and log in" }}</p>
+											<p class="text-gray-300 text-sm leading-relaxed">
+												{{ .T "That’s it — you’re now connected to RealistikOsu! Launch osu!, sign in, and enjoy everything the server has to offer." }}
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+							<!-- Small CTA note -->
+							<div class="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+								<div class="flex items-start gap-3">
+									<i class="fas fa-rocket text-primary mt-1"></i>
+									<p class="text-sm text-gray-300 leading-relaxed">
+										{{ .T "Tip:" }} {{ .T "Keep a second shortcut without the flag if you want to swap back to the official server quickly." }}
+									</p>
+								</div>
+							</div>
+						</div>
+	
+						<!-- Image panel -->
+						<div class="lg:col-span-2">
+							<div class="bg-dark-bg/40 border border-dark-border rounded-2xl overflow-hidden">
+								<div class="p-4 border-b border-dark-border flex items-center justify-between">
+									<div class="flex items-center gap-2 text-gray-300">
+										<i class="fas fa-image text-primary"></i>
+										<span class="font-semibold">{{ .T "Example" }}</span>
+									</div>
+									<span class="text-xs text-gray-500">{{ .T "Shortcut Target field" }}</span>
+								</div>
+								<img src="/static/image/devserver-image.png" alt="Shortcut target image" class="w-full">
+							</div>
+	
+							<div class="mt-4 text-xs text-gray-400">
+								<i class="fas fa-circle-question mr-2 text-gray-500"></i>
+								{{ .T "Make sure there’s a space before" }}
+								<span class="font-mono text-primary">-devserver</span>.
+							</div>
+						</div>
+					</div>
+	
+				</div>
+			</div>
+	
 		</div>
 	</div>
-</div>
 {{ end }}
+	
