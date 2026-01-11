@@ -63,7 +63,7 @@ func beatmapInfo(c *gin.Context) {
 // Used by the /beatmapsets/:bsetid redirect in main.go
 func getBeatmapSetData(parentID string) (bset BeatmapSet, err error) {
 	settings := state.GetSettings()
-	resp, err := http.Get(settings.BEATMAP_MIRROR_API_URL + "/s/" + parentID)
+	resp, err := http.Get(settings.SOUMETSU_BEATMAP_MIRROR_API_URL + "/s/" + parentID)
 	if err != nil {
 		return bset, err
 	}

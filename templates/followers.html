@@ -34,7 +34,7 @@ DisableHH=true
 				{{ range .subs }}
 					<div class="card hover:border-primary transition-colors text-center">
 						<a href="/users/{{ .id }}" class="block">
-							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+							<img src="{{ config "SOUMETSU_AVATAR_URL" }}/{{ .id }}" 
 								alt="Avatar" 
 								class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-dark-border{{ if not (has .privileges 1) }} opacity-50{{ end }}">
 							<p class="font-medium text-sm{{ if not (has .privileges 1) }} opacity-50{{ end }}">{{ .username }}</p>

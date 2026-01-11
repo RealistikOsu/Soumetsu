@@ -121,9 +121,9 @@ func main() {
 	setUpLimiter()
 
 	r := generateEngine()
-	slog.Info("Listening on port", "port", settings.APP_PORT)
+	slog.Info("Listening on port", "port", settings.SOUMETSU_PORT)
 
-	err = r.Run(fmt.Sprintf(":%d", settings.APP_PORT))
+	err = r.Run(fmt.Sprintf(":%d", settings.SOUMETSU_PORT))
 	if err != nil {
 		slog.Error("Failed to start server", "error", err.Error())
 		panic(err)
@@ -141,10 +141,10 @@ func generateEngine() *gin.Engine {
 			settings.REDIS_NETWORK_TYPE,
 			fmt.Sprintf("%s:%d", settings.REDIS_HOST, settings.REDIS_PORT),
 			settings.REDIS_PASS,
-			[]byte(settings.APP_COOKIE_SECRET),
+			[]byte(settings.SOUMETSU_COOKIE_SECRET),
 		)
 	} else {
-		store = sessions.NewCookieStore([]byte(settings.APP_COOKIE_SECRET))
+		store = sessions.NewCookieStore([]byte(settings.SOUMETSU_COOKIE_SECRET))
 	}
 
 	if err != nil {

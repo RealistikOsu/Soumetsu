@@ -56,7 +56,7 @@ func profBackground(c *gin.Context) {
 		if err != nil {
 			// Nope, not a gif, log it and continue
 			slog.Error("There was an issue while parsing gif file", "error", err)
-			f, err := os.Create(fmt.Sprintf("%s/%d.jpg", settings.APP_INTERNAL_BANNERS_PATH, ctx.User.ID))
+			f, err := os.Create(fmt.Sprintf("%s/%d.jpg", settings.SOUMETSU_INTERNAL_BANNERS_PATH, ctx.User.ID))
 			if err != nil {
 				m = errorMessage{"An error occurred."}
 				c.Error(err)
@@ -76,7 +76,7 @@ func profBackground(c *gin.Context) {
 			saveProfileBackground(ctx, 1, fmt.Sprintf("%d.jpg?%d", ctx.User.ID, time.Now().Unix()))
 		} else {
 			// It's a gif, save it as a gif
-			f, err := os.Create(fmt.Sprintf("%s/%d.gif", settings.APP_INTERNAL_BANNERS_PATH, ctx.User.ID))
+			f, err := os.Create(fmt.Sprintf("%s/%d.gif", settings.SOUMETSU_INTERNAL_BANNERS_PATH, ctx.User.ID))
 			if err != nil {
 				m = errorMessage{"An error occurred."}
 				c.Error(err)

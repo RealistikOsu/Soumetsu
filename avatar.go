@@ -22,7 +22,7 @@ func avatarSubmit(c *gin.Context) {
 	}
 	var m message
 
-	if settings.APP_INTERNAL_AVATARS_PATH == "" {
+	if settings.SOUMETSU_INTERNAL_AVATARS_PATH == "" {
 		m = errorMessage{"Changing avatar is currently not possible."}
 		return
 	}
@@ -40,7 +40,7 @@ func avatarSubmit(c *gin.Context) {
 	}
 
 	img = resize.Thumbnail(256, 256, img, resize.Bilinear)
-	f, err := os.Create(fmt.Sprintf("%s/%d.png", settings.APP_INTERNAL_AVATARS_PATH, ctx.User.ID))
+	f, err := os.Create(fmt.Sprintf("%s/%d.png", settings.SOUMETSU_INTERNAL_AVATARS_PATH, ctx.User.ID))
 
 	defer func() {
 		simpleReply(c, m)

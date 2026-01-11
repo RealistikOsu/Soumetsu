@@ -467,7 +467,7 @@ var funcMap = template.FuncMap{
 	// https://docs.ripple.moe/docs/banchoapi/v1
 	"bgetv1": func(ept string, qs ...interface{}) map[string]interface{} {
 		settings := state.GetSettings()
-		d, err := http.Get(fmt.Sprintf(settings.APP_BANCHO_URL+"/api/v1/"+ept, qs...))
+		d, err := http.Get(fmt.Sprintf(settings.SOUMETSU_BANCHO_URL+"/api/v1/"+ept, qs...))
 		if err != nil {
 			return nil
 		}
@@ -478,7 +478,7 @@ var funcMap = template.FuncMap{
 	},
 	"isOnline": func(userID int) bool {
 		settings := state.GetSettings()
-		d, err := http.Get(fmt.Sprintf(settings.APP_BANCHO_URL + "/api/status/" + strconv.Itoa(userID)))
+		d, err := http.Get(fmt.Sprintf(settings.SOUMETSU_BANCHO_URL + "/api/status/" + strconv.Itoa(userID)))
 		if err != nil {
 			return false
 		}

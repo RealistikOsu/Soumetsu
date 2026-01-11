@@ -69,7 +69,7 @@ func passwordReset(c *gin.Context) {
 	content := fmt.Sprintf(
 		"Hey %s!<br><br>We've heard you forgot your RealistikOsu! account password, it can happen to the best of us. You can change it by <a href='%s'>clicking here</a>!<br><br>If you didn't request a password reset, you don't have to do anything. Just ignore this email.",
 		username,
-		settings.APP_BASE_URL+"/password-reset/continue?k="+key,
+		settings.SOUMETSU_BASE_URL+"/password-reset/continue?k="+key,
 	)
 
 	msg := mg.NewMessage(

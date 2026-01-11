@@ -43,7 +43,7 @@ DisableHH=true
 									</h3>
 									<div class="flex items-center gap-6">
 										<div class="relative group">
-											<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+											<img src="{{ config "SOUMETSU_AVATAR_URL" }}/{{ .Context.User.ID }}" 
 												alt="Current Avatar" 
 												class="w-32 h-32 rounded-full border-4 border-dark-border object-cover shadow-lg">
 											<div class="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -92,10 +92,10 @@ DisableHH=true
 										<div class="p-4 -mt-10 relative z-10">
 											<div class="flex items-start gap-3 mb-3">
 												<div class="relative">
-													<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+													<img src="{{ config "SOUMETSU_AVATAR_URL" }}/{{ .Context.User.ID }}" 
 														id="preview-card-avatar" 
 														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover transition-all duration-300"
-														data-original="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}">
+														data-original="{{ config "SOUMETSU_AVATAR_URL" }}/{{ .Context.User.ID }}">
 													<!-- Ring animation when new avatar selected -->
 													<div id="avatar-ring" class="hidden absolute inset-0 rounded-full border-2 border-primary animate-pulse"></div>
 												</div>

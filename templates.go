@@ -181,13 +181,13 @@ func (b *baseTemplateData) SetSession(sess sessions.Session) {
 func (b baseTemplateData) Get(s string, params ...interface{}) map[string]interface{} {
 	s = fmt.Sprintf(s, params...)
 	settings := state.GetSettings()
-	req, err := http.NewRequest("GET", settings.APP_API_URL+"/"+s, nil)
+	req, err := http.NewRequest("GET", settings.SOUMETSU_API_URL+"/"+s, nil)
 	if err != nil {
 		b.Gin.Error(err)
 		return nil
 	}
 	req.Header.Set("User-Agent", "soumetsu")
-	req.Header.Set("H-Key", settings.APP_SOUMETSU_KEY)
+	req.Header.Set("H-Key", settings.SOUMETSU_KEY)
 	req.Header.Set("X-Ripple-Token", b.Context.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
