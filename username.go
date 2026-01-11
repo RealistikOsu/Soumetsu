@@ -20,7 +20,7 @@ func changeUsername(c *gin.Context) {
 		return
 	}
 
-	var m message = successMessage{T(c, "Your username has been changed.")}
+	var m message = successMessage{"Your username has been changed."}
 
 	defer func() {
 		addMessage(c, m)
@@ -29,41 +29,41 @@ func changeUsername(c *gin.Context) {
 	}()
 
 	if ok, _ := CSRF.Validate(ctx.User.ID, c.PostForm("csrf")); !ok {
-		m = errorMessage{T(c, "Your session has expired. Please try redoing what you were trying to do.")}
+		m = errorMessage{"Your session has expired. Please try redoing what you were trying to do."}
 		return
 	}
 
 	if db.QueryRow("SELECT 1 FROM user_name_history WHERE user_id = ? AND replaced_at > ? AND replaced_at < ? LIMIT 1",
 		ctx.User.ID, time.Now().Unix(), (time.Now().Unix() + 7 * 60 * 60 * 24 /* 7 days */)).Scan(new(int)) != sql.ErrNoRows {
-			m = errorMessage{T(c, "You can't change your username just yet.")}
+			m = errorMessage{"You can't change your username just yet."}
 			return
 		}
 
 	newUsername := strings.TrimSpace(c.Param("newuser"))
 	if !usernameRegex.MatchString(newUsername) {
-		m = errorMessage{T(c, "Your username must contain alphanumerical characters, spaces, or any of <code>_[]-</code>")}
+		m = errorMessage{"Your username must contain alphanumerical characters, spaces, or any of <code>_[]-</code>"}
 		return
 	}
 
 	// usernames with both _ and spaces are not allowed
 	if strings.Contains(newUsername, "_") && strings.Contains(newUsername, " ") {
-		m = errorMessage{T(c, "An username can't contain both underscores and spaces.")}
+		m = errorMessage{"An username can't contain both underscores and spaces."}
 		return
 	}
 
 	if db.QueryRow("SELECT 1 FROM users WHERE username_safe = ?", safeUsername(newUsername)).
 		Scan(new(int)) != sql.ErrNoRows {
-		registerResp(c, errorMessage{T(c, "An user with that username already exists!")})
+		registerResp(c, errorMessage{"An user with that username already exists!"})
 		return
 	}
 
 	if db.QueryRow("SELECT 1 FROM user_name_history WHERE username LIKE ? AND user_id != ? LIMIT 1", newUsername, ctx.User.ID).Scan(new(int)) != sql.ErrNoRows {
-		registerResp(c, errorMessage{T(c, "This username has been reserved by another user.")})
+		registerResp(c, errorMessage{"This username has been reserved by another user."})
 		return
 	}
 
 	if newUsername == ctx.User.Username {
-		m = errorMessage{T(c, "You already have this username.")}
+		m = errorMessage{"You already have this username."}
 		return
 	}
 

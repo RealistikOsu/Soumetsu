@@ -24,14 +24,14 @@ func profBackground(c *gin.Context) {
 		resp403(c)
 		return
 	}
-	var m message = successMessage{T(c, "Your profile banner has been saved.")}
+	var m message = successMessage{"Your profile banner has been saved."}
 	defer func() {
 		addMessage(c, m)
 		getSession(c).Save()
 		c.Redirect(302, "/settings/profbanner")
 	}()
 	if ok, _ := CSRF.Validate(ctx.User.ID, c.PostForm("csrf")); !ok {
-		m = errorMessage{T(c, "Your session has expired. Please try redoing what you were trying to do.")}
+		m = errorMessage{"Your session has expired. Please try redoing what you were trying to do."}
 		return
 	}
 	t := c.Param("type")
@@ -42,12 +42,12 @@ func profBackground(c *gin.Context) {
 		// image
 		file, _, err := c.Request.FormFile("value")
 		if err != nil {
-			m = errorMessage{T(c, "An error occurred.")}
+			m = errorMessage{"An error occurred."}
 			return
 		}
 		img, _, err := image.Decode(file)
 		if err != nil {
-			m = errorMessage{T(c, "An error occurred.")}
+			m = errorMessage{"An error occurred."}
 			return
 		}
 		//img = resize.Thumbnail(2496, 1404, img, resize.Bilinear)
@@ -58,7 +58,7 @@ func profBackground(c *gin.Context) {
 			slog.Error("There was an issue while parsing gif file", "error", err)
 			f, err := os.Create(fmt.Sprintf("%s/%d.jpg", settings.APP_INTERNAL_BANNERS_PATH, ctx.User.ID))
 			if err != nil {
-				m = errorMessage{T(c, "An error occurred.")}
+				m = errorMessage{"An error occurred."}
 				c.Error(err)
 				return
 			}
@@ -69,7 +69,7 @@ func profBackground(c *gin.Context) {
 				Quality: 88,
 			})
 			if err != nil {
-				m = errorMessage{T(c, "We were not able to save your profile banner.")}
+				m = errorMessage{"We were not able to save your profile banner."}
 				c.Error(err)
 				return
 			}
@@ -78,7 +78,7 @@ func profBackground(c *gin.Context) {
 			// It's a gif, save it as a gif
 			f, err := os.Create(fmt.Sprintf("%s/%d.gif", settings.APP_INTERNAL_BANNERS_PATH, ctx.User.ID))
 			if err != nil {
-				m = errorMessage{T(c, "An error occurred.")}
+				m = errorMessage{"An error occurred."}
 				c.Error(err)
 				return
 			}
@@ -88,7 +88,7 @@ func profBackground(c *gin.Context) {
 				NumColors: 256,
 			})
 			if err != nil {
-				m = errorMessage{T(c, "We were not able to save your profile banner.")}
+				m = errorMessage{"We were not able to save your profile banner."}
 				c.Error(err)
 				return
 			}
@@ -100,7 +100,7 @@ func profBackground(c *gin.Context) {
 		col := strings.ToLower(c.PostForm("value"))
 		// verify it's valid
 		if !hexColourRegex.MatchString(col) {
-			m = errorMessage{T(c, "Colour is invalid")}
+			m = errorMessage{"Colour is invalid"}
 			return
 		}
 		saveProfileBackground(ctx, 2, col)

@@ -118,25 +118,25 @@ func discordUnlink(c *gin.Context) {
 	var checkInt int
 	err := db.QueryRow("SELECT 1 FROM discord_oauth WHERE user_id = ?", ctx.User.ID).Scan(&checkInt)
 	if err != nil && err == sql.ErrNoRows {
-		m = errorMessage{T(c, "You have no discord account linked to your RealistikOsu account!")}
+		m = errorMessage{"You have no discord account linked to your RealistikOsu account!"}
 		return
 	} else if err != nil {
 		c.Error(err)
-		m = errorMessage{T(c, "An error occurred. Please report this to RealistikOsu developer!")}
+		m = errorMessage{"An error occurred. Please report this to RealistikOsu developer!"}
 		return
 	}
 
 	_, err = db.Exec("DELETE FROM discord_oauth WHERE user_id = ?", ctx.User.ID)
 	if err != nil && err == sql.ErrNoRows {
-		m = errorMessage{T(c, "You have no discord account linked to your RealistikOsu account!")}
+		m = errorMessage{"You have no discord account linked to your RealistikOsu account!"}
 		return
 	} else if err != nil {
 		c.Error(err)
-		m = errorMessage{T(c, "An error occurred. Please report this to RealistikOsu developer!")}
+		m = errorMessage{"An error occurred. Please report this to RealistikOsu developer!"}
 		return
 	}
 
-	m = successMessage{T(c, "Successfully unlinked your discord account!")}
+	m = successMessage{"Successfully unlinked your discord account!"}
 }
 
 type TokenStuff struct {
@@ -229,21 +229,21 @@ func discordRedirCheck(c *gin.Context) {
 
 	code := c.DefaultQuery("code", "")
 	if code == "" {
-		m = errorMessage{T(c, "No code specified, linking failed!")}
+		m = errorMessage{"No code specified, linking failed!"}
 		return
 	}
 
 	tokenData, err := getCodeAccess(code)
 	if err != nil {
 		c.Error(err)
-		m = errorMessage{T(c, "An error occurred. Please report this to RealistikOsu developer!")}
+		m = errorMessage{"An error occurred. Please report this to RealistikOsu developer!"}
 		return
 	}
 
 	data, err := getUserData(tokenData.TokenType, tokenData.AccessToken)
 	if err != nil {
 		c.Error(err)
-		m = errorMessage{T(c, "An error occurred. Please report this to RealistikOsu developer!")}
+		m = errorMessage{"An error occurred. Please report this to RealistikOsu developer!"}
 		return
 	}
 
@@ -252,9 +252,9 @@ func discordRedirCheck(c *gin.Context) {
 		VALUES (NULL, ?, ?)`, data.DiscordID, ctx.User.ID,
 	)
 	if err != nil {
-		m = errorMessage{T(c, "An error occurred. Please report this to RealistikOsu developer!")}
+		m = errorMessage{"An error occurred. Please report this to RealistikOsu developer!"}
 		return
 	}
 
-	m = successMessage{T(c, fmt.Sprintf("You have successfully linked %s#%s to your RealistikOsu account!", data.DiscordName, data.DiscordDiscriminator))}
+	m = successMessage{fmt.Sprintf("You have successfully linked %s#%s to your RealistikOsu account!", data.DiscordName, data.DiscordDiscriminator)}
 }

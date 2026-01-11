@@ -362,7 +362,7 @@ var funcMap = template.FuncMap{
 		p := int(i)
 		for k, v := range playstyle.Styles {
 			if p&(1<<uint(k)) > 0 {
-				parts = append(parts, f.T(v))
+				parts = append(parts, v)
 			}
 		}
 
@@ -544,17 +544,6 @@ var funcMap = template.FuncMap{
 		}
 		return x.Val()
 	},
-	"languageInformation": func() []langInfo {
-		return languageInformation
-	},
-	"languageInformationByNameShort": func(s string) langInfo {
-		for _, lang := range languageInformation {
-			if lang.NameShort == s {
-				return lang
-			}
-		}
-		return langInfo{}
-	},
 	"countryList": func(n int64) []string {
 		list := rd.ZRevRange("hanayo:country_list", 0, n-1).Val()
 
@@ -580,7 +569,6 @@ var funcMap = template.FuncMap{
 	},
 }
 
-var localeLanguages = []string{"de", "pl", "it", "es", "ru", "fr", "nl", "ro", "fi", "sv", "vi", "th", "ko"}
 
 var hanayoStarted = time.Now().UnixNano()
 
@@ -654,36 +642,8 @@ func systemSettings(names ...string) map[string]systemSetting {
 	return settings
 }
 
-func getLanguageFromGin(c *gin.Context) string {
-	for _, l := range getLang(c) {
-		if in(l, localeLanguages) {
-			return l
-		}
-	}
-	return ""
-}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-type langInfo struct {
-	Name, CountryShort, NameShort string
-}
-
-var languageInformation = []langInfo{
-	{"Deutsch", "de", "de"},
-	{"English (UK)", "gb", "en"},
-	{"Español", "es", "es"},
-	{"Français", "fr", "fr"},
-	{"Italiano", "it", "it"},
-	{"Nederlands", "nl", "nl"},
-	{"Polski", "pl", "pl"},
-	{"Русский", "ru", "ru"},
-	{"Română", "ro", "ro"},
-	{"Suomi", "fi", "fi"},
-	{"Svenska", "se", "sv"},
-	{"Tiếng Việt Nam", "vn", "vi"},
-	{"ภาษาไทย", "th", "th"},
-	{"한국어", "kr", "ko"},
-}

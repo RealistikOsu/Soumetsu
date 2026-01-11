@@ -225,6 +225,14 @@ func (b baseTemplateData) ClientFlags() int {
 	return common.Int(s)
 }
 
+// T is a stub translation function that returns the string as-is (localisation removed)
+func (b baseTemplateData) T(s string, args ...interface{}) string {
+	if len(args) > 0 {
+		return fmt.Sprintf(s, args...)
+	}
+	return s
+}
+
 type page interface {
 	SetMessages([]message)
 	SetPath(string)

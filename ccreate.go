@@ -21,28 +21,28 @@ func ccreateSubmit(c *gin.Context) {
 	}
 	// check registrations are enabled
 	if !ccreationEnabled() {
-		ccreateResp(c, errorMessage{T(c, "Ow, sorry the clan is not available to create right now ;p")})
+		ccreateResp(c, errorMessage{"Ow, sorry the clan is not available to create right now ;p"})
 		return
 	}
 
 	// check name is valid by our criteria
 	name := strings.TrimSpace(c.PostForm("name"))
 	if !cnameRegex.MatchString(name) {
-		ccreateResp(c, errorMessage{T(c, "Your clan can have alphabets, number and these symbols <code>_[]-</code>.")})
+		ccreateResp(c, errorMessage{"Your clan can have alphabets, number and these symbols <code>_[]-</code>."})
 		return
 	}
 
 	// check whether name already exists
 	if db.QueryRow("SELECT 1 FROM clans WHERE name = ?", c.PostForm("name")).
 		Scan(new(int)) != sql.ErrNoRows {
-		ccreateResp(c, errorMessage{T(c, "Someone already took that clan name... oof.")})
+		ccreateResp(c, errorMessage{"Someone already took that clan name... oof."})
 		return
 	}
 
 	// check whether tag already exists
 	if db.QueryRow("SELECT 1 FROM clans WHERE tag = ?", c.PostForm("tag")).
 		Scan(new(int)) != sql.ErrNoRows {
-		ccreateResp(c, errorMessage{T(c, "Someone already took that TAG!")})
+		ccreateResp(c, errorMessage{"Someone already took that TAG!"})
 		return
 	}
 
@@ -59,7 +59,7 @@ func ccreateSubmit(c *gin.Context) {
 							  VALUES (?, ?, ?, ?);`,
 		name, c.PostForm("description"), c.PostForm("icon"), tag)
 	if err != nil {
-		ccreateResp(c, errorMessage{T(c, "Uh oh... Unexpected error! Clan might be created... I'm not sure though.")})
+		ccreateResp(c, errorMessage{"Uh oh... Unexpected error! Clan might be created... I'm not sure though."})
 		slog.Error("There was an error while registering a user", "error", err)
 		return
 	}
@@ -68,7 +68,7 @@ func ccreateSubmit(c *gin.Context) {
 	db.Exec("INSERT INTO `user_clans`(user, clan, perms) VALUES (?, ?, 8);", getContext(c).User.ID, lid)
 	rd.Publish("rosu:clan_update", strconv.Itoa(getContext(c).User.ID))
 
-	addMessage(c, successMessage{T(c, "Clan created.")})
+	addMessage(c, successMessage{"Clan created."})
 	getSession(c).Save()
 	c.Redirect(302, "/c/"+strconv.Itoa(int(lid)))
 }

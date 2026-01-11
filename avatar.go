@@ -23,19 +23,19 @@ func avatarSubmit(c *gin.Context) {
 	var m message
 
 	if settings.APP_INTERNAL_AVATARS_PATH == "" {
-		m = errorMessage{T(c, "Changing avatar is currently not possible.")}
+		m = errorMessage{"Changing avatar is currently not possible."}
 		return
 	}
 
 	file, _, err := c.Request.FormFile("avatar")
 	if err != nil {
-		m = errorMessage{T(c, "An error occurred.")}
+		m = errorMessage{"An error occurred."}
 		return
 	}
 
 	img, _, err := image.Decode(file)
 	if err != nil {
-		m = errorMessage{T(c, "An error occurred.")}
+		m = errorMessage{"An error occurred."}
 		return
 	}
 
@@ -48,17 +48,17 @@ func avatarSubmit(c *gin.Context) {
 
 	defer f.Close()
 	if err != nil {
-		m = errorMessage{T(c, "An error occurred.")}
+		m = errorMessage{"An error occurred."}
 		c.Error(err)
 		return
 	}
 
 	err = png.Encode(f, img)
 	if err != nil {
-		m = errorMessage{T(c, "We were not able to save your avatar.")}
+		m = errorMessage{"We were not able to save your avatar."}
 		c.Error(err)
 		return
 	}
 
-	m = successMessage{T(c, "Your avatar was successfully changed. It may take some time to properly update. To force a cache refresh, you can use CTRL+F5.")}
+	m = successMessage{"Your avatar was successfully changed. It may take some time to properly update. To force a cache refresh, you can use CTRL+F5."}
 }

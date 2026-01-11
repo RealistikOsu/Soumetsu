@@ -17,7 +17,7 @@ func passwordReset(c *gin.Context) {
 	ctx := getContext(c)
 	settings := state.GetSettings()
 	if ctx.User.ID != 0 {
-		simpleReply(c, errorMessage{T(c, "You're already logged in!")})
+		simpleReply(c, errorMessage{"You're already logged in!"})
 		return
 	}
 
@@ -40,7 +40,7 @@ func passwordReset(c *gin.Context) {
 	case nil:
 		// ignore
 	case sql.ErrNoRows:
-		simpleReply(c, errorMessage{T(c, "That user could not be found.")})
+		simpleReply(c, errorMessage{"That user could not be found."})
 		return
 	default:
 		c.Error(err)
@@ -50,7 +50,7 @@ func passwordReset(c *gin.Context) {
 
 	// recaptcha verify
 	if settings.RECAPTCHA_SECRET_KEY != "" && !recaptchaCheck(c) {
-		simpleReply(c, errorMessage{T(c, "Captcha check failed, please try again.")})
+		simpleReply(c, errorMessage{"Captcha check failed, please try again."})
 		return
 	}
 
@@ -97,7 +97,7 @@ func passwordResetContinue(c *gin.Context) {
 
 	// todo: check logged in
 	if k == "" {
-		respEmpty(c, T(c, "Password reset"), errorMessage{T(c, "Nope.")})
+		respEmpty(c, "Password reset", errorMessage{"Nope."})
 		return
 	}
 
@@ -107,7 +107,7 @@ func passwordResetContinue(c *gin.Context) {
 	case nil:
 		// move on
 	case sql.ErrNoRows:
-		respEmpty(c, T(c, "Reset password"), errorMessage{T(c, "That key could not be found. Perhaps it expired?")})
+		respEmpty(c, "Reset password", errorMessage{"That key could not be found. Perhaps it expired?"})
 		return
 	default:
 		c.Error(err)
@@ -126,7 +126,7 @@ func passwordResetContinueSubmit(c *gin.Context) {
 	case nil:
 		// move on
 	case sql.ErrNoRows:
-		respEmpty(c, T(c, "Reset password"), errorMessage{T(c, "That key could not be found. Perhaps it expired?")})
+		respEmpty(c, "Reset password", errorMessage{"That key could not be found. Perhaps it expired?"})
 		return
 	default:
 		c.Error(err)
@@ -137,7 +137,7 @@ func passwordResetContinueSubmit(c *gin.Context) {
 	p := c.PostForm("password")
 
 	if s := validatePassword(p); s != "" {
-		renderResetPassword(c, username, c.PostForm("k"), errorMessage{T(c, s)})
+		renderResetPassword(c, username, c.PostForm("k"), errorMessage{s})
 		return
 	}
 
@@ -176,7 +176,7 @@ func passwordResetContinueSubmit(c *gin.Context) {
 		return
 	}
 
-	addMessage(c, successMessage{T(c, "We have changed your password and you should now be able to login! Have fun!")})
+	addMessage(c, successMessage{"We have changed your password and you should now be able to login! Have fun!"})
 	getSession(c).Save()
 	c.Redirect(302, "/login")
 }
@@ -224,7 +224,7 @@ func changePasswordSubmit(c *gin.Context) {
 	}()
 
 	if ok, _ := CSRF.Validate(ctx.User.ID, c.PostForm("csrf")); !ok {
-		addMessage(c, errorMessage{T(c, "Your session has expired. Please try redoing what you were trying to do.")})
+		addMessage(c, errorMessage{"Your session has expired. Please try redoing what you were trying to do."})
 		return
 	}
 
@@ -235,7 +235,7 @@ func changePasswordSubmit(c *gin.Context) {
 		[]byte(password),
 		[]byte(cmd5(c.PostForm("currentpassword"))),
 	); err != nil {
-		messages = append(messages, errorMessage{T(c, "Wrong password.")})
+		messages = append(messages, errorMessage{"Wrong password."})
 		return
 	}
 
@@ -243,7 +243,7 @@ func changePasswordSubmit(c *gin.Context) {
 	uq.Add("email", c.PostForm("email"))
 	if c.PostForm("newpassword") != "" {
 		if s := validatePassword(c.PostForm("newpassword")); s != "" {
-			messages = append(messages, errorMessage{T(c, s)})
+			messages = append(messages, errorMessage{s})
 			return
 		}
 		pw, err := generatePassword(c.PostForm("newpassword"))
@@ -267,5 +267,5 @@ func changePasswordSubmit(c *gin.Context) {
 
 	db.Exec("UPDATE users SET flags = flags & ~3 WHERE id = ? LIMIT 1", ctx.User.ID)
 
-	messages = append(messages, successMessage{T(c, "Your settings have been saved.")})
+	messages = append(messages, successMessage{"Your settings have been saved."})
 }

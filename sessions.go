@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -80,16 +81,14 @@ func sessionInitializer() func(c *gin.Context) {
 			addBannedMessage = true
 		}
 
-		ctx.Language = getLanguageFromGin(c)
-
 		c.Set("context", ctx)
 		c.Set("session", sess)
 
 		if addBannedMessage {
-			addMessage(c, warningMessage{T(c, "You have been automatically logged out of your account because your account has either been banned or locked. Should you believe this is a mistake, you can contact our support team at rosusupport@protonmail.com.")})
+			addMessage(c, warningMessage{"You have been automatically logged out of your account because your account has either been banned or locked. Should you believe this is a mistake, you can contact our support team at rosusupport@protonmail.com."})
 		}
 		if passwordChanged {
-			addMessage(c, warningMessage{T(c, "You have been automatically logged out for security reasons. Please <a href='/login?redir=%s'>log back in</a>.", url.QueryEscape(c.Request.URL.Path))})
+			addMessage(c, warningMessage{fmt.Sprintf("You have been automatically logged out for security reasons. Please <a href='/login?redir=%s'>log back in</a>.", url.QueryEscape(c.Request.URL.Path))})
 		}
 
 		c.Next()
