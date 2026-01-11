@@ -12,11 +12,9 @@ require (
 	github.com/fatih/structs v1.0.0
 	github.com/felipeweb/osin-mysql v0.0.0-20170620113854-269603eb06cf
 	github.com/frustra/bbcode v0.0.0-20150429195712-e3d2906cb269
-	github.com/gin-gonic/contrib v0.0.0-20180124033040-dccbb4a462e9
-	github.com/gin-gonic/gin v1.9.1
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/johnniedoe/contrib v0.0.0-20150821124612-d553224621be
 	github.com/microcosm-cc/bluemonday v0.0.0-20171222152607-542fd4642604
 	github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5
 	github.com/pariz/gountries v0.0.0-20171019111738-adb00f6513a3
@@ -26,7 +24,6 @@ require (
 	github.com/thehowl/conf v0.1.1-0.20161010150023-bdfc17531a74
 	github.com/thehowl/qsql v0.0.0-20160712153739-9b9405451f47
 	golang.org/x/crypto v0.25.0
-	gopkg.in/DataDog/dd-trace-go.v1 v1.66.0
 	gopkg.in/mailgun/mailgun-go.v1 v1.1.1
 	gopkg.in/redis.v5 v5.2.9
 	gopkg.in/yaml.v2 v2.4.0
