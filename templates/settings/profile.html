@@ -68,7 +68,7 @@ MinPrivileges=2
 						<span class="text-gray-300">{{ .T "Enable" }}</span>
 					</label>
 					<div id="custom-badge-fields" {{ if not (and $cb $cb.show) }}style="display: none"{{ end }} class="mt-4 space-y-4">
-						<p class="text-sm text-gray-400"><a href="http://semantic-ui.com/elements/icon.html" class="text-primary hover:underline">{{ .T "Icon reference" }}</a></p>
+						<p class="text-sm text-gray-400"><a href="https://fontawesome.com/icons" target="_blank" class="text-primary hover:underline">{{ .T "Icon reference" }}</a></p>
 						<div class="grid grid-cols-2 gap-4">
 							<div class="text-center">
 								<i class="fas {{ if and $cb $cb.icon }}fa-{{ $cb.icon }}{{ else }}fa-question{{ end }} text-4xl text-primary mb-2" id="badge-icon"></i><br>

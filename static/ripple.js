@@ -379,22 +379,8 @@ var singlePageSnippets = {
 
 $(document)
   .ready(function() {
-    // semantic stuff
+    // message close handlers
     $('.message .close').on('click', closeClosestMessage);
-    $('.ui.checkbox').checkbox();
-    $('.ui.dropdown').dropdown();
-    $('.ui.progress').progress();
-    $('.ui.form')
-      .submit(function(e) {
-        var t = $(this);
-        if (t.hasClass("loading") || t.hasClass("disabled")) {
-          e.preventDefault();
-          return false;
-        }
-        t.addClass("loading");
-        var f = t.attr("id");
-        $("[form='" + f + "']").addClass("loading");
-      });
 
     // emojis!
     if (typeof twemoji !== "undefined") {
@@ -407,37 +393,6 @@ $(document)
       f();
     if (typeof deferredToPageLoad === "function")
       deferredToPageLoad();
-
-    // setup user search
-    $("#user-search")
-      .search({
-        onSelect : function(val) {
-          window.location.href = val.url;
-          return false;
-        },
-        apiSettings : {
-          url : "/api/v1/users/lookup?name={query}",
-          onResponse : function(resp) {
-            var r = {
-              results : [],
-            };
-            $.each(resp.users, function(index, item) {
-              r.results.push({
-                title : item.username,
-                url : "/users/" + item.id,
-                image : hanayoConf.avatars + "/" + item.id,
-              });
-            });
-            return r;
-          },
-        },
-      });
-    $("#user-search-input")
-      .keypress(function(e) {
-        if (e.which == 13) {
-          window.location.pathname = "/users/" + $(this).val();
-        }
-      });
 
     $(document)
       .keydown(function(e) {

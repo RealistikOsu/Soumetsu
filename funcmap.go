@@ -18,7 +18,6 @@ import (
 	"github.com/RealistikOsu/RealistikAPI/common"
 	"github.com/RealistikOsu/frontend/modules/bbcode"
 	"github.com/RealistikOsu/frontend/modules/doc"
-	fasuimappings "github.com/RealistikOsu/frontend/modules/fa-semantic-mappings"
 	"github.com/RealistikOsu/frontend/state"
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
@@ -265,16 +264,6 @@ var funcMap = template.FuncMap{
 	"level": func(l float64) string {
 		i, _ := math.Modf(l)
 		return fmt.Sprintf("%.0f", i)
-	},
-	// faIcon converts a fontawesome icon to a semantic ui icon.
-	"faIcon": func(i string) string {
-		classes := strings.Split(i, " ")
-		for i, class := range classes {
-			if v, ok := fasuimappings.Mappings[class]; ok {
-				classes[i] = v
-			}
-		}
-		return strings.Join(classes, " ")
 	},
 	"log": fmt.Println,
 	// has returns whether priv1 has all 1 bits of priv2, aka priv1 & priv2 == priv2

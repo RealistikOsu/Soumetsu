@@ -1,5 +1,4 @@
 var gulp    = require("gulp")
-var chug    = require("gulp-chug")
 var plumber = require("gulp-plumber")
 var uglify  = require("gulp-uglify")
 var flatten = require("gulp-flatten")
@@ -28,14 +27,6 @@ gulp.task("build-tailwind", function() {
 gulp.task("watch", function() {
 	gulp.watch(["static/*.js", "!static/dist.min.js"], ["minify-js"])
 	gulp.watch(["templates/**/*.html", "static/css/input.css", "tailwind.config.js"], ["build-tailwind"])
-	gulp.watch("semantic/src/**/*", ["build-semantic"])
-})
-
-gulp.task("build-semantic", function() {
-	gulp.src("./semantic/gulpfile.js")
-		.pipe(chug({
-			tasks: ['build']
-		}))
 })
 
 gulp.task("minify-js", function() {
@@ -44,7 +35,6 @@ gulp.task("minify-js", function() {
 			"static/licenseheader.js",
 			"node_modules/jquery/dist/jquery.min.js",
 			"node_modules/timeago/jquery.timeago.js",
-			"static/semantic.min.js",
 			"node_modules/i18next/i18next.min.js",
 			"node_modules/i18next-xhr-backend/i18nextXHRBackend.min.js",
 			"static/key_plural.js",
