@@ -1,6 +1,62 @@
 new Vue({
     el: "#profile-app",
     delimiters: ["<%", "%>"],
+    filters: {
+        badgeIcon(icon) {
+            if (!icon) {
+                return 'fas fa-question';
+            }
+            
+            // Convert to string and trim
+            icon = String(icon).trim();
+            
+            // If it already has a Font Awesome class prefix (fas, far, fab, etc.), return as is
+            if (/^(fas|far|fal|fad|fab|fak)\s+fa-/.test(icon)) {
+                return icon;
+            }
+            
+            // Handle cases like "purple fa-star", "yellow fa-heart", "red gift", etc.
+            // Extract the icon name part (usually after a space or color word)
+            // Look for patterns like: "color fa-iconname" or "color iconname"
+            const parts = icon.split(/\s+/);
+            let iconPart = icon;
+            
+            // If there are multiple parts, try to find the one that looks like an icon name
+            if (parts.length > 1) {
+                // Look for parts that start with "fa-" or are common icon names
+                const iconParts = parts.filter(p => 
+                    p.startsWith('fa-') || 
+                    ['star', 'heart', 'gift', 'desktop', 'beer', 'trophy', 'medal', 'crown'].includes(p.toLowerCase())
+                );
+                if (iconParts.length > 0) {
+                    iconPart = iconParts[0];
+                } else {
+                    // Take the last part as it's likely the icon name
+                    iconPart = parts[parts.length - 1];
+                }
+            }
+            
+            // If it starts with "fa-" but no prefix, add "fas"
+            if (iconPart.startsWith('fa-')) {
+                return 'fas ' + iconPart;
+            }
+            
+            // Handle Font Awesome Unicode values (like "f005", "F005", "\uf005")
+            if (/^[fF][0-9a-fA-F]{3}$/.test(iconPart) || /^\\?u?[fF][0-9a-fA-F]{3}$/.test(iconPart)) {
+                return 'fas fa-question';
+            }
+            
+            // If it's just the icon name (like "plane", "star", "beer", etc.), add both "fas" and "fa-" prefix
+            // Sanitize to only allow alphanumeric and hyphens
+            const iconName = iconPart.replace(/^fa-/, '').replace(/[^a-z0-9-]/gi, '').toLowerCase();
+            
+            if (!iconName) {
+                return 'fas fa-question';
+            }
+            
+            return 'fas fa-' + iconName;
+        }
+    },
     data() {
         return {
             // User data
@@ -40,6 +96,7 @@ new Vue({
             commentPage: 0,
             commentText: '',
             commentLoading: false,
+            commentPosting: false,
             hasMoreComments: true,
             
             // Friend status
@@ -110,6 +167,11 @@ new Vue({
         const params = new URLSearchParams(window.location.search);
         this.mode = parseInt(params.get('mode')) || 0;
         this.relax = parseInt(params.get('rx')) || 0;
+        
+        // Ensure getBadgeIconClass is available
+        if (typeof this.getBadgeIconClass !== 'function') {
+            console.error('getBadgeIconClass method not found');
+        }
         
         await this.loadUserData();
     },
@@ -451,7 +513,14 @@ new Vue({
                 });
                 
                 if (resp.comments?.length) {
-                    this.comments.push(...resp.comments);
+                    // Handle both 'comment' and 'message' field names, and user_id variations
+                    const normalizedComments = resp.comments.map(c => ({
+                        ...c,
+                        comment: c.comment || c.message || '',
+                        time: c.time || c.posted_at || c.postedAt,
+                        user_id: c.user_id || c.userID || c.op || c.user?.id || 0
+                    }));
+                    this.comments.push(...normalizedComments);
                     if (resp.comments.length < 10) {
                         this.hasMoreComments = false;
                     }
@@ -460,52 +529,97 @@ new Vue({
                 }
             } catch (err) {
                 console.error('Error loading comments:', err);
+                this.hasMoreComments = false;
             }
             
             this.commentLoading = false;
         },
         
         async postComment() {
-            if (!this.commentText.trim() || this.commentText.length > 380) return;
+            if (!this.commentText.trim() || this.commentText.length > 380 || this.commentPosting) return;
+            
+            const commentToPost = this.commentText.trim();
+            this.commentPosting = true;
             
             try {
                 const resp = await fetch(`${this.baseAPI}/api/v1/users/comments?id=${this.userID}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ comment: this.commentText })
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: commentToPost
                 });
                 
                 const data = await resp.json();
                 if (data.code === 200) {
+                    // Clear comment text on success
+                    this.commentText = '';
+                    
                     // Reload comments
                     this.comments = [];
                     this.commentPage = 0;
                     this.hasMoreComments = true;
-                    this.commentText = '';
                     await this.loadComments();
                     
                     // Update total
                     if (this.commentsInfo) {
                         this.commentsInfo.total = (this.commentsInfo.total || 0) + 1;
                     }
+                } else {
+                    console.error('Error posting comment:', data);
+                    alert('Failed to post comment. Please try again.');
                 }
             } catch (err) {
                 console.error('Error posting comment:', err);
+                alert('Failed to post comment. Please try again.');
+            } finally {
+                this.commentPosting = false;
             }
         },
         
         async deleteComment(id) {
+            if (!confirm('Are you sure you want to delete this comment?')) return;
+            
             try {
-                await fetch(`${this.baseAPI}/api/v1/users/comments/delete?id=${id}`, {
+                const resp = await fetch(`${this.baseAPI}/api/v1/users/comments/delete?id=${id}`, {
                     method: 'POST'
                 });
-                this.comments = this.comments.filter(c => c.id !== id);
-                if (this.commentsInfo) {
-                    this.commentsInfo.total = Math.max(0, (this.commentsInfo.total || 0) - 1);
+                const data = await resp.json();
+                
+                if (data.code === 200) {
+                    this.comments = this.comments.filter(c => c.id !== id);
+                    if (this.commentsInfo) {
+                        this.commentsInfo.total = Math.max(0, (this.commentsInfo.total || 0) - 1);
+                    }
+                } else {
+                    console.error('Error deleting comment:', data);
+                    alert('Failed to delete comment. Please try again.');
                 }
             } catch (err) {
                 console.error('Error deleting comment:', err);
+                alert('Failed to delete comment. Please try again.');
             }
+        },
+        
+        handleAvatarError(event, userId) {
+            const img = event.target;
+            const currentSrc = img.src;
+            
+            // If we haven't tried with .png extension yet, try it
+            if (!currentSrc.endsWith('.png')) {
+                img.src = this.avatarURL + '/' + userId + '.png';
+                return;
+            }
+            
+            // If .png also failed, use SVG fallback (simple user icon)
+            const svgData = encodeURIComponent(`
+                <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="256" height="256" fill="#1E293B"/>
+                    <circle cx="128" cy="96" r="48" fill="#475569"/>
+                    <path d="M64 208C64 176 96 160 128 160C160 160 192 176 192 208V224H64V208Z" fill="#475569"/>
+                </svg>
+            `.trim());
+            
+            img.src = 'data:image/svg+xml,' + svgData;
+            img.onerror = null; // Prevent infinite loop
         },
         
         // Friend actions
@@ -738,6 +852,44 @@ new Vue({
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        },
+        
+        getBadgeIconClass(icon) {
+            if (!icon) return 'fas fa-question';
+            
+            // Trim whitespace
+            icon = String(icon).trim();
+            
+            // If it already has a Font Awesome class prefix (fas, far, fab, etc.), return as is
+            if (/^(fas|far|fal|fad|fab|fak)\s+fa-/.test(icon)) {
+                return icon;
+            }
+            
+            // If it starts with "fa-" but no prefix, add "fas"
+            if (icon.startsWith('fa-')) {
+                return 'fas ' + icon;
+            }
+            
+            // Handle Font Awesome Unicode values (like "f005", "F005", "\uf005")
+            // These should be converted to class names if possible, but for now we'll try to use them as-is
+            // If it looks like a Unicode value (hexadecimal), we might need special handling
+            if (/^[fF][0-9a-fA-F]{3}$/.test(icon) || /^\\?u?[fF][0-9a-fA-F]{3}$/.test(icon)) {
+                // This is likely a Unicode value - Font Awesome uses these internally
+                // We'll need to find the corresponding icon name or use a fallback
+                // For now, return a question mark icon
+                console.warn('Badge icon appears to be a Unicode value:', icon);
+                return 'fas fa-question';
+            }
+            
+            // If it's just the icon name (like "plane", "star", etc.), add both "fas" and "fa-" prefix
+            // Remove any existing "fa-" prefix to avoid duplication
+            const iconName = icon.replace(/^fa-/, '').replace(/[^a-z0-9-]/gi, '');
+            return 'fas fa-' + iconName;
+        },
+        
+        normalizeBadgeIcon(icon) {
+            // Alias for getBadgeIconClass for backwards compatibility
+            return this.getBadgeIconClass(icon);
         },
         
         isRelaxAvailable(rx) {

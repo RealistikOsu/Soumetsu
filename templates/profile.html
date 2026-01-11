@@ -84,14 +84,21 @@ DisableHH=true
 
 					<!-- Profile Info -->
 					<div class="p-6 -mt-16 relative z-10">
-						<div class="flex items-start gap-4 mb-4">
-							<img :src="avatarURL + '/' + user.id" :alt="user.username" class="w-24 h-24 rounded-full border-4 border-dark-card object-cover">
-							<div v-if="user.badges?.length || user.custom_badge" class="flex flex-wrap gap-2 mt-2">
-								<span v-for="badge in user.badges" :key="badge.id" class="text-primary text-xl" :title="badge.name">
-									<i :class="badge.icon"></i>
+						<div class="flex items-center gap-4 mb-4">
+							<img v-if="user && userID" :src="avatarURL + '/' + userID" 
+								:alt="user ? user.username : ''" 
+								class="w-24 h-24 rounded-full border-4 border-dark-card object-cover flex-shrink-0"
+								@error="handleAvatarError($event, userID)"
+								loading="lazy">
+							<!-- Badges on the same line as profile picture, aligned to the right -->
+							<div v-if="user.badges?.length || user.custom_badge" class="flex gap-2 bg-dark-card/95 backdrop-blur-sm rounded-full px-3 py-2 border border-dark-border shadow-lg items-center ml-auto">
+								<span v-for="badge in user.badges" :key="badge.id" class="badge-tooltip-container relative text-primary text-base leading-none inline-flex items-center justify-center badge-icon cursor-help transition-opacity hover:opacity-80 group">
+									<i :class="badge.icon | badgeIcon" aria-hidden="true"></i>
+									<span class="badge-tooltip"><% badge.name %></span>
 								</span>
-								<span v-if="user.custom_badge" class="text-primary text-xl" :title="user.custom_badge.name">
-									<i :class="user.custom_badge.icon"></i>
+								<span v-if="user.custom_badge" class="badge-tooltip-container relative text-primary text-base leading-none inline-flex items-center justify-center badge-icon cursor-help transition-opacity hover:opacity-80 group">
+									<i :class="user.custom_badge.icon | badgeIcon" aria-hidden="true"></i>
+									<span class="badge-tooltip"><% user.custom_badge.name %></span>
 								</span>
 							</div>
 						</div>
@@ -244,23 +251,30 @@ DisableHH=true
 					</div>
 					<div class="space-y-2">
 						<div v-for="score in scores.pinned.data" :key="score.id" 
-							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							class="score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border border-dark-border hover:border-primary/50 transition-all duration-200"
 							@click="viewScore(score)">
-							<div class="p-4 flex items-center gap-4 overflow-hidden">
-								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+							<div class="score-card-bg" :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+							<div class="score-card-overlay-compact"></div>
+							<div class="relative p-3 flex items-center gap-3">
+								<div :class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
 									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
 								</div>
-								<div class="flex-1 min-w-0">
-									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
-									<p class="text-gray-400 text-sm truncate">
-										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+									<p class="text-white font-medium text-sm truncate leading-tight">
+										<a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary transition-colors" @click.stop><% escapeHTML(score.beatmap.song_name) %></a>
 									</p>
-									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+									<div class="flex items-center gap-2 text-xs text-gray-300">
+										<span><% addCommas(score.score) %></span>
+										<span class="text-gray-500">•</span>
+										<span><% addCommas(score.max_combo) %>x</span>
+										<span class="text-gray-500">•</span>
+										<span class="font-medium text-gray-200"><% getScoreMods(score.mods) %></span>
+									</div>
+									<p class="text-gray-400 text-xs"><% timeAgo(score.time) %></p>
 								</div>
-								<div class="text-right flex-shrink-0 pl-2">
-									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
-									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
+									<div class="text-primary font-bold text-base leading-none"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-300 text-xs font-medium"><% formatAccuracy(score.accuracy) %>%</div>
 								</div>
 							</div>
 						</div>
@@ -285,27 +299,34 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-2">
 						<div v-for="(score, index) in scores.best.data" :key="score.id" 
-							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							class="score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border border-dark-border hover:border-primary/50 transition-all duration-200"
 							@click="viewScore(score)">
-							<div class="p-4 flex items-center gap-4 overflow-hidden">
-								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+							<div class="score-card-bg" :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+							<div class="score-card-overlay-compact"></div>
+							<div class="relative p-3 flex items-center gap-3">
+								<div :class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
 									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
 								</div>
-								<div class="flex-1 min-w-0">
-									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
-									<p class="text-gray-400 text-sm truncate">
-										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+									<p class="text-white font-medium text-sm truncate leading-tight">
+										<a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary transition-colors" @click.stop><% escapeHTML(score.beatmap.song_name) %></a>
 									</p>
-									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+									<div class="flex items-center gap-2 text-xs text-gray-300">
+										<span><% addCommas(score.score) %></span>
+										<span class="text-gray-500">•</span>
+										<span><% addCommas(score.max_combo) %>x</span>
+										<span class="text-gray-500">•</span>
+										<span class="font-medium text-gray-200"><% getScoreMods(score.mods) %></span>
+									</div>
+									<p class="text-gray-400 text-xs"><% timeAgo(score.time) %></p>
 								</div>
-								<div class="text-right flex-shrink-0 pl-2">
-									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
-									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
+									<div class="text-primary font-bold text-base leading-none"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-300 text-xs font-medium"><% formatAccuracy(score.accuracy) %>%</div>
 								</div>
-								<div v-if="isOwnProfile && score.completed >= 2" class="flex-shrink-0">
-									<button @click.stop="openPinModal(score)" class="text-gray-400 hover:text-yellow-400 p-2" title="Pin Score">
-										<i class="fas fa-thumbtack"></i>
+								<div v-if="isOwnProfile && score.completed >= 2" class="flex-shrink-0 ml-1">
+									<button @click.stop="openPinModal(score)" class="text-gray-400 hover:text-yellow-400 p-1.5 rounded transition-colors" title="Pin Score">
+										<i class="fas fa-thumbtack text-sm"></i>
 									</button>
 								</div>
 							</div>
@@ -331,9 +352,10 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-2">
 						<div v-for="beatmap in scores.mostPlayed.data" :key="beatmap.beatmap.beatmap_id" 
-							class="bg-cover bg-center rounded-lg overflow-hidden"
-							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + beatmap.beatmap.beatmapset_id + '/covers/cover.jpg)'">
-							<div class="p-4 flex items-center gap-4">
+							class="most-played-card group relative rounded-lg overflow-hidden border border-dark-border hover:border-primary/50 transition-all duration-200">
+							<div class="score-card-bg" :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + beatmap.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+							<div class="score-card-overlay-compact"></div>
+							<div class="relative p-4 flex items-center gap-4">
 								<div class="flex-1 min-w-0">
 									<a :href="'/b/' + beatmap.beatmap.beatmap_id" class="text-white font-medium hover:text-primary truncate block"><% escapeHTML(beatmap.beatmap.song_name) %></a>
 								</div>
@@ -369,23 +391,31 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-2">
 						<div v-for="score in scores.recent.data" :key="score.id" 
-							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-							:style="'background: linear-gradient(to right, ' + (score.completed < 2 ? 'rgba(107, 32, 31, 0.9)' : 'rgba(30, 41, 59, 0.95)') + ', rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							class="score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border transition-all duration-200"
+							:class="score.completed < 2 ? 'border-red-500/30 hover:border-red-500/50' : 'border-dark-border hover:border-primary/50'"
 							@click="viewScore(score)">
-							<div class="p-4 flex items-center gap-4 overflow-hidden">
-								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+							<div class="score-card-bg" :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+							<div class="score-card-overlay-compact" :class="score.completed < 2 ? 'score-card-overlay-failed' : ''"></div>
+							<div class="relative p-3 flex items-center gap-3">
+								<div :class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
 									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
 								</div>
-								<div class="flex-1 min-w-0">
-									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
-									<p class="text-gray-400 text-sm truncate">
-										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+									<p class="text-white font-medium text-sm truncate leading-tight">
+										<a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary transition-colors" @click.stop><% escapeHTML(score.beatmap.song_name) %></a>
 									</p>
-									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+									<div class="flex items-center gap-2 text-xs text-gray-300">
+										<span><% addCommas(score.score) %></span>
+										<span class="text-gray-500">•</span>
+										<span><% addCommas(score.max_combo) %>x</span>
+										<span class="text-gray-500">•</span>
+										<span class="font-medium text-gray-200"><% getScoreMods(score.mods) %></span>
+									</div>
+									<p class="text-gray-400 text-xs"><% timeAgo(score.time) %></p>
 								</div>
-								<div class="text-right flex-shrink-0 pl-2">
-									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
-									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
+									<div class="text-primary font-bold text-base leading-none"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-300 text-xs font-medium"><% formatAccuracy(score.accuracy) %>%</div>
 								</div>
 							</div>
 						</div>
@@ -410,23 +440,33 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-2">
 						<div v-for="score in scores.first.data" :key="score.id" 
-							class="score-row bg-cover bg-center rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-							:style="'background: linear-gradient(to right, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.7)), url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"
+							class="score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border border-yellow-500/30 hover:border-yellow-500/50 transition-all duration-200"
 							@click="viewScore(score)">
-							<div class="p-4 flex items-center gap-4 overflow-hidden">
-								<div :class="'rank-badge flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
+							<div class="score-card-bg" :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+							<div class="score-card-overlay-compact score-card-overlay-first"></div>
+							<div class="relative p-3 flex items-center gap-3">
+								<div class="absolute top-2 right-2">
+									<i class="fas fa-trophy text-yellow-400 text-sm"></i>
+								</div>
+								<div :class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
 									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) %>
 								</div>
-								<div class="flex-1 min-w-0">
-									<p class="text-white font-medium truncate"><a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary" @click.stop><% escapeHTML(score.beatmap.song_name) %></a></p>
-									<p class="text-gray-400 text-sm truncate">
-										<% addCommas(score.score) %> / <% addCommas(score.max_combo) %>x / <b><% getScoreMods(score.mods) %></b>
+								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+									<p class="text-white font-medium text-sm truncate leading-tight">
+										<a :href="'/b/' + score.beatmap.beatmap_id" class="hover:text-primary transition-colors" @click.stop><% escapeHTML(score.beatmap.song_name) %></a>
 									</p>
-									<p class="text-gray-500 text-xs"><% timeAgo(score.time) %></p>
+									<div class="flex items-center gap-2 text-xs text-gray-300">
+										<span><% addCommas(score.score) %></span>
+										<span class="text-gray-500">•</span>
+										<span><% addCommas(score.max_combo) %>x</span>
+										<span class="text-gray-500">•</span>
+										<span class="font-medium text-gray-200"><% getScoreMods(score.mods) %></span>
+									</div>
+									<p class="text-gray-400 text-xs"><% timeAgo(score.time) %></p>
 								</div>
-								<div class="text-right flex-shrink-0 pl-2">
-									<div class="text-primary font-bold whitespace-nowrap"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
-									<div class="text-gray-400 text-sm whitespace-nowrap"><% formatAccuracy(score.accuracy) %>%</div>
+								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
+									<div class="text-primary font-bold text-base leading-none"><% ppOrScore(score.pp, score.score, score.beatmap.ranked) %></div>
+									<div class="text-gray-300 text-xs font-medium"><% formatAccuracy(score.accuracy) %>%</div>
 								</div>
 							</div>
 						</div>
@@ -480,15 +520,29 @@ DisableHH=true
 
 				<template v-else>
 					<!-- Comment Form -->
-					<div v-if="currentUserID" class="flex gap-4 mb-6">
-						<img :src="avatarURL + '/' + currentUserID" class="w-16 h-16 rounded-full border-2 border-dark-border flex-shrink-0">
-						<div class="flex-1">
-							<textarea v-model="commentText" placeholder="Write a comment..." maxlength="380"
-								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white resize-none focus:outline-none focus:ring-2 focus:ring-primary mb-2"
-								rows="3"></textarea>
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-gray-400"><% commentText.length %>/380</span>
-								<button @click="postComment" :disabled="!commentText.trim() || commentText.length > 380" class="btn-primary">Comment</button>
+					<div v-if="currentUserID" class="mb-6">
+						<div class="flex gap-4">
+							<img :src="avatarURL + '/' + currentUserID" 
+								class="w-12 h-12 rounded-full border-2 border-dark-border flex-shrink-0 object-cover"
+								@error="handleAvatarError($event, currentUserID)"
+								loading="lazy">
+							<div class="flex-1">
+								<textarea v-model="commentText" 
+									placeholder="Write a comment..." 
+									maxlength="380"
+									class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									rows="3"
+									@keydown.ctrl.enter="postComment"
+									@keydown.meta.enter="postComment"></textarea>
+								<div class="flex items-center justify-between mt-2">
+									<span class="text-xs text-gray-400"><% commentText.length %>/380</span>
+									<button @click="postComment" 
+										:disabled="!commentText.trim() || commentText.length > 380 || commentPosting" 
+										:class="'btn-primary ' + (commentPosting ? 'opacity-50 cursor-not-allowed' : '')">
+										<span v-if="commentPosting"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+										Comment
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -499,22 +553,35 @@ DisableHH=true
 					</div>
 
 					<!-- Comments List -->
-					<div class="space-y-4">
-						<div v-for="comment in comments" :key="comment.id" class="flex gap-4">
-							<a :href="'/users/' + comment.user_id">
-								<img :src="avatarURL + '/' + comment.user_id" class="w-12 h-12 rounded-full border-2 border-dark-border flex-shrink-0">
+					<div v-if="comments.length === 0 && !commentLoading" class="py-8 text-center">
+						<i class="fas fa-comment-slash text-gray-500 text-4xl mb-4"></i>
+						<p class="text-gray-400">No comments yet. Be the first to comment!</p>
+					</div>
+					<div v-else class="space-y-4">
+						<div v-for="comment in comments" :key="comment.id" class="flex gap-4 group">
+							<a :href="'/users/' + comment.user_id" class="flex-shrink-0">
+								<img :src="avatarURL + '/' + comment.user_id" 
+									class="w-12 h-12 rounded-full border-2 border-dark-border object-cover hover:border-primary transition-colors"
+									@error="handleAvatarError($event, comment.user_id)"
+									loading="lazy">
 							</a>
-							<div class="flex-1 bg-dark-bg rounded-lg p-4 border border-dark-border">
-								<div class="flex items-center justify-between mb-2">
-									<a :href="'/users/' + comment.user_id" class="font-semibold text-white hover:text-primary"><% comment.username %></a>
+							<div class="flex-1 bg-dark-bg rounded-lg p-4 border border-dark-border hover:border-dark-border/80 transition-colors">
+								<div class="flex items-start justify-between mb-2">
 									<div class="flex items-center gap-2">
+										<a :href="'/users/' + comment.user_id" class="font-semibold text-white hover:text-primary transition-colors">
+											<% comment.username %>
+										</a>
+										<span class="text-xs text-gray-500">•</span>
 										<span class="text-xs text-gray-500"><% timeAgo(comment.time) %></span>
-										<button v-if="currentUserID === comment.user_id || hasAdmin" @click="deleteComment(comment.id)" class="text-red-400 hover:text-red-300 text-sm">
-											<i class="fas fa-trash"></i>
-										</button>
 									</div>
+									<button v-if="currentUserID === comment.user_id || hasAdmin" 
+										@click="deleteComment(comment.id)" 
+										class="text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/10"
+										title="Delete comment">
+										<i class="fas fa-trash text-sm"></i>
+									</button>
 								</div>
-								<p class="text-gray-300"><% comment.comment %></p>
+								<p class="text-gray-300 whitespace-pre-wrap break-words"><% escapeHTML(comment.comment || comment.message) %></p>
 							</div>
 						</div>
 					</div>
@@ -531,67 +598,110 @@ DisableHH=true
 	</div>
 
 	<!-- Score Detail Modal -->
-	<div v-if="showScoreModal && selectedScore" class="fixed inset-0 z-50 flex items-center justify-center">
-		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeScoreModal"></div>
-		<div class="relative bg-dark-card rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-dark-border">
-			<div class="flex items-center justify-between mb-4">
-				<h2 class="text-2xl font-display font-bold text-white">Score Details</h2>
-				<button @click="closeScoreModal" class="text-gray-400 hover:text-white">
-					<i class="fas fa-times text-2xl"></i>
-				</button>
-			</div>
-			<table class="w-full">
-				<tbody>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Beatmap</td>
-						<td class="py-2 text-white"><a :href="'/b/' + selectedScore.beatmap.beatmap_id" class="hover:text-primary"><% selectedScore.beatmap.song_name %></a></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Score</td>
-						<td class="py-2 text-white"><% addCommas(selectedScore.score) %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">PP</td>
-						<td class="py-2 text-white"><% addCommas(selectedScore.pp?.toFixed(2) || 0) %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Accuracy</td>
-						<td class="py-2 text-white"><% formatAccuracy(selectedScore.accuracy) %>%</td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Max Combo</td>
-						<td class="py-2 text-white"><% addCommas(selectedScore.max_combo) %>/<% addCommas(selectedScore.beatmap.max_combo) %>x</td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Mods</td>
-						<td class="py-2 text-white"><% getScoreMods(selectedScore.mods) %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">300s</td>
-						<td class="py-2 text-white"><% selectedScore.count_300 %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">100s</td>
-						<td class="py-2 text-white"><% selectedScore.count_100 %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">50s</td>
-						<td class="py-2 text-white"><% selectedScore.count_50 %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Misses</td>
-						<td class="py-2 text-white"><% selectedScore.count_miss %></td>
-					</tr>
-					<tr class="border-b border-dark-border">
-						<td class="py-2 text-gray-400">Achieved</td>
-						<td class="py-2 text-white"><% timeAgo(selectedScore.time) %></td>
-					</tr>
-				</tbody>
-			</table>
-			<div v-if="selectedScore.completed === 3" class="mt-4">
-				<a :href="'/web/replays/' + selectedScore.id" class="btn-primary inline-block">
-					<i class="fas fa-download mr-2"></i>Download Replay
-				</a>
+	<div v-if="showScoreModal && selectedScore" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+		<div class="absolute inset-0 bg-black/60 backdrop-blur-md" @click="closeScoreModal"></div>
+		<div class="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl border border-dark-border shadow-2xl">
+			<!-- Background with blur -->
+			<div class="score-modal-bg absolute inset-0" 
+				:style="'background-image: url(https://assets.ppy.sh/beatmaps/' + selectedScore.beatmap.beatmapset_id + '/covers/cover.jpg)'"></div>
+			<div class="score-modal-overlay absolute inset-0"></div>
+			
+			<!-- Content -->
+			<div class="relative z-10 overflow-y-auto max-h-[90vh]" style="isolation: isolate; transform: translateZ(0); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+				<!-- Header -->
+				<div class="p-6 pb-4 border-b border-white/10">
+					<div class="flex items-start justify-between gap-4">
+						<div class="flex-1 min-w-0">
+							<h2 class="text-2xl font-display font-bold text-white mb-2">Score Details</h2>
+							<a :href="'/b/' + selectedScore.beatmap.beatmap_id" class="text-white/90 hover:text-primary text-lg font-medium transition-colors block truncate">
+								<% escapeHTML(selectedScore.beatmap.song_name) %>
+							</a>
+						</div>
+						<button @click="closeScoreModal" class="flex-shrink-0 text-white/70 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+							<i class="fas fa-times text-xl"></i>
+						</button>
+					</div>
+				</div>
+				
+				<!-- Main Content -->
+				<div class="p-6">
+					<!-- Rank Badge and Key Stats -->
+					<div class="flex items-center gap-6 mb-6">
+						<div :class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss).toLowerCase().replace('+', 'h')">
+							<% getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss) %>
+						</div>
+						<div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+								<div class="text-white/60 text-xs font-medium mb-1">Performance</div>
+								<div class="text-primary font-bold text-xl"><% addCommas(Math.round(selectedScore.pp || 0)) %>pp</div>
+							</div>
+							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+								<div class="text-white/60 text-xs font-medium mb-1">Accuracy</div>
+								<div class="text-white font-bold text-xl"><% formatAccuracy(selectedScore.accuracy) %>%</div>
+							</div>
+							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+								<div class="text-white/60 text-xs font-medium mb-1">Score</div>
+								<div class="text-white font-bold text-lg"><% addCommas(selectedScore.score) %></div>
+							</div>
+							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+								<div class="text-white/60 text-xs font-medium mb-1">Combo</div>
+								<div class="text-white font-bold text-lg"><% addCommas(selectedScore.max_combo) %>x</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Details Grid -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
+							<div class="text-white/60 text-sm font-medium mb-2">Mods</div>
+							<div class="text-white font-semibold text-lg">
+								<span v-if="getScoreMods(selectedScore.mods) === 'None'" class="text-white/50">None</span>
+								<span v-else class="text-primary"><% getScoreMods(selectedScore.mods) %></span>
+							</div>
+						</div>
+						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
+							<div class="text-white/60 text-sm font-medium mb-2">Max Combo</div>
+							<div class="text-white font-semibold text-lg">
+								<% addCommas(selectedScore.max_combo) %> / <% addCommas(selectedScore.beatmap.max_combo) %>x
+							</div>
+						</div>
+						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
+							<div class="text-white/60 text-sm font-medium mb-2">Achieved</div>
+							<div class="text-white font-semibold"><% timeAgo(selectedScore.time) %></div>
+						</div>
+					</div>
+					
+					<!-- Hit Statistics -->
+					<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10 mb-6">
+						<div class="text-white/60 text-sm font-medium mb-3">Hit Statistics</div>
+						<div class="grid grid-cols-4 gap-3">
+							<div class="text-center">
+								<div class="text-green-400 font-bold text-xl mb-1"><% selectedScore.count_300 %></div>
+								<div class="text-white/60 text-xs">300s</div>
+							</div>
+							<div class="text-center">
+								<div class="text-blue-400 font-bold text-xl mb-1"><% selectedScore.count_100 %></div>
+								<div class="text-white/60 text-xs">100s</div>
+							</div>
+							<div class="text-center">
+								<div class="text-purple-400 font-bold text-xl mb-1"><% selectedScore.count_50 %></div>
+								<div class="text-white/60 text-xs">50s</div>
+							</div>
+							<div class="text-center">
+								<div class="text-red-400 font-bold text-xl mb-1"><% selectedScore.count_miss %></div>
+								<div class="text-white/60 text-xs">Misses</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Download Replay Button -->
+					<div v-if="selectedScore.completed === 3" class="flex justify-center">
+						<a :href="'/web/replays/' + selectedScore.id" class="btn-primary inline-flex items-center gap-2">
+							<i class="fas fa-download"></i>
+							Download Replay
+						</a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -616,15 +726,233 @@ DisableHH=true
 </div>
 
 <style>
-.rank-badge {
-	@apply w-12 h-12 flex items-center justify-center rounded-lg font-bold text-lg;
+.rank-badge-compact {
+	@apply w-10 h-10 flex items-center justify-center rounded-lg font-bold text-base;
+	background: rgba(30, 41, 59, 0.9);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(4px);
 }
-.rank-ss, .rank-ssh { @apply bg-gradient-to-br from-yellow-400 to-yellow-600 text-white; }
-.rank-s, .rank-sh { @apply bg-gradient-to-br from-yellow-300 to-yellow-500 text-white; }
-.rank-a { @apply bg-gradient-to-br from-green-400 to-green-600 text-white; }
-.rank-b { @apply bg-gradient-to-br from-blue-400 to-blue-600 text-white; }
-.rank-c { @apply bg-gradient-to-br from-purple-400 to-purple-600 text-white; }
-.rank-d { @apply bg-gradient-to-br from-red-400 to-red-600 text-white; }
+.rank-ss, .rank-ssh { 
+	background: linear-gradient(135deg, rgba(234, 179, 8, 0.9), rgba(202, 138, 4, 0.9));
+	color: white;
+	border-color: rgba(234, 179, 8, 0.5);
+}
+.rank-s, .rank-sh { 
+	background: linear-gradient(135deg, rgba(250, 204, 21, 0.9), rgba(234, 179, 8, 0.9));
+	color: white;
+	border-color: rgba(250, 204, 21, 0.5);
+}
+.rank-a { 
+	background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
+	color: white;
+	border-color: rgba(34, 197, 94, 0.5);
+}
+.rank-b { 
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
+	color: white;
+	border-color: rgba(59, 130, 246, 0.5);
+}
+.rank-c { 
+	background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(147, 51, 234, 0.9));
+	color: white;
+	border-color: rgba(168, 85, 247, 0.5);
+}
+.rank-d { 
+	background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+	color: white;
+	border-color: rgba(239, 68, 68, 0.5);
+}
+
+.score-card-compact {
+	min-height: 80px;
+	position: relative;
+	overflow: hidden;
+}
+
+.most-played-card {
+	min-height: 60px;
+	position: relative;
+	overflow: hidden;
+}
+
+.score-card-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	filter: blur(6px) brightness(0.35);
+	transform: scale(1.05);
+	z-index: 0;
+	will-change: transform;
+}
+
+.score-card-overlay-compact {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		to right,
+		rgba(15, 23, 42, 0.88) 0%,
+		rgba(15, 23, 42, 0.78) 40%,
+		rgba(15, 23, 42, 0.68) 60%,
+		rgba(15, 23, 42, 0.55) 100%
+	);
+	transition: opacity 0.2s ease;
+	z-index: 1;
+	backdrop-filter: none;
+}
+
+.score-card-overlay-compact.score-card-overlay-failed {
+	background: linear-gradient(
+		to right,
+		rgba(107, 32, 31, 0.92) 0%,
+		rgba(107, 32, 31, 0.85) 40%,
+		rgba(107, 32, 31, 0.75) 60%,
+		rgba(107, 32, 31, 0.65) 100%
+	) !important;
+}
+
+.score-card-overlay-compact.score-card-overlay-first {
+	background: linear-gradient(
+		to right,
+		rgba(15, 23, 42, 0.90) 0%,
+		rgba(15, 23, 42, 0.80) 40%,
+		rgba(15, 23, 42, 0.70) 60%,
+		rgba(15, 23, 42, 0.58) 100%
+	);
+}
+
+.group:hover .score-card-overlay-compact {
+	opacity: 0.85;
+}
+
+.score-card-compact .relative,
+.most-played-card .relative {
+	z-index: 2;
+	position: relative;
+	isolation: isolate;
+	transform: translateZ(0);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.score-modal-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	filter: blur(12px) brightness(0.3);
+	transform: scale(1.1);
+	z-index: 0;
+}
+
+.score-modal-overlay {
+	background: linear-gradient(
+		to bottom,
+		rgba(15, 23, 42, 0.95) 0%,
+		rgba(15, 23, 42, 0.92) 50%,
+		rgba(15, 23, 42, 0.95) 100%
+	);
+	z-index: 1;
+}
+
+.rank-badge-modal {
+	@apply w-20 h-20 flex items-center justify-center rounded-xl font-bold text-3xl shadow-xl;
+	backdrop-filter: blur(8px);
+	border: 2px solid rgba(255, 255, 255, 0.2);
+}
+.rank-badge-modal.rank-ss, 
+.rank-badge-modal.rank-ssh { 
+	background: linear-gradient(135deg, rgba(234, 179, 8, 0.95), rgba(202, 138, 4, 0.95));
+	color: white;
+	border-color: rgba(234, 179, 8, 0.6);
+	box-shadow: 0 8px 24px rgba(234, 179, 8, 0.4);
+}
+.rank-badge-modal.rank-s, 
+.rank-badge-modal.rank-sh { 
+	background: linear-gradient(135deg, rgba(250, 204, 21, 0.95), rgba(234, 179, 8, 0.95));
+	color: white;
+	border-color: rgba(250, 204, 21, 0.6);
+	box-shadow: 0 8px 24px rgba(250, 204, 21, 0.4);
+}
+.rank-badge-modal.rank-a { 
+	background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95));
+	color: white;
+	border-color: rgba(34, 197, 94, 0.6);
+	box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+}
+.rank-badge-modal.rank-b { 
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
+	color: white;
+	border-color: rgba(59, 130, 246, 0.6);
+	box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+.rank-badge-modal.rank-c { 
+	background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(147, 51, 234, 0.95));
+	color: white;
+	border-color: rgba(168, 85, 247, 0.6);
+	box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+}
+.rank-badge-modal.rank-d { 
+	background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+	color: white;
+	border-color: rgba(239, 68, 68, 0.6);
+	box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+/* Badge icon styling */
+.badge-icon {
+	font-style: normal !important;
+	display: inline-block !important;
+	font-family: "Font Awesome 6 Free" !important;
+	font-weight: 900 !important;
+}
+
+/* Badge tooltip styling */
+.badge-tooltip-container {
+	position: relative;
+}
+
+.badge-tooltip {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-8px);
+	background: rgba(15, 23, 42, 0.95);
+	color: white;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	white-space: nowrap;
+	border: 1px solid rgba(51, 65, 85, 0.8);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(8px);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	z-index: 50;
+	margin-bottom: 4px;
+}
+
+.badge-tooltip::after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	border: 5px solid transparent;
+	border-top-color: rgba(15, 23, 42, 0.95);
+}
+
+.badge-tooltip-container:hover .badge-tooltip {
+	opacity: 1;
+	transform: translateX(-50%) translateY(-4px);
+	pointer-events: auto;
+}
 </style>
 
 <script src="/static/vue/pages/profile.js"></script>
