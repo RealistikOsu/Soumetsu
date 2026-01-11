@@ -20,10 +20,12 @@ function buttons() {
     for (let elm of modes) {
         elm.addEventListener("click", function () {
             for (let others of modes) {
-                others.classList.remove("clicked");
+                others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
+                others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
 
-            this.classList.add("clicked");
+            this.classList.remove("bg-dark-bg", "border-dark-border", "text-gray-300");
+            this.classList.add("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
             searchSettings.mode = this.dataset.modeosu;
 
             search(searchSettings, 0, false);
@@ -33,10 +35,12 @@ function buttons() {
     for (let elm of status) {
         elm.addEventListener("click", function () {
             for (let others of status) {
-                others.classList.remove("clicked");
+                others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
+                others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
 
-            this.classList.add("clicked");
+            this.classList.remove("bg-dark-bg", "border-dark-border", "text-gray-300");
+            this.classList.add("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
             searchSettings.status = this.dataset.rankstatus;
 
             search(searchSettings, 0, false);
@@ -54,13 +58,20 @@ function buttons() {
         clearTimeout(typeTimer);
     });
 
-    document.querySelector("a[data-modeosu='0']").classList.add("clicked");
-    document.querySelector("a[data-rankstatus='1']").classList.add("clicked");
+    document.querySelector("a[data-modeosu='0']").classList.remove("bg-dark-bg", "border-dark-border", "text-gray-300");
+    document.querySelector("a[data-modeosu='0']").classList.add("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
+    document.querySelector("a[data-rankstatus='1']").classList.remove("bg-dark-bg", "border-dark-border", "text-gray-300");
+    document.querySelector("a[data-rankstatus='1']").classList.add("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
 };
 
 function toggleBeatmap(id, elm) {
-    for (let map of document.querySelectorAll(".beatmapPlay")) map.innerHTML = '<i class="fa fa-play" style="font-size:48px;border-radius: 70%;"></i>';
-    for (let map of document.querySelectorAll(".map")) map.classList.remove("musicPlaying");
+    // Stop all other playing beatmaps
+    for (let map of document.querySelectorAll(".beatmapPlay")) {
+        map.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
+    }
+    for (let map of document.querySelectorAll(".card")) {
+        map.classList.remove("musicPlaying");
+    }
 
     if (beatmapTimer) clearInterval(beatmapTimer);
 
@@ -71,15 +82,15 @@ function toggleBeatmap(id, elm) {
                 beatmapAudios[i].audio.currentTime = 0;
                 beatmapAudios[i].audio.play();
 
-                elm.innerHTML = '<i class="fa fa-stop" style="font-size:48px;border-radius: 70%;"></i>';
-                elm.parentElement.classList.add("musicPlaying");
+                elm.innerHTML = '<i class="fas fa-stop text-white text-5xl"></i>';
+                elm.closest(".card").classList.add("musicPlaying");
 
                 const audio = beatmapAudios[i].audio;
                 beatmapTimer = setInterval(() => {
                     const played = 100 * audio.currentTime / audio.duration;
 
                     document.querySelector("#progressCSS").innerHTML = `
-                        .musicPlaying:after {
+                        .musicPlaying::after {
                             width: ${played.toFixed(2)}%;
                         }
                     `;
@@ -87,15 +98,15 @@ function toggleBeatmap(id, elm) {
                         // Beatmap has finished playing.
                         audio.currentTime = 0;
                         beatmapAudios[i].playing = false;
-                        elm.innerHTML = '<i class="fa fa-play" style="font-size:48px;border-radius: 70%;"></i>';
-                        elm.parentElement.classList.remove("musicPlaying");
+                        elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
+                        elm.closest(".card").classList.remove("musicPlaying");
                     }
                 }, 1);
             } else {
                 beatmapAudios[i].audio.pause();
 
-                elm.innerHTML = '<i class="fa fa-play" style="font-size:48px;border-radius: 70%;"></i>';
-                elm.parentElement.classList.remove("musicPlaying");
+                elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
+                elm.closest(".card").classList.remove("musicPlaying");
             };
 
             beatmapAudios[i].playing = !beatmapAudios[i].playing;
@@ -138,7 +149,11 @@ async function search(options, offset = 0, r = false) {
     ];
 
     options.offset = (r ? options.offset + offset : 0);
-    if (!r) document.querySelector("#maps").innerHTML = null;
+    if (!r) {
+        document.querySelector("#maps").innerHTML = "";
+        document.querySelector("#loading-state").classList.remove("hidden");
+        document.querySelector("#empty-state").classList.add("hidden");
+    }
 
     /*
         Green Easy: 0.0*–1.99* up 0.5
@@ -175,9 +190,21 @@ async function search(options, offset = 0, r = false) {
         var res = await fetch(link).then(o => o.json());
     }
     catch {
-        showMessage("error", "There has been an error while searching for beatmaps! Please notify a RealistikOsu developer!");
+        document.querySelector("#loading-state").classList.add("hidden");
+        if (typeof showMessage !== "undefined") {
+            showMessage("error", "There has been an error while searching for beatmaps! Please notify a RealistikOsu developer!");
+        }
         return;
     }
+
+    document.querySelector("#loading-state").classList.add("hidden");
+    
+    if (res.length === 0 && !r) {
+        document.querySelector("#empty-state").classList.remove("hidden");
+        return;
+    }
+    
+    document.querySelector("#empty-state").classList.add("hidden");
 
 
     // adding time :(
@@ -201,37 +228,64 @@ async function search(options, offset = 0, r = false) {
             });
         };
 
+        // Get status color
+        const statusColors = {
+            "1": "bg-green-500/20 border-green-500/50 text-green-400",
+            "3": "bg-blue-500/20 border-blue-500/50 text-blue-400",
+            "4": "bg-pink-500/20 border-pink-500/50 text-pink-400",
+            "0": "bg-yellow-500/20 border-yellow-500/50 text-yellow-400",
+            "-1": "bg-orange-500/20 border-orange-500/50 text-orange-400",
+            "-2": "bg-gray-500/20 border-gray-500/50 text-gray-400"
+        };
+        const statusColor = statusColors[beatmap.RankedStatus] || "bg-gray-500/20 border-gray-500/50 text-gray-400";
+
         mapSection += `
-            <div class="eight wide column">
-                <div class="map">
-                    <div class="map-header">
-                        <a href="/b/${beatmap.ChildrenBeatmaps[0].BeatmapID}">
-                            <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg" alt="">
+            <div class="card group relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer">
+                <!-- Cover Image -->
+                <div class="relative h-48 overflow-hidden bg-dark-bg">
+                    <a href="/beatmaps/${beatmap.ChildrenBeatmaps[0].BeatmapID}">
+                        <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg" 
+                             alt="${beatmap.Title}" 
+                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                    </a>
+                    <!-- Play Button Overlay -->
+                    <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay" 
+                            onclick="toggleBeatmap(${beatmap.SetID}, this)">
+                        <i class="fas fa-play text-white text-5xl"></i>
+                    </button>
+                    <!-- Status Badge -->
+                    <div class="absolute top-3 left-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium border ${statusColor}">
+                            ${Status[beatmap.RankedStatus]}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-4">
+                    <!-- Title & Artist -->
+                    <div class="mb-3">
+                        <a href="/beatmaps/${beatmap.ChildrenBeatmaps[0].BeatmapID}" class="block">
+                            <h3 class="font-bold text-white text-lg mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                                ${beatmap.Title}
+                            </h3>
+                            <p class="text-gray-400 text-sm line-clamp-1">${beatmap.Artist}</p>
                         </a>
                     </div>
-                    <button class="beatmapPlay" onclick="toggleBeatmap(${beatmap.SetID}, this)"><i class="fa fa-play" style="font-size:48px;border-radius: 70%;"></i></button>
-                    <div class="status">
-                        <span style="color: white; cursor: default">${Status[beatmap.RankedStatus]}</span>
-                    </div>
-                    <div class="name">
-                        <a class="bnName" href="/b/${beatmap.ChildrenBeatmaps[0].BeatmapID}">${beatmap.Title}</a>
-                    </div>
-                    <div class="artist">${beatmap.Artist}</div>
-                    <div class="creator">by <a class="link-text" href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}"><b>${beatmap.Creator}</b></a></div>
-                    <div class="downloadlist">
-        `;
 
-        for (let source of sources) {
-            mapSection += `
-                <a title="Download beatmap (${source.name})" href="${source.mirror + String(beatmap.SetID)}" class="download">
-                   <i class="fa fa-download" style="color:white;"></i>
-                </a>
-            `;
-        };
+                    <!-- Creator -->
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-1">Mapped by</p>
+                        <a href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}" 
+                           class="text-sm text-primary hover:underline font-medium">
+                            ${beatmap.Creator}
+                        </a>
+                    </div>
 
-        mapSection += `
-            </div>
-            <div id="alldiff">
+                    <!-- Difficulties -->
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-2">Difficulties</p>
+                        <div class="flex flex-wrap gap-1">
         `;
 
         for (let diff of diffs) {
@@ -245,16 +299,38 @@ async function search(options, offset = 0, r = false) {
             };
 
             diffsHTML.push(`
-                <div class="diff2">
-                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]} tooltip" style="color: rgb(${colorOfChoice});">
-                        <span class="tooltiptext">${diff.DiffName} - ${sr}*</span>
+                <div class="relative group/diff">
+                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}" 
+                         style="color: rgb(${colorOfChoice}); font-size: 1.25rem; cursor: pointer;">
+                    </div>
+                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-dark-card border border-dark-border rounded text-xs text-white opacity-0 group-hover/diff:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                        ${diff.DiffName} - ${sr}★
                     </div>
                 </div>
             `);
         };
 
         mapSection += `
-                        ${diffsHTML.reverse().join("\n")}
+                            ${diffsHTML.reverse().join("\n")}
+                        </div>
+                    </div>
+
+                    <!-- Download Buttons -->
+                    <div class="flex flex-wrap gap-2 pt-3 border-t border-dark-border">
+        `;
+
+        for (let source of sources) {
+            mapSection += `
+                        <a href="${source.mirror + String(beatmap.SetID)}" 
+                           title="Download from ${source.name}"
+                           class="flex-1 px-3 py-2 bg-dark-bg hover:bg-primary/20 border border-dark-border hover:border-primary rounded-lg text-center text-xs text-gray-300 hover:text-white transition-all">
+                            <i class="fas fa-download mr-1"></i>
+                            <span class="hidden sm:inline">${source.name}</span>
+                        </a>
+            `;
+        };
+
+        mapSection += `
                     </div>
                 </div>
             </div>

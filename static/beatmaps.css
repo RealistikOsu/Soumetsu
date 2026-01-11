@@ -260,13 +260,16 @@ i.icon.download:before{
     position: relative;
 }
 
-.musicPlaying:after {
+.musicPlaying::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 100%;
-    border-top: 5px solid #0f97ff;
+    height: 4px;
+    background: linear-gradient(to right, #0f97ff, #548ACA);
+    width: 0%;
+    transition: width 0.1s linear;
+    z-index: 10;
 }
 
 @keyframes musicPulse {
