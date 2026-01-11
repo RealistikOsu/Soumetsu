@@ -127,11 +127,7 @@ func (a *App) initAdapters() error {
 	a.Redis = redisClient
 
 	// Initialize Mailgun
-	mailClient, err := mail.New(a.Config.Mailgun)
-	if err != nil {
-		return err
-	}
-	a.Mail = mailClient
+	a.Mail = mail.New(a.Config.Mailgun)
 
 	return nil
 }
@@ -148,7 +144,7 @@ func (a *App) initRepositories() {
 
 func (a *App) initServices() error {
 	// Initialize auth service
-	authService, err := auth.NewService(
+	a.AuthService = auth.NewService(
 		a.Config,
 		a.UserRepo,
 		a.TokenRepo,
@@ -157,25 +153,20 @@ func (a *App) initServices() error {
 		a.Mail,
 		a.Redis,
 	)
-	if err != nil {
-		return err
-	}
-	a.AuthService = authService
 
 	// Initialize user service
 	a.UserService = user.NewService(
 		a.Config,
 		a.UserRepo,
-		a.StatsRepo,
 		a.ProfileBackgroundRepo,
-		a.Mail,
+		a.DiscordRepo,
+		a.Redis,
 	)
 
 	// Initialize clan service
 	a.ClanService = clan.NewService(
-		a.Config,
 		a.ClanRepo,
-		a.UserRepo,
+		a.Redis,
 	)
 
 	// Initialize beatmap service
@@ -268,9 +259,11 @@ func (a *App) initHandlers() {
 	a.PasswordHandler = handlers.NewPasswordHandler(
 		a.Config,
 		a.AuthService,
+		a.UserService,
 		a.CSRF,
 		a.SessionStore,
 		a.ResponseEngine,
+		a.DB,
 	)
 
 	a.ClanHandler = handlers.NewClanHandler(

@@ -15,7 +15,6 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/adapters/mail"
 	"github.com/RealistikOsu/soumetsu/internal/adapters/redis"
 	"github.com/RealistikOsu/soumetsu/internal/config"
-	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/crypto"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/validation"
 	"github.com/RealistikOsu/soumetsu/internal/repositories"

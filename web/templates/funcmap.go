@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"math"
 	"math/rand"
-	"net/http"
 	"sort"
 	"strconv"
 	"strings"

@@ -127,7 +127,10 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 
 	newUsername := r.FormValue("newuser")
 
-	err = h.userService.ChangeUsername(r.Context(), reqCtx.User.ID, reqCtx.User.Username, newUsername)
+	err = h.userService.ChangeUsername(r.Context(), user.ChangeUsernameInput{
+		UserID:      reqCtx.User.ID,
+		NewUsername: newUsername,
+	})
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))
@@ -239,9 +242,13 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	backgroundID, _ := strconv.Atoi(r.FormValue("bg"))
+	bgType := chi.URLParam(r, "type")
+	value := r.FormValue("value")
+	if value == "" {
+		value = r.FormValue("bg") // fallback for legacy form field
+	}
 
-	err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, backgroundID)
+	err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, bgType, value)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))

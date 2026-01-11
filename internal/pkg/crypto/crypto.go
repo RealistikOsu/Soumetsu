@@ -70,3 +70,9 @@ func GenerateInviteCode() (string, error) {
 func GeneratePasswordResetKey() (string, error) {
 	return GenerateRandomHex(32)
 }
+
+// GenerateLogoutKey generates a logout key for session validation.
+func GenerateLogoutKey() string {
+	key, _ := GenerateRandomHex(16)
+	return key
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
+	"github.com/RealistikOsu/soumetsu/internal/pkg/crypto"
 	"github.com/RealistikOsu/soumetsu/internal/services"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/RealistikOsu/soumetsu/internal/services/user"
@@ -226,12 +227,13 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 
 	input := user.ChangePasswordInput{
+		UserID:          reqCtx.User.ID,
 		CurrentPassword: currentPassword,
 		NewPassword:     newPassword,
 		NewEmail:        email,
 	}
 
-	newPasswordHash, err := h.userService.ChangePassword(r.Context(), reqCtx.User.ID, input)
+	err = h.userService.ChangePassword(r.Context(), input)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.changeResp(w, r, reqCtx.User.ID, models.NewError(svcErr.Message))
@@ -241,9 +243,9 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update session with new password hash
-	if newPasswordHash != "" {
-		sess.Values["pw"] = newPasswordHash
+	// Update session with new password hash if password was changed
+	if newPassword != "" {
+		sess.Values["pw"] = crypto.MD5(newPassword)
 	}
 
 	h.addMessage(sess, models.NewSuccess("Your settings have been saved."))

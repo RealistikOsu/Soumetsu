@@ -1,17 +1,60 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build artifacts
+*.exe
+soumetsu
+
+# Node.js (if using for frontend tooling)
 node_modules
+package-lock.json
+
+# Environment and secrets
+.env
+.env.*
+*.local
+hanayo.conf
+team.json
+
+# Documentation and metadata
+README.md
+LICENSE
+CODEOWNERS
+Makefile
+
+# Development files
+*.md
+.prettierrc
+postcss.config.js
+tailwind.config.js
+gulpfile.js
+
+# Legacy/unused directories
 hanayo
 FrontendPriv
 frontend
-hanayo.conf
-team.json
-static/profbackgrounds/*
-!static/profbackgrounds/.keep
-semantic/gulpfile.tmp.*.js
+
+# User-uploaded content (should be mounted as volumes)
+web/static/profbackgrounds/*
+!web/static/profbackgrounds/.keep
+web/static/oauth-apps/*
+!web/static/oauth-apps/.keep
+
+# Temporary files
+*.tmp
+*.tmp.*
 /_
-static/oauth-apps/*
-!static/oauth-apps/.keep
-*.exe
-static/Ouroborosv2.zip
-.env
-Gopkg.lock
-Gopkg.toml
+
+# Go module cache (handled by Docker layer caching)
+vendor
+
+# GitHub
+.github

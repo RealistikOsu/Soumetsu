@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/thehowl/conf"
 )
@@ -247,5 +246,3 @@ func (e *Engine) Watch() error {
 func (e *Engine) Reload() error {
 	return e.Load()
 }
-
-var soumetsuStarted = time.Now().UnixNano()

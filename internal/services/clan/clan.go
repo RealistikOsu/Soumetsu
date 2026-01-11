@@ -163,57 +163,57 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) error {
 	return nil
 }
 
-// Join allows a user to join a clan via invite code.
-func (s *Service) Join(ctx context.Context, userID int, inviteCode string) error {
+// Join allows a user to join a clan via invite code. Returns the clan ID on success.
+func (s *Service) Join(ctx context.Context, userID int, inviteCode string) (int, error) {
 	// Resolve invite
 	clanID, err := s.clanRepo.ResolveInvite(ctx, inviteCode)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if clanID == 0 {
-		return services.NewNotFound("Invalid invite code")
+		return 0, services.NewNotFound("Invalid invite code")
 	}
 
 	// Check clan exists
 	exists, err := s.clanRepo.ClanExists(ctx, clanID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if !exists {
-		return services.NewNotFound("Seems like we don't found that clan.")
+		return 0, services.NewNotFound("Seems like we don't found that clan.")
 	}
 
 	// Check user isn't already in a clan
 	isMember, err := s.clanRepo.IsMember(ctx, userID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if isMember {
-		return services.NewBadRequest("Seems like you're already in a clan.")
+		return 0, services.NewBadRequest("Seems like you're already in a clan.")
 	}
 
 	// Check member limit
 	count, err := s.clanRepo.GetMemberCount(ctx, clanID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	limit, err := s.clanRepo.GetMemberLimit(ctx, clanID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if count >= limit {
-		return services.NewBadRequest("Ow, I'm sorry this clan is already full ;w;")
+		return 0, services.NewBadRequest("Ow, I'm sorry this clan is already full ;w;")
 	}
 
 	// Add member
 	if err := s.clanRepo.AddMember(ctx, userID, clanID, 1); err != nil {
-		return err
+		return 0, err
 	}
 
 	// Publish clan update
 	s.publishClanUpdate(ctx, userID)
 
-	return nil
+	return clanID, nil
 }
 
 // Leave removes a user from their clan.

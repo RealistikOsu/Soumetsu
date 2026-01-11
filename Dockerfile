@@ -1,28 +1,35 @@
-FROM golang:1.21 AS builder
+# Build stage - compile the Go binary
+FROM golang:1.21-alpine AS builder
 
-WORKDIR /srv/root
+WORKDIR /build
+
+# Install build dependencies
+RUN apk add --no-cache git
 
 # Copy dependency files first (cached unless go.mod/go.sum change)
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
-# Copy only Go source files for building (cached unless .go files change)
-COPY *.go ./
-COPY modules/ ./modules/
-COPY routers/ ./routers/
-COPY services/ ./services/
-COPY state/ ./state/
+# Copy Go source code only (cached unless .go files change)
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
 
-# Build the binary
-RUN go build -o soumetsu
+# Build the binary with optimizations
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o soumetsu ./cmd/soumetsu
 
-# Final stage
-FROM golang:1.21
+# Final stage - minimal runtime image
+FROM alpine:3.19
 
-WORKDIR /srv/root
+WORKDIR /app
 
-# Copy the built binary from builder
-COPY --from=builder /srv/root/soumetsu ./soumetsu
+# Install runtime dependencies
+RUN apk add --no-cache tzdata
+
+# Create non-root user for security
+RUN adduser -D -g '' appuser
+
+# Copy the built binary from builder (rarely changes after initial build)
+COPY --from=builder /build/soumetsu ./soumetsu
 
 # Copy scripts (rarely change)
 COPY scripts/ ./scripts/
@@ -34,11 +41,15 @@ COPY data/ ./data/
 COPY website-docs/ ./website-docs/
 
 # Copy static assets (change more frequently)
-COPY static/ ./static/
+COPY web/static/ ./web/static/
 
 # Copy templates last (change most frequently)
-COPY templates/ ./templates/
+COPY web/templates/ ./web/templates/
 
-EXPOSE 80
+# Set ownership
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 CMD ["./scripts/start.sh"]
