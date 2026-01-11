@@ -6,13 +6,16 @@ DisableHH=true
 {{ define "tpl" }}
 {{ $cf := .ClientFlags }}
 {{ $ds := band $cf 1 }}
-{{ $   := . }}
-{{ $stats := .Get "statistics/homepage" }}
 
-<div class="relative min-h-screen">
+<script>
+	window.onlineUsers = parseInt("{{ rediget "ripple:online_users" }}") || 0;
+	window.registeredUsers = parseInt("{{ rediget "ripple:registered_users" }}") || 0;
+</script>
+
+<div id="homepage-app" class="relative min-h-screen">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
 			style="background-image: url('/static/headers/homepage2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -38,11 +41,11 @@ DisableHH=true
 						<div class="flex items-center gap-4 text-sm text-gray-300 mb-6">
 							<div class="flex items-center gap-2">
 								<i class="fas fa-users text-primary"></i>
-								<span><strong class="text-white">{{ rediget "ripple:online_users" }}</strong> Online</span>
+								<span><strong class="text-white"><% addCommas(onlineUsers) %></strong> Online</span>
 							</div>
 							<div class="flex items-center gap-2">
 								<i class="fas fa-user-plus text-green-400"></i>
-								<span><strong class="text-white">{{ rediget "ripple:registered_users" }}</strong> Registered Users</span>
+								<span><strong class="text-white"><% addCommas(registeredUsers) %></strong> Registered Users</span>
 							</div>
 						</div>
 
@@ -51,10 +54,10 @@ DisableHH=true
 
 						<!-- Description -->
 						<p class="text-gray-300 mb-8 leading-relaxed">
-							RealistikOsu is a custom server for the rhythm game osu!, featuring tons of unique features! 
-							We provide a nice, safe, unique place for everyone to enjoy, offering a wide variety of new 
-							experiences and features. We have everything from custom map ranking and clans to dedicated 
-							leaderboards and PP systems for Relax and Autopilot mods — and our feature set grows daily! 
+							RealistikOsu is a custom server for the rhythm game osu!, featuring tons of unique features!
+							We provide a nice, safe, unique place for everyone to enjoy, offering a wide variety of new
+							experiences and features. We have everything from custom map ranking and clans to dedicated
+							leaderboards and PP systems for Relax and Autopilot mods — and our feature set grows daily!
 							Why hesitate? Join RealistikOsu now!
 						</p>
 
@@ -79,27 +82,18 @@ DisableHH=true
 
 						<!-- Activity Graph -->
 						<div class="mt-6">
-							{{ if $stats }}
-								{{ $max := 0 }}
-								{{ range $stats.data.online_history }}
-									{{ if gt (int .) $max }}
-										{{ $max = int . }}
-									{{ end }}
-								{{ end }}
-								<div class="flex items-center justify-center text-xs text-gray-400 mb-3">
-									<div class="bg-dark-bg/50 px-4 py-2 rounded-full border border-dark-border">
-										<i class="fas fa-chart-line mr-2 text-primary"></i>
-										Max. <strong class="text-white">{{ $max }}</strong> players in last 24h
-									</div>
+							<div v-if="maxOnline > 0" class="flex items-center justify-center text-xs text-gray-400 mb-3">
+								<div class="bg-dark-bg/50 px-4 py-2 rounded-full border border-dark-border">
+									<i class="fas fa-chart-line mr-2 text-primary"></i>
+									Max. <strong class="text-white"><% maxOnline %></strong> players in last 24h
 								</div>
-							{{ else }}
-								<div class="flex items-center justify-center text-xs text-gray-400 mb-3">
-									<div class="bg-dark-bg/50 px-4 py-2 rounded-full border border-dark-border">
-										<i class="fas fa-chart-line mr-2 text-primary"></i>
-										Activity graph
-									</div>
+							</div>
+							<div v-else class="flex items-center justify-center text-xs text-gray-400 mb-3">
+								<div class="bg-dark-bg/50 px-4 py-2 rounded-full border border-dark-border">
+									<i class="fas fa-chart-line mr-2 text-primary"></i>
+									Activity graph
 								</div>
-							{{ end }}
+							</div>
 							<div class="w-full h-2 bg-dark-bg rounded-full overflow-hidden">
 								<div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full" style="width: 65%;"></div>
 							</div>
@@ -133,7 +127,7 @@ DisableHH=true
 							<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
 						</div>
 						<h3 class="text-xl font-semibold mb-1">{{ $mode }}</h3>
-						<p class="text-sm text-gray-400">View leaderboard →</p>
+						<p class="text-sm text-gray-400">View leaderboard</p>
 						<div class="mt-3 pt-3 border-t border-dark-border">
 							<p class="text-xs text-gray-500">Ranked plays, PP leaderboard</p>
 						</div>
@@ -152,61 +146,84 @@ DisableHH=true
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-				{{ if and $stats $stats.data.top_scores }}
-					{{ range $i, $play := (sliceArray $stats.data.top_scores 0 8) }}
-						<a href="/users/{{ get $play "user_id" | int }}" class="card hover:border-primary transition-all duration-300 cursor-pointer group relative overflow-hidden hover:scale-[1.02]">
-							<!-- Background gradient on hover -->
-							<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-								<div class="w-full h-full bg-gradient-to-br from-primary/10 to-purple-500/10"></div>
+				<!-- Loading state -->
+				<template v-if="loading">
+					<div v-for="i in 8" :key="i" class="card relative overflow-hidden">
+						<div class="flex items-center gap-3 mb-3">
+							<div class="w-10 h-10 rounded-full bg-dark-border/50 flex items-center justify-center">
+								<i class="fas fa-spinner fa-spin text-gray-600"></i>
 							</div>
-							
-							<div class="relative z-10">
-								<div class="flex items-center gap-3 mb-3">
-									<img src="{{ $.Conf.APP_AVATAR_URL }}/{{ get $play "user_id" | int }}" 
-										alt="{{ get $play "username" }}" 
-										class="w-10 h-10 rounded-full border-2 border-dark-border group-hover:border-primary transition-colors">
-									<div class="flex-1 min-w-0">
-										<p class="text-xs text-gray-400">Played by</p>
-										<p class="font-semibold truncate">{{ get $play "username" }}</p>
-									</div>
-								</div>
-								
-								<div class="flex items-center justify-between">
-									<div>
-										<p class="text-2xl font-bold text-primary">{{ get $play "pp_val" | int }}pp</p>
-										<div class="flex items-center gap-1 text-xs text-gray-400">
-											<span class="w-2 h-2 rounded-full bg-pink-400"></span>
-											<span>Vanilla Standard</span>
-										</div>
-									</div>
-									<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
-								</div>
-							</div>
-						</a>
-					{{ end }}
-				{{ else }}
-					<!-- Placeholder cards when no data -->
-					{{ range $i := (slice 1 2 3 4 5 6 7 8) }}
-						<div class="card relative overflow-hidden">
-							<div class="flex items-center gap-3 mb-3">
-								<div class="w-10 h-10 rounded-full bg-dark-border/50 flex items-center justify-center">
-									<i class="fas fa-user text-gray-600"></i>
-								</div>
-								<div class="flex-1">
-									<p class="text-xs text-gray-500">Played by</p>
-									<p class="text-gray-400 text-sm">Loading...</p>
-								</div>
-							</div>
-							<div>
-								<p class="text-xl font-bold text-gray-600">---pp</p>
-								<div class="flex items-center gap-1 text-xs text-gray-500">
-									<span class="w-2 h-2 rounded-full bg-gray-600"></span>
-									<span>Mode</span>
-								</div>
+							<div class="flex-1">
+								<p class="text-xs text-gray-500">Played by</p>
+								<p class="text-gray-400 text-sm">Loading...</p>
 							</div>
 						</div>
-					{{ end }}
-				{{ end }}
+						<div>
+							<p class="text-xl font-bold text-gray-600">---pp</p>
+							<div class="flex items-center gap-1 text-xs text-gray-500">
+								<span class="w-2 h-2 rounded-full bg-gray-600"></span>
+								<span>Mode</span>
+							</div>
+						</div>
+					</div>
+				</template>
+
+				<!-- Loaded top plays -->
+				<template v-else-if="topPlays.length > 0">
+					<a v-for="play in topPlays" :key="play.user_id + '-' + play.pp_val"
+					   :href="'/users/' + play.user_id"
+					   class="card hover:border-primary transition-all duration-300 cursor-pointer group relative overflow-hidden hover:scale-[1.02]">
+						<!-- Background gradient on hover -->
+						<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+							<div class="w-full h-full bg-gradient-to-br from-primary/10 to-purple-500/10"></div>
+						</div>
+
+						<div class="relative z-10">
+							<div class="flex items-center gap-3 mb-3">
+								<img :src="avatarURL + '/' + play.user_id"
+									:alt="play.username"
+									class="w-10 h-10 rounded-full border-2 border-dark-border group-hover:border-primary transition-colors">
+								<div class="flex-1 min-w-0">
+									<p class="text-xs text-gray-400">Played by</p>
+									<p class="font-semibold truncate"><% play.username %></p>
+								</div>
+							</div>
+
+							<div class="flex items-center justify-between">
+								<div>
+									<p class="text-2xl font-bold text-primary"><% Math.round(play.pp_val) %>pp</p>
+									<div class="flex items-center gap-1 text-xs text-gray-400">
+										<span class="w-2 h-2 rounded-full bg-pink-400"></span>
+										<span>Vanilla Standard</span>
+									</div>
+								</div>
+								<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+							</div>
+						</div>
+					</a>
+				</template>
+
+				<!-- No top plays -->
+				<template v-else>
+					<div v-for="i in 8" :key="i" class="card relative overflow-hidden">
+						<div class="flex items-center gap-3 mb-3">
+							<div class="w-10 h-10 rounded-full bg-dark-border/50 flex items-center justify-center">
+								<i class="fas fa-user text-gray-600"></i>
+							</div>
+							<div class="flex-1">
+								<p class="text-xs text-gray-500">Played by</p>
+								<p class="text-gray-400 text-sm">No data</p>
+							</div>
+						</div>
+						<div>
+							<p class="text-xl font-bold text-gray-600">---pp</p>
+							<div class="flex items-center gap-1 text-xs text-gray-500">
+								<span class="w-2 h-2 rounded-full bg-gray-600"></span>
+								<span>Mode</span>
+							</div>
+						</div>
+					</div>
+				</template>
 			</div>
 		</div>
 	</section>
@@ -220,7 +237,7 @@ DisableHH=true
 					<div class="flex-1 p-8 md:p-12">
 						<h2 class="text-3xl md:text-4xl font-display font-bold mb-4">What are you waiting for?</h2>
 						<p class="text-gray-300 mb-8 leading-relaxed max-w-lg">
-							Join RealistikOsu! It's risk-free: you won't get your account banned on the official server if you play here. 
+							Join RealistikOsu! It's risk-free: you won't get your account banned on the official server if you play here.
 							You can also switch anytime between the official osu! server and RealistikOsu!
 						</p>
 						<div class="flex flex-col sm:flex-row gap-4">
@@ -247,4 +264,8 @@ DisableHH=true
 		</div>
 	</section>
 </div>
+
+<script src="/static/vue/vue.js"></script>
+<script src="/static/vue/api-client.js"></script>
+<script src="/static/vue/pages/homepage.js"></script>
 {{ end }}

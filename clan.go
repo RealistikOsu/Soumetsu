@@ -11,10 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: replace with simple ResponseInfo containing userid
+// clanData contains minimal data for the clan page
+// All clan data is now fetched client-side via Vue
 type clanData struct {
 	baseTemplateData
-	ClanID int
+	ClanID    int
+	ClanParam string // Raw URL param (can be ID or name)
 }
 
 func leaveClan(c *gin.Context) {
@@ -84,57 +86,21 @@ func leaveClan(c *gin.Context) {
 }
 
 func clanPage(c *gin.Context) {
-	var (
-		clanID          int
-		clanName        string
-		clanDescription string
-		clanIcon        string
-	)
+	// Parse clan ID from URL parameter
+	// Can be numeric ID or clan name - Vue will resolve via API
+	cid := c.Param("cid")
+	clanID, _ := strconv.Atoi(cid)
 
-	// ctx := getContext(c)
-
-	i := c.Param("cid")
-	if _, err := strconv.Atoi(i); err != nil {
-		err := db.QueryRow("SELECT id, name, description, icon FROM clans WHERE name = ? LIMIT 1", i).Scan(&clanID, &clanName, &clanDescription, &clanIcon)
-		if err != nil && err != sql.ErrNoRows {
-			c.Error(err)
-		}
-	} else {
-		err := db.QueryRow(`SELECT id, name, description, icon FROM clans WHERE id = ? LIMIT 1`, i).Scan(&clanID, &clanName, &clanDescription, &clanIcon)
-		switch {
-		case err == nil:
-		case err == sql.ErrNoRows:
-			err := db.QueryRow("SELECT id, name, description, icon FROM clans WHERE name = ? LIMIT 1", i).Scan(&clanID, &clanName, &clanDescription, &clanIcon)
-			if err != nil && err != sql.ErrNoRows {
-				c.Error(err)
-			}
-		default:
-			c.Error(err)
-		}
+	data := &clanData{
+		baseTemplateData: baseTemplateData{
+			TitleBar:  "Clan",
+			DisableHH: true,
+		},
+		ClanID:    clanID,
+		ClanParam: cid, // Pass raw param so Vue can resolve by name if needed
 	}
 
-	data := new(clanData)
-	data.ClanID = clanID
-	defer resp(c, 200, "clansample.html", data)
-
-	if data.ClanID == 0 {
-		data.TitleBar = "404 Clan Not Found!"
-		data.Messages = append(data.Messages, warningMessage{T(c, "That clan could not be found.")})
-		return
-	}
-
-	if getContext(c).User.Privileges&1 > 0 {
-		if db.QueryRow("SELECT 1 FROM clans WHERE clan = ?", clanID).Scan(new(string)) != sql.ErrNoRows {
-			var bg string
-			db.QueryRow("SELECT background FROM clans WHERE id = ?", clanID).Scan(&bg)
-			data.KyutGrill = bg
-			data.KyutGrillAbsolute = true
-		}
-	}
-
-	data.TitleBar = T(c, "%s's Clan Page", clanName)
-	data.DisableHH = true
-	data.Scripts = append(data.Scripts, "/static/clan.js")
+	resp(c, 200, "clansample.html", data)
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
