@@ -32,7 +32,7 @@ DisableHH=true
 					</div>
 
 					<form action="/settings/avatar" method="post" enctype="multipart/form-data" id="avatar-form">
-						{{ ieForm }}
+						{{ ieForm .Context }}
 						
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 							<!-- Left: Current Avatar & Preview -->

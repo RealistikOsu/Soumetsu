@@ -207,13 +207,53 @@
         if (data.background && data.background.type === 1) {
             els.banner.style.backgroundImage = `url('/static/profbackgrounds/${data.background.value}')`;
             els.banner.style.backgroundColor = 'transparent';
+            els.banner.classList.remove('banner-gradient-transition');
         } else if (data.background && data.background.type === 2) {
             els.banner.style.backgroundImage = 'none';
             els.banner.style.backgroundColor = data.background.value;
+            els.banner.classList.remove('banner-gradient-transition');
         } else {
-            // Default
-            els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(147,51,234,0.3) 100%)';
+            // Default - use gradient extracted from avatar
+            // Set fallback gradient first
+            els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
             els.banner.style.backgroundColor = '#0f172a';
+            
+            // Extract colors from avatar and apply gradient
+            if (window.BannerGradient && els.avatar) {
+                // Ensure avatar has crossorigin attribute for color extraction
+                if (!els.avatar.crossOrigin) {
+                    els.avatar.crossOrigin = 'anonymous';
+                }
+                
+                // Add transition class for smooth gradient changes
+                els.banner.classList.add('banner-gradient-transition');
+                
+                // Extract and apply gradient
+                function applyGradient() {
+                    // Use a small delay to ensure avatar is fully rendered
+                    setTimeout(function() {
+                        if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
+                            window.BannerGradient.extract(els.avatar, function(colors) {
+                                if (colors && colors.color1 && colors.color2 && els.banner) {
+                                    window.BannerGradient.apply(els.banner, colors);
+                                }
+                            });
+                        }
+                    }, 50);
+                }
+                
+                // Try to apply immediately if avatar is already loaded
+                if (els.avatar.complete && els.avatar.naturalWidth > 0) {
+                    applyGradient();
+                } else {
+                    // Wait for avatar to load
+                    var loadHandler = function() {
+                        applyGradient();
+                        els.avatar.removeEventListener('load', loadHandler);
+                    };
+                    els.avatar.addEventListener('load', loadHandler);
+                }
+            }
         }
     }
 

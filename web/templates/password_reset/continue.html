@@ -33,7 +33,7 @@ DisableHH=true
 			</div>
 
 			<input type="hidden" name="k" value="{{ index .Extra "Key" }}">
-			{{ ieForm }}
+			{{ ieForm .Context }}
 
 			<button type="submit" 
 				form="pw-reset-form" 

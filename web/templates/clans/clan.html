@@ -141,7 +141,7 @@ DisableHH=true
 				<div v-if="currentUserID > 0">
 					<!-- User is owner of this clan -->
 					<form v-if="canDisband" method="post" :action="'/clans/' + clanId + '/leave'">
-						{{ ieForm }}
+						{{ ieForm .Context }}
 						<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
 							Disband Clan
 						</button>
@@ -149,7 +149,7 @@ DisableHH=true
 
 					<!-- User is member (not owner) of this clan -->
 					<form v-else-if="canLeave" method="post" :action="'/clans/' + clanId + '/leave'">
-						{{ ieForm }}
+						{{ ieForm .Context }}
 						<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
 							Leave Clan
 						</button>

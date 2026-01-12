@@ -59,7 +59,7 @@ DisableHH=true
 					<input type="hidden" name="redir" value="{{ if get .QueryParams " redir" }}{{ get
 						.QueryParams "redir" }}{{ else }}{{ if index .FormData "redir" }}{{ index (index
 						.FormData "redir" ) 0 }}{{ end }}{{ end }}">
-					{{ ieForm }}
+					{{ ieForm .Context }}
 
 					<button type="submit" form="login-form"
 						class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-lg transition-colors"
