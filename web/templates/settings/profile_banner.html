@@ -6,6 +6,7 @@ DisableHH=true
 AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
 */}}
 {{ define "tpl" }}
+<script src="/static/js/banner-gradient.js"></script>
 {{ $isSupporter := has .Context.User.Privileges 4 }}
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.css">
 <style>
@@ -69,7 +70,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 											{{ else if eq $type 2 }}
 												<div id="banner-color" class="absolute inset-0" style="background-color: {{ $value }};"></div>
 											{{ else }}
-												<div id="banner-default" class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
+												<div id="banner-default" class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 banner-gradient-transition"></div>
 											{{ end }}
 											<div class="absolute inset-0 bg-gradient-to-t from-dark-card to-transparent"></div>
 											
@@ -91,7 +92,9 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 											<div class="flex items-end gap-3 mb-3">
 												<div class="relative">
 													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
-														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg">
+														id="profile-banner-avatar"
+														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg"
+														crossorigin="anonymous">
 													<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-dark-card"></div>
 												</div>
 												<div class="pb-1">
@@ -400,11 +403,24 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								'<span class="font-semibold">#56</span></div></div>';
 							
 							if (type === 'none') {
-								bannerPreview.innerHTML = '<div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30"></div>' + badges;
+								var gradientDiv = document.createElement('div');
+								gradientDiv.className = 'absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 banner-gradient-transition';
+								gradientDiv.id = 'banner-default';
+								bannerPreview.appendChild(gradientDiv);
+								bannerPreview.innerHTML += badges;
+								bannerGradient = gradientDiv;
+								// Extract colors after a short delay to ensure DOM is ready
+								setTimeout(function() {
+									if (profileAvatar && profileAvatar.complete) {
+										extractBannerColors(profileAvatar);
+									}
+								}, 50);
 							} else if (type === 'image') {
 								bannerPreview.innerHTML = '<img src="' + value + '" class="absolute inset-0 w-full h-full object-cover">' + badges;
+								bannerGradient = null;
 							} else if (type === 'color') {
 								bannerPreview.innerHTML = '<div class="absolute inset-0" style="background-color: ' + value + ';"></div>' + badges;
+								bannerGradient = null;
 							}
 							
 							bannerPreview.appendChild(overlay);
@@ -490,6 +506,34 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								updateBannerPreview('color', color);
 							});
 						});
+						// Initialize banner gradient using shared utility
+						var updateGradient = null;
+						
+						if (window.BannerGradient) {
+							// Initialize for default banner
+							var profileAvatar = document.getElementById('profile-banner-avatar');
+							if (profileAvatar) {
+								updateGradient = window.BannerGradient.init('#profile-banner-avatar', '#banner-default');
+							}
+							
+							// Update gradient when banner type changes to default
+							var originalUpdateBannerPreview = updateBannerPreview;
+							updateBannerPreview = function(type, value) {
+								originalUpdateBannerPreview(type, value);
+								if (type === 'none') {
+									var bannerGradient = document.getElementById('banner-default');
+									if (bannerGradient && profileAvatar) {
+										setTimeout(function() {
+											if (profileAvatar.complete && window.BannerGradient) {
+												window.BannerGradient.extract(profileAvatar, function(colors) {
+													window.BannerGradient.apply(bannerGradient, colors);
+												});
+											}
+										}, 50);
+									}
+								}
+							};
+						}
 					})();
 					</script>
 				{{ end }}

@@ -6,6 +6,7 @@ MinPrivileges=2
 DisableHH=true
 */}}
 {{ define "tpl" }}
+<script src="/static/js/banner-gradient.js"></script>
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
@@ -80,7 +81,7 @@ DisableHH=true
 										</div>
 										<!-- Banner -->
 										<div class="relative h-24 overflow-hidden">
-											<div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
+											<div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 banner-gradient-transition" id="avatar-preview-banner"></div>
 											<div class="absolute top-2 right-2 flex flex-col items-end gap-1">
 												<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">
 													<i class="fas fa-globe text-gray-400"></i>
@@ -95,7 +96,8 @@ DisableHH=true
 													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
 														id="preview-card-avatar" 
 														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover transition-all duration-300"
-														data-original="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}">
+														data-original="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}"
+														crossorigin="anonymous">
 													<!-- Ring animation when new avatar selected -->
 													<div id="avatar-ring" class="hidden absolute inset-0 rounded-full border-2 border-primary animate-pulse"></div>
 												</div>
@@ -330,6 +332,28 @@ DisableHH=true
 			showPreview(files[0]);
 		}
 	});
+
+	// Initialize banner gradient using shared utility
+	var bannerPreview = document.getElementById('avatar-preview-banner');
+	var updateGradient = null;
+	
+	if (window.BannerGradient && bannerPreview) {
+		updateGradient = window.BannerGradient.init('#preview-card-avatar', '#avatar-preview-banner');
+	}
+
+	// Update gradient when preview changes
+	var originalShowPreview = showPreview;
+	showPreview = function(file) {
+		originalShowPreview(file);
+		if (updateGradient) {
+			setTimeout(function() {
+				var avatar = document.getElementById('preview-card-avatar');
+				if (avatar && avatar.complete) {
+					updateGradient();
+				}
+			}, 100);
+		}
+	};
 })();
 </script>
 {{ end }}
