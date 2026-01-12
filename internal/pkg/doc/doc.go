@@ -189,7 +189,7 @@ func (l *Loader) loadHeader(b []byte) rawFile {
 
 	var f rawFile
 	if err := yaml.Unmarshal([]byte(conf), &f); err != nil {
-		slog.Error("Error unmarshaling yaml", "error", err)
+		slog.Error("Error unmarshalling yaml", "error", err)
 		return rawFile{}
 	}
 

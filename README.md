@@ -110,7 +110,7 @@ The application will be available at `http://localhost:8080` (or your configured
 
 ## ⚙️ Configuration
 
-Soumetsu uses environment variables for configuration. Copy `env.example` to `.env` and customize the values:
+Soumetsu uses environment variables for configuration. Copy `env.example` to `.env` and customise the values:
 
 ### Application Settings
 

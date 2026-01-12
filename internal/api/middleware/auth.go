@@ -42,11 +42,11 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 			}
 
 			var userData struct {
-				Username   string                `db:"username"`
-				Privileges int64                 `db:"privileges"`
-				Flags      uint64                `db:"flags"`
-				Password   string                `db:"password_md5"`
-				Coins      int                   `db:"coins"`
+				Username   string `db:"username"`
+				Privileges int64  `db:"privileges"`
+				Flags      uint64 `db:"flags"`
+				Password   string `db:"password_md5"`
+				Coins      int    `db:"coins"`
 			}
 
 			err = db.QueryRowContext(r.Context(), `
@@ -120,7 +120,7 @@ func RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqCtx := apicontext.GetRequestContextFromRequest(r)
 		if reqCtx.User.ID == 0 {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorised", http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r)

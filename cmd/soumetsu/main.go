@@ -33,10 +33,10 @@ func main() {
 	gob.Register(&models.WarningMessage{})
 	gob.Register(&models.SuccessMessage{})
 
-	slog.Info("Initializing application...")
+	slog.Info("Initialising application...")
 	application, err := app.New(cfg)
 	if err != nil {
-		slog.Error("Failed to initialize application", "error", err)
+		slog.Error("Failed to initialise application", "error", err)
 		panic(err)
 	}
 

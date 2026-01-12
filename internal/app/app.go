@@ -33,12 +33,12 @@ type App struct {
 	Redis *redis.Client
 	Mail  *mail.Client
 
-	UserRepo             *repositories.UserRepository
-	ClanRepo             *repositories.ClanRepository
-	TokenRepo            *repositories.TokenRepository
-	StatsRepo            *repositories.StatsRepository
-	SystemRepo           *repositories.SystemRepository
-	DiscordRepo          *repositories.DiscordRepository
+	UserRepo              *repositories.UserRepository
+	ClanRepo              *repositories.ClanRepository
+	TokenRepo             *repositories.TokenRepository
+	StatsRepo             *repositories.StatsRepository
+	SystemRepo            *repositories.SystemRepository
+	DiscordRepo           *repositories.DiscordRepository
 	ProfileBackgroundRepo *repositories.ProfileBackgroundRepository
 
 	AuthService    *auth.Service
@@ -46,9 +46,9 @@ type App struct {
 	ClanService    *clan.Service
 	BeatmapService *beatmap.Service
 
-	CSRF        middleware.CSRFService
+	CSRF         middleware.CSRFService
 	SessionStore middleware.SessionStore
-	RateLimiter *middleware.RateLimiter
+	RateLimiter  *middleware.RateLimiter
 
 	TemplateEngine *templates.Engine
 	ResponseEngine *response.TemplateEngine
@@ -168,7 +168,7 @@ func (a *App) initMiddleware() error {
 			[]byte(a.Config.App.CookieSecret),
 		)
 		if err != nil {
-			slog.Warn("Failed to initialize Redis session store, falling back to cookie store", "error", err)
+			slog.Warn("Failed to initialise Redis session store, falling back to cookie store", "error", err)
 			store = sessions.NewCookieStore([]byte(a.Config.App.CookieSecret))
 		}
 	} else {
@@ -198,7 +198,7 @@ func (a *App) initTemplates() error {
 	a.TemplateEngine = engine
 
 	a.ResponseEngine = response.NewTemplateEngine(engine.GetTemplates(), funcMap)
-	
+
 	a.ResponseEngine.SetConfig(a.Config)
 
 	return nil

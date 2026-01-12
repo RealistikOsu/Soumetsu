@@ -20,7 +20,7 @@ var (
 	}
 
 	ErrUnauthorized = &ServiceError{
-		Message:    "Unauthorized",
+		Message:    "Unauthorised",
 		Code:       "unauthorized",
 		StatusCode: http.StatusUnauthorized,
 	}
