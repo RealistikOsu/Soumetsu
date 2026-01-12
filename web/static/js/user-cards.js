@@ -111,8 +111,8 @@
     function getRoleBadges(privileges) {
         const badges = [];
         // Helper to add badge
-        const add = (icon, color, title) => {
-            badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${color} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
+        const add = (icon, colour, title) => {
+            badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${colour} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
         };
 
         if (privileges & 8192) {add('fas fa-gavel', 'text-red-400', 'Admin');} // ManageUsers
@@ -233,9 +233,9 @@
                     // Use a small delay to ensure avatar is fully rendered
                     setTimeout(function() {
                         if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
-                            window.BannerGradient.extract(els.avatar, function(colors) {
-                                if (colors && colors.color1 && colors.color2 && els.banner) {
-                                    window.BannerGradient.apply(els.banner, colors);
+                            window.BannerGradient.extract(els.avatar, function(colours) {
+                                if (colours && colours.colour1 && colours.colour2 && els.banner) {
+                                    window.BannerGradient.apply(els.banner, colours);
                                 }
                             });
                         }

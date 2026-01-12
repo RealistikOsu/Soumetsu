@@ -87,12 +87,12 @@ describe('BBCode URL Sanitization', () => {
 
 // Test colour validation
 describe('BBCode Colour Validation', () => {
-    function isValidColor(color) {
-        if (!color || typeof color !== 'string') {
+    function isValidColour(colour) {
+        if (!colour || typeof color !== 'string') {
             return false;
         }
 
-        color = color.trim().toLowerCase();
+        colour = colour.trim().toLowerCase();
 
         // Named colours (basic set)
         const namedColors = [
@@ -121,17 +121,17 @@ describe('BBCode Colour Validation', () => {
             'fuchsia',
         ];
 
-        if (namedColors.includes(color)) {
+        if (namedColors.includes(colour)) {
             return true;
         }
 
         // Hex colours: #RGB or #RRGGBB
-        if (/^#[0-9a-f]{3}$/.test(color) || /^#[0-9a-f]{6}$/.test(color)) {
+        if (/^#[0-9a-f]{3}$/.test(colour) || /^#[0-9a-f]{6}$/.test(colour)) {
             return true;
         }
 
         // RGB format: rgb(r, g, b)
-        if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(color)) {
+        if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(colour)) {
             return true;
         }
 

@@ -82,10 +82,10 @@
     }
 
     // Validate colour value - only allow safe CSS colour values
-    function sanitizeColor(color) {
-        if (!color || typeof color !== 'string') { return ''; }
+    function sanitizeColour(colour) {
+        if (!colour || typeof colour !== 'string') { return ''; }
 
-        const trimmed = color.trim().toLowerCase();
+        const trimmed = colour.trim().toLowerCase();
 
         // Allow hex colours
         if (/^#[0-9a-f]{3,8}$/i.test(trimmed)) {
@@ -165,10 +165,10 @@
 
     function parseColour(text) {
         // Secure colour parsing - validate colour values
-        text = text.replace(/\x5B(color|colour)=([^\x5D]+)\]/g, function(match, tag, color) {
-            const safeColor = sanitizeColor(color);
-            if (safeColor) {
-                return "<span style='color: " + safeColor + "'>";
+        text = text.replace(/\x5B(color|colour)=([^\x5D]+)\]/g, function(match, tag, colour) {
+            const safeColour = sanitizeColour(colour);
+            if (safeColour) {
+                return "<span style='color: " + safeColour + "'>";
             }
             return ''; // Strip invalid colour tags
         });
