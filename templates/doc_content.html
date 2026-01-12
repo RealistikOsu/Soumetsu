@@ -1,0 +1,51 @@
+{{/*###
+Handler=/doc/:id
+KyutGrill=documentation.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/documentation.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-4xl">
+		{{ $ := . }}
+		{{ with documentationData (.Gin.Param "id") (or (.Gin.Query "lang") .Context.Language) }}
+			{{ if .Title }}
+				<div class="card mb-6">
+					<h1 class="text-4xl font-display font-bold mb-4">{{ .Title }}</h1>
+					
+					{{ if not .IsUpdated }}
+						<div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-4">
+							<p class="text-yellow-300 text-sm">
+								{{ $.T "It seems like the original version of this file has been updated, so this file is out of date and may contain inaccurate information. If you want to make sure to be up-to-date, please refer to the <a href=\"%s%s\" class=\"text-yellow-200 hover:underline\">English version</a>." $.Gin.Request.URL.Path "?lang=en" | html }}
+							</p>
+						</div>
+					{{ end }}
+				</div>
+
+				<div class="card prose prose-invert max-w-none">
+					<div class="prose-headings:text-white prose-p:text-gray-300 prose-a:text-primary prose-strong:text-white prose-code:text-primary prose-code:bg-dark-bg prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+						{{ blackfriday .Data }}
+					</div>
+				</div>
+			{{ else }}
+				<div class="card">
+					<p class="text-gray-300">{{ $.T "Documentation file not found!" }}</p>
+				</div>
+			{{ end }}
+		{{ end }}
+
+		<div class="mt-8">
+			<a href="/doc" class="btn-secondary inline-flex items-center gap-2">
+				<i class="fas fa-arrow-left"></i>
+				{{ .T "View all docs" }}
+			</a>
+		</div>
+	</div>
+</div>
+{{ end }}

@@ -1,8 +1,8 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 
-if [ -z "$APP_COMPONENT" ]; then
-  echo "Please set APP_COMPONENT"
+if [ -z "$SOUMETSU_COMPONENT" ]; then
+  echo "Please set SOUMETSU_COMPONENT"
   exit 1
 fi
 
@@ -11,9 +11,9 @@ if [ -z "$SOUMETSU_ENV" ]; then
   exit 1
 fi
 
-if [ "$APP_COMPONENT" = "api" ]; then
+if [ "$SOUMETSU_COMPONENT" = "api" ]; then
     exec ./soumetsu
 else
-    echo "Unknown component: $APP_COMPONENT"
+    echo "Unknown component: $SOUMETSU_COMPONENT"
     exit 1
 fi

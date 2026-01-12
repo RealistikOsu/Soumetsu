@@ -1,0 +1,163 @@
+{{ define "tpl" }}
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script>
+	window.isDisplayed = false;
+</script>
+
+<div class="relative min-h-screen flex items-center justify-center py-12 px-4">
+	<!-- Background with pattern -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" 
+			style="background-image: url('/static/headers/register.jpg');"></div>
+		<div class="absolute inset-0 bg-dark-bg/80"></div>
+		<!-- Decorative grid pattern -->
+		<div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%239C92AC&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+	</div>
+
+	{{ $regEnabled := qb "SELECT value_int FROM system_settings WHERE name = 'registrations_enabled'" }}
+	{{ if .Context.User.ID }}
+		<div class="bg-dark-card rounded-xl border border-dark-border p-8 max-w-md w-full text-center">
+			<i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
+			<p class="text-gray-300">{{ .T "You're already logged in!" }}</p>
+			<a href="/users/{{ .Context.User.ID }}" class="btn-primary inline-block mt-4">Go to Profile</a>
+		</div>
+	{{ else if not ($regEnabled.value_int.Bool) }}
+		<div class="bg-dark-card rounded-xl border border-dark-border p-8 max-w-md w-full text-center">
+			<i class="fas fa-times-circle text-red-400 text-4xl mb-4"></i>
+			<p class="text-red-300">{{ .T "Sorry, it's not possible to register at the moment. Please try again later." }}</p>
+		</div>
+	{{ else }}
+		{{ if eq (.Gin.Query "stopsign") "1" }}
+			<div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4">
+				<div class="bg-orange-900/50 border border-orange-600 rounded-lg p-4 backdrop-blur-sm">
+					<div class="flex items-center gap-3">
+						<i class="fas fa-exclamation-triangle text-orange-400"></i>
+						<p class="text-orange-200 text-sm">{{ .T "Remember: this seems like it's your second account! Do not multiaccount, or you're likely to get restricted!" | html }}</p>
+					</div>
+				</div>
+			</div>
+		{{ end }}
+
+		<!-- Discord-style register card -->
+		<div class="bg-dark-card rounded-xl border border-dark-border overflow-hidden flex flex-col lg:flex-row max-w-4xl w-full shadow-2xl">
+			<!-- Left side - Form -->
+			<div class="flex-1 p-8 lg:p-12">
+				<div class="max-w-sm mx-auto lg:mx-0">
+					<h1 class="text-3xl font-display font-bold mb-2 text-center lg:text-left">Create an account</h1>
+					<p class="text-gray-400 mb-8 text-center lg:text-left">Join thousands of players on RealistikOsu!</p>
+
+					<form id="register-form" method="post" action="/register" class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">
+								Username
+							</label>
+							<input type="text" 
+								name="username" 
+								placeholder="CoolPlayer123" 
+								value="{{ .FormData.username }}" 
+								required 
+								pattern="^[A-Za-z0-9 _\[\]-]{2,15}$"
+								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+								tabindex="1">
+							<p class="text-xs text-gray-500 mt-1">2-15 characters, letters, numbers, spaces, _[]-</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">
+								Email
+							</label>
+							<input type="email" 
+								name="email" 
+								placeholder="you@example.com" 
+								value="{{ .FormData.email }}" 
+								required
+								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+								tabindex="2">
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">
+								Password
+							</label>
+							<input type="password" 
+								id="password" 
+								name="password" 
+								placeholder="••••••••" 
+								value="{{ .FormData.password }}" 
+								required 
+								pattern="^.{8,}$"
+								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+								tabindex="3">
+							<p class="text-xs text-gray-500 mt-1">At least 8 characters</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">
+								Confirm Password
+							</label>
+							<input type="password" 
+								id="password_confirm" 
+								name="confirm_password" 
+								placeholder="••••••••" 
+								value="{{ .FormData.confirm_password }}" 
+								required 
+								pattern="^.{8,}$"
+								oninput="check(this)"
+								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+								tabindex="4">
+						</div>
+
+						{{ with config "RECAPTCHA_SITE_KEY" }}
+							<div class="flex justify-center py-2">
+								<div class="h-captcha" data-sitekey="{{ . }}" data-theme="dark"></div>
+							</div>
+						{{ end }}
+
+						{{ ieForm .Gin }}
+
+						<button type="submit" 
+							form="register-form" 
+							id="THESUBMIT"
+							class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-lg transition-colors"
+							tabindex="5">
+							Create Account
+						</button>
+					</form>
+
+					<div class="mt-6 text-center lg:text-left text-gray-400 text-sm">
+						<p>Already have an account? <a href="/login" class="text-primary hover:underline font-medium">Sign in</a></p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right side - Anime Character -->
+			<div class="hidden lg:block w-80 relative bg-gradient-to-br from-dark-card to-dark-bg">
+				<div class="absolute inset-0 flex items-end justify-center overflow-hidden">
+					<img src="https://i.imgur.com/qKNYvXl.png" 
+						alt="Join us!" 
+						class="w-full h-auto max-h-full object-contain object-bottom"
+						onerror="this.parentElement.style.display='none'">
+				</div>
+			</div>
+		</div>
+
+		<script language='javascript' type='text/javascript'>
+			function check(input) {
+				const submit_btn = document.getElementById("THESUBMIT")
+				if (input.value != document.getElementById('password').value) {
+					if (!window.isDisplayed) {
+						showMessage("warning", "Both password values must match!");
+						window.isDisplayed = true;
+						submit_btn.disabled = true;
+					}
+				} else {
+					const elements = document.getElementsByClassName("ui icon message black warning");
+					while (elements.length > 0) elements[0].remove();
+					window.isDisplayed = false;
+					submit_btn.disabled = false;
+				}
+			}
+		</script>
+	{{ end }}
+</div>
+{{ end }}

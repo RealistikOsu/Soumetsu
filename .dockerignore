@@ -45,16 +45,26 @@ frontend
 # User-uploaded content (should be mounted as volumes)
 web/static/profbackgrounds/*
 !web/static/profbackgrounds/.keep
+static/profbackgrounds/*
+!static/profbackgrounds/.keep
 web/static/oauth-apps/*
 !web/static/oauth-apps/.keep
+static/oauth-apps/*
+!static/oauth-apps/.keep
 
 # Temporary files
 *.tmp
 *.tmp.*
 /_
+semantic/gulpfile.tmp.*.js
 
 # Go module cache (handled by Docker layer caching)
 vendor
+
+# Legacy files
+static/Ouroborosv2.zip
+Gopkg.lock
+Gopkg.toml
 
 # GitHub
 .github

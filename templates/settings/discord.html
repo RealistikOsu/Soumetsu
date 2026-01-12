@@ -1,0 +1,171 @@
+{{/*###
+Handler=/settings/discord
+KyutGrill=settings2.jpg
+Include=menu.html
+DisableHH=true
+AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
+*/}}
+{{ define "tpl" }}
+{{ $isLinked := qb "SELECT discord_id FROM discord_oauth WHERE user_id = ?" .Context.User.ID }}
+{{ $discordID := $isLinked.discord_id.String }}
+
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+			
+			<div class="flex-1">
+				<div class="card">
+					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+						<div class="w-12 h-12 bg-indigo-500/20 rounded-full flex items-center justify-center">
+							<i class="fab fa-discord text-indigo-400 text-xl"></i>
+						</div>
+						<div>
+							<h2 class="text-2xl font-display font-bold text-white">{{ .T "Discord Integration" }}</h2>
+							<p class="text-sm text-gray-400">{{ .T "Link your Discord account" }}</p>
+						</div>
+					</div>
+
+					{{ if $isLinked }}
+						{{ with dcAPI $discordID }}
+							<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+								<!-- Left: Connected Account -->
+								<div class="space-y-6">
+									<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
+										<div class="relative inline-block mb-4">
+											<img src="{{ .avatar.link }}"
+												alt="Discord Avatar"
+												class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg"/>
+											<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-dark-bg flex items-center justify-center">
+												<i class="fas fa-check text-white text-xs"></i>
+											</div>
+										</div>
+										<h3 class="text-xl font-bold text-white">@{{ .raw.username }}</h3>
+										<p class="text-sm text-gray-400 mt-1">{{ $.T "Discord Account Connected" }}</p>
+									</div>
+
+									<div class="p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
+										<div class="flex items-center gap-3">
+											<div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+												<i class="fas fa-link text-green-400"></i>
+											</div>
+											<div>
+												<p class="text-green-400 font-medium">{{ $.T "Account Linked" }}</p>
+												<p class="text-sm text-gray-400">{{ $.T "Your Discord is connected" }}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Right: Actions & Info -->
+								<div class="space-y-6">
+									<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+										<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+											<i class="fas fa-info-circle"></i>
+											{{ $.T "Benefits" }}
+										</h4>
+										<ul class="space-y-2 text-sm text-gray-400">
+											<li class="flex items-start gap-2">
+												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+												<span>{{ $.T "Receive notifications on Discord" }}</span>
+											</li>
+											<li class="flex items-start gap-2">
+												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+												<span>{{ $.T "Show Discord status on profile" }}</span>
+											</li>
+											<li class="flex items-start gap-2">
+												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+												<span>{{ $.T "Access Discord-exclusive features" }}</span>
+											</li>
+										</ul>
+									</div>
+
+									<div class="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
+										<h4 class="text-red-300 font-medium mb-2 flex items-center gap-2">
+											<i class="fas fa-unlink"></i>
+											{{ $.T "Unlink Account" }}
+										</h4>
+										<p class="text-sm text-gray-400 mb-4">{{ $.T "Disconnect your Discord account from your profile." }}</p>
+										<a href="/settings/discord/unlink" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 inline-flex items-center gap-2">
+											<i class="fab fa-discord"></i>
+											{{ $.T "Unlink Discord" }}
+										</a>
+									</div>
+								</div>
+							</div>
+						{{ end }}
+					{{ else }}
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<!-- Left: Preview -->
+							<div class="space-y-6">
+								<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
+									<div class="relative inline-block mb-4">
+										<div class="w-24 h-24 rounded-full bg-indigo-500/20 border-4 border-dashed border-indigo-500/50 flex items-center justify-center">
+											<i class="fab fa-discord text-4xl text-indigo-400"></i>
+										</div>
+									</div>
+									<h3 class="text-xl font-bold text-white">{{ .T "Not Connected" }}</h3>
+									<p class="text-sm text-gray-400 mt-1">{{ .T "Link your Discord account" }}</p>
+								</div>
+
+								<div class="p-4 bg-orange-900/20 border border-orange-700/50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<div class="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+											<i class="fas fa-exclamation text-orange-400"></i>
+										</div>
+										<div>
+											<p class="text-orange-400 font-medium">{{ .T "Not Linked" }}</p>
+											<p class="text-sm text-gray-400">{{ .T "Connect to unlock features" }}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Right: Link Action -->
+							<div class="space-y-6">
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										{{ .T "Benefits" }}
+									</h4>
+									<ul class="space-y-2 text-sm text-gray-400">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "Receive notifications on Discord" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "Show Discord status on profile" }}</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>{{ .T "Access Discord-exclusive features" }}</span>
+										</li>
+									</ul>
+								</div>
+
+								<div class="p-6 bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border border-indigo-700/50 rounded-lg text-center">
+									<i class="fab fa-discord text-5xl text-indigo-400 mb-4"></i>
+									<h4 class="text-lg font-bold text-white mb-2">{{ .T "Connect with Discord" }}</h4>
+									<p class="text-sm text-gray-400 mb-4">{{ .T "Link your account to get started" }}</p>
+									<a href="/settings/discord/redirect" class="btn-primary bg-indigo-600 hover:bg-indigo-700 inline-flex items-center gap-2">
+										<i class="fab fa-discord"></i>
+										{{ .T "Link Discord Account" }}
+									</a>
+								</div>
+							</div>
+						</div>
+					{{ end }}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{ end }}

@@ -11,17 +11,19 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 # Copy Go source code only (cached unless .go files change)
-COPY cmd/ ./cmd/
-COPY internal/ ./internal/
-COPY web/templates/*.go ./web/templates/
+COPY *.go ./
+COPY modules/ ./modules/
+COPY routers/ ./routers/
+COPY services/ ./services/
+COPY state/ ./state/
 
 # Build the binary with optimizations
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o soumetsu ./cmd/soumetsu
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o soumetsu
 
 # Final stage - minimal runtime image
 FROM alpine:3.19
 
-WORKDIR /app
+WORKDIR /srv/root
 
 # Install runtime dependencies
 RUN apk add --no-cache tzdata
@@ -42,15 +44,17 @@ COPY data/ ./data/
 COPY website-docs/ ./website-docs/
 
 # Copy static assets (change more frequently)
-COPY web/static/ ./web/static/
+COPY static/ ./static/
 
 # Copy templates last (change most frequently)
-COPY web/templates/ ./web/templates/
+COPY templates/ ./templates/
 
 # Set ownership
-RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser /srv/root
 
 # Switch to non-root user
 USER appuser
+
+EXPOSE 80
 
 CMD ["./scripts/start.sh"]

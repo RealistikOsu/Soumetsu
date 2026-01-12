@@ -1,0 +1,37 @@
+{{/*###
+NoCompile=true
+*/}}
+{{ define "userGroup" }}
+{{ with . }}
+	<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="main-column-grid">
+		{{ $teamJSON := teamJSON }}
+		{{ range .members }}
+			{{/* ignore fokabot */}}
+			{{ if ne (int .id) 999 }}
+				{{ $tj := index $teamJSON (print .id)}}
+				<a href="/users/{{ .id }}" class="card text-center hover:border-primary transition-colors">
+					<div class="mb-4">
+						<img src="{{ config "SOUMETSU_AVATAR_URL" }}/{{ .id }}" 
+							alt="Avatar" 
+							class="w-full aspect-square rounded-lg object-cover border-2 border-dark-border mx-auto">
+					</div>
+					<div class="space-y-2">
+						<div class="flex items-center justify-center gap-2 font-semibold">
+							{{ country .country false }}
+							<span>{{ .username }}</span>
+						</div>
+						<div class="text-sm text-gray-400" title="Registered">
+							<i class="fas fa-sign-in-alt mr-1"></i>
+							{{ time .registered_on }}
+						</div>
+						<div class="text-sm text-gray-400" title="Latest activity">
+							<i class="fas fa-sign-out-alt mr-1"></i>
+							{{ time .latest_activity }}
+						</div>
+					</div>
+				</a>
+			{{ end }}
+		{{ end }}
+	</div>
+{{ end }}
+{{ end }}

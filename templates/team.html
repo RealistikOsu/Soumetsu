@@ -1,0 +1,182 @@
+{{/*###
+Handler=/team
+Include=user_group.html
+KyutGrill=team2.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/team2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-6xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-users-cog text-yellow-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Team" }}</h1>
+				<p class="text-gray-400">{{ .T "Meet the people behind RealistikOsu!" }}</p>
+			</div>
+		</div>
+
+		<!-- Hall of Fame Header -->
+		<div class="card text-center mb-8">
+			<h2 class="text-4xl font-display font-bold mb-4">{{ .T "Hall of Fame" }}</h2>
+			<p class="text-xl text-gray-300">{{ .T "This is a list of the outstanding individuals who keep RealistikOsu! the server and its community operating." }}</p>
+		</div>
+
+		<!-- Developer Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-code text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Developer Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "Developers are responsible for all the server side magic. They do all the behind the scene technical things." }}<br>
+				{{ .T "They have full power over the server as they run it. Developers have a blue name in the in-game chat." }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 2) }}
+		</div>
+
+		<!-- Administrator Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-tasks text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Administrator Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "Administrator are all-mighty powerful beings that are here to ensure everything runs smoothly. This can be anything from organising events to hunting hackers. They are cool people ready to help you." }}<br>
+				{{ .T "They have power in numerous sectors such as the discord server." | html }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 1018) }}
+		</div>
+
+		<!-- Community Management Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-envelope text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Community Management Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "Community Managers deal with bans, silences, name changes and pretty much everything that has to do with the community." }}<br>
+				{{ .T "They take care of our Discord server and reply to emails sent to the support services (Discord)." | html }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 1020) }}
+		</div>
+
+		<!-- Chat Moderation Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-comments text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Chat Moderation Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "Chat moderators manage the chat to make sure The Law&trade; (the rules) is respected." | html }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 30) }}
+		</div>
+
+		<!-- Beatmap Appreciation Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fas fa-play-circle text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "Beatmap Appreciation Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "BATs play beatmaps in the ranking queue and decide whether they are good enough to be ranked or not." }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 5) }}
+		</div>
+
+		<!-- Social Media Team -->
+		<div class="card mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-3">
+					<i class="fab fa-twitter text-primary text-2xl"></i>
+					<h3 class="text-2xl font-display font-bold">{{ .T "The Social Media Team" }}</h3>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+			<p class="text-gray-300 mb-6 leading-relaxed">
+				{{ .T "The Social Media Team is responsible for anything regarding RealistikOsu's presence on social medias." }}
+			</p>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 1017) }}
+		</div>
+
+		<!-- Special Credits -->
+		<div class="card">
+			<h1 class="text-4xl font-display font-bold text-center mb-4">{{ .T "Special credits" }}</h1>
+			<p class="text-center text-gray-300 mb-6">{{ .T "Here's a list of people who helped with RealistikOsu and made everything possible!" }}</p>
+			
+			<ul class="space-y-4 text-gray-300">
+				<li class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+					<p class="font-semibold mb-2">{{ .T "<b>Franc[e]sco</b> and <b>cmyui</b> for the relax PP calculator!" | html }}</p>
+					<p class="text-sm text-gray-400">
+						The relax calculator (originally created by <a href="https://github.com/Francesco149/oppai-ng" class="text-primary hover:underline">Franc[e]sco</a> and modified by cmyui for relax)
+						is licensed under GPL v3. Their implementation can be found <a href="https://github.com/osuAkatsuki/akatsuki-pp" class="text-primary hover:underline">here</a>.
+					</p>
+				</li>
+				<li class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+					<p class="font-semibold mb-2">{{ .T "<a href='https://ripple.moe' class='text-primary hover:underline'><strong>Ripple</strong></a>, for providing a solid base for RealistikOsu to work off!" | html }}</p>
+					<p class="text-sm text-gray-400">
+						Without Ripple's generous policy to <a href="https://github.com/osuripple" class="text-primary hover:underline">open source</a>, it is unlikely RealistikOsu would have even been started!
+					</p>
+				</li>
+				<li class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+					<p class="font-semibold mb-2">{{ .T "<a href='/users/2415' class='text-primary hover:underline'><strong>lyandrxw</strong></a>, for designing the new RealistikOsu logos." | html }}</p>
+				</li>
+				<li class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+					<p class="font-semibold">{{ .T "<a id='everyone' class='text-primary hover:underline cursor-pointer'><strong>Everyone</strong></a> who has supported RealistikOsu through their generous donations!" | html }}</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	{{ $ := . }}
+	<!-- Modal for supporters -->
+	<div id="supporters-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+		<div class="modal-overlay" onclick="document.getElementById('supporters-modal').classList.add('hidden')"></div>
+		<div class="modal-content max-w-4xl max-h-[90vh] overflow-y-auto">
+			<h2 class="text-3xl font-display font-bold mb-6">{{ .T "Our amazing supporters!" }}</h2>
+			{{ template "userGroup" (.Get "badges/members?id=%d" 1002) }}
+			<div class="text-center mt-6 pt-6 border-t border-dark-border">
+				<p class="font-semibold mb-2">{{ $.T "Do you want to be in this list?" }}</p>
+				<a href="/donate" class="btn-primary">{{ $.T "Support us with a donation!" }}</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.getElementById('everyone')?.addEventListener('click', function() {
+		document.getElementById('supporters-modal').classList.remove('hidden');
+	});
+</script>
+{{ end }}

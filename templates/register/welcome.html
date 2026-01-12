@@ -1,0 +1,42 @@
+{{/*###
+KyutGrill=register.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+<div class="relative min-h-screen flex items-center justify-center py-12 px-4">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/register.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal-overlay">
+		<div class="modal-content">
+			<!-- Title -->
+			<h1 class="text-3xl font-display font-bold mb-2">Waiting for Verification</h1>
+			<p class="text-gray-400 mb-8">yeah your account was created. but you should verify it first</p>
+
+			<!-- Instructions -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+				<!-- Left placeholder -->
+				<div class="bg-dark-bg rounded-lg border border-dark-border p-6 h-48 flex items-center justify-center">
+					<span class="text-gray-500 text-sm">Instruction Image/Content</span>
+				</div>
+
+				<!-- Right placeholder -->
+				<div class="bg-dark-bg rounded-lg border border-dark-border p-6 h-48 flex items-center justify-center">
+					<span class="text-gray-500 text-sm">Instruction Image/Content</span>
+				</div>
+			</div>
+
+			<!-- Instructions Text -->
+			<div class="space-y-4 text-gray-300 text-sm">
+				<p>Creating a shortcut and add start in "-devserver ussr.cl" and start it</p>
+				<p>Sign in with account you created in this website and yeah it's verification finished</p>
+			</div>
+		</div>
+	</div>
+</div>
+{{ end }}

@@ -1,0 +1,113 @@
+{{/*###
+Handler=/settings
+KyutGrill=settings2.jpg
+Include=menu.html
+MinPrivileges=2
+*/}}
+{{ define "tpl" }}
+<div class="container mx-auto px-4">
+	<div class="flex flex-col md:flex-row gap-6">
+		{{ template "settingsSidebar" . }}
+		<div class="flex-1">
+			<div class="card">
+				<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+					<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+						<i class="fas fa-cog text-primary text-xl"></i>
+					</div>
+					<div>
+						<h2 class="text-2xl font-display font-bold text-white">{{ .T "Profile Settings" }}</h2>
+						<p class="text-sm text-gray-400">{{ .T "Manage your account preferences" }}</p>
+					</div>
+				</div>
+
+				{{ $d := .Get "users/self/settings" }}
+				{{ if not $d }}
+				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 flex items-start gap-3">
+					<i class="fas fa-exclamation-circle text-red-400 mt-1"></i>
+					<div>
+						<div class="font-semibold text-red-300 mb-1">{{ .T "Error loading settings" }}</div>
+						<p class="text-sm text-gray-300">{{ .T "Could not load your settings. Please try again later." }}</p>
+					</div>
+				</div>
+				{{ else }}
+				<form class="space-y-6" method="post">
+					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2">{{ .T "General" }}</h3>
+					
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">{{ .T "Username" }}</label>
+							<input type="text" value="{{ .Context.User.Username }}" disabled class="input-field bg-dark-bg/50 cursor-not-allowed opacity-60">
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">{{ .T "Email address" }}</label>
+							<input type="email" value="{{ $d.email }}" placeholder="{{ .T "Email address" }}" disabled class="input-field bg-dark-bg/50 cursor-not-allowed opacity-60">
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">{{ .T "Alternative username (cannot be used for login)" }}</label>
+							<input type="text" name="username_aka" value="{{ $d.username_aka }}" placeholder="{{ .T "Also known as..." }}" class="input-field">
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">{{ .T "Favourite mode" }}</label>
+							<select name="favourite_mode" data-cast="int" class="input-field">
+								{{ range $k, $v := modes }}
+									<option value="{{ $k }}" {{ if eq (int $d.favourite_mode) $k }}selected{{ end }}>{{ $v }}</option>
+								{{ end }}
+							</select>
+						</div>
+					</div>
+
+					{{ if has .Context.User.Privileges 4 }}
+					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">{{ .T "Custom badge" }}</h3>
+					<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 flex items-start gap-3">
+						<i class="fas fa-exclamation-triangle text-orange-400 mt-1"></i>
+						<p class="text-sm text-gray-300">{{ .T "<b>Do not use offensive badges and do not pretend to be someone else with your badge.</b> If you abuse the badges system, you'll be silenced and you won't be able to edit your custom badge anymore." | html}}</p>
+					</div>
+					{{ $cb := $d.custom_badge }}
+					<label class="flex items-center gap-3 cursor-pointer">
+						<input type="checkbox" name="custom_badge.show" {{ if and $cb $cb.show }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
+						<span class="text-gray-300">{{ .T "Enable" }}</span>
+					</label>
+					<div id="custom-badge-fields" {{ if not (and $cb $cb.show) }}style="display: none"{{ end }} class="mt-4 space-y-4">
+						<p class="text-sm text-gray-400"><a href="https://fontawesome.com/icons" target="_blank" class="text-primary hover:underline">{{ .T "Icon reference" }}</a></p>
+						<div class="grid grid-cols-2 gap-4">
+							<div class="text-center">
+								<i class="fas {{ if and $cb $cb.icon }}fa-{{ $cb.icon }}{{ else }}fa-question{{ end }} text-4xl text-primary mb-2" id="badge-icon"></i><br>
+								<b id="badge-name" class="text-white">{{ if and $cb $cb.name }}{{ $cb.name }}{{ end }}</b>
+							</div>
+							<div class="space-y-2">
+								<input type="text" name="custom_badge.icon" placeholder="plane, chevron-left, hand-spock..." value="{{ if and $cb $cb.icon }}{{ $cb.icon }}{{ end }}" class="input-field">
+								<input type="text" name="custom_badge.name" placeholder="{{ .T "Dinosaur, oompa-loompa, cool guy..." }}" value="{{ if and $cb $cb.name }}{{ $cb.name }}{{ end }}" class="input-field">
+							</div>
+						</div>
+					</div>
+					{{ end }}
+
+					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">{{ .T "Playstyle" }}</h3>
+					<div class="grid grid-cols-3 gap-4" id="checkbox-grid">
+						{{ $ := . }}
+						{{ range $k, $v := styles }}
+							{{ $checked := band (int $d.play_style) (shift 1 $k) }}
+							<label class="flex items-center gap-3 cursor-pointer">
+								<input type="checkbox" data-sv="{{ shift 1 $k }}" {{ if $checked }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
+								<span class="text-gray-300">{{ $.T $v }}</span>
+							</label>
+						{{ end }}
+					</div>
+					
+					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">{{ .T "Disable Comments?" }}</h3>
+					<label class="flex items-center gap-3 cursor-pointer">
+						<input type="checkbox" name="disabled_comments" {{ if $d.disabled_comments }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
+						<span class="text-gray-300">{{ .T "Disable comments on my profile" }}</span>
+					</label>
+
+					<div class="border-t border-dark-border pt-6 flex justify-end">
+						<button type="submit" class="btn-primary">{{ .T "Save" }}</button>
+					</div>
+					{{ ieForm .Gin }}
+				</form>
+				{{ end }}
+			</div>
+		</div>
+	</div>
+</div>
+{{ end }}

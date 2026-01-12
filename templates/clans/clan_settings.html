@@ -1,0 +1,136 @@
+{{/*###
+Handler=/settings/clans/manage
+KyutGrill=settings2.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+{{ $ := . }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-4xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-cog text-purple-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Manage Clan" }}</h1>
+				<p class="text-gray-400">{{ .T "Update your clan settings" }}</p>
+			</div>
+		</div>
+
+		{{ $d := qb "SELECT user, clan, perms FROM user_clans WHERE user = ? AND perms = 8 LIMIT 1" .Context.User.ID }}
+		{{ $g := or $d.clan.Int -1 }}
+		{{ if $d }}
+			<div class="card mb-6">
+				<h3 class="text-xl font-semibold mb-6">{{ .T "Clan Credentials" }}</h3>
+				
+				{{ $o := (.Get "clans/isclan?uid=%d" .Context.User.ID).clan.clan }}
+				{{ $c := qb "SELECT * FROM clans WHERE id = ? LIMIT 1" $o }}
+				{{ $tag := or $c.tag.String "" }}
+				{{ $name := or $c.name.String "" }}
+				{{ $desc := or $c.description.String "" }}
+				{{ $icon := or $c.icon.String "" }}
+				
+				<form id="register-form" method="post" enctype="multipart/form-data" action="/settings/clan" class="space-y-6">
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clan Name" }}</label>
+						<input type="text" 
+							name="name" 
+							placeholder="{{ $.T "Clan Name" }}"
+							value="{{ $name }}"
+							class="input-field"
+							tabindex="1">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clantag (2 to 6 characters)" }}</label>
+						<input type="text" 
+							name="tag" 
+							placeholder="{{ $.T "Clantag" }}"
+							value="{{ $tag }}"
+							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
+							class="input-field"
+							tabindex="2">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">{{ .T "Description" }}</label>
+						<textarea name="description" 
+							rows="4"
+							class="input-field resize-none"
+							tabindex="3">{{ $desc }}</textarea>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Icon URL (Optional)" }}</label>
+						<input type="text" 
+							name="icon" 
+							placeholder="{{ $.T "Icon URL" }}"
+							value="{{ $icon }}"
+							class="input-field"
+							tabindex="4">
+					</div>
+
+					{{ ieForm .Gin }}
+
+					<div class="flex justify-end pt-4 border-t border-dark-border">
+						<button type="submit" 
+							form="register-form" 
+							class="btn-primary"
+							tabindex="5">
+							{{ .T "Save" }}
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<div class="card">
+				<h2 class="text-2xl font-display font-bold mb-6">{{ .T "Invite" }}</h2>
+				
+				<div class="space-y-4">
+					{{ with .Get "clans/getinvite?id=%d" .Context.User.ID }}
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">Invite Link</label>
+							<div class="flex gap-2">
+								<input type="text" 
+									value="https://ussr.pl/clans/invites/{{ .invite }}"
+									readonly
+									class="input-field flex-1 bg-dark-bg">
+								<button onclick="navigator.clipboard.writeText('https://ussr.pl/clans/invites/{{ .invite }}')" class="btn-secondary">
+									<i class="fas fa-copy"></i>
+								</button>
+							</div>
+						</div>
+					{{ end }}
+
+					<div class="flex gap-3 pt-4 border-t border-dark-border">
+						<form action="/settings/clans/invite" method="POST" class="flex-1">
+							{{ ieForm .Gin }}
+							<button type="submit" class="btn-secondary bg-green-600/20 border-green-500/50 hover:bg-green-600/30 w-full">
+								{{ $.T "Generate a new invite!" }}
+							</button>
+						</form>
+						<form action="/clans/{{ $o }}/leave" method="POST" class="flex-1">
+							{{ ieForm .Gin }}
+							<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
+								{{ $.T "Disband Clan!" }}
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		{{ else }}
+			<div class="card text-center">
+				<p class="text-xl text-gray-300">{{ $.T "You can only manage a clan if you own it!" }}</p>
+			</div>
+		{{ end }}
+	</div>
+</div>
+{{ end }}

@@ -1,0 +1,111 @@
+{{/*###
+KyutGrill=clans.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/clans.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4 max-w-2xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+				<i class="fas fa-shield-alt text-purple-400 text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Create Clan" }}</h1>
+				<p class="text-gray-400">{{ .T "Start your own community" }}</p>
+			</div>
+		</div>
+
+		{{ $regEnabled := qb "SELECT value_int FROM system_settings WHERE name = 'ccreation_enabled'" }}
+		{{ $isClan := qb "SELECT user, clan FROM user_clans WHERE user = ?" .Context.User.ID }}
+		
+		{{ if not .Context.User.ID }}
+			<div class="card">
+				<p class="text-gray-300 text-center">{{ .T "Hey! You need to login first!" }}</p>
+			</div>
+		{{ else if not ($regEnabled.value_int.Bool) }}
+			<div class="card border-red-500/50 bg-red-900/20">
+				<p class="text-red-300 text-center">{{ .T "You may not currently create clans..." }}</p>
+			</div>
+		{{ else if ($isClan) }}
+			<div class="card">
+				<p class="text-gray-300 text-center">{{ .T "Seems like you're already in the clan." }}</p>
+			</div>
+		{{ else }}
+			<div class="card">
+				<h3 class="text-xl font-semibold mb-6">{{ .T "Clan Details" }}</h3>
+
+				<form id="register-form" method="post" action="/clans/create" class="space-y-6">
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">
+							{{ .T "Your clan may contain alphanumeric characters and these symbols <code>_[]-</code>" | html }}
+						</label>
+						<input type="text" 
+							name="name" 
+							placeholder="{{ .T "Clan Name" }}" 
+							value="{{ .FormData.name }}" 
+							required 
+							pattern="^[A-Za-z0-9 '_\[\]-]{2,15}$"
+							class="input-field"
+							tabindex="1">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">
+							{{ .T "Clan Tag (2-6 characters)" }}
+						</label>
+						<input type="text" 
+							name="tag" 
+							placeholder="{{ .T "Clan Tag" }}" 
+							value="{{ .FormData.tag }}" 
+							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
+							class="input-field"
+							tabindex="2">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">
+							{{ .T "About Clan (Optional)" }}
+						</label>
+						<textarea name="description" 
+							placeholder="{{ .T "About Clan" }}" 
+							rows="4"
+							class="input-field resize-none"
+							tabindex="3">{{ .FormData.description }}</textarea>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">
+							{{ .T "Clan Logo [Link] (Optional)" }}
+						</label>
+						<input type="url" 
+							name="icon" 
+							placeholder="{{ .T "Clan Logo" }}" 
+							value="{{ .FormData.icon }}"
+							class="input-field"
+							tabindex="4">
+					</div>
+
+					{{ ieForm .Gin }}
+
+					<div class="flex justify-end">
+						<button type="submit" 
+							form="register-form" 
+							class="btn-primary"
+							tabindex="5">
+							{{ .T "Create Clan" }}
+						</button>
+					</div>
+				</form>
+			</div>
+		{{ end }}
+	</div>
+</div>
+{{ end }}
