@@ -1,4 +1,3 @@
-// Package beatmap provides beatmap data services.
 package beatmap
 
 import (
@@ -11,17 +10,14 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/models"
 )
 
-// Service provides beatmap data operations.
 type Service struct {
 	config *config.Config
 }
 
-// NewService creates a new beatmap service.
 func NewService(cfg *config.Config) *Service {
 	return &Service{config: cfg}
 }
 
-// GetBeatmapSet fetches a beatmap set from the mirror API.
 func (s *Service) GetBeatmapSet(ctx context.Context, setID string) (*models.BeatmapSet, error) {
 	resp, err := http.Get(s.config.Beatmap.MirrorAPIURL + "/s/" + setID)
 	if err != nil {
@@ -42,7 +38,6 @@ func (s *Service) GetBeatmapSet(ctx context.Context, setID string) (*models.Beat
 	return &bset, nil
 }
 
-// GetBeatmap fetches a single beatmap from the mirror API.
 func (s *Service) GetBeatmap(ctx context.Context, beatmapID string) (*models.Beatmap, error) {
 	resp, err := http.Get(s.config.Beatmap.MirrorAPIURL + "/b/" + beatmapID)
 	if err != nil {
@@ -63,7 +58,6 @@ func (s *Service) GetBeatmap(ctx context.Context, beatmapID string) (*models.Bea
 	return &beatmap, nil
 }
 
-// GetDownloadURL returns the download URL for a beatmap set.
 func (s *Service) GetDownloadURL(setID string) string {
 	return s.config.Beatmap.DownloadMirrorURL + "/" + setID
 }

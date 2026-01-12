@@ -16,7 +16,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// PasswordHandler handles password-related requests.
 type PasswordHandler struct {
 	config      *config.Config
 	authService *auth.Service
@@ -27,7 +26,6 @@ type PasswordHandler struct {
 	db          *mysql.DB
 }
 
-// NewPasswordHandler creates a new password handler.
 func NewPasswordHandler(
 	cfg *config.Config,
 	authService *auth.Service,
@@ -48,7 +46,6 @@ func NewPasswordHandler(
 	}
 }
 
-// ResetPage renders the password reset request page.
 func (h *PasswordHandler) ResetPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -66,7 +63,6 @@ func (h *PasswordHandler) ResetPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Reset handles password reset request submission.
 func (h *PasswordHandler) Reset(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -105,7 +101,6 @@ func (h *PasswordHandler) Reset(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// ResetContinuePage renders the password reset continuation page.
 func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
 	if key == "" {
@@ -134,7 +129,6 @@ func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// ResetContinue handles password reset form submission.
 func (h *PasswordHandler) ResetContinue(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.templates.Render(w, "empty.html", &response.TemplateData{
@@ -156,7 +150,6 @@ func (h *PasswordHandler) ResetContinue(w http.ResponseWriter, r *http.Request) 
 	err = h.authService.ResetPassword(r.Context(), key, password)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
-			// Need to show the form again with error
 			username, _ := h.authService.GetPasswordResetUsername(r.Context(), key)
 			h.templates.Render(w, "pwreset/continue.html", &response.TemplateData{
 				TitleBar: "Reset Password",
@@ -177,7 +170,6 @@ func (h *PasswordHandler) ResetContinue(w http.ResponseWriter, r *http.Request) 
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-// ChangePage renders the change password page.
 func (h *PasswordHandler) ChangePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -185,7 +177,6 @@ func (h *PasswordHandler) ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user's email for display
 	var email string
 	h.db.QueryRowContext(r.Context(), "SELECT email FROM users WHERE id = ?", reqCtx.User.ID).Scan(&email)
 
@@ -198,7 +189,6 @@ func (h *PasswordHandler) ChangePage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Change handles password change form submission.
 func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -217,7 +207,6 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate CSRF
 	if ok, _ := h.csrf.Validate(reqCtx.User.ID, r.FormValue("csrf")); !ok {
 		h.changeResp(w, r, reqCtx.User.ID, models.NewError("Your session has expired. Please try redoing what you were trying to do."))
 		return
@@ -244,7 +233,6 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update session with new password hash if password was changed
 	if newPassword != "" {
 		sess.Values["pw"] = crypto.MD5(newPassword)
 	}
@@ -253,8 +241,6 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/password", http.StatusFound)
 }
-
-// Helper methods
 
 func (h *PasswordHandler) resetResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
 	h.templates.Render(w, "pwreset/request.html", &response.TemplateData{

@@ -1,4 +1,3 @@
-// Package app provides route registration.
 package app
 
 import (
@@ -11,11 +10,9 @@ import (
 	apimiddleware "github.com/RealistikOsu/soumetsu/internal/api/middleware"
 )
 
-// Routes sets up and returns the chi router with all routes registered.
 func (a *App) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	// Global middleware
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(apimiddleware.StructuredLogger())
@@ -26,16 +23,13 @@ func (a *App) Routes() chi.Router {
 	r.Use(apimiddleware.SessionInitializer(a.SessionStore, a.DB))
 	r.Use(a.RateLimiter.Middleware())
 
-	// Static files
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "web/static/favicon.ico")
 	})
 
-	// Home page
 	r.Get("/", a.PagesHandler.HomePage)
 
-	// Auth routes
 	r.Group(func(r chi.Router) {
 		r.Use(apimiddleware.RequireGuest)
 		r.Get("/login", a.AuthHandler.LoginPage)
@@ -48,13 +42,11 @@ func (a *App) Routes() chi.Router {
 
 	r.Get("/logout", a.AuthHandler.Logout)
 
-	// Password reset routes
 	r.Get("/password-reset", a.PasswordHandler.ResetPage)
 	r.Post("/password-reset", a.PasswordHandler.Reset)
 	r.Get("/password-reset/continue", a.PasswordHandler.ResetContinuePage)
 	r.Post("/password-reset/continue", a.PasswordHandler.ResetContinue)
 
-	// Legacy password reset redirects
 	r.Post("/pwreset", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/password-reset", http.StatusTemporaryRedirect)
 	})
@@ -70,11 +62,9 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, "/password-reset/continue", http.StatusTemporaryRedirect)
 	})
 
-	// Protected routes (require authentication)
 	r.Group(func(r chi.Router) {
 		r.Use(apimiddleware.RequireAuth)
 
-		// Settings routes
 		r.Get("/settings", a.UserHandler.SettingsPage)
 		r.Get("/settings/password", a.PasswordHandler.ChangePage)
 		r.Post("/settings/password", a.PasswordHandler.Change)
@@ -86,7 +76,6 @@ func (a *App) Routes() chi.Router {
 		r.Get("/settings/discord", a.UserHandler.DiscordPage)
 		r.Get("/settings/discord/unlink", a.UserHandler.UnlinkDiscord)
 
-		// Legacy settings redirects
 		r.Post("/settings/profbanner/{type}", func(w http.ResponseWriter, r *http.Request) {
 			routeType := chi.URLParam(r, "type")
 			http.Redirect(w, r, "/settings/profile-banner/"+routeType, http.StatusTemporaryRedirect)
@@ -98,17 +87,15 @@ func (a *App) Routes() chi.Router {
 			http.Redirect(w, r, "/settings/discord/redirect", http.StatusMovedPermanently)
 		})
 
-		// Clan management routes
 		r.Get("/clans/create", a.ClanHandler.CreatePage)
 		r.Post("/clans/create", a.ClanHandler.Create)
 		r.Post("/clans/{id}/leave", a.ClanHandler.Leave)
 		r.Post("/clans/{id}/disband", a.ClanHandler.Disband)
-		r.Post("/settings/clans/invite", a.ClanHandler.UpdateClan) // CreateInvite is handled by UpdateClan
+		r.Post("/settings/clans/invite", a.ClanHandler.UpdateClan)
 		r.Post("/settings/clans/kick", a.ClanHandler.Kick)
 		r.Get("/settings/clans/manage", a.ClanHandler.ManagePage)
 		r.Post("/settings/clans/manage", a.ClanHandler.UpdateClan)
 
-		// Legacy clan route redirects
 		r.Post("/settings/clan", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/settings/clans/invite", http.StatusTemporaryRedirect)
 		})
@@ -117,11 +104,9 @@ func (a *App) Routes() chi.Router {
 		})
 	})
 
-	// Public clan routes
 	r.Get("/clans/{id}", a.ClanHandler.ClanPage)
 	r.Get("/clans/invites/{inv}", a.ClanHandler.JoinInvite)
 
-	// Legacy clan route redirects
 	r.Get("/c/{cid}", func(w http.ResponseWriter, r *http.Request) {
 		cid := chi.URLParam(r, "cid")
 		http.Redirect(w, r, "/clans/"+cid, http.StatusMovedPermanently)
@@ -135,11 +120,9 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, "/clans/invites/"+inv, http.StatusMovedPermanently)
 	})
 
-	// User profile routes
 	r.Get("/u/{id}", a.UserHandler.Profile)
 	r.Get("/users/{id}", a.UserHandler.Profile)
 
-	// Legacy user route redirects
 	r.Get("/rx/u/{user}", func(w http.ResponseWriter, r *http.Request) {
 		user := chi.URLParam(r, "user")
 		http.Redirect(w, r, "/u/"+user+"?rx=1", http.StatusMovedPermanently)
@@ -149,24 +132,19 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, "/u/"+user+"?rx=2", http.StatusMovedPermanently)
 	})
 
-	// Beatmap routes
 	r.Get("/b/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		http.Redirect(w, r, "/beatmaps/"+id, http.StatusMovedPermanently)
 	})
 	r.Get("/beatmaps/{id}", a.BeatmapHandler.BeatmapPage)
 	r.Get("/beatmapsets/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// This should redirect to the latest beatmap in the set
-		// For now, just redirect to beatmaps
 		id := chi.URLParam(r, "id")
 		http.Redirect(w, r, "/beatmaps/"+id, http.StatusMovedPermanently)
 	})
 	r.Get("/beatmapsets/{id}/download", a.BeatmapHandler.DownloadBeatmap)
 
-	// Simple pages (loaded from template configs)
 	a.loadSimplePages(r)
 
-	// Legacy route redirects
 	r.Get("/rank_request", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/rank-request", http.StatusMovedPermanently)
 	})
@@ -194,16 +172,13 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, a.Config.Discord.ServerURL, http.StatusMovedPermanently)
 	})
 
-	// 404 handler
 	r.NotFound(a.ErrorsHandler.NotFound)
 	r.MethodNotAllowed(a.ErrorsHandler.MethodNotAllowed)
 
 	return r
 }
 
-// loadSimplePages loads simple pages from template configurations.
 func (a *App) loadSimplePages(r chi.Router) {
-	// Get pages from template engine
 	simplePages := a.TemplateEngine.GetSimplePages()
 	for _, sp := range simplePages {
 		if sp.Handler == "" {
@@ -240,11 +215,9 @@ func (a *App) loadSimplePages(r chi.Router) {
 	}
 }
 
-// sessionsMiddleware wraps gorilla sessions for chi.
 func sessionsMiddleware(store apimiddleware.SessionStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Session is handled by SessionInitializer middleware
 			next.ServeHTTP(w, r)
 		})
 	}

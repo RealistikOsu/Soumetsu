@@ -17,7 +17,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// ClanHandler handles clan-related requests.
 type ClanHandler struct {
 	config      *config.Config
 	clanService *clan.Service
@@ -27,7 +26,6 @@ type ClanHandler struct {
 	db          *mysql.DB
 }
 
-// NewClanHandler creates a new clan handler.
 func NewClanHandler(
 	cfg *config.Config,
 	clanService *clan.Service,
@@ -46,13 +44,11 @@ func NewClanHandler(
 	}
 }
 
-// ClanPageData contains data for the clan page.
 type ClanPageData struct {
 	ClanID    int
 	ClanParam string
 }
 
-// ClanPage renders a clan page.
 func (h *ClanHandler) ClanPage(w http.ResponseWriter, r *http.Request) {
 	clanParam := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanParam)
@@ -67,7 +63,6 @@ func (h *ClanHandler) ClanPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// CreatePage renders the clan creation page.
 func (h *ClanHandler) CreatePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -78,7 +73,6 @@ func (h *ClanHandler) CreatePage(w http.ResponseWriter, r *http.Request) {
 	h.createResp(w, r)
 }
 
-// Create handles clan creation form submission.
 func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -120,7 +114,6 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/clans/"+strconv.FormatInt(clanID, 10), http.StatusFound)
 }
 
-// Leave handles leaving a clan.
 func (h *ClanHandler) Leave(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -154,7 +147,6 @@ func (h *ClanHandler) Leave(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// Disband handles disbanding a clan (owner only).
 func (h *ClanHandler) Disband(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -188,7 +180,6 @@ func (h *ClanHandler) Disband(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// JoinInvite handles joining a clan via invite link.
 func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -196,7 +187,6 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if banned
 	if reqCtx.User.Privileges&1 != 1 {
 		h.templates.Forbidden(w, r)
 		return
@@ -227,7 +217,6 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/clans/"+strconv.Itoa(clanID), http.StatusFound)
 }
 
-// Kick handles kicking a member from a clan.
 func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -267,7 +256,6 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
 }
 
-// ManagePage renders the clan management page.
 func (h *ClanHandler) ManagePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -280,7 +268,6 @@ func (h *ClanHandler) ManagePage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateClan handles clan settings update (and invite generation).
 func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -301,14 +288,12 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if this is an update or just invite generation
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	icon := r.FormValue("icon")
 	tag := r.FormValue("tag")
 
 	if name != "" || description != "" || icon != "" || tag != "" {
-		// Update clan settings
 		input := clan.UpdateInput{
 			Name:        name,
 			Description: description,
@@ -329,7 +314,6 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Generate new invite
 		_, err = h.clanService.CreateInvite(r.Context(), reqCtx.User.ID)
 		if err != nil {
 			if svcErr, ok := err.(*services.ServiceError); ok {
@@ -347,8 +331,6 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
 }
-
-// Helper methods
 
 func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
 	h.templates.Render(w, "clans/create.html", &response.TemplateData{

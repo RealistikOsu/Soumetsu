@@ -17,7 +17,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// UserHandler handles user-related requests.
 type UserHandler struct {
 	config      *config.Config
 	userService *user.Service
@@ -27,7 +26,6 @@ type UserHandler struct {
 	db          *mysql.DB
 }
 
-// NewUserHandler creates a new user handler.
 func NewUserHandler(
 	cfg *config.Config,
 	userService *user.Service,
@@ -46,14 +44,12 @@ func NewUserHandler(
 	}
 }
 
-// Profile renders a user profile page.
 func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
 	userParam := chi.URLParam(r, "id")
 	if userParam == "" {
 		userParam = chi.URLParam(r, "user")
 	}
 
-	// Check if it's a numeric ID or username
 	_, err := strconv.Atoi(userParam)
 	isNumeric := err == nil
 
@@ -72,7 +68,6 @@ func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "profile.html", data)
 }
 
-// SettingsPage renders the settings page.
 func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -85,7 +80,6 @@ func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ChangeUsernamePage renders the change username page.
 func (h *UserHandler) ChangeUsernamePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -98,7 +92,6 @@ func (h *UserHandler) ChangeUsernamePage(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// ChangeUsername handles username change form submission.
 func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -119,7 +112,6 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate CSRF
 	if ok, _ := h.csrf.Validate(reqCtx.User.ID, r.FormValue("csrf")); !ok {
 		h.addMessage(sess, models.NewError("Your session has expired. Please try redoing what you were trying to do."))
 		sess.Save(r, w)
@@ -149,7 +141,6 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings/change-username", http.StatusFound)
 }
 
-// AvatarPage renders the avatar upload page.
 func (h *UserHandler) AvatarPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -162,7 +153,6 @@ func (h *UserHandler) AvatarPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UploadAvatar handles avatar upload.
 func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -176,7 +166,6 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse multipart form (max 10MB)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		h.addMessage(sess, models.NewError("File too large or invalid."))
 		sess.Save(r, w)
@@ -210,7 +199,6 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings/avatar", http.StatusFound)
 }
 
-// ProfileBackgroundPage renders the profile background settings page.
 func (h *UserHandler) ProfileBackgroundPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -223,7 +211,6 @@ func (h *UserHandler) ProfileBackgroundPage(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// SetProfileBackground handles profile background setting.
 func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -247,7 +234,7 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 	bgType := chi.URLParam(r, "type")
 	value := r.FormValue("value")
 	if value == "" {
-		value = r.FormValue("bg") // fallback for legacy form field
+		value = r.FormValue("bg")
 	}
 
 	err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, bgType, value)
@@ -267,7 +254,6 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/settings/profilebackground", http.StatusFound)
 }
 
-// DiscordPage renders the Discord integration page.
 func (h *UserHandler) DiscordPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -280,7 +266,6 @@ func (h *UserHandler) DiscordPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UnlinkDiscord handles Discord account unlinking.
 func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -310,8 +295,6 @@ func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/discord", http.StatusFound)
 }
-
-// Helper methods
 
 func (h *UserHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	sess, _ := h.store.Get(r, "session")

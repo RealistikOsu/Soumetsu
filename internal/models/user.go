@@ -6,7 +6,6 @@ import (
 	"github.com/RealistikOsu/RealistikAPI/common"
 )
 
-// User represents a user in the database.
 type User struct {
 	ID              int                    `db:"id"`
 	Username        string                 `db:"username"`
@@ -22,7 +21,6 @@ type User struct {
 	Coins           int                    `db:"coins"`
 }
 
-// SessionUser represents a user's session data.
 type SessionUser struct {
 	ID         int
 	Username   string
@@ -33,29 +31,22 @@ type SessionUser struct {
 	Coins      int
 }
 
-// IsLoggedIn returns true if the user is authenticated.
 func (u SessionUser) IsLoggedIn() bool {
 	return u.ID != 0
 }
 
-// IsBanned returns true if the user is banned.
 func (u SessionUser) IsBanned() bool {
 	return u.Privileges&1 == 0
 }
 
-// HasPrivilege checks if the user has a specific privilege.
 func (u SessionUser) HasPrivilege(priv common.UserPrivileges) bool {
 	return u.Privileges&priv == priv
 }
 
-// CanManageUsers returns true if the user can manage other users.
 func (u SessionUser) CanManageUsers() bool {
 	return u.HasPrivilege(common.AdminPrivilegeManageUsers)
 }
 
-// OnlyUserPublic returns a SQL clause for filtering users based on visibility.
-// If the user can manage users, it returns "1" (show all).
-// Otherwise, it returns a clause that only shows public users or the user themselves.
 func (u SessionUser) OnlyUserPublic() string {
 	if u.CanManageUsers() {
 		return "1"
@@ -63,19 +54,16 @@ func (u SessionUser) OnlyUserPublic() string {
 	return fmt.Sprintf("(users.privileges & 1 = 1 OR users.id = '%d')", u.ID)
 }
 
-// ClanMembership represents a user's clan membership.
 type ClanMembership struct {
 	UserID    int `db:"user"`
 	ClanID    int `db:"clan"`
 	ClanPerms int `db:"perms"`
 }
 
-// IsClanOwner returns true if the user owns the clan.
 func (m ClanMembership) IsClanOwner() bool {
 	return m.ClanPerms == 8
 }
 
-// UserStats represents user statistics for a game mode.
 type UserStats struct {
 	UserID         int     `db:"id"`
 	RankedScore    int64   `db:"ranked_score"`

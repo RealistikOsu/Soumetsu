@@ -10,7 +10,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config holds all configuration values for the application.
 type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
@@ -21,7 +20,6 @@ type Config struct {
 	Security SecurityConfig
 }
 
-// AppConfig holds application-level configuration.
 type AppConfig struct {
 	Port         int
 	Env          string
@@ -35,7 +33,6 @@ type AppConfig struct {
 	BannersPath  string
 }
 
-// DatabaseConfig holds MySQL database configuration.
 type DatabaseConfig struct {
 	Host string
 	Port int
@@ -44,7 +41,6 @@ type DatabaseConfig struct {
 	Name string
 }
 
-// DSN returns the database connection string.
 func (c DatabaseConfig) DSN() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		c.User,
@@ -55,7 +51,6 @@ func (c DatabaseConfig) DSN() string {
 	)
 }
 
-// RedisConfig holds Redis configuration.
 type RedisConfig struct {
 	MaxConnections int
 	NetworkType    string
@@ -66,12 +61,10 @@ type RedisConfig struct {
 	UseSSL         bool
 }
 
-// Addr returns the Redis address string.
 func (c RedisConfig) Addr() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 
-// MailgunConfig holds email service configuration.
 type MailgunConfig struct {
 	Domain    string
 	APIKey    string
@@ -79,7 +72,6 @@ type MailgunConfig struct {
 	From      string
 }
 
-// DiscordConfig holds Discord integration configuration.
 type DiscordConfig struct {
 	ServerURL       string
 	AppClientID     string
@@ -87,13 +79,11 @@ type DiscordConfig struct {
 	UserLookupURL   string
 }
 
-// BeatmapConfig holds beatmap mirror configuration.
 type BeatmapConfig struct {
 	MirrorAPIURL      string
 	DownloadMirrorURL string
 }
 
-// SecurityConfig holds security-related configuration.
 type SecurityConfig struct {
 	RecaptchaSiteKey   string
 	RecaptchaSecretKey string
@@ -101,8 +91,6 @@ type SecurityConfig struct {
 	PayPalEmail        string
 }
 
-// Load reads configuration from environment variables.
-// It attempts to load a .env file from multiple locations.
 func Load() (*Config, error) {
 	loadEnvFile()
 
@@ -162,15 +150,12 @@ func Load() (*Config, error) {
 	return cfg, nil
 }
 
-// loadEnvFile attempts to load .env from multiple locations.
 func loadEnvFile() {
-	// Try current working directory
 	if err := godotenv.Load(); err == nil {
 		slog.Info("Loaded .env from current directory")
 		return
 	}
 
-	// Try executable's directory
 	exe, err := os.Executable()
 	if err == nil {
 		exe, err = filepath.EvalSymlinks(exe)
@@ -184,7 +169,6 @@ func loadEnvFile() {
 		}
 	}
 
-	// Try source directory (for development)
 	wd, err := os.Getwd()
 	if err == nil {
 		envPath := filepath.Join(wd, ".env")

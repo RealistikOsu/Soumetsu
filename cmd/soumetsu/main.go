@@ -1,4 +1,3 @@
-// Package main provides the entry point for the Soumetsu frontend application.
 package main
 
 import (
@@ -16,20 +15,17 @@ import (
 var version = "dev"
 
 func main() {
-	// Initialize structured logger
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
 	slog.Info("Soumetsu service starting up", "version", version)
 
-	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("Failed to load configuration", "error", err)
 		panic(err)
 	}
 
-	// Register gob types for session storage
 	gob.Register([]models.Message{})
 	gob.Register(&models.ErrorMessage{})
 	gob.Register(&models.InfoMessage{})
@@ -37,7 +33,6 @@ func main() {
 	gob.Register(&models.WarningMessage{})
 	gob.Register(&models.SuccessMessage{})
 
-	// Initialize application
 	slog.Info("Initializing application...")
 	application, err := app.New(cfg)
 	if err != nil {
@@ -45,11 +40,9 @@ func main() {
 		panic(err)
 	}
 
-	// Setup routes
 	slog.Info("Setting up routes...")
 	router := application.Routes()
 
-	// Start server
 	addr := fmt.Sprintf(":%d", cfg.App.Port)
 	slog.Info("Starting HTTP server", "address", addr)
 

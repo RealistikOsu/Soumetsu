@@ -1,4 +1,3 @@
-// Package app provides the main application structure and initialization.
 package app
 
 import (
@@ -27,16 +26,13 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// App represents the main application with all dependencies.
 type App struct {
 	Config *config.Config
 
-	// Adapters
 	DB    *mysql.DB
 	Redis *redis.Client
 	Mail  *mail.Client
 
-	// Repositories
 	UserRepo             *repositories.UserRepository
 	ClanRepo             *repositories.ClanRepository
 	TokenRepo            *repositories.TokenRepository
@@ -45,22 +41,18 @@ type App struct {
 	DiscordRepo          *repositories.DiscordRepository
 	ProfileBackgroundRepo *repositories.ProfileBackgroundRepository
 
-	// Services
 	AuthService    *auth.Service
 	UserService    *user.Service
 	ClanService    *clan.Service
 	BeatmapService *beatmap.Service
 
-	// Middleware
 	CSRF        middleware.CSRFService
 	SessionStore middleware.SessionStore
 	RateLimiter *middleware.RateLimiter
 
-	// Templates
 	TemplateEngine *templates.Engine
 	ResponseEngine *response.TemplateEngine
 
-	// Handlers
 	AuthHandler     *handlers.AuthHandler
 	UserHandler     *handlers.UserHandler
 	PasswordHandler *handlers.PasswordHandler
@@ -69,64 +61,52 @@ type App struct {
 	PagesHandler    *handlers.PagesHandler
 	ErrorsHandler   *handlers.ErrorsHandler
 
-	// Doc loader
 	DocLoader *doc.Loader
 }
 
-// New creates and initializes a new App instance.
 func New(cfg *config.Config) (*App, error) {
 	app := &App{
 		Config: cfg,
 	}
 
-	// Initialize adapters
 	if err := app.initAdapters(); err != nil {
 		return nil, err
 	}
 
-	// Initialize repositories
 	app.initRepositories()
 
-	// Initialize services
 	if err := app.initServices(); err != nil {
 		return nil, err
 	}
 
-	// Initialize middleware
 	if err := app.initMiddleware(); err != nil {
 		return nil, err
 	}
 
-	// Initialize templates
 	if err := app.initTemplates(); err != nil {
 		return nil, err
 	}
 
-	// Initialize handlers
 	app.initHandlers()
 
-	// Initialize doc loader
 	app.initDocLoader()
 
 	return app, nil
 }
 
 func (a *App) initAdapters() error {
-	// Initialize MySQL
 	db, err := mysql.New(a.Config.Database)
 	if err != nil {
 		return err
 	}
 	a.DB = db
 
-	// Initialize Redis
 	redisClient, err := redis.New(a.Config.Redis)
 	if err != nil {
 		return err
 	}
 	a.Redis = redisClient
 
-	// Initialize Mailgun
 	a.Mail = mail.New(a.Config.Mailgun)
 
 	return nil
@@ -143,7 +123,6 @@ func (a *App) initRepositories() {
 }
 
 func (a *App) initServices() error {
-	// Initialize auth service
 	a.AuthService = auth.NewService(
 		a.Config,
 		a.UserRepo,
@@ -154,7 +133,6 @@ func (a *App) initServices() error {
 		a.Redis,
 	)
 
-	// Initialize user service
 	a.UserService = user.NewService(
 		a.Config,
 		a.UserRepo,
@@ -163,13 +141,11 @@ func (a *App) initServices() error {
 		a.Redis,
 	)
 
-	// Initialize clan service
 	a.ClanService = clan.NewService(
 		a.ClanRepo,
 		a.Redis,
 	)
 
-	// Initialize beatmap service
 	a.BeatmapService = beatmap.NewService(
 		a.Config,
 	)
@@ -178,11 +154,8 @@ func (a *App) initServices() error {
 }
 
 func (a *App) initMiddleware() error {
-	// Initialize CSRF
 	a.CSRF = middleware.NewCSRFService()
 
-	// Initialize session store
-	// Try Redis store first, fall back to cookie store
 	var store sessions.Store
 	var err error
 
@@ -204,42 +177,34 @@ func (a *App) initMiddleware() error {
 
 	a.SessionStore = &sessionStoreWrapper{store: store}
 
-	// Initialize rate limiter (10 requests per second, capacity of 20)
 	a.RateLimiter = middleware.NewRateLimiter(10, 20)
 
 	return nil
 }
 
 func (a *App) initTemplates() error {
-	// Get templates directory
 	templatesDir := "web/templates"
 	if _, err := os.Stat(templatesDir); os.IsNotExist(err) {
-		// Try relative to current working directory
 		wd, _ := os.Getwd()
 		templatesDir = filepath.Join(wd, "web", "templates")
 	}
 
-	// Create template engine
 	funcMap := templates.FuncMap()
 	engine := templates.NewEngine(templatesDir, funcMap)
 
-	// Load templates
 	if err := engine.Load(); err != nil {
 		return err
 	}
 	a.TemplateEngine = engine
 
-	// Create response engine wrapper
 	a.ResponseEngine = response.NewTemplateEngine(engine.GetTemplates(), funcMap)
 	
-	// Set config for template access
 	a.ResponseEngine.SetConfig(a.Config)
 
 	return nil
 }
 
 func (a *App) initHandlers() {
-	// Initialize handlers
 	a.AuthHandler = handlers.NewAuthHandler(
 		a.Config,
 		a.AuthService,
@@ -284,7 +249,6 @@ func (a *App) initHandlers() {
 		a.ResponseEngine,
 	)
 
-	// Convert template configs to page configs
 	simplePages := a.TemplateEngine.GetSimplePages()
 	pageConfigs := make([]handlers.PageConfig, 0, len(simplePages))
 	for _, sp := range simplePages {
@@ -322,7 +286,6 @@ func (a *App) initDocLoader() {
 	}
 }
 
-// sessionStoreWrapper wraps gorilla sessions.Store to implement middleware.SessionStore
 type sessionStoreWrapper struct {
 	store sessions.Store
 }
@@ -331,7 +294,6 @@ func (w *sessionStoreWrapper) Get(r *http.Request, name string) (*sessions.Sessi
 	return w.store.Get(r, name)
 }
 
-// parseAdditionalJS parses the AdditionalJS field from template config.
 func parseAdditionalJS(js string) []string {
 	if js == "" {
 		return nil

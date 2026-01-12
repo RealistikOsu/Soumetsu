@@ -1,4 +1,3 @@
-// Package templates provides template function maps.
 package templates
 
 import (
@@ -23,7 +22,6 @@ import (
 	"zxq.co/ripple/playstyle"
 )
 
-// ConfigAccessor is an interface for accessing config values in templates
 type ConfigAccessor interface {
 	GetAvatarURL() string
 	GetBanchoURL() string
@@ -33,18 +31,11 @@ type ConfigAccessor interface {
 	GetDiscordServerURL() string
 }
 
-// FuncMap returns the template function map.
-// Note: This version removes all DB queries - data should be passed from handlers.
-// Config should be passed via TemplateData.Conf and accessed directly in templates.
 func FuncMap() template.FuncMap {
 	return template.FuncMap{
-		// html disables HTML escaping on the values it is given.
 		"html": func(value interface{}) template.HTML {
 			return template.HTML(fmt.Sprint(value))
 		},
-		// navbarItem is a function to generate an item in the navbar.
-		// The reason why this exists is that I wanted to have the currently
-		// selected element in the navbar having the "active" class.
 		"navbarItem": func(currentPath, name, path string) template.HTML {
 			var act string
 			if path == currentPath {
@@ -52,18 +43,13 @@ func FuncMap() template.FuncMap {
 			}
 			return template.HTML(fmt.Sprintf(`<a class="%sitem" href="%s">%s</a>`, act, path, name))
 		},
-		// curryear returns the current year.
 		"curryear": func() int {
 			return time.Now().Year()
 		},
-		// hasAdmin returns, based on the user's privileges, whether they should be
-		// able to see the RAP button (aka AdminPrivilegeAccessRAP).
 		"hasAdmin": func(privs common.UserPrivileges) bool {
 			return privs&common.AdminPrivilegeAccessRAP > 0
 		},
-		// getUserRole returns the role name based on user privileges
 		"getUserRole": func(privs common.UserPrivileges) string {
-			// Check from highest to lowest priority
 			if privs&common.AdminPrivilegeManageUsers > 0 {
 				return "Admin"
 			}
@@ -75,19 +61,13 @@ func FuncMap() template.FuncMap {
 			}
 			return ""
 		},
-		// isStaff returns whether a user has any staff privileges
 		"isStaff": func(privs common.UserPrivileges) bool {
 			return privs&common.AdminPrivilegeAccessRAP > 0
 		},
-		// isRAP returns whether the current page is in RAP.
 		"isRAP": func(p string) bool {
 			parts := strings.Split(p, "/")
 			return len(parts) > 1 && parts[1] == "admin"
 		},
-		// favMode is just a helper function for user profiles. Basically checks
-		// whether a float and an int are ==, and if they are it will return "active ",
-		// so that the element in the mode menu of a user profile can be marked as
-		// the current active element.
 		"favMode": func(favMode float64, current int) string {
 			if int(favMode) == current {
 				return "active "
@@ -100,13 +80,9 @@ func FuncMap() template.FuncMap {
 			}
 			return string(s)
 		},
-		// slice generates a []interface{} with the elements it is given.
-		// useful to iterate over some elements, like this:
-		//  {{ range slice 1 2 3 }}{{ . }}{{ end }}
 		"slice": func(els ...interface{}) []interface{} {
 			return els
 		},
-		// sliceArray slices an array/slice from start to end (exclusive)
 		"sliceArray": func(arr interface{}, start, end int) []interface{} {
 			if arr == nil {
 				return []interface{}{}
@@ -141,7 +117,6 @@ func FuncMap() template.FuncMap {
 			}
 			return []interface{}{}
 		},
-		// get retrieves a value from a map[string]interface{} by key
 		"get": func(m interface{}, key string) interface{} {
 			if m == nil {
 				return nil
@@ -151,7 +126,6 @@ func FuncMap() template.FuncMap {
 			}
 			return nil
 		},
-		// int converts a float/int to an int.
 		"int": func(f interface{}) int {
 			if f == nil {
 				return 0
@@ -166,12 +140,9 @@ func FuncMap() template.FuncMap {
 			}
 			return 0
 		},
-		// float converts an int to a float.
 		"float": func(i int) float64 {
 			return float64(i)
 		},
-		// atoi converts a string to an int and then a float64.
-		// If s is not an actual int, it returns 0.
 		"atoi": func(s interface{}) interface{} {
 			if s == nil {
 				return 0
@@ -186,7 +157,6 @@ func FuncMap() template.FuncMap {
 			}
 			return float64(i)
 		},
-		// atoint is like atoi but returns always an int.
 		"atoint": func(s interface{}) int {
 			if s == nil {
 				return 0
@@ -198,56 +168,44 @@ func FuncMap() template.FuncMap {
 			i, _ := strconv.Atoi(str)
 			return i
 		},
-		// parseUserpage compiles BBCode to HTML.
 		"parseUserpage": func(s string) template.HTML {
 			return template.HTML(bbcode.Compile(s))
 		},
-		// time converts a RFC3339 timestamp to the HTML element <time>.
 		"time": func(s string) template.HTML {
 			t, _ := time.Parse(time.RFC3339, s)
 			return _time(s, t)
 		},
-		// timeFromTime generates a time from a native Go time.Time
 		"timeFromTime": func(t time.Time) template.HTML {
 			return _time(t.Format(time.RFC3339), t)
 		},
-		// timeAddDay is basically time but adds a day.
 		"timeAddDay": func(s string) template.HTML {
 			t, _ := time.Parse(time.RFC3339, s)
 			t = t.Add(time.Hour * 24)
 			return _time(t.Format(time.RFC3339), t)
 		},
-		// nativeTime creates a native Go time.Time from a RFC3339 timestamp.
 		"nativeTime": func(s string) time.Time {
 			t, _ := time.Parse(time.RFC3339, s)
 			return t
 		},
-		// band is a bitwise AND.
 		"band": func(i1 int, i ...int) int {
 			for _, el := range i {
 				i1 &= el
 			}
 			return i1
 		},
-		// humanize pretty-prints a float, e.g.
-		//     humanize(1000) == "1,000"
 		"humanize": func(f float64) string {
 			return humanize.Commaf(f)
 		},
-		// levelPercent basically does this:
-		//     levelPercent(56.23215) == "23"
 		"levelPercent": func(l float64) string {
 			_, f := math.Modf(l)
 			f *= 100
 			return fmt.Sprintf("%.0f", f)
 		},
-		// level removes the decimal part from a float.
 		"level": func(l float64) string {
 			i, _ := math.Modf(l)
 			return fmt.Sprintf("%.0f", i)
 		},
 		"log": fmt.Println,
-		// has returns whether priv1 has all 1 bits of priv2, aka priv1 & priv2 == priv2
 		"has": func(priv1 interface{}, priv2 float64) bool {
 			var p1 uint64
 			switch priv1 := priv1.(type) {
@@ -260,11 +218,6 @@ func FuncMap() template.FuncMap {
 			}
 			return p1&uint64(priv2) == uint64(priv2)
 		},
-		// _range is like python range's.
-		// If it is given 1 argument, it returns a []int containing numbers from 0
-		// to x.
-		// If it is given 2 arguments, it returns a []int containing numers from x
-		// to y if x < y, from y to x if y < x.
 		"_range": func(x int, y ...int) ([]int, error) {
 			switch len(y) {
 			case 0:
@@ -291,11 +244,7 @@ func FuncMap() template.FuncMap {
 			}
 			return nil, errors.New("y must be at maximum 1 parameter")
 		},
-		// blackfriday passes some markdown through blackfriday.
 		"blackfriday": func(m string) template.HTML {
-			// The reason of m[strings.Index...] is to remove the "header", where
-			// there is the information about the file (namely, title, old_id and
-			// reference_version)
 			idx := strings.Index(m, "\n---\n")
 			if idx == -1 {
 				return template.HTML(blackfriday.Run([]byte(m), blackfriday.WithExtensions(blackfriday.CommonExtensions)))
@@ -307,15 +256,12 @@ func FuncMap() template.FuncMap {
 				),
 			)
 		},
-		// i is an inline if.
-		// i (cond) (true) (false)
 		"i": func(a bool, x, y interface{}) interface{} {
 			if a {
 				return x
 			}
 			return y
 		},
-		// modes returns an array containing all the modes (in their string representation).
 		"modes": func() []string {
 			return []string{
 				"osu!",
@@ -324,7 +270,6 @@ func FuncMap() template.FuncMap {
 				"Mania",
 			}
 		},
-		// _or is like or, but has only false and nil as its "falsey" values
 		"_or": func(args ...interface{}) interface{} {
 			for _, a := range args {
 				if a != nil && a != false {
@@ -333,11 +278,9 @@ func FuncMap() template.FuncMap {
 			}
 			return nil
 		},
-		// unixNano returns the UNIX timestamp of when soumetsu was started in nanoseconds.
 		"unixNano": func() string {
 			return strconv.FormatInt(soumetsuStarted, 10)
 		},
-		// playstyle returns the string representation of a playstyle.
 		"playstyle": func(i float64) string {
 			var parts []string
 			p := int(i)
@@ -348,7 +291,6 @@ func FuncMap() template.FuncMap {
 			}
 			return strings.Join(parts, ", ")
 		},
-		// arithmetic plus/minus
 		"plus": func(i ...float64) float64 {
 			var sum float64
 			for _, i := range i {
@@ -362,14 +304,12 @@ func FuncMap() template.FuncMap {
 			}
 			return i1
 		},
-		// rsin - Return Slice If Nil
 		"rsin": func(i interface{}) interface{} {
 			if i == nil {
 				return []struct{}{}
 			}
 			return i
 		},
-		// loadjson loads a json file.
 		"loadjson": func(jsonfile string) interface{} {
 			f, err := ioutil.ReadFile(jsonfile)
 			if err != nil {
@@ -382,7 +322,6 @@ func FuncMap() template.FuncMap {
 			}
 			return x
 		},
-		// teamJSON returns the data of team.json
 		"teamJSON": func() map[string]interface{} {
 			f, err := ioutil.ReadFile("team.json")
 			if err != nil {
@@ -392,7 +331,6 @@ func FuncMap() template.FuncMap {
 			json.Unmarshal(f, &m)
 			return m
 		},
-		// in returns whether the first argument is in one of the following
 		"in": func(a1 interface{}, as ...interface{}) bool {
 			for _, a := range as {
 				if a == a1 {
@@ -402,55 +340,44 @@ func FuncMap() template.FuncMap {
 			return false
 		},
 		"capitalise": strings.Title,
-		// servicePrefix gets the prefix of a service, like github.
 		"servicePrefix": func(s string) string { return servicePrefixes[s] },
-		// randomLogoColour picks a "random" colour for ripple's logo.
 		"randomLogoColour": func() string {
 			if rand.Int()%4 == 0 {
 				return logoColours[rand.Int()%len(logoColours)]
 			}
 			return "pink"
 		},
-		// after checks whether a certain time is after time.Now()
 		"after": func(s string) bool {
 			t, _ := time.Parse(time.RFC3339, s)
 			return t.After(time.Now())
 		},
-		// styles returns playstyle.Styles
 		"styles": func() []string {
 			return playstyle.Styles[:]
 		},
-		// shift shifts n1 by n2
 		"shift": func(n1, n2 int) int {
 			return n1 << uint(n2)
 		},
-		// calculateDonorPrice calculates the price of x donor months in POUNDS I THINK.
 		"calculateDonorPrice": func(a float64) string {
 			return fmt.Sprintf("%.2f", math.Pow(a*3, 0.7))
 		},
-		// perc returns a percentage
 		"perc": func(i, total float64) string {
 			return fmt.Sprintf("%.0f", i/total*100)
 		},
-		// atLeastOne returns 1 if i < 1, or i otherwise.
 		"atLeastOne": func(i int) int {
 			if i < 1 {
 				i = 1
 			}
 			return i
 		},
-		// version gets what's the current Soumetsu version.
 		"version": func() string {
 			return version
 		},
-		// documentationFiles returns documentation files (requires doc loader to be passed)
 		"documentationFiles": func(loader *doc.Loader, lang string) []doc.LanguageDoc {
 			if loader == nil {
 				return nil
 			}
 			return loader.GetDocs(lang)
 		},
-		// documentationData retrieves a documentation file
 		"documentationData": func(loader *doc.Loader, slug string, language string) doc.File {
 			if loader == nil {
 				return doc.File{}
@@ -467,36 +394,25 @@ func FuncMap() template.FuncMap {
 		"hhmm": func(seconds float64) string {
 			return fmt.Sprintf("%02dh %02dm", int(math.Floor(seconds/3600)), int(math.Floor(seconds/60))%60)
 		},
-		// stringLower converts a string to lowercase
 		"stringLower": strings.ToLower,
-		// qb is a stub function that returns empty/default values
-		// Templates should not directly query the database - data should be passed from handlers
 		"qb": func(query string, args ...interface{}) map[string]interface{} {
-			// Return empty map with default structure to prevent template errors
 			return map[string]interface{}{
 				"frozen": map[string]interface{}{
 					"Bool": false,
 				},
 			}
 		},
-		// rediget is a stub function that returns empty/default values
-		// Templates should not directly query Redis - data should be passed from handlers
 		"rediget": func(key string) string {
-			return "0" // Return "0" as default for numeric values
+			return "0"
 		},
-		// config accesses config values using reflection
-		// Usage: {{ config "APP_AVATAR_URL" .Conf }} or {{ config "APP_AVATAR_URL" }}
-		// Note: If .Conf is not passed, it should be available in template data
 		"config": func(key string, confs ...interface{}) string {
 			var conf interface{}
 			if len(confs) > 0 && confs[0] != nil {
 				conf = confs[0]
 			}
-			// If conf is not provided, return empty string (templates should pass .Conf)
 			if conf == nil {
 				return ""
 			}
-			// Use reflection to access config struct fields
 			val := reflect.ValueOf(conf)
 			if val.Kind() == reflect.Ptr {
 				val = val.Elem()
@@ -505,7 +421,6 @@ func FuncMap() template.FuncMap {
 				return ""
 			}
 
-			// Map config keys to struct fields
 			keyMap := map[string]struct {
 				section string
 				field   string
@@ -523,36 +438,25 @@ func FuncMap() template.FuncMap {
 				return ""
 			}
 
-			// Access the section (e.g., App, Security, etc.)
 			sectionField := val.FieldByName(mapping.section)
 			if !sectionField.IsValid() || sectionField.Kind() != reflect.Struct {
 				return ""
 			}
 
-			// Access the field within the section
 			field := sectionField.FieldByName(mapping.field)
 			if !field.IsValid() || !field.CanInterface() {
 				return ""
 			}
 
-			// Return the value as a string (templates will handle quoting for JavaScript)
 			return fmt.Sprint(field.Interface())
 		},
-		// csrfGenerate generates a CSRF token (stub - should be passed from handler)
 		"csrfGenerate": func(userID int) string {
-			// Return empty string - CSRF tokens should be generated in handlers
 			return ""
 		},
-		// ieForm generates form fields (CSRF token and other hidden fields)
-		// Usage: {{ ieForm }} - no parameters needed, uses template context
 		"ieForm": func() template.HTML {
-			// Return empty - form fields should be generated in handlers and passed via TemplateData
-			// CSRF tokens should be passed via TemplateData.Extra or similar
 			return template.HTML("")
 		},
-		// systemSettings retrieves system settings (stub - should be passed from handler)
 		"systemSettings": func(keys ...string) map[string]interface{} {
-			// Return empty map with default structure
 			result := make(map[string]interface{})
 			for _, key := range keys {
 				result[key] = map[string]interface{}{
@@ -562,28 +466,18 @@ func FuncMap() template.FuncMap {
 			}
 			return result
 		},
-		// T is a translation function (stub - returns key as-is for now)
 		"T": func(key string) string {
 			return key
 		},
-		// country renders a country flag image
-		// Usage: {{ country "US" false }} - renders flag image for country code
-		// The second parameter controls whether to show country name (not currently used)
 		"country": func(countryCode string, showName bool) template.HTML {
 			if countryCode == "" {
 				return template.HTML("")
 			}
-			// Render country flag image
 			countryLower := strings.ToLower(countryCode)
 			html := fmt.Sprintf(`<img src="/static/images/new-flags/flag-%s.svg" class="w-4 h-3 rounded" alt="%s">`, countryLower, countryCode)
 			return template.HTML(html)
 		},
-		// dcAPI fetches Discord user data (stub - should be passed from handler)
-		// Usage: {{ with dcAPI $discordID }} ... {{ end }}
-		// Note: Discord data should be fetched in handlers and passed via TemplateData.Extra["discordUser"]
 		"dcAPI": func(discordID interface{}) interface{} {
-			// Return nil - Discord data should be passed from handlers via TemplateData.Extra["discordUser"]
-			// The template expects an object with .avatar.link and .raw.username
 			return nil
 		},
 	}
@@ -615,6 +509,4 @@ func _time(s string, t time.Time) template.HTML {
 	return template.HTML(fmt.Sprintf(`<time class="timeago" datetime="%s">%v</time>`, s, t))
 }
 
-// version is the current Soumetsu version.
-// This should be set at build time or loaded from config.
 var version = "dev"

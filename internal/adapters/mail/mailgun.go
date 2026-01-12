@@ -7,13 +7,11 @@ import (
 	"gopkg.in/mailgun/mailgun-go.v1"
 )
 
-// Client wraps the Mailgun client to provide a consistent interface.
 type Client struct {
 	mg   mailgun.Mailgun
 	from string
 }
 
-// New creates a new Mailgun client.
 func New(cfg config.MailgunConfig) *Client {
 	mg := mailgun.NewMailgun(
 		cfg.Domain,
@@ -27,7 +25,6 @@ func New(cfg config.MailgunConfig) *Client {
 	}
 }
 
-// SendEmailInput represents input for sending an email.
 type SendEmailInput struct {
 	To      string
 	Subject string
@@ -35,7 +32,6 @@ type SendEmailInput struct {
 	HTML    string
 }
 
-// Send sends an email using Mailgun.
 func (c *Client) Send(ctx context.Context, input SendEmailInput) (string, error) {
 	message := mailgun.NewMessage(
 		c.from,
@@ -52,7 +48,6 @@ func (c *Client) Send(ctx context.Context, input SendEmailInput) (string, error)
 	return id, err
 }
 
-// SendPasswordReset sends a password reset email.
 func (c *Client) SendPasswordReset(ctx context.Context, to, resetKey, baseURL string) (string, error) {
 	resetURL := baseURL + "/password-reset/continue?k=" + resetKey
 

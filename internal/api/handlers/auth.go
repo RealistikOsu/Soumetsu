@@ -1,4 +1,3 @@
-// Package handlers provides HTTP request handlers for the API.
 package handlers
 
 import (
@@ -20,7 +19,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// AuthHandler handles authentication-related requests.
 type AuthHandler struct {
 	config      *config.Config
 	authService *auth.Service
@@ -31,7 +29,6 @@ type AuthHandler struct {
 	redis       *redis.Client
 }
 
-// NewAuthHandler creates a new auth handler.
 func NewAuthHandler(
 	cfg *config.Config,
 	authService *auth.Service,
@@ -52,7 +49,6 @@ func NewAuthHandler(
 	}
 }
 
-// LoginPage renders the login page.
 func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -68,7 +64,6 @@ func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Login handles login form submission.
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -95,13 +90,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Attempt login
 	result, err := h.authService.Login(r.Context(), auth.LoginInput{
 		Username: username,
 		Password: password,
 	})
 	if err != nil {
-		// Handle pending verification
 		if pendingErr, ok := err.(*auth.PendingVerificationError); ok {
 			h.setIdentityCookie(w, r, pendingErr.UserID)
 			h.addMessage(sess, models.NewWarning("You will need to verify your account first."))
@@ -117,10 +110,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set identity cookie
 	h.setIdentityCookie(w, r, result.User.ID)
 
-	// Generate API token
 	clientIP := apicontext.ClientIP(r)
 	token, err := h.authService.CheckOrGenerateToken(r.Context(), "", result.User.ID, clientIP)
 	if err != nil {
@@ -128,19 +119,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log IP
 	h.authService.LogIP(r.Context(), result.User.ID, clientIP)
 
-	// Set country if needed
 	go h.authService.SetCountry(r.Context(), result.User.ID, clientIP)
 
-	// Set session values
 	sess.Values["userid"] = result.User.ID
 	sess.Values["pw"] = crypto.MD5(result.User.Password)
 	sess.Values["logout"] = crypto.GenerateLogoutKey()
 	sess.Values["token"] = token
 
-	// Handle redirect
 	redir := r.FormValue("redir")
 	if len(redir) > 0 && redir[0] != '/' {
 		redir = ""
@@ -154,7 +141,6 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redir, http.StatusFound)
 }
 
-// Logout handles user logout.
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -171,7 +157,6 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify logout key
 	logoutKey, _ := sess.Values["logout"].(string)
 	if logoutKey != r.URL.Query().Get("k") {
 		h.templates.Render(w, "empty.html", &response.TemplateData{
@@ -181,12 +166,10 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Clear session
 	for key := range sess.Values {
 		delete(sess.Values, key)
 	}
 
-	// Clear identity cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:   "rt",
 		Value:  "",
@@ -198,7 +181,6 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// RegisterPage renders the registration page.
 func (h *AuthHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -206,7 +188,6 @@ func (h *AuthHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check for potential multi-account
 	if r.URL.Query().Get("stopsign") != "1" {
 		existingUser, _, _ := h.authService.CheckMultiAccount(r.Context(), apicontext.ClientIP(r), h.getIdentityCookie(r))
 		if existingUser != "" {
@@ -223,7 +204,6 @@ func (h *AuthHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	h.registerResp(w, r)
 }
 
-// Register handles registration form submission.
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -248,7 +228,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 	}
 
-	// Attempt registration
 	userID, err := h.authService.Register(r.Context(), input)
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
@@ -259,14 +238,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set identity cookie
 	h.setIdentityCookie(w, r, int(userID))
 
-	// Log IP
 	clientIP := apicontext.ClientIP(r)
 	h.authService.LogIP(r.Context(), int(userID), clientIP)
 
-	// Set country
 	go h.authService.SetCountry(r.Context(), int(userID), clientIP)
 
 	h.addMessage(sess, models.NewSuccess("You have been successfully registered on RealistikOsu! You now need to verify your account."))
@@ -274,7 +250,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/register/verify?u="+strconv.FormatInt(userID, 10), http.StatusFound)
 }
 
-// VerifyAccountPage renders the account verification page.
 func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -291,10 +266,9 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Check if user needs verification
 	var privileges uint64
 	h.db.QueryRowContext(r.Context(), "SELECT privileges FROM users WHERE id = ?", userID).Scan(&privileges)
-	if privileges&(1<<20) == 0 { // UserPrivilegePendingVerification
+	if privileges&(1<<20) == 0 {
 		sess, _ := h.store.Get(r, "session")
 		h.addMessage(sess, models.NewWarning("Nope."))
 		sess.Save(r, w)
@@ -309,7 +283,6 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// WelcomePage renders the welcome page after verification.
 func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
@@ -334,7 +307,7 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	title := "Welcome!"
-	if privileges&1 == 0 { // Not normal (banned - multiaccounted)
+	if privileges&1 == 0 {
 		title = "Welcome back!"
 	}
 
@@ -344,8 +317,6 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 		KyutGrill:      "welcome.jpg",
 	})
 }
-
-// Helper methods
 
 func (h *AuthHandler) loginResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
 	h.templates.Render(w, "login.html", &response.TemplateData{

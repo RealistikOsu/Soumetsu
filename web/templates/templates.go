@@ -1,4 +1,3 @@
-// Package templates provides template loading and management.
 package templates
 
 import (
@@ -22,7 +21,6 @@ var (
 	}
 )
 
-// Engine manages template loading and compilation.
 type Engine struct {
 	templatesDir string
 	templates    map[string]*template.Template
@@ -31,7 +29,6 @@ type Engine struct {
 	simplePages  []TemplateConfig
 }
 
-// NewEngine creates a new template engine.
 func NewEngine(templatesDir string, funcMap template.FuncMap) *Engine {
 	return &Engine{
 		templatesDir: templatesDir,
@@ -41,7 +38,6 @@ func NewEngine(templatesDir string, funcMap template.FuncMap) *Engine {
 	}
 }
 
-// Load loads all templates from the templates directory.
 func (e *Engine) Load() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -52,14 +48,12 @@ func (e *Engine) Load() error {
 	return e.loadTemplates("")
 }
 
-// GetTemplate retrieves a template by name.
 func (e *Engine) GetTemplate(name string) *template.Template {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.templates[name]
 }
 
-// GetTemplates returns all loaded templates.
 func (e *Engine) GetTemplates() map[string]*template.Template {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -71,7 +65,6 @@ func (e *Engine) GetTemplates() map[string]*template.Template {
 	return result
 }
 
-// GetSimplePages returns all simple page configurations.
 func (e *Engine) GetSimplePages() []TemplateConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -89,7 +82,6 @@ func (e *Engine) loadTemplates(subdir string) error {
 	}
 
 	for _, entry := range entries {
-		// Skip directories
 		if entry.IsDir() {
 			if entry.Name() == "." || entry.Name() == ".." {
 				continue
@@ -105,12 +97,10 @@ func (e *Engine) loadTemplates(subdir string) error {
 			continue
 		}
 
-		// Skip non-HTML files
 		if !strings.HasSuffix(entry.Name(), ".html") {
 			continue
 		}
 
-		// Skip hidden files
 		if strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
@@ -118,20 +108,17 @@ func (e *Engine) loadTemplates(subdir string) error {
 		fullPath := filepath.Join(dirPath, entry.Name())
 		relPath := filepath.Join(subdir, entry.Name())
 
-		// Parse template config
 		cfg := e.parseConfig(fullPath)
 		if cfg != nil && cfg.NoCompile {
 			continue
 		}
 
-		// Build file list
 		var files []string
 		if cfg != nil {
 			files = cfg.inc(e.templatesDir, subdir)
 		}
 		files = append(files, fullPath)
 
-		// Skip base templates
 		var skip bool
 		for _, base := range baseTemplates {
 			if fullPath == base {
@@ -143,17 +130,14 @@ func (e *Engine) loadTemplates(subdir string) error {
 			continue
 		}
 
-		// Add base templates
 		files = append(files, baseTemplates...)
 
-		// Compile template
 		tmpl, err := template.New(entry.Name()).Funcs(e.funcMap).ParseFiles(files...)
 		if err != nil {
 			slog.Error("Failed to parse template", "path", fullPath, "error", err)
 			continue
 		}
 
-		// Store template with relative path as key
 		templateName := strings.TrimPrefix(relPath, string(filepath.Separator))
 		templateName = strings.ReplaceAll(templateName, string(filepath.Separator), "/")
 		e.templates[templateName] = tmpl
@@ -167,7 +151,6 @@ func (e *Engine) loadTemplates(subdir string) error {
 	return nil
 }
 
-// TemplateConfig represents configuration embedded in template files.
 type TemplateConfig struct {
 	NoCompile        bool
 	Include          string
@@ -233,16 +216,10 @@ func (e *Engine) parseConfig(path string) *TemplateConfig {
 	return nil
 }
 
-// Watch starts watching for template changes and reloads them automatically.
-// This should only be used in development mode.
 func (e *Engine) Watch() error {
-	// Note: This would require the notify package
-	// For now, we'll leave it as a placeholder
-	// In production, templates should be loaded once at startup
 	return nil
 }
 
-// Reload reloads all templates.
 func (e *Engine) Reload() error {
 	return e.Load()
 }

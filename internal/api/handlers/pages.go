@@ -14,7 +14,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// PageConfig represents configuration for a simple page.
 type PageConfig struct {
 	Handler        string
 	Template       string
@@ -25,7 +24,6 @@ type PageConfig struct {
 	HeadingOnRight bool
 }
 
-// PagesHandler handles simple static page requests.
 type PagesHandler struct {
 	config    *config.Config
 	store     middleware.SessionStore
@@ -33,7 +31,6 @@ type PagesHandler struct {
 	pages     []PageConfig
 }
 
-// NewPagesHandler creates a new pages handler.
 func NewPagesHandler(
 	cfg *config.Config,
 	store middleware.SessionStore,
@@ -48,11 +45,9 @@ func NewPagesHandler(
 	}
 }
 
-// HomePage renders the home page.
 func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 
-	// Get session for template access
 	var sessionWrapper *response.SessionWrapper
 	if sess, err := h.store.Get(r, "session"); err == nil {
 		sessionWrapper = response.NewSessionWrapper(sess)
@@ -68,18 +63,15 @@ func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// SimplePage returns a handler for a simple page by template name.
 func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scripts []string, headingOnRight bool, minPrivileges common.UserPrivileges) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqCtx := apicontext.GetRequestContextFromRequest(r)
 
-		// Check privileges
 		if minPrivileges > 0 && reqCtx.User.Privileges&minPrivileges != minPrivileges {
 			h.forbidden(w, r)
 			return
 		}
 
-		// Get session for template access
 		var sessionWrapper *response.SessionWrapper
 		if sess, err := h.store.Get(r, "session"); err == nil {
 			sessionWrapper = response.NewSessionWrapper(sess)
@@ -100,7 +92,6 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 	}
 }
 
-// SimplePageWithMessages renders a simple page with optional messages.
 func (h *PagesHandler) SimplePageWithMessages(templateName, titleBar string, messages []models.Message, extra map[string]interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h.templates.Render(w, templateName, &response.TemplateData{
@@ -113,7 +104,6 @@ func (h *PagesHandler) SimplePageWithMessages(templateName, titleBar string, mes
 	}
 }
 
-// RulesPage renders the rules page.
 func (h *PagesHandler) RulesPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "rules.html", &response.TemplateData{
 		TitleBar: "Rules",
@@ -121,7 +111,6 @@ func (h *PagesHandler) RulesPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// AboutPage renders the about page.
 func (h *PagesHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "about.html", &response.TemplateData{
 		TitleBar: "About",
@@ -129,7 +118,6 @@ func (h *PagesHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// LeaderboardPage renders the leaderboard page.
 func (h *PagesHandler) LeaderboardPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "leaderboard.html", &response.TemplateData{
 		TitleBar:  "Leaderboard",
@@ -138,7 +126,6 @@ func (h *PagesHandler) LeaderboardPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// DonorsPage renders the donors page.
 func (h *PagesHandler) DonorsPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "donors.html", &response.TemplateData{
 		TitleBar: "Donors",
@@ -146,7 +133,6 @@ func (h *PagesHandler) DonorsPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ClansListPage renders the clans list page.
 func (h *PagesHandler) ClansListPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "clans/list.html", &response.TemplateData{
 		TitleBar:  "Clans",
@@ -155,7 +141,6 @@ func (h *PagesHandler) ClansListPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// DocPage renders a documentation page.
 func (h *PagesHandler) DocPage(w http.ResponseWriter, r *http.Request) {
 	h.templates.Render(w, "doc.html", &response.TemplateData{
 		TitleBar: "Documentation",
@@ -163,7 +148,6 @@ func (h *PagesHandler) DocPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// EmptyPage renders an empty page with just a title.
 func (h *PagesHandler) EmptyPage(titleBar string, messages ...models.Message) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h.templates.Render(w, "empty.html", &response.TemplateData{
@@ -173,8 +157,6 @@ func (h *PagesHandler) EmptyPage(titleBar string, messages ...models.Message) ht
 		})
 	}
 }
-
-// Helper methods
 
 func (h *PagesHandler) forbidden(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)

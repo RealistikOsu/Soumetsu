@@ -8,7 +8,6 @@ import (
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 )
 
-// responseWriter wraps http.ResponseWriter to capture the status code.
 type responseWriter struct {
 	http.ResponseWriter
 	statusCode int
@@ -23,7 +22,6 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-// StructuredLogger returns a middleware that logs requests in structured format.
 func StructuredLogger() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

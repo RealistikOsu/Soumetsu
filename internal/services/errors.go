@@ -2,7 +2,6 @@ package services
 
 import "net/http"
 
-// ServiceError represents a service-level error.
 type ServiceError struct {
 	Message    string
 	Code       string
@@ -13,7 +12,6 @@ func (e *ServiceError) Error() string {
 	return e.Message
 }
 
-// Common service errors.
 var (
 	ErrNotFound = &ServiceError{
 		Message:    "Resource not found",
@@ -52,7 +50,6 @@ var (
 	}
 )
 
-// NewServiceError creates a new service error.
 func NewServiceError(message, code string, statusCode int) *ServiceError {
 	return &ServiceError{
 		Message:    message,
@@ -61,7 +58,6 @@ func NewServiceError(message, code string, statusCode int) *ServiceError {
 	}
 }
 
-// NewBadRequest creates a bad request error with a custom message.
 func NewBadRequest(message string) *ServiceError {
 	return &ServiceError{
 		Message:    message,
@@ -70,7 +66,6 @@ func NewBadRequest(message string) *ServiceError {
 	}
 }
 
-// NewNotFound creates a not found error with a custom message.
 func NewNotFound(message string) *ServiceError {
 	return &ServiceError{
 		Message:    message,
@@ -79,7 +74,6 @@ func NewNotFound(message string) *ServiceError {
 	}
 }
 
-// NewForbidden creates a forbidden error with a custom message.
 func NewForbidden(message string) *ServiceError {
 	return &ServiceError{
 		Message:    message,
@@ -88,7 +82,6 @@ func NewForbidden(message string) *ServiceError {
 	}
 }
 
-// NewConflict creates a conflict error with a custom message.
 func NewConflict(message string) *ServiceError {
 	return &ServiceError{
 		Message:    message,

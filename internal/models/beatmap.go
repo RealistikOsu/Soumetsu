@@ -1,6 +1,5 @@
 package models
 
-// Beatmap represents a single beatmap difficulty.
 type Beatmap struct {
 	ID               int     `json:"BeatmapID"`
 	ParentSetID      int     `json:"ParentSetID"`
@@ -20,7 +19,6 @@ type Beatmap struct {
 	DifficultyRating float64 `json:"DifficultyRating"`
 }
 
-// BeatmapSet represents a beatmap set with its difficulties.
 type BeatmapSet struct {
 	ID               int       `json:"SetID"`
 	ChildrenBeatmaps []Beatmap `json:"ChildrenBeatmaps"`
@@ -32,7 +30,6 @@ type BeatmapSet struct {
 	Tags             string    `json:"Tags"`
 }
 
-// RankedStatus constants.
 const (
 	StatusGraveyard  = -2
 	StatusWIP        = -1
@@ -43,7 +40,6 @@ const (
 	StatusLoved      = 4
 )
 
-// IsRanked returns true if the beatmap set is ranked.
 func (b BeatmapSet) IsRanked() bool {
 	return b.RankedStatus == StatusRanked || b.RankedStatus == StatusApproved
 }

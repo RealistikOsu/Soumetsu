@@ -1,4 +1,3 @@
-// Package doc handles documentation file loading and retrieval.
 package doc
 
 import (
@@ -21,24 +20,20 @@ import (
 
 const referenceLanguage = "en"
 
-// File represents a single documentation file in a specific language.
 type File struct {
 	IsUpdated      bool
 	Title          string
 	referencesFile string
 }
 
-// Data retrieves the content of the documentation file.
 func (f File) Data() (string, error) {
 	data, err := os.ReadFile(f.referencesFile)
 	if err != nil {
 		return "", err
 	}
 
-	// Update IPs if needed
 	ipMgr.update()
 
-	// Replace IP placeholders
 	res := strings.NewReplacer(
 		"{ipmain}", ipMgr.main,
 		"{ipmirror}", ipMgr.mirror,
@@ -47,15 +42,12 @@ func (f File) Data() (string, error) {
 	return res, nil
 }
 
-// Document represents a documentation file with all its language variations.
 type Document struct {
 	Slug      string
 	OldID     int
 	Languages map[string]File
 }
 
-// File retrieves a Document's File based on the passed language.
-// Returns the reference language (en) file if the requested language is not available.
 func (d Document) File(lang string) File {
 	if f, ok := d.Languages[lang]; ok {
 		return f
@@ -63,20 +55,17 @@ func (d Document) File(lang string) File {
 	return d.Languages[referenceLanguage]
 }
 
-// LanguageDoc represents a document listing entry.
 type LanguageDoc struct {
 	Title string
 	Slug  string
 }
 
-// Loader handles loading and managing documentation files.
 type Loader struct {
 	docsDir string
 	docs    []Document
 	mu      sync.RWMutex
 }
 
-// NewLoader creates a new documentation loader.
 func NewLoader(docsDir string) *Loader {
 	return &Loader{
 		docsDir: docsDir,
@@ -84,7 +73,6 @@ func NewLoader(docsDir string) *Loader {
 	}
 }
 
-// Load loads all documentation files from the configured directory.
 func (l *Loader) Load() error {
 	langs, err := l.loadLanguagesAvailable()
 	if err != nil {
@@ -131,7 +119,6 @@ func (l *Loader) Load() error {
 	return nil
 }
 
-// GetDocs retrieves a list of documents in a specific language.
 func (l *Loader) GetDocs(lang string) []LanguageDoc {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -146,7 +133,6 @@ func (l *Loader) GetDocs(lang string) []LanguageDoc {
 	return docs
 }
 
-// GetFile retrieves a documentation file by slug and language.
 func (l *Loader) GetFile(slug, language string) File {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -162,7 +148,6 @@ func (l *Loader) GetFile(slug, language string) File {
 	return File{}
 }
 
-// SlugFromOldID gets a doc file's slug from its old ID.
 func (l *Loader) SlugFromOldID(id int) string {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -175,7 +160,6 @@ func (l *Loader) SlugFromOldID(id int) string {
 	return ""
 }
 
-// rawFile represents the YAML header data in documentation files.
 type rawFile struct {
 	Title            string `yaml:"title"`
 	OldID            int    `yaml:"old_id"`
@@ -252,7 +236,6 @@ func (l *Loader) loadLanguages(langs []string, fname string, referenceMD5 string
 	return m, nil
 }
 
-// IP management for documentation.
 type ipManager struct {
 	mu          sync.RWMutex
 	main        string
@@ -280,7 +263,6 @@ func (m *ipManager) update() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// Double-check after acquiring write lock
 	if time.Since(m.lastUpdated) < time.Hour*24*14 {
 		return
 	}

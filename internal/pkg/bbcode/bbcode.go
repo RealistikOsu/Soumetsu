@@ -1,4 +1,3 @@
-// Package bbcode implements BBCode compiling for Soumetsu.
 package bbcode
 
 import (
@@ -210,7 +209,6 @@ var emojiReplacer = func() *strings.Replacer {
 	return strings.NewReplacer(list...)
 }()
 
-// Compile takes some BBCode and converts it into safe HTML output.
 func Compile(s string) string {
 	s = emojiReplacer.Replace(s)
 	s = strings.TrimSpace(s)

@@ -1,4 +1,3 @@
-// Package middleware provides HTTP middleware for the API.
 package middleware
 
 import (
@@ -13,25 +12,21 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// SessionStore is the session store interface.
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 }
 
-// SessionInitializer creates middleware that initializes user sessions.
 func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := store.Get(r, "session")
 			if err != nil {
-				// Session error, continue with empty context
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			reqCtx := &apicontext.RequestContext{}
 
-			// Get user ID from session
 			userIDVal := sess.Values["userid"]
 			if userIDVal == nil {
 				ctx := apicontext.WithRequestContext(r.Context(), reqCtx)
@@ -46,7 +41,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				return
 			}
 
-			// Load user from database
 			var userData struct {
 				Username   string                `db:"username"`
 				Privileges int64                 `db:"privileges"`
@@ -61,7 +55,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				&userData.Username, &userData.Privileges, &userData.Flags, &userData.Password, &userData.Coins)
 
 			if err == sql.ErrNoRows {
-				// User not found, clear session
 				sess.Values["userid"] = nil
 				sess.Save(r, w)
 				ctx := apicontext.WithRequestContext(r.Context(), reqCtx)
@@ -74,11 +67,9 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				return
 			}
 
-			// Check password hasn't changed
 			pwVal := sess.Values["pw"]
 			if pwVal != nil {
 				if pw, ok := pwVal.(string); ok && pw != crypto.MD5(userData.Password) {
-					// Password changed, clear session
 					sess.Values["userid"] = nil
 					sess.Save(r, w)
 					ctx := apicontext.WithRequestContext(r.Context(), reqCtx)
@@ -87,7 +78,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				}
 			}
 
-			// Check if user is banned
 			if common.UserPrivileges(userData.Privileges)&1 == 0 {
 				sess.Values["userid"] = nil
 				sess.Save(r, w)
@@ -96,7 +86,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				return
 			}
 
-			// Load clan membership
 			var clanID, clanOwner int
 			err = db.QueryRowContext(r.Context(), `
 				SELECT clan, perms = 8 FROM user_clans WHERE user = ?`, userID).Scan(&clanID, &clanOwner)
@@ -105,7 +94,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				clanOwner = 0
 			}
 
-			// Build session user
 			reqCtx.User = models.SessionUser{
 				ID:         userID,
 				Username:   userData.Username,
@@ -116,7 +104,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				Coins:      userData.Coins,
 			}
 
-			// Get token from session
 			if tokenVal := sess.Values["token"]; tokenVal != nil {
 				if token, ok := tokenVal.(string); ok {
 					reqCtx.Token = token
@@ -129,7 +116,6 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 	}
 }
 
-// RequireAuth middleware ensures the user is authenticated.
 func RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqCtx := apicontext.GetRequestContextFromRequest(r)
@@ -141,7 +127,6 @@ func RequireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// RequireGuest middleware ensures the user is NOT authenticated.
 func RequireGuest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqCtx := apicontext.GetRequestContextFromRequest(r)
