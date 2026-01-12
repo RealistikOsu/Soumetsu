@@ -120,6 +120,22 @@ new Vue({
             hasAdmin: window.hasAdmin || false,
             avatarURL: window.soumetsuConf?.avatars || 'https://a.ussr.pl',
             baseAPI: window.soumetsuConf?.baseAPI || '',
+            
+            // Banner colors
+            bannerColors: null, // { color1: 'rgb(...)', color2: 'rgb(...)' }
+        }
+    },
+    watch: {
+        userID(newVal) {
+            if (newVal) {
+                // Try to extract colors from avatar if it's already loaded
+                this.$nextTick(() => {
+                    const avatarImg = this.$refs.profileAvatar;
+                    if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
+                        this.extractBannerColors({ target: avatarImg });
+                    }
+                });
+            }
         }
     },
     computed: {
@@ -160,6 +176,17 @@ new Vue({
         levelInt() {
             if (!this.currentStats?.level) return 0;
             return Math.floor(this.currentStats.level);
+        },
+        bannerGradient() {
+            if (this.bannerColors && this.bannerColors.color1 && this.bannerColors.color2) {
+                // Convert rgb to rgba with 20% opacity (0.2)
+                const color1RGBA = this.bannerColors.color1.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                const color2RGBA = this.bannerColors.color2.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                return {
+                    background: `linear-gradient(to bottom right, ${color1RGBA}, ${color2RGBA})`
+                };
+            }
+            return {}; // Fallback to default CSS gradient
         }
     },
     async created() {
@@ -624,6 +651,15 @@ new Vue({
             
             img.src = 'data:image/svg+xml,' + svgData;
             img.onerror = null; // Prevent infinite loop
+        },
+        
+        extractBannerColors(event) {
+            const img = event.target;
+            if (!window.BannerGradient) return;
+            
+            window.BannerGradient.extract(img, (colors) => {
+                this.bannerColors = colors;
+            });
         },
         
         // Friend actions

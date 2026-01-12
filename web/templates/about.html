@@ -3,121 +3,326 @@ Handler=/about
 DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="relative min-h-screen py-8">
-	<!-- Background with blur -->
+{{ $global := .Context }}
+<div class="relative min-h-screen py-10">
+	<!-- Background -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
 			style="background-image: url('/static/headers/default.jpg');"></div>
-		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 	</div>
 
-	<div class="container mx-auto px-4 max-w-5xl">
+	<div class="container mx-auto px-4 max-w-6xl">
 		<!-- Header -->
-		<div class="flex items-center gap-4 mb-8">
-			<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-				<i class="fas fa-info-circle text-primary text-2xl"></i>
+		<div class="flex items-start gap-4 mb-8">
+			<div class="w-16 h-16 bg-gradient-to-br from-primary to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+				<i class="fas fa-info-circle text-white text-2xl"></i>
 			</div>
-			<div>
-				<h1 class="text-4xl font-display font-bold text-white">About RealistikOsu!</h1>
-				<p class="text-gray-400">Learn more about our server</p>
+			<div class="flex-1">
+				<h1 class="text-4xl md:text-5xl font-display font-bold text-white">About RealistikOsu!</h1>
+				<p class="text-gray-400 mt-1">Discover what makes our server special</p>
 			</div>
 		</div>
 
 		<!-- Hero Section -->
-		<div class="card text-center mb-8">
-			<h2 class="text-4xl font-display font-bold mb-4">
-				Welcome to RealistikOsu!
-			</h2>
-			<p class="text-xl text-gray-300 mb-2">
-				RealistikOsu is a custom server for the popular rhythm game osu!
-			</p>
-			<p class="text-lg text-gray-400">
-				It extends upon the core osu! online experience and provides countless fun features!
-			</p>
+		<div class="card mb-8 overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-blue-500/15 pointer-events-none"></div>
+			<div class="relative p-8 md:p-10">
+				<div class="flex flex-col md:flex-row gap-8 items-start">
+					<div class="flex-1">
+						<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+							Welcome to RealistikOsu!
+						</h2>
+						<p class="text-gray-300 leading-relaxed mb-4">
+							RealistikOsu is a custom server for the popular rhythm game osu! that extends upon the core online experience with countless fun features, quality-of-life improvements, and a thriving community.
+						</p>
+						<p class="text-gray-400 leading-relaxed mb-4">
+							Since our launch in early 2020, we've grown from a small passion project into a vibrant community of dedicated players. We're committed to providing a free, open-source alternative that enhances your osu! experience without compromising on quality or features.
+						</p>
+						<p class="text-gray-300 leading-relaxed">
+							Whether you're looking to compete on leaderboards, download beatmaps instantly, or just hang out with friends, RealistikOsu has something for everyone.
+						</p>
+					</div>
+					<div class="w-full md:w-96 flex-shrink-0">
+						<img src="/static/about/intro.jpg" alt="RealistikOsu! Interface" class="w-full rounded-2xl border border-dark-border">
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<!-- Feature Sections -->
-		<div class="space-y-8">
-			<div class="card">
-				<img src="/static/about/intro.jpg" alt="Introduction" class="w-full rounded-lg mb-4">
+		<!-- Section Divider -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="flex-1 h-px bg-dark-border"></div>
+			<div class="flex items-center gap-2 text-gray-400">
+				<i class="fas fa-cog"></i>
+				<span class="font-medium">Advanced Features</span>
 			</div>
+			<div class="flex-1 h-px bg-dark-border"></div>
+		</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-list-ul text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Leaderboards</h3>
+		<!-- Advanced Features -->
+		<div class="space-y-8 mb-8">
+			<!-- Beatmap Rank Requests -->
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex flex-col md:flex-row gap-6 items-start">
+						<div class="flex-1">
+							<div class="flex items-center gap-4 mb-4">
+								<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+									<i class="fas fa-question-circle text-primary text-2xl"></i>
+								</div>
+								<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Beatmap Rank Requests</h3>
+							</div>
+							<p class="text-gray-300 mb-4 leading-relaxed">
+								Request that your favorite beatmaps be ranked! Our community-driven ranking system allows players to submit beatmaps for consideration. Help shape the ranked pool and discover new challenges.
+							</p>
+							<p class="text-gray-400 leading-relaxed">
+								Once a beatmap is ranked, it becomes available for competitive play and contributes to player rankings. It's your chance to influence what maps the community plays.
+							</p>
+						</div>
+						<div class="w-full md:w-96 flex-shrink-0">
+							<img src="/static/about/request_beatmaps.jpg" alt="Rank Requests" class="w-full rounded-2xl">
+						</div>
+					</div>
 				</div>
-				<img src="/static/about/leaderboards.jpg" alt="Leaderboards" class="w-full rounded-lg">
 			</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-globe text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Online Users</h3>
+			<!-- RealistikBot -->
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex flex-col md:flex-row gap-6 items-start">
+						<div class="w-full md:w-96 flex-shrink-0 order-2 md:order-1">
+							<img src="/static/about/relestobot.jpg" alt="RealistikBot" class="w-full rounded-2xl">
+						</div>
+						<div class="flex-1 order-1 md:order-2">
+							<div class="flex items-center gap-4 mb-4">
+								<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+									<i class="fas fa-plane text-primary text-2xl"></i>
+								</div>
+								<h3 class="text-2xl md:text-3xl font-display font-bold text-white">RealistikBot</h3>
+							</div>
+							<p class="text-gray-300 mb-4 leading-relaxed">
+								Meet RealistikBot, our in-game bot that's always ready to play! Challenge the bot to matches, use it for practice, or just have fun. It's a great way to warm up or test your skills when other players aren't available.
+							</p>
+							<p class="text-gray-400 leading-relaxed">
+								The bot adapts to different difficulty levels and game modes, making it perfect for players of all skill levels. Whether you're a beginner or a pro, RealistikBot is always up for a match.
+							</p>
+						</div>
+					</div>
 				</div>
-				<img src="/static/about/onlineusers.jpg" alt="Online Users" class="w-full rounded-lg">
 			</div>
+		</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-download text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Free Beatmap Downloads</h3>
+		<!-- Section Divider -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="flex-1 h-px bg-dark-border"></div>
+			<div class="flex items-center gap-2 text-gray-400">
+				<i class="fas fa-star"></i>
+				<span class="font-medium">Core Features</span>
+			</div>
+			<div class="flex-1 h-px bg-dark-border"></div>
+		</div>
+
+		<!-- Core Features Grid -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+			<!-- Leaderboards -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-list-ul text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Leaderboards</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						Compete with players from around the world on comprehensive leaderboards. Track your progress, see how you rank globally and locally, and watch your skills improve over time.
+					</p>
+					<img src="/static/about/leaderboards.jpg" alt="Leaderboards" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/osudirect.jpg" alt="osu!direct" class="w-full rounded-lg">
 			</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-trophy text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Global Leaderboards</h3>
+			<!-- Global Leaderboards -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-trophy text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Global Leaderboards</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						Experience leaderboards that span across all game modes. See who's dominating in Standard, Taiko, Catch the Beat, and Mania, all in one unified ranking system.
+					</p>
+					<img src="/static/about/global_leaderboards.jpg" alt="Global Leaderboards" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/global_leaderboards.jpg" alt="Global Leaderboards" class="w-full rounded-lg">
 			</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-question-circle text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Beatmap Rank Requests</h3>
+			<!-- Free Beatmap Downloads -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-download text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Free Beatmap Downloads</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						Download any beatmap directly from the game client with osu!direct integration. No need to visit external websites or deal with manual downloads—everything you need is right at your fingertips.
+					</p>
+					<img src="/static/about/osudirect.jpg" alt="osu!direct" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/request_beatmaps.jpg" alt="Rank Requests" class="w-full rounded-lg">
 			</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-eye text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Spectator</h3>
+			<!-- Online Users -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-globe text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Online Users</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						See who's online right now and what they're playing. Connect with friends, find players to challenge, and stay engaged with the community in real-time.
+					</p>
+					<img src="/static/about/onlineusers.jpg" alt="Online Users" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/spectator.jpg" alt="Spectator" class="w-full rounded-lg">
 			</div>
+		</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-users text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">Multiplayer</h3>
+		<!-- Section Divider -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="flex-1 h-px bg-dark-border"></div>
+			<div class="flex items-center gap-2 text-gray-400">
+				<i class="fas fa-users"></i>
+				<span class="font-medium">Community & Social</span>
+			</div>
+			<div class="flex-1 h-px bg-dark-border"></div>
+		</div>
+
+		<!-- Community Features -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+			<!-- Multiplayer -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-users text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Multiplayer</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						Create or join multiplayer rooms and compete with friends in real-time. Set custom rules, choose your favorite game modes, and experience the thrill of head-to-head competition.
+					</p>
+					<img src="/static/about/multi.jpg" alt="Multiplayer" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/multi.jpg" alt="Multiplayer" class="w-full rounded-lg">
 			</div>
 
-			<div class="card">
-				<div class="flex items-center gap-3 mb-4">
-					<i class="fas fa-plane text-primary text-2xl"></i>
-					<h3 class="text-2xl font-display font-bold">RealistikBot (in-game bot)</h3>
+			<!-- Spectator -->
+			<div class="card overflow-hidden relative group hover:border-primary/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors">
+							<i class="fas fa-eye text-primary text-2xl"></i>
+						</div>
+						<h3 class="text-2xl font-display font-bold text-white">Spectator</h3>
+					</div>
+					<p class="text-gray-300 mb-4 leading-relaxed">
+						Watch top players in action and learn from their techniques. Spectate live gameplay, analyze their playstyle, and improve your own skills by observing the best.
+					</p>
+					<img src="/static/about/spectator.jpg" alt="Spectator" class="w-full rounded-2xl">
 				</div>
-				<img src="/static/about/relestobot.jpg" alt="RealistikBot" class="w-full rounded-lg">
 			</div>
+		</div>
 
-			<!-- Final CTA -->
-			<div class="card text-center">
-				<h2 class="text-4xl font-display font-bold mb-6">And a lot more!</h2>
-				<p class="text-xl text-gray-300 mb-4">
-					RealistikOsu! was first released to the public in early 2020 and ever since we have grown an unbelievable amount!
-				</p>
-				<p class="text-lg text-gray-400 mb-6">
-					We have a long journey ahead of us! Come along and register and witness it unfold!
-				</p>
-				<p class="text-gray-300">
-					{{ "We are also open source! This means you are free to see the exact code we are currently running and even contribute to it! Check out the <a href=\"https://github.com/RealistikOsu\" class=\"text-primary hover:underline\">source code</a> RealistikOsu! is running on." | html }}
-				</p>
+		<!-- Section Divider -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="flex-1 h-px bg-dark-border"></div>
+			<div class="flex items-center gap-2 text-gray-400">
+				<i class="fas fa-heart"></i>
+				<span class="font-medium">Join Us</span>
+			</div>
+			<div class="flex-1 h-px bg-dark-border"></div>
+		</div>
+
+		<!-- Final CTA -->
+		<div class="card overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-blue-500/15 pointer-events-none"></div>
+			<div class="relative p-8 md:p-10">
+				<div class="text-center mb-8">
+					<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">And So Much More!</h2>
+					<p class="text-xl text-gray-300 mb-4 leading-relaxed max-w-3xl mx-auto">
+						RealistikOsu! was first released to the public in early 2020, and since then we've grown into an incredible community of passionate players.
+					</p>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6">
+						<div class="flex items-center gap-3 mb-3">
+							<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+								<i class="fas fa-code text-primary"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-white">Open Source</h3>
+						</div>
+						<p class="text-sm text-gray-300 leading-relaxed">
+							We're completely open source! Check out our code, contribute improvements, or even run your own instance. Transparency and community involvement are at the heart of what we do.
+						</p>
+					</div>
+
+					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6">
+						<div class="flex items-center gap-3 mb-3">
+							<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+								<i class="fas fa-rocket text-primary"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-white">Always Evolving</h3>
+						</div>
+						<p class="text-sm text-gray-300 leading-relaxed">
+							We're constantly adding new features, improving existing ones, and listening to community feedback. The journey never ends, and we'd love for you to be part of it.
+						</p>
+					</div>
+				</div>
+
+				<div class="text-center">
+					<p class="text-lg text-gray-300 mb-4">
+						{{ if $global.User.ID }}
+							Ready to connect with the community?
+						{{ else }}
+							Ready to start your journey?
+						{{ end }}
+					</p>
+					<div class="flex flex-wrap justify-center gap-4">
+						{{ if $global.User.ID }}
+							<a href="{{ config "DISCORD_SERVER_URL" .Conf }}" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-2">
+								<i class="fab fa-discord"></i>
+								Join our Discord
+							</a>
+						{{ else }}
+							<a href="/register" class="btn-primary inline-flex items-center gap-2">
+								<i class="fas fa-user-plus"></i>
+								Create an Account
+							</a>
+						{{ end }}
+						<a href="https://github.com/RealistikOsu" target="_blank" rel="noopener noreferrer" class="btn-secondary inline-flex items-center gap-2">
+							<i class="fab fa-github"></i>
+							View Source Code
+						</a>
+					</div>
+					<p class="text-sm text-gray-400 mt-6">
+						{{ if $global.User.ID }}
+							{{ "Have questions? Check out our <a href=\"/connection\" class=\"text-primary hover:underline\">connection guide</a> or explore more features!" | html }}
+						{{ else }}
+							{{ "Have questions? Check out our <a href=\"/connection\" class=\"text-primary hover:underline\">connection guide</a> or join our community Discord!" | html }}
+						{{ end }}
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
