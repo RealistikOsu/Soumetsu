@@ -1,7 +1,4 @@
-new Vue({
-	el: "#app",
-	delimiters: ["<%", "%>"],
-
+const rankRequestApp = Soumetsu.createApp({
 	data() {
 		return {
 			load: true,
@@ -17,10 +14,6 @@ new Vue({
 		};
 	},
 
-	created() {
-		this.fetchStatus();
-	},
-
 	computed: {
 		apiBase() {
 			return (window.soumetsuConf && window.soumetsuConf.baseAPI) ? window.soumetsuConf.baseAPI : "";
@@ -31,122 +24,123 @@ new Vue({
 		},
 
 		percent() {
-			if (!this.status) return 0;
+			if (!this.status) {return 0;}
 
-			var submitted = this.safeInt(this.status.submitted);
-			var queueSize = this.safeInt(this.status.queue_size);
-			if (queueSize <= 0) return 0;
+			const submitted = this.safeInt(this.status.submitted);
+			const queueSize = this.safeInt(this.status.queue_size);
+			if (queueSize <= 0) {return 0;}
 
-			var pct = Math.round((submitted / queueSize) * 100);
-			if (pct < 0) return 0;
-			if (pct > 100) return 100;
+			const pct = Math.round((submitted / queueSize) * 100);
+			if (pct < 0) {return 0;}
+			if (pct > 100) {return 100;}
 			return pct;
 		},
 	},
 
+	created() {
+		this.fetchStatus();
+	},
+
 	methods: {
 		safeInt(val) {
-			var n = Number(val);
-			if (!Number.isFinite(n)) return 0;
+			const n = Number(val);
+			if (!Number.isFinite(n)) {return 0;}
 			return Math.floor(n);
 		},
 
-		fetchStatus() {
-			var vm = this;
+		async fetchStatus() {
+			this.load = true;
+			this.error = false;
+			this.errorMessage = "";
+			this.submitMessage = "";
+			this.submitOk = false;
 
-			vm.load = true;
-			vm.error = false;
-			vm.errorMessage = "";
-			vm.submitMessage = "";
-			vm.submitOk = false;
-
-			if (!vm.apiConfigured) {
-				vm.load = false;
-				vm.error = true;
-				vm.errorMessage = "soumetsuConf.baseAPI is not set";
+			if (!this.apiConfigured) {
+				this.load = false;
+				this.error = true;
+				this.errorMessage = "soumetsuConf.baseAPI is not set";
 				return;
 			}
 
-			// Uses VueAxios injection (like leaderboards.js)
-			vm.$axios.get(vm.apiBase + "/api/v1/beatmaps/rank_requests/status", {
-				withCredentials: true,
-			})
-				.then(function (response) {
-					var data = response && response.data ? response.data : null;
-					var payload = (data && data.data) ? data.data : data;
-
-					if (!payload || typeof payload !== "object") {
-						throw new Error("Malformed response");
-					}
-
-					vm.status = payload;
-					vm.load = false;
-				})
-				.catch(function (error) {
-					console.error("Rank request status error:", error);
-
-					vm.load = false;
-					vm.error = true;
-
-					if (error && error.response && error.response.status) {
-						vm.errorMessage = "HTTP " + error.response.status;
-					} else if (error && error.message) {
-						vm.errorMessage = error.message;
-					} else {
-						vm.errorMessage = "Request failed";
-					}
+			try {
+				const response = await fetch(this.apiBase + "/api/v1/beatmaps/rank_requests/status", {
+					credentials: 'include',
 				});
+
+				if (!response.ok) {
+					throw new Error("HTTP " + response.status);
+				}
+
+				const data = await response.json();
+				const payload = (data && data.data) ? data.data : data;
+
+				if (!payload || typeof payload !== "object") {
+					throw new Error("Malformed response");
+				}
+
+				this.status = payload;
+				this.load = false;
+			} catch (error) {
+				console.error("Rank request status error:", error);
+
+				this.load = false;
+				this.error = true;
+				this.errorMessage = error.message || "Request failed";
+			}
 		},
 
-		submitBeatmap() {
-			var vm = this;
+		async submitBeatmap() {
+			this.submitMessage = "";
+			this.submitOk = false;
 
-			vm.submitMessage = "";
-			vm.submitOk = false;
-
-			var url = (vm.beatmapUrl || "").trim();
+			const url = (this.beatmapUrl || "").trim();
 			if (!url) {
-				vm.submitMessage = "Please paste a beatmap URL.";
+				this.submitMessage = "Please paste a beatmap URL.";
 				return;
 			}
 
-			if (!vm.apiConfigured) {
-				vm.submitMessage = "Submission is unavailable: API is not configured.";
+			if (!this.apiConfigured) {
+				this.submitMessage = "Submission is unavailable: API is not configured.";
 				return;
 			}
 
-			if (vm.status && vm.status.can_submit === false) {
-				vm.submitMessage = "You have reached your daily limit for requesting beatmaps.";
+			if (this.status && this.status.can_submit === false) {
+				this.submitMessage = "You have reached your daily limit for requesting beatmaps.";
 				return;
 			}
 
-			// If you don't have this endpoint yet, it will fail gracefully.
-			var submitUrl = vm.apiBase + "/api/v1/beatmaps/rank_requests";
+			const submitUrl = this.apiBase + "/api/v1/beatmaps/rank_requests";
 
-			vm.submitting = true;
+			this.submitting = true;
 
-			vm.$axios.post(submitUrl, { url: url }, { withCredentials: true })
-				.then(function () {
-					vm.submitOk = true;
-					vm.submitMessage = "Submitted! Your request should appear in the queue shortly.";
-					vm.beatmapUrl = "";
-					vm.fetchStatus();
-				})
-				.catch(function (error) {
-					console.error("Rank request submit error:", error);
-
-					vm.submitOk = false;
-					if (error && error.response && error.response.status) {
-						vm.submitMessage = "Could not submit: HTTP " + error.response.status;
-					} else if (error && error.message) {
-						vm.submitMessage = "Could not submit: " + error.message;
-					} else {
-						vm.submitMessage = "Could not submit: request failed";
-					}
-				})
-				.finally(function () {
-					vm.submitting = false;
+			try {
+				const response = await fetch(submitUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					credentials: 'include',
+					body: JSON.stringify({ url: url }),
 				});
+
+				if (!response.ok) {
+					throw new Error("HTTP " + response.status);
+				}
+
+				this.submitOk = true;
+				this.submitMessage = "Submitted! Your request should appear in the queue shortly.";
+				this.beatmapUrl = "";
+				this.fetchStatus();
+			} catch (error) {
+				console.error("Rank request submit error:", error);
+
+				this.submitOk = false;
+				this.submitMessage = "Could not submit: " + (error.message || "request failed");
+			} finally {
+				this.submitting = false;
+			}
 		},
 	},
 });
+
+rankRequestApp.mount('#app');

@@ -2,28 +2,43 @@
   "name": "soumetsu",
   "version": "1.0.0",
   "scripts": {
-    "tailwind:watch": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
-    "tailwind:build": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
-    "dev": "npm run tailwind:watch"
+    "tailwind:watch": "tailwindcss -i ./web/static/css/input.css -o ./web/static/css/output.css --watch",
+    "tailwind:build": "tailwindcss -i ./web/static/css/input.css -o ./web/static/css/output.css --minify",
+    "dev": "npm run tailwind:watch",
+    "build": "gulp build",
+    "lint": "eslint 'web/static/**/*.js' --ignore-pattern 'web/static/dist.min.js' --ignore-pattern 'web/static/vue/vue.js' --ignore-pattern 'web/static/vue/vue-axios.js'",
+    "lint:fix": "eslint 'web/static/**/*.js' --fix --ignore-pattern 'web/static/dist.min.js' --ignore-pattern 'web/static/vue/vue.js' --ignore-pattern 'web/static/vue/vue-axios.js'",
+    "lint:check": "eslint 'web/static/**/*.js' --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "i18next": "^7.1.2",
-    "i18next-xhr-backend": "^1.4.1"
+    "dompurify": "^3.0.8",
+    "i18next": "^23.7.16",
+    "i18next-http-backend": "^2.4.2"
   },
   "devDependencies": {
-    "babel-preset-latest": "^6.16.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
+    "@testing-library/dom": "^10.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-security": "^2.1.1",
+    "eslint-plugin-vue": "^9.23.0",
+    "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
-    "gulp-flatten": "^0.3.1",
-    "gulp-plumber": "^1.1.0",
-    "gulp-uglify": "^2.0.0",
-    "gulp-postcss": "^8.0.0",
-    "jquery": "^3.1.1",
-    "timeago": "^1.5.3",
-    "vue": "^2.1.4",
-    "tailwindcss": "^3.4.0",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
+    "gulp-flatten": "^0.4.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^10.0.0",
+    "gulp-uglify": "^3.0.2",
+    "happy-dom": "^14.0.0",
+    "jquery": "^3.7.1",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.1",
+    "timeago": "^1.6.7",
+    "vitest": "^1.6.0",
+    "vue": "^3.4.0"
   }
 }

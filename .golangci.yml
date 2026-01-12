@@ -1,0 +1,133 @@
+run:
+  timeout: 5m
+  go: '1.21'
+  tests: true
+  skip-dirs:
+    - vendor
+    - node_modules
+    - web/static
+
+linters:
+  disable-all: true
+  enable:
+    # Bug detection - critical
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - typecheck
+
+    # Security - critical for web application
+    - gosec
+
+    # Code quality
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - misspell
+    - unconvert
+    - unparam
+    - unused
+
+    # Style consistency
+    - revive
+    - stylecheck
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+  gosec:
+    severity: medium
+    confidence: medium
+    excludes:
+      - G104 # Audit errors not checked (we'll enable this gradually)
+    config:
+      G301: "0750" # Directory permissions
+      G302: "0640" # File permissions
+      G306: "0640" # WriteFile permissions
+
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - (io.Closer).Close
+      - (net/http.ResponseWriter).Write
+
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment # Too noisy for existing codebase
+
+  revive:
+    severity: warning
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: error-naming
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: var-declaration
+      - name: package-comments
+        disabled: true # Allow missing package comments during migration
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+        disabled: true # Too noisy initially
+      - name: unreachable-code
+
+  stylecheck:
+    checks:
+      - all
+      - -ST1000 # Package comments
+      - -ST1003 # Underscore in package name (allow for now)
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - hugeParam # Too noisy
+      - rangeValCopy # Too noisy
+
+issues:
+  exclude-rules:
+    # Test files have relaxed rules
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - gocritic
+
+    # Allow longer functions in handlers (will refactor later)
+    - path: internal/api/handlers/
+      linters:
+        - gocyclo
+
+    # Allow unused parameters in interface implementations
+    - linters:
+        - revive
+      text: "unused-parameter"
+
+  # Show all issues, don't limit
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  # Include test files
+  include:
+    - EXC0012 # EXC0012 errcheck: Almost all programs ignore errors on these functions
+    - EXC0014 # EXC0014 revive: Exported function ... should have comment

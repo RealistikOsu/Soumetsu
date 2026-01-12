@@ -1,23 +1,23 @@
 (function() {
     // Only run on non-mobile
-    if (window.innerWidth < 768) return;
+    if (window.innerWidth < 768) {return;}
 
     // Inject CSS
     const style = document.createElement('style');
     style.textContent = `
-        #user-card-popover { 
+        #user-card-popover {
             transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: opacity, transform;
         }
-        #user-card-popover.visible { 
-            opacity: 1; 
-            transform: translateY(0); 
-            pointer-events: auto; 
+        #user-card-popover.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
-        #user-card-popover.hidden-card { 
-            opacity: 0; 
-            transform: translateY(8px); 
-            pointer-events: none; 
+        #user-card-popover.hidden-card {
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
         }
         .uc-shimmer {
             animation: uc-shimmer 2s infinite linear;
@@ -37,7 +37,7 @@
             <!-- Banner -->
             <div class="absolute inset-0 bg-cover bg-center transition-all duration-500" id="uc-banner"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
-            
+
             <!-- Content -->
             <div class="relative z-10 h-full flex flex-col justify-between p-4">
                 <!-- Top: Rank & Badges -->
@@ -58,7 +58,7 @@
                     <!-- Badges -->
                     <div class="flex justify-end gap-1.5 ml-auto" id="uc-badges"></div>
                 </div>
-                
+
                 <!-- Bottom: Info -->
                 <div class="flex items-end gap-3">
                     <img src="" id="uc-avatar" class="w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-800 object-cover shadow-lg shrink-0">
@@ -80,7 +80,7 @@
     `;
 
     document.body.insertAdjacentHTML('beforeend', cardHTML);
-    
+
     const card = document.getElementById('user-card-popover');
     const els = {
         banner: document.getElementById('uc-banner'),
@@ -111,20 +111,20 @@
     function getRoleBadges(privileges) {
         const badges = [];
         // Helper to add badge
-        const add = (icon, color, title) => {
-            badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${color} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
+        const add = (icon, colour, title) => {
+            badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${colour} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
         };
 
-        if (privileges & 8192) add('fas fa-gavel', 'text-red-400', 'Admin'); // ManageUsers
-        else if (privileges & 4096) add('fas fa-shield-alt', 'text-purple-400', 'Moderator'); // AccessRAP
-        
-        if (privileges & 4) add('fas fa-heart', 'text-yellow-400', 'Supporter'); // Donor
-        
+        if (privileges & 8192) {add('fas fa-gavel', 'text-red-400', 'Admin');} // ManageUsers
+        else if (privileges & 4096) {add('fas fa-shield-alt', 'text-purple-400', 'Moderator');} // AccessRAP
+
+        if (privileges & 4) {add('fas fa-heart', 'text-yellow-400', 'Supporter');} // Donor
+
         return badges.join('');
     }
 
     async function fetchUser(id) {
-        if (cache[id] && (Date.now() - cache[id].time < 60000)) return cache[id].data;
+        if (cache[id] && (Date.now() - cache[id].time < 60000)) {return cache[id].data;}
 
         try {
             const [infoResp, statusResp] = await Promise.all([
@@ -133,7 +133,7 @@
             ]);
 
             // Adjust check for external API response code
-            if (infoResp.code !== 200) throw new Error("User not found");
+            if (infoResp.code !== 200) {throw new Error("User not found");}
 
             const data = {
                 ...infoResp,
@@ -149,13 +149,13 @@
     }
 
     function updateCard(data) {
-        if (!data) return;
+        if (!data) {return;}
 
         // Content
         els.usernameLink.textContent = data.username;
         els.usernameLink.href = `/users/${data.id}`;
         els.avatar.src = `${AVATAR_URL}/${data.id}`;
-        
+
         // Flag
         if (data.country) {
             els.flag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
@@ -169,7 +169,7 @@
         const modes = ['std', 'taiko', 'ctb', 'mania'];
         const mode = modes[data.favourite_mode || 0];
         const stats = data.stats && data.stats.vn && data.stats.vn[mode];
-        
+
         // Global Rank
         if (stats && stats.global_leaderboard_rank > 0) {
             els.rank.textContent = '#' + stats.global_leaderboard_rank.toLocaleString();
@@ -217,37 +217,37 @@
             // Set fallback gradient first
             els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
             els.banner.style.backgroundColor = '#0f172a';
-            
-            // Extract colors from avatar and apply gradient
+
+            // Extract colours from avatar and apply gradient
             if (window.BannerGradient && els.avatar) {
-                // Ensure avatar has crossorigin attribute for color extraction
+                // Ensure avatar has crossorigin attribute for colour extraction
                 if (!els.avatar.crossOrigin) {
                     els.avatar.crossOrigin = 'anonymous';
                 }
-                
+
                 // Add transition class for smooth gradient changes
                 els.banner.classList.add('banner-gradient-transition');
-                
+
                 // Extract and apply gradient
                 function applyGradient() {
                     // Use a small delay to ensure avatar is fully rendered
                     setTimeout(function() {
                         if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
-                            window.BannerGradient.extract(els.avatar, function(colors) {
-                                if (colors && colors.color1 && colors.color2 && els.banner) {
-                                    window.BannerGradient.apply(els.banner, colors);
+                            window.BannerGradient.extract(els.avatar, function(colours) {
+                                if (colours && colours.colour1 && colours.colour2 && els.banner) {
+                                    window.BannerGradient.apply(els.banner, colours);
                                 }
                             });
                         }
                     }, 50);
                 }
-                
+
                 // Try to apply immediately if avatar is already loaded
                 if (els.avatar.complete && els.avatar.naturalWidth > 0) {
                     applyGradient();
                 } else {
                     // Wait for avatar to load
-                    var loadHandler = function() {
+                    const loadHandler = function() {
                         applyGradient();
                         els.avatar.removeEventListener('load', loadHandler);
                     };
@@ -260,30 +260,30 @@
     function showCard(target, id) {
         clearTimeout(hideTimeout);
         clearTimeout(showTimeout);
-        
+
         activeLink = target;
         card.style.display = 'block';
-        
+
         // Initial state (loading/cached)
         const cached = cache[id]?.data;
-        
+
         // Position
         const rect = target.getBoundingClientRect();
         const cardWidth = 320;
         const cardHeight = 160;
         const margin = 12;
-        
+
         let top = rect.bottom + margin;
         let left = rect.left + (rect.width / 2) - (cardWidth / 2);
-        
+
         // Flip if bottom overflow
         if (top + cardHeight > window.innerHeight) {
             top = rect.top - cardHeight - margin;
         }
-        
+
         // Clamp horizontal
         left = Math.max(margin, Math.min(left, window.innerWidth - cardWidth - margin));
-        
+
         card.style.top = `${top}px`;
         card.style.left = `${left}px`;
 
@@ -328,7 +328,7 @@
             card.classList.remove('visible');
             card.classList.add('hidden-card');
             isVisible = false;
-            
+
             setTimeout(() => {
                 if (!isVisible) {
                     card.style.display = 'none';
@@ -341,22 +341,22 @@
     // Event Delegation
     document.addEventListener('mouseover', (e) => {
         const link = e.target.closest('a');
-        if (!link) return;
+        if (!link) {return;}
 
         // Ignore links inside the card itself to prevent recursion
-        if (link.closest('#user-card-popover')) return;
+        if (link.closest('#user-card-popover')) {return;}
 
         const href = link.getAttribute('href');
-        if (!href) return;
+        if (!href) {return;}
 
         // Match /u/123 or /users/123
         const match = href.match(/^\/(?:u|users)\/(\d+)$/);
         if (match) {
             const id = parseInt(match[1]);
-            
+
             // Do not show for current user if inside navbar
-            if (id === window.currentUserID && link.closest('nav')) return;
-            
+            if (id === window.currentUserID && link.closest('nav')) {return;}
+
             clearTimeout(hideTimeout);
             showTimeout = setTimeout(() => showCard(link, id), 200);
         }
@@ -368,13 +368,13 @@
             hideCard();
         }
     });
-    
+
     // Keep visible when hovering the card itself
     card.addEventListener('mouseenter', () => {
         clearTimeout(hideTimeout);
         clearTimeout(showTimeout);
     });
-    
+
     card.addEventListener('mouseleave', () => {
         hideCard();
     });

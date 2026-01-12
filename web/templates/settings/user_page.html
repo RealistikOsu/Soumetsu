@@ -10,7 +10,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/settings2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -18,7 +18,7 @@ DisableHH=true
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col md:flex-row gap-6">
 			{{ template "settingsSidebar" . }}
-			
+
 			<div class="flex-1">
 				<div class="card">
 					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
@@ -30,7 +30,7 @@ DisableHH=true
 							<p class="text-sm text-gray-400">Customise your profile's "me!" section</p>
 						</div>
 					</div>
-					
+
 					<form method="post" action="/settings/user-page" class="space-y-6">
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 							                            <!-- Left: Preview -->
@@ -40,7 +40,7 @@ DisableHH=true
 							                                        <i class="fas fa-eye"></i>
 							                                        Live Preview
 							                                    </h3>
-							                                    
+
 							                                    <!-- Profile Section Preview -->
 							                                    <div class="card">
 							                                        <div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
@@ -95,7 +95,7 @@ DisableHH=true
 											<i class="fas fa-external-link-alt"></i> Syntax Guide
 										</a>
 									</div>
-									
+
 									<textarea name="data" id="bbcode-input"
 										class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder-gray-600"
 										rows="20"
@@ -130,7 +130,7 @@ DisableHH=true
 	document.addEventListener('DOMContentLoaded', function() {
 		const input = document.getElementById('bbcode-input');
 		const preview = document.getElementById('preview-content');
-		
+
 		function updatePreview() {
 			if (window.parseBBCode && input && preview) {
 				preview.innerHTML = window.parseBBCode(input.value);

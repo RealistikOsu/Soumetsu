@@ -6,10 +6,10 @@ DisableHH=true
 AdditionalJS=/static/vue/pages/rank_request.js
 */}}
 {{ define "tpl" }}
-	
+
 	<script src="/static/vue/vue.js"></script>
-	<script src="/static/vue/vue-axios.js"></script>
-	
+	<script src="/static/vue/soumetsu-app.js"></script>
+
 	<div class="relative min-h-screen py-10">
 		<!-- Background -->
 		<div class="fixed inset-0 -z-10">
@@ -17,7 +17,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 				style="background-image: url('/static/headers/request_beatmap_ranking.jpg');"></div>
 			<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 		</div>
-	
+
 		<div class="container mx-auto px-4 max-w-6xl" id="app">
 			<!-- Header -->
 			<div class="flex items-start gap-4 mb-8">
@@ -29,11 +29,11 @@ AdditionalJS=/static/vue/pages/rank_request.js
 					<p class="text-gray-400 mt-1">Submit beatmaps for ranking consideration</p>
 				</div>
 			</div>
-	
+
 			<!-- Main card -->
 			<div class="card overflow-hidden relative">
 				<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-primary/10 pointer-events-none"></div>
-	
+
 				<div class="relative p-8 md:p-10">
 					<!-- Intro -->
 					<div class="text-center max-w-3xl mx-auto">
@@ -44,7 +44,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 							Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!
 						</p>
 					</div>
-	
+
 					<!-- Divider -->
 					<div class="flex items-center gap-4 my-10">
 						<div class="flex-1 h-px bg-dark-border"></div>
@@ -54,7 +54,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 						</div>
 						<div class="flex-1 h-px bg-dark-border"></div>
 					</div>
-	
+
 					<!-- Loading -->
 					<div v-if="load" class="bg-dark-bg/50 border border-dark-border rounded-2xl p-8 text-center">
 						<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/20 flex items-center justify-center">
@@ -63,18 +63,18 @@ AdditionalJS=/static/vue/pages/rank_request.js
 						<h3 class="text-2xl font-display font-bold text-white mb-2">Loading queue status...</h3>
 						<p class="text-gray-400">Fetching the latest rank request info.</p>
 					</div>
-	
+
 					<!-- API unavailable -->
 					<div v-else-if="error" class="bg-dark-bg/50 border border-dark-border rounded-2xl p-8 text-center">
 						<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/20 flex items-center justify-center">
 							<i class="fas fa-plug-circle-xmark text-red-400 text-2xl"></i>
 						</div>
-	
+
 						<h3 class="text-2xl font-display font-bold text-white mb-2">Rank request service unavailable</h3>
 						<p class="text-gray-400 leading-relaxed mb-6">
 							The queue is currently unavailable. This usually means the API is offline or not yet configured.
 						</p>
-	
+
 						<div class="bg-dark-bg border border-dark-border rounded-xl p-4 text-left text-sm text-gray-300 max-w-xl mx-auto">
 							<p class="mb-2">
 								<i class="fas fa-info-circle mr-2 text-primary"></i>
@@ -85,18 +85,18 @@ AdditionalJS=/static/vue/pages/rank_request.js
 								<li>Contact staff if this persists</li>
 								<li>Verify backend API configuration</li>
 							</ul>
-	
+
 							<p class="mt-3 text-xs text-gray-500">
 								<i class="fas fa-wrench mr-2"></i>
-								Error: <% errorMessage || 'Unknown' %>
+								Error: {{ v "errorMessage || 'Unknown'" }}
 							</p>
 						</div>
-	
+
 						<button type="button" class="btn-secondary mt-6" @click="fetchStatus">
 							<i class="fas fa-rotate-right mr-2"></i>Retry
 						</button>
 					</div>
-	
+
 					<!-- Ready -->
 					<div v-else class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
 						<!-- Left: Stats -->
@@ -107,31 +107,31 @@ AdditionalJS=/static/vue/pages/rank_request.js
 										<p class="text-sm text-gray-400 mb-1">Requests submitted</p>
 										<p class="text-xs text-gray-500">In the past 24 hours</p>
 									</div>
-	
+
 									<div v-if="status && status.submitted_by_user" class="text-xs px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
 										<i class="fas fa-user mr-2"></i>Includes yours
 									</div>
 								</div>
-	
+
 								<div class="mt-5">
 									<div class="text-4xl md:text-5xl font-bold text-white leading-none">
-										<span><% safeInt(status.submitted) %>/<% safeInt(status.queue_size) %></span>
+										<span>{{ v "safeInt(status.submitted)" }}/{{ v "safeInt(status.queue_size)" }}</span>
 									</div>
-	
+
 									<div v-if="status && status.submitted_by_user" class="mt-2 text-sm text-gray-400">
-										(<% safeInt(status.submitted_by_user) %>/<% safeInt(status.max_per_user) %> by you)
+										({{ v "safeInt(status.submitted_by_user)" }}/{{ v "safeInt(status.max_per_user)" }} by you)
 									</div>
 								</div>
-	
+
 								<div class="mt-6">
 									<div class="relative h-3 bg-dark-border rounded-full overflow-hidden">
 										<div class="h-full bg-gradient-to-r from-primary to-yellow-400 rounded-full transition-all duration-300" :style="{ width: percent + '%' }"></div>
 									</div>
-									<p class="text-right text-sm text-gray-400 mt-2"><% percent %>%</p>
+									<p class="text-right text-sm text-gray-400 mt-2">{{ v "percent" }}%</p>
 								</div>
 							</div>
 						</div>
-	
+
 						<!-- Right: Submit -->
 						<div class="lg:col-span-3">
 							<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-6 h-full">
@@ -144,7 +144,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 										<p class="text-xs text-gray-400">Paste a beatmap link from this site</p>
 									</div>
 								</div>
-	
+
 								<div v-if="status && status.can_submit === false" class="p-5 rounded-2xl border border-orange-500/30 bg-orange-500/10 mb-4">
 									<div class="flex items-start gap-3">
 										<div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
@@ -155,15 +155,15 @@ AdditionalJS=/static/vue/pages/rank_request.js
 												You have reached your daily limit for requesting beatmaps!
 											</h3>
 											<p v-if="status && status.next_expiration" class="text-gray-300">
-												Please try again <b><% status.next_expiration %></b>
+												Please try again <b>{{ v "status.next_expiration" }}</b>
 											</p>
 										</div>
 									</div>
 								</div>
-	
+
 								<form class="space-y-4" @submit.prevent="submitBeatmap">
 									<label class="block text-sm font-medium text-gray-300">Beatmap URL</label>
-	
+
 									<div class="flex flex-col sm:flex-row gap-3">
 										<div class="relative flex-1">
 											<i class="fas fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
@@ -175,7 +175,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 												:disabled="submitting || (status && status.can_submit === false) || !apiConfigured"
 											>
 										</div>
-	
+
 										<button
 											type="submit"
 											class="btn-primary whitespace-nowrap px-6 py-3"
@@ -189,31 +189,30 @@ AdditionalJS=/static/vue/pages/rank_request.js
 											</span>
 										</button>
 									</div>
-	
+
 									<div v-if="!apiConfigured" class="text-sm text-orange-300">
 										<i class="fas fa-circle-exclamation mr-2"></i>
 										Submission is unavailable: API is not configured.
 									</div>
-	
+
 									<div v-if="submitMessage" class="text-sm" :class="submitOk ? 'text-green-300' : 'text-orange-300'">
 										<i class="fas" :class="submitOk ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
-										<span class="ml-2"><% submitMessage %></span>
+										<span class="ml-2">{{ v "submitMessage" }}</span>
 									</div>
-	
+
 									<div class="mt-2 text-xs text-gray-400">
 										<i class="fas fa-shield-alt mr-2 text-primary"></i>
 										Requests are rate-limited to keep the queue fair for everyone.
 									</div>
 								</form>
-	
+
 							</div>
 						</div>
 					</div>
-	
+
 				</div>
 			</div>
-	
+
 		</div>
 	</div>
 	{{ end }}
-	

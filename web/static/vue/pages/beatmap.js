@@ -1,6 +1,4 @@
-new Vue({
-    el: "#beatmap-app",
-    delimiters: ["<%", "%>"],
+const beatmapApp = Soumetsu.createApp({
     data() {
         return {
             // Beatmap data
@@ -32,25 +30,25 @@ new Vue({
 
     computed: {
         sortedDifficulties() {
-            if (!this.beatmapSet?.ChildrenBeatmaps) return [];
+            if (!this.beatmapSet?.ChildrenBeatmaps) {return [];}
             return [...this.beatmapSet.ChildrenBeatmaps].sort((a, b) => {
-                if (a.Mode !== b.Mode) return a.Mode - b.Mode;
+                if (a.Mode !== b.Mode) {return a.Mode - b.Mode;}
                 return a.DifficultyRating - b.DifficultyRating;
             });
         },
 
         audioUrl() {
-            if (!this.beatmapSet?.SetID) return '';
+            if (!this.beatmapSet?.SetID) {return '';}
             return `https://b.ppy.sh/preview/${this.beatmapSet.SetID}.mp3`;
         },
 
         coverUrl() {
-            if (!this.beatmapSet?.SetID) return '';
+            if (!this.beatmapSet?.SetID) {return '';}
             return `https://assets.ppy.sh/beatmaps/${this.beatmapSet.SetID}/covers/cover.jpg`;
         },
 
         thumbUrl() {
-            if (!this.beatmapSet?.SetID) return '';
+            if (!this.beatmapSet?.SetID) {return '';}
             return `https://b.ppy.sh/thumb/${this.beatmapSet.SetID}l.jpg`;
         },
 
@@ -118,7 +116,7 @@ new Vue({
         },
 
         async loadScores() {
-            if (this.scoresLoading) return;
+            if (this.scoresLoading) {return;}
 
             this.scoresLoading = true;
             this.scores = [];
@@ -153,14 +151,14 @@ new Vue({
         },
 
         setRelax(rx) {
-            if (this.relax === rx) return;
+            if (this.relax === rx) {return;}
             this.relax = rx;
             this.updateURL();
             this.loadScores();
         },
 
         setMode(m) {
-            if (this.mode === m) return;
+            if (this.mode === m) {return;}
             this.mode = m;
             this.updateURL();
             this.loadScores();
@@ -176,7 +174,7 @@ new Vue({
 
         toggleAudio() {
             const audio = this.$refs.audio;
-            if (!audio) return;
+            if (!audio) {return;}
 
             if (this.isPlaying) {
                 audio.pause();
@@ -199,7 +197,7 @@ new Vue({
 
         // Helper: Format time in mm:ss
         timeFormat(seconds) {
-            if (!seconds) return '0:00';
+            if (!seconds) {return '0:00';}
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -207,13 +205,13 @@ new Vue({
 
         // Helper: Add commas to numbers
         addCommas(num) {
-            if (num === undefined || num === null) return '0';
+            if (num === undefined || num === null) {return '0';}
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         },
 
         // Helper: Format accuracy
         formatAccuracy(acc) {
-            if (acc === undefined || acc === null) return '0.00';
+            if (acc === undefined || acc === null) {return '0.00';}
             return parseFloat(acc).toFixed(2);
         },
 
@@ -299,27 +297,27 @@ new Vue({
                     const ratio300 = c300 / total;
                     const ratio50 = c50 / total;
 
-                    if (ratio300 === 1) return ss;
-                    if (ratio300 > 0.9 && ratio50 <= 0.01 && cmiss === 0) return s;
-                    if ((ratio300 > 0.8 && cmiss === 0) || ratio300 > 0.9) return "A";
-                    if ((ratio300 > 0.7 && cmiss === 0) || ratio300 > 0.8) return "B";
-                    if (ratio300 > 0.6) return "C";
+                    if (ratio300 === 1) {return ss;}
+                    if (ratio300 > 0.9 && ratio50 <= 0.01 && cmiss === 0) {return s;}
+                    if ((ratio300 > 0.8 && cmiss === 0) || ratio300 > 0.9) {return "A";}
+                    if ((ratio300 > 0.7 && cmiss === 0) || ratio300 > 0.8) {return "B";}
+                    if (ratio300 > 0.6) {return "C";}
                     return "D";
                 }
                 case 2: {
-                    if (acc === 100) return ss;
-                    if (acc > 98) return s;
-                    if (acc > 94) return "A";
-                    if (acc > 90) return "B";
-                    if (acc > 85) return "C";
+                    if (acc === 100) {return ss;}
+                    if (acc > 98) {return s;}
+                    if (acc > 94) {return "A";}
+                    if (acc > 90) {return "B";}
+                    if (acc > 85) {return "C";}
                     return "D";
                 }
                 case 3: {
-                    if (acc === 100) return ss;
-                    if (acc > 95) return s;
-                    if (acc > 90) return "A";
-                    if (acc > 80) return "B";
-                    if (acc > 70) return "C";
+                    if (acc === 100) {return ss;}
+                    if (acc > 95) {return s;}
+                    if (acc > 90) {return "A";}
+                    if (acc > 80) {return "B";}
+                    if (acc > 70) {return "C";}
                     return "D";
                 }
                 default:
@@ -339,10 +337,12 @@ new Vue({
 
         // Escape HTML
         escapeHTML(str) {
-            if (!str) return '';
+            if (!str) {return '';}
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
         },
     },
 });
+
+beatmapApp.mount('#beatmap-app');

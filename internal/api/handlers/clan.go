@@ -189,7 +189,7 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if reqCtx.User.Privileges&1 != 1 {
+	if reqCtx.User.IsBanned() {
 		h.templates.Forbidden(w, r)
 		return
 	}
@@ -207,14 +207,14 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			h.addMessage(sess, models.NewError(svcErr.Message))
 		} else {
-			h.addMessage(sess, models.NewError("NO!!!"))
+			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
 		sess.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
-	h.addMessage(sess, models.NewSuccess("You've joined the clan! Hooray!! \\(^o^)/"))
+	h.addMessage(sess, models.NewSuccess("You have joined the clan."))
 	sess.Save(r, w)
 	http.Redirect(w, r, "/clans/"+strconv.Itoa(clanID), http.StatusFound)
 }
@@ -253,7 +253,7 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.addMessage(sess, models.NewSuccess("Success!"))
+	h.addMessage(sess, models.NewSuccess("Member has been removed."))
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
 }
@@ -330,7 +330,7 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.addMessage(sess, models.NewSuccess("Success!"))
+	h.addMessage(sess, models.NewSuccess("Settings saved successfully."))
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
 }
@@ -342,19 +342,15 @@ func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, message
 		KyutGrill: "clans.jpg",
 		Scripts:   []string{"https://www.google.com/recaptcha/api.js"},
 		Messages:  messages,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 		Context:   reqCtx,
 	})
 }
 
 func (h *ClanHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	sess, _ := h.store.Get(r, "session")
-	h.addMessage(sess, models.NewWarning("You need to login first."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/login?redir="+r.URL.Path, http.StatusFound)
+	RedirectToLogin(w, r, h.store) // Use shared implementation
 }
 
 func (h *ClanHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	messages, _ := sess.Values["messages"].([]models.Message)
-	sess.Values["messages"] = append(messages, msg)
+	AddMessage(sess, msg) // Use shared implementation
 }

@@ -1,27 +1,25 @@
-new Vue({
-    el: "#beatmap-search-app",
-    delimiters: ["<%", "%>"],
+const beatmapSearchApp = Soumetsu.createApp({
     data() {
         return {
             // Search state
             searchQuery: "",
             selectedMode: "",
             selectedStatus: "1",
-            
+
             // Results
             beatmaps: [],
             offset: 0,
             amount: 20,
-            
+
             // UI state
             loading: false,
             hasMore: true,
-            
+
             // Audio state
             beatmapAudios: [],
             currentlyPlaying: null,
             beatmapTimer: null,
-            
+
             // Constants
             mirror_api: "https://osu.direct/api",
             sources: [
@@ -57,13 +55,13 @@ new Vue({
             modeNames: ["osu", "taiko", "fruits", "mania"]
         };
     },
-    
+
     created() {
         // Initial search on page load
         this.searchBeatmaps(true);
         this.setupScrollListener();
     },
-    
+
     methods: {
         async searchBeatmaps(reset = true) {
             if (reset) {
@@ -71,27 +69,27 @@ new Vue({
                 this.beatmaps = [];
                 this.hasMore = true;
             }
-            
+
             this.loading = true;
-            
+
             try {
                 let url = `${this.mirror_api}/search?offset=${this.offset}&amount=${this.amount}&query=${encodeURIComponent(this.searchQuery)}`;
-                
+
                 if (this.selectedMode !== "" && this.selectedMode !== "NaN") {
                     url += `&mode=${this.selectedMode}`;
                 }
-                
+
                 if (this.selectedStatus !== "NaN") {
                     url += `&status=${this.selectedStatus}`;
                 }
-                
+
                 const response = await fetch(url);
                 const data = await response.json();
-                
+
                 if (reset) {
                     this.beatmaps = [];
                 }
-                
+
                 if (data && data.length > 0) {
                     this.beatmaps.push(...data);
                     this.offset += data.length;
@@ -105,12 +103,12 @@ new Vue({
                 this.loading = false;
             }
         },
-        
+
         setupScrollListener() {
             let searchDebounce;
             window.addEventListener('scroll', () => {
-                if (this.loading || !this.hasMore) return;
-                
+                if (this.loading || !this.hasMore) {return;}
+
                 if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
                     clearTimeout(searchDebounce);
                     searchDebounce = setTimeout(() => {
@@ -119,20 +117,20 @@ new Vue({
                 }
             });
         },
-        
-        
+
+
         selectMode(mode) {
             this.selectedMode = mode;
             this.searchBeatmaps();
         },
-        
+
         selectStatus(status) {
             this.selectedStatus = status;
             this.searchBeatmaps();
         },
-        
+
         getDifficultyColor(sr) {
-            for (let color in this.difficultyColors) {
+            for (const color in this.difficultyColors) {
                 const [min, max] = this.difficultyColors[color];
                 if (sr >= min && sr <= max) {
                     return color;
@@ -140,24 +138,24 @@ new Vue({
             }
             return "5, 5, 5";
         },
-        
+
         getStatusInfo(status) {
             return {
                 name: this.statusMap[status] || "Unknown",
                 color: this.statusColors[status] || "bg-gray-500/20 border-gray-500/50 text-gray-400"
             };
         },
-        
+
         sortDifficulties(diffs) {
             return [...diffs].sort((a, b) => a.DifficultyRating - b.DifficultyRating);
         },
-        
+
         async togglePlayback(setId, event) {
             // Stop all other playing beatmaps
             if (this.currentlyPlaying && this.currentlyPlaying !== setId) {
                 await this.stopPlayback(this.currentlyPlaying);
             }
-            
+
             // Find or create audio
             let audioObj = this.beatmapAudios.find(a => a.id === setId);
             if (!audioObj) {
@@ -166,47 +164,47 @@ new Vue({
                 audioObj = { id: setId, audio: audio, playing: false };
                 this.beatmapAudios.push(audioObj);
             }
-            
+
             if (audioObj.playing) {
                 await this.stopPlayback(setId);
             } else {
                 await this.startPlayback(setId, audioObj, event);
             }
         },
-        
+
         async startPlayback(setId, audioObj, event) {
             try {
                 audioObj.audio.currentTime = 0;
                 await audioObj.audio.play();
                 audioObj.playing = true;
                 this.currentlyPlaying = setId;
-                
+
                 // Update play button
                 if (event && event.target) {
                     event.target.innerHTML = '<i class="fas fa-stop text-white text-2xl"></i>';
                 }
-                
+
                 // Add playing class to card
                 const card = event?.target?.closest('.beatmap-card-compact');
                 if (card) {
                     card.classList.add('musicPlaying');
                 }
-                
+
                 // Progress tracking
-                if (this.beatmapTimer) clearInterval(this.beatmapTimer);
+                if (this.beatmapTimer) {clearInterval(this.beatmapTimer);}
                 this.beatmapTimer = setInterval(() => {
                     if (!audioObj.playing || !audioObj.audio) {
                         clearInterval(this.beatmapTimer);
                         return;
                     }
-                    
+
                     if (audioObj.audio.duration) {
                         const played = (audioObj.audio.currentTime / audioObj.audio.duration) * 100;
                         if (card) {
                             card.style.setProperty('--progress', played + '%');
                         }
                     }
-                    
+
                     if (audioObj.audio.ended) {
                         this.stopPlayback(setId);
                     }
@@ -215,7 +213,7 @@ new Vue({
                 console.error('Error playing audio:', error);
             }
         },
-        
+
         async stopPlayback(setId) {
             const audioObj = this.beatmapAudios.find(a => a.id === setId);
             if (audioObj) {
@@ -223,27 +221,27 @@ new Vue({
                 audioObj.audio.currentTime = 0;
                 audioObj.playing = false;
             }
-            
+
             if (this.currentlyPlaying === setId) {
                 this.currentlyPlaying = null;
             }
-            
+
             // Remove playing class from all cards
             document.querySelectorAll('.musicPlaying').forEach(card => {
                 card.classList.remove('musicPlaying');
             });
-            
+
             // Reset play buttons
             document.querySelectorAll('.beatmapPlay').forEach(btn => {
                 btn.innerHTML = '<i class="fas fa-play text-white text-2xl"></i>';
             });
-            
+
             if (this.beatmapTimer) {
                 clearInterval(this.beatmapTimer);
                 this.beatmapTimer = null;
             }
         },
-        
+
         onSearchInput() {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(() => {
@@ -252,3 +250,5 @@ new Vue({
         }
     }
 });
+
+beatmapSearchApp.mount('#beatmap-search-app');

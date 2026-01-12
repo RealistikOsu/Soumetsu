@@ -1,0 +1,74 @@
+repos:
+  # ESLint for JavaScript/Vue
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npm run lint
+        language: system
+        files: \.(js|vue)$
+        pass_filenames: false
+        stages: [commit]
+
+  # golangci-lint for Go
+  - repo: local
+    hooks:
+      - id: golangci-lint
+        name: golangci-lint
+        entry: golangci-lint run --fix
+        language: system
+        files: \.go$
+        pass_filenames: false
+        stages: [commit]
+
+  # Prettier for formatting
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier
+        entry: npx prettier --write --ignore-unknown
+        language: system
+        files: \.(js|css|json|md|yaml|yml)$
+        stages: [commit]
+
+  # Go formatting
+  - repo: local
+    hooks:
+      - id: gofmt
+        name: gofmt
+        entry: gofmt -w
+        language: system
+        files: \.go$
+        stages: [commit]
+
+  # Go imports
+  - repo: local
+    hooks:
+      - id: goimports
+        name: goimports
+        entry: goimports -w
+        language: system
+        files: \.go$
+        stages: [commit]
+
+  # Prevent secrets from being committed
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        name: Detect secrets
+        stages: [commit]
+
+  # Check for large files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        exclude: '\.min\.(js|css)$'
+      - id: trailing-whitespace
+        exclude: '\.min\.(js|css)$'
+      - id: check-yaml
+      - id: check-json

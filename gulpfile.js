@@ -1,52 +1,54 @@
-var gulp    = require("gulp")
-var plumber = require("gulp-plumber")
-var uglify  = require("gulp-uglify")
-var flatten = require("gulp-flatten")
-var concat  = require("gulp-concat")
-var babel   = require("gulp-babel")
-var postcss = require("gulp-postcss")
-var tailwindcss = require("tailwindcss")
-var autoprefixer = require("autoprefixer")
+const gulp = require('gulp');
+const plumber = require('gulp-plumber');
+const uglify = require('gulp-uglify');
+const flatten = require('gulp-flatten');
+const concat = require('gulp-concat');
+const postcss = require('gulp-postcss');
+const tailwindcss = require('tailwindcss');
+const autoprefixer = require('autoprefixer');
 
-gulp.task("default", ["build"])
-gulp.task("build", [
-	"build-tailwind",
-	"minify-js",
-])
+// Build Tailwind CSS
+function buildTailwind() {
+    return gulp.src('web/static/css/input.css')
+        .pipe(postcss([
+            tailwindcss('./tailwind.config.js'),
+            autoprefixer()
+        ]))
+        .pipe(concat('output.css'))
+        .pipe(gulp.dest('web/static/css'));
+}
 
-gulp.task("build-tailwind", function() {
-	return gulp.src("static/css/input.css")
-		.pipe(postcss([
-			tailwindcss("./tailwind.config.js"),
-			autoprefixer()
-		]))
-		.pipe(concat("output.css"))
-		.pipe(gulp.dest("static/css"))
-})
+// Minify JavaScript
+function minifyJs() {
+    return gulp
+        .src([
+            'web/static/licenseheader.js',
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/timeago/jquery.timeago.js',
+            'web/static/key_plural.js',
+            'web/static/ripple.js',
+        ])
+        .pipe(plumber())
+        .pipe(concat('dist.min.js'))
+        .pipe(flatten())
+        .pipe(uglify({
+            mangle: true,
+            output: {
+                comments: /^!/  // Preserve comments starting with !
+            }
+        }))
+        .pipe(gulp.dest('./web/static'));
+}
 
-gulp.task("watch", function() {
-	gulp.watch(["static/*.js", "!static/dist.min.js"], ["minify-js"])
-	gulp.watch(["templates/**/*.html", "static/css/input.css", "tailwind.config.js"], ["build-tailwind"])
-})
+// Watch for changes
+function watchFiles() {
+    gulp.watch(['web/static/*.js', '!web/static/dist.min.js'], minifyJs);
+    gulp.watch(['web/templates/**/*.html', 'web/static/css/input.css', 'tailwind.config.js'], buildTailwind);
+}
 
-gulp.task("minify-js", function() {
-	gulp
-		.src([
-			"static/licenseheader.js",
-			"node_modules/jquery/dist/jquery.min.js",
-			"node_modules/timeago/jquery.timeago.js",
-			"static/key_plural.js",
-			"static/ripple.js",
-		])
-		.pipe(plumber())
-		.pipe(concat("dist.min.js"))
-		/*.pipe(babel({
-			presets: ["latest"]
-		})) breaks vue */
-		.pipe(flatten())
-		.pipe(uglify({
-			mangle: true,
-			preserveComments: "license"
-		}))
-		.pipe(gulp.dest("./static"))
-})
+// Export tasks
+exports.default = gulp.parallel(buildTailwind, minifyJs);
+exports.build = gulp.parallel(buildTailwind, minifyJs);
+exports['build-tailwind'] = buildTailwind;
+exports['minify-js'] = minifyJs;
+exports.watch = watchFiles;

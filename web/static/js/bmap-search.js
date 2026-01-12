@@ -17,9 +17,9 @@ function buttons() {
     const status = document.querySelectorAll("#status-button");
     let typeTimer;
 
-    for (let elm of modes) {
+    for (const elm of modes) {
         elm.addEventListener("click", function () {
-            for (let others of modes) {
+            for (const others of modes) {
                 others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
                 others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
@@ -32,9 +32,9 @@ function buttons() {
         });
     };
 
-    for (let elm of status) {
+    for (const elm of status) {
         elm.addEventListener("click", function () {
-            for (let others of status) {
+            for (const others of status) {
                 others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
                 others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
@@ -66,26 +66,26 @@ function buttons() {
 
 function toggleBeatmap(id, elm) {
     // Stop all other playing beatmaps
-    for (let map of document.querySelectorAll(".beatmapPlay")) {
+    for (const map of document.querySelectorAll(".beatmapPlay")) {
         map.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
     }
-    for (let map of document.querySelectorAll(".card")) {
+    for (const map of document.querySelectorAll(".card")) {
         map.classList.remove("musicPlaying");
     }
 
-    if (beatmapTimer) clearInterval(beatmapTimer);
+    if (beatmapTimer) {clearInterval(beatmapTimer);}
 
-    for (let i in beatmapAudios) {
-        if (beatmapAudios[i].id == id) {
-            if (!beatmapAudios[i].playing) {
-                beatmapAudios[i].audio.volume = 0.2;
-                beatmapAudios[i].audio.currentTime = 0;
-                beatmapAudios[i].audio.play();
+    for (const item of beatmapAudios) {
+        if (item.id == id) {
+            if (!item.playing) {
+                item.audio.volume = 0.2;
+                item.audio.currentTime = 0;
+                item.audio.play();
 
                 elm.innerHTML = '<i class="fas fa-stop text-white text-5xl"></i>';
                 elm.closest(".card").classList.add("musicPlaying");
 
-                const audio = beatmapAudios[i].audio;
+                const audio = item.audio;
                 beatmapTimer = setInterval(() => {
                     const played = 100 * audio.currentTime / audio.duration;
 
@@ -97,25 +97,25 @@ function toggleBeatmap(id, elm) {
                     if (audio.currentTime == audio.duration) {
                         // Beatmap has finished playing.
                         audio.currentTime = 0;
-                        beatmapAudios[i].playing = false;
+                        item.playing = false;
                         elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
                         elm.closest(".card").classList.remove("musicPlaying");
                     }
                 }, 1);
             } else {
-                beatmapAudios[i].audio.pause();
+                item.audio.pause();
 
                 elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
                 elm.closest(".card").classList.remove("musicPlaying");
-            };
+            }
 
-            beatmapAudios[i].playing = !beatmapAudios[i].playing;
+            item.playing = !item.playing;
         } else {
-            beatmapAudios[i].audio.currentTime = 0;
-            beatmapAudios[i].audio.pause();
-            beatmapAudios[i].playing = false;
-        };
-    };
+            item.audio.currentTime = 0;
+            item.audio.pause();
+            item.playing = false;
+        }
+    }
 };
 
 async function search(options, offset = 0, r = false) {
@@ -132,7 +132,7 @@ async function search(options, offset = 0, r = false) {
         "4": "Loved"
     };
 
-    const Colors = {
+    const Colours = {
         "138, 174, 23": [0.0, 1.99],
         "154, 212, 223": [2.0, 2.69],
         "222, 179, 42": [2.7, 3.99],
@@ -175,7 +175,7 @@ async function search(options, offset = 0, r = false) {
         color: rgb(5, 5, 5);
     */
 
-    var link = `${mirror_api}/search?offset=${options.offset || 0}&amount=${options.amount || 20}&query=${querys}`
+    let link = `${mirror_api}/search?offset=${options.offset || 0}&amount=${options.amount || 20}&query=${querys}`
     if (options.mode != "NaN" && options.mode == "") {
         link += `&mode=`
     } else if (options.mode != "NaN") {
@@ -186,8 +186,9 @@ async function search(options, offset = 0, r = false) {
         link += `&status=${options.status || 0}`
     }
 
+    let res;
     try {
-        var res = await fetch(link).then(o => o.json());
+        res = await fetch(link).then(o => o.json());
     }
     catch {
         document.querySelector("#loading-state").classList.add("hidden");
@@ -198,12 +199,12 @@ async function search(options, offset = 0, r = false) {
     }
 
     document.querySelector("#loading-state").classList.add("hidden");
-    
+
     if (res.length === 0 && !r) {
         document.querySelector("#empty-state").classList.remove("hidden");
         return;
     }
-    
+
     document.querySelector("#empty-state").classList.add("hidden");
 
 
@@ -211,7 +212,7 @@ async function search(options, offset = 0, r = false) {
     //console.log(querys);
     //console.log(res);
 
-    for (let beatmap of res) {
+    for (const beatmap of res) {
         const diffsHTML = [];
         // Bubble sort to sort diffs.
         const diffs = beatmap.ChildrenBeatmaps;
@@ -228,7 +229,7 @@ async function search(options, offset = 0, r = false) {
             });
         };
 
-        // Get status color
+        // Get status colour
         const statusColors = {
             "1": "bg-green-500/20 border-green-500/50 text-green-400",
             "3": "bg-blue-500/20 border-blue-500/50 text-blue-400",
@@ -244,12 +245,12 @@ async function search(options, offset = 0, r = false) {
                 <!-- Cover Image -->
                 <div class="relative h-48 overflow-hidden bg-dark-bg">
                     <a href="/beatmaps/${beatmap.ChildrenBeatmaps[0].BeatmapID}">
-                        <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg" 
-                             alt="${beatmap.Title}" 
+                        <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg"
+                             alt="${beatmap.Title}"
                              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
                     </a>
                     <!-- Play Button Overlay -->
-                    <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay" 
+                    <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay"
                             onclick="toggleBeatmap(${beatmap.SetID}, this)">
                         <i class="fas fa-play text-white text-5xl"></i>
                     </button>
@@ -276,7 +277,7 @@ async function search(options, offset = 0, r = false) {
                     <!-- Creator -->
                     <div class="mb-3">
                         <p class="text-xs text-gray-500 mb-1">Mapped by</p>
-                        <a href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}" 
+                        <a href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}"
                            class="text-sm text-primary hover:underline font-medium">
                             ${beatmap.Creator}
                         </a>
@@ -288,20 +289,20 @@ async function search(options, offset = 0, r = false) {
                         <div class="flex flex-wrap gap-1">
         `;
 
-        for (let diff of diffs) {
+        for (const diff of diffs) {
             const sr = diff.DifficultyRating.toFixed(2);
-            let colorOfChoice;
+            let colourOfChoice;
 
-            for (let i in Colors) {
-                if (sr >= Colors[i][0] && sr <= Colors[i][1]) {
-                    colorOfChoice = i;
+            for (const i in Colours) {
+                if (sr >= Colours[i][0] && sr <= Colours[i][1]) {
+                    colourOfChoice = i;
                 };
             };
 
             diffsHTML.push(`
                 <div class="relative group/diff">
-                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}" 
-                         style="color: rgb(${colorOfChoice}); font-size: 1.25rem; cursor: pointer;">
+                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}"
+                         style="color: rgb(${colourOfChoice}); font-size: 1.25rem; cursor: pointer;">
                     </div>
                     <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-dark-card border border-dark-border rounded text-xs text-white opacity-0 group-hover/diff:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                         ${diff.DiffName} - ${sr}★
@@ -319,9 +320,9 @@ async function search(options, offset = 0, r = false) {
                     <div class="flex flex-wrap gap-2 pt-3 border-t border-dark-border">
         `;
 
-        for (let source of sources) {
+        for (const source of sources) {
             mapSection += `
-                        <a href="${source.mirror + String(beatmap.SetID)}" 
+                        <a href="${source.mirror + String(beatmap.SetID)}"
                            title="Download from ${source.name}"
                            class="flex-1 px-3 py-2 bg-dark-bg hover:bg-primary/20 border border-dark-border hover:border-primary rounded-lg text-center text-xs text-gray-300 hover:text-white transition-all">
                             <i class="fas fa-download mr-1"></i>

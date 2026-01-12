@@ -9,6 +9,9 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{ if .TitleBar }}{{.TitleBar}} :: {{ end }}RealistikOsu!</title>
+	{{ if .Context }}{{ if .Context.User.ID }}
+	<meta name="csrf-token" content="{{ csrfGenerate .Context.User.ID }}">
+	{{ end }}{{ end }}
 
 	<script>
 		var soumetsuConf = {
@@ -60,7 +63,7 @@
 		.btn-primary:hover {
 			background-color: #2563EB;
 		}
-		
+
 		.btn-secondary {
 			background-color: #1E293B;
 			color: white;
@@ -73,14 +76,14 @@
 		.btn-secondary:hover {
 			background-color: #334155;
 		}
-		
+
 		.card {
 			background-color: #1E293B;
 			border-radius: 0.5rem;
 			padding: 1.5rem;
 			border: 1px solid #334155;
 		}
-		
+
 		.input-field {
 			width: 100%;
 			background-color: #1E293B;
@@ -98,7 +101,7 @@
 			ring-color: #3B82F6;
 			border-color: transparent;
 		}
-		
+
 		.modal-overlay {
 			position: fixed;
 			inset: 0;
@@ -108,7 +111,7 @@
 			justify-content: center;
 			z-index: 50;
 		}
-		
+
 		.modal-content {
 			background-color: #1E293B;
 			border-radius: 0.5rem;
@@ -125,22 +128,22 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Comfortaa:wght@700&display=swap" rel="stylesheet">
-	
+
 	<script src="/static/dist.min.js"></script>
 
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	
+
 	<meta name="theme-color" content="#0F172A">
 	<meta name="msapplication-navbutton-color" content="#0F172A">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="bg-dark-bg text-white min-h-screen flex flex-col">
 	{{ template "navbar" . }}
-	
+
 	<main class="flex-grow relative">
 		{{ if and .DisableHH .KyutGrill }}
 			<div class="fixed inset-0 -z-10">
-				<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-sm" 
+				<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-sm"
 					style="background-image: url('{{ if .KyutGrillAbsolute }}{{ .KyutGrill }}{{ else }}/static/headers/{{ .KyutGrill }}{{ end }}');"></div>
 			</div>
 		{{ end }}
@@ -155,7 +158,7 @@
 					where it is necessary. We do not track you. So please, do yourself a service and turn it back on.
 				</div>
 			</noscript>
-			
+
 			{{ if and .Context .Context.User.Username (not (has .Context.User.Privileges 1)) }}
 				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-ban text-red-400 mt-1"></i>
@@ -165,7 +168,7 @@
 					</div>
 				</div>
 			{{ end }}
-			
+
 			{{ if $frozen }}
 				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-asterisk text-red-400 mt-1"></i>
@@ -175,13 +178,13 @@
 					</div>
 				</div>
 			{{ end }}
-			
+
 			{{ if .Messages }}
 				{{ range $i, $v := .Messages }}
 					<script>showMessage("{{ $v.Type }}", "{{ html $v.Content }}")</script>
 				{{ end }}
 			{{ end }}
-			
+
 			{{ $settings := .SystemSettings }}
 			{{ $alert := get $settings "website_global_alert" }}
 			{{ if and $alert (get $alert "String") }}
@@ -193,7 +196,7 @@
 					</div>
 				</div>
 			{{ end }}
-			
+
 			{{ $gameMaintenance := get $settings "game_maintenance" }}
 			{{ if and $gameMaintenance (get $gameMaintenance "Int") }}
 				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
@@ -204,7 +207,7 @@
 					</div>
 				</div>
 			{{ end }}
-			
+
 			{{ $websiteMaintenance := get $settings "website_maintenance" }}
 			{{ if and $websiteMaintenance (get $websiteMaintenance "Int") }}
 				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
@@ -216,7 +219,7 @@
 				</div>
 			{{ end }}
 		</div>
-		
+
 		{{ template "tpl" . }}
 	</main>
 
@@ -232,7 +235,7 @@
 						© 2026 RealistikOsu! Not affiliated with "ppy" and "osu!" in any way.
 					</p>
 				</div>
-				
+
 				<!-- Links -->
 				<div class="flex items-center gap-6">
 					<a href="https://github.com/RealistikOsu" class="text-gray-400 hover:text-white transition-colors text-sm">

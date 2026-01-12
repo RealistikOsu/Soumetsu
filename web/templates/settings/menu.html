@@ -5,31 +5,31 @@ NoCompile=true
 <div class="w-full md:w-64 mb-6 md:mb-0">
 	<div class="card p-0">
 		<nav class="space-y-1">
-			<a href="/settings" 
+			<a href="/settings"
 				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fas fa-user w-5"></i>
 				<span>Profile</span>
 			</a>
 
-			<a href="/settings/user-page" 
+			<a href="/settings/user-page"
 				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/user-page" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fas fa-file-alt w-5"></i>
 				<span>Userpage</span>
 			</a>
 
-			<a href="/settings/avatar" 
+			<a href="/settings/avatar"
 				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/avatar" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fas fa-image w-5"></i>
 				<span>Avatar</span>
 			</a>
 
-			<a href="/settings/password" 
+			<a href="/settings/password"
 				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/password" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fas fa-lock w-5"></i>
 				<span>Password</span>
 			</a>
 
-			<a href="/settings/discord" 
+			<a href="/settings/discord"
 				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/discord" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 				<i class="fab fa-discord w-5"></i>
 				<span>Discord Linking</span>
@@ -38,15 +38,15 @@ NoCompile=true
 			{{/* Supporter only features */}}
 			{{ if has .Context.User.Privileges 4 }}
 				<div class="border-t border-dark-border my-2"></div>
-				
-				<a href="/settings/profile-banner" 
+
+				<a href="/settings/profile-banner"
 					class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/profile-banner" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 					<i class="fas fa-image w-5"></i>
 					<span class="flex-1">Profile Banner</span>
 					<span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs rounded font-medium">Supporter</span>
 				</a>
 
-				<a href="/settings/change-username" 
+				<a href="/settings/change-username"
 					class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/change-username" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
 					<i class="fas fa-user-edit w-5"></i>
 					<span class="flex-1">Change Username</span>

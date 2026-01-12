@@ -194,7 +194,7 @@ SOUMETSU_BEATMAP_DOWNLOAD_MIRROR_URL=https://mirror.ussr.pl
    ```bash
    # Terminal 1: Run the Go server
    go run ./cmd/soumetsu
-   
+
    # Terminal 2: Watch Tailwind CSS changes
    npm run tailwind:watch
    ```
@@ -203,7 +203,7 @@ SOUMETSU_BEATMAP_DOWNLOAD_MIRROR_URL=https://mirror.ussr.pl
    ```bash
    # Build Go binary
    go build -o soumetsu ./cmd/soumetsu
-   
+
    # Build frontend assets
    npm run tailwind:build
    ```

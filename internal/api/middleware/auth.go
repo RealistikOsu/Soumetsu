@@ -69,7 +69,8 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 
 			pwVal := sess.Values["pw"]
 			if pwVal != nil {
-				if pw, ok := pwVal.(string); ok && pw != crypto.MD5(userData.Password) {
+				// Use SHA-256 for session validation (more secure than MD5)
+				if pw, ok := pwVal.(string); ok && pw != crypto.HashSessionToken(userData.Password) {
 					sess.Values["userid"] = nil
 					sess.Save(r, w)
 					ctx := apicontext.WithRequestContext(r.Context(), reqCtx)

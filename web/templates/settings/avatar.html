@@ -10,7 +10,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/settings2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -18,7 +18,7 @@ DisableHH=true
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col md:flex-row gap-6">
 			{{ template "settingsSidebar" . }}
-			
+
 			<div class="flex-1">
 				<div class="card">
 					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
@@ -33,7 +33,7 @@ DisableHH=true
 
 					<form action="/settings/avatar" method="post" enctype="multipart/form-data" id="avatar-form">
 						{{ ieForm .Context }}
-						
+
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 							<!-- Left: Current Avatar & Preview -->
 							<div class="space-y-6">
@@ -44,8 +44,8 @@ DisableHH=true
 									</h3>
 									<div class="flex items-center gap-6">
 										<div class="relative group">
-											<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
-												alt="Current Avatar" 
+											<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}"
+												alt="Current Avatar"
 												class="w-32 h-32 rounded-full border-4 border-dark-border object-cover shadow-lg">
 											<div class="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
 												<span class="text-white text-xs">Current</span>
@@ -56,8 +56,8 @@ DisableHH=true
 										</div>
 										<div class="hidden" id="preview-container">
 											<div class="relative">
-												<img src="" 
-													alt="New Avatar Preview" 
+												<img src=""
+													alt="New Avatar Preview"
 													id="avatar-preview"
 													class="w-32 h-32 rounded-full border-4 border-primary object-cover shadow-lg shadow-primary/20">
 												<div class="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 rounded-full">
@@ -93,8 +93,8 @@ DisableHH=true
 										<div class="p-4 -mt-10 relative z-10">
 											<div class="flex items-start gap-3 mb-3">
 												<div class="relative">
-													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
-														id="preview-card-avatar" 
+													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}"
+														id="preview-card-avatar"
 														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover transition-all duration-300"
 														data-original="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}"
 														crossorigin="anonymous">
@@ -136,9 +136,9 @@ DisableHH=true
 										<i class="fas fa-cloud-upload-alt"></i>
 										Upload New Avatar
 									</h3>
-									
+
 									<!-- Drag & Drop Zone -->
-									<label for="file" 
+									<label for="file"
 										id="drop-zone"
 										class="block border-2 border-dashed border-dark-border rounded-xl p-8 text-center cursor-pointer transition-all hover:border-primary hover:bg-primary/5 group">
 										<div class="space-y-4">
@@ -157,12 +157,12 @@ DisableHH=true
 											</div>
 										</div>
 									</label>
-									
-									<input type="file" 
-										id="file" 
-										class="hidden" 
-										required 
-										accept="image/*" 
+
+									<input type="file"
+										id="file"
+										class="hidden"
+										required
+										accept="image/*"
 										name="avatar">
 
 									<!-- File Info -->
@@ -214,7 +214,7 @@ DisableHH=true
 								<i class="fas fa-clock mr-1"></i>
 								Avatar changes may take a few minutes to update everywhere
 							</p>
-							<button type="submit" 
+							<button type="submit"
 								id="submit-btn"
 								disabled
 								class="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -255,28 +255,28 @@ DisableHH=true
 
 	function showPreview(file) {
 		if (!file) return;
-		
+
 		var url = URL.createObjectURL(file);
-		
+
 		// Show main preview (side by side comparison)
 		avatarPreview.src = url;
 		previewContainer.classList.remove('hidden');
 		previewArrow.classList.remove('hidden');
-		
+
 		// Update profile card preview
 		previewCardAvatar.src = url;
 		newAvatarBadge.classList.remove('hidden');
 		avatarRing.classList.remove('hidden');
 		previewHint.classList.add('hidden');
-		
+
 		// Show file info
 		fileName.textContent = file.name;
 		fileSize.textContent = formatFileSize(file.size);
 		fileInfo.classList.remove('hidden');
-		
+
 		// Enable submit
 		submitBtn.disabled = false;
-		
+
 		// Update drop zone style
 		dropZone.classList.add('border-primary', 'bg-primary/5');
 	}
@@ -285,13 +285,13 @@ DisableHH=true
 		fileInput.value = '';
 		previewContainer.classList.add('hidden');
 		previewArrow.classList.add('hidden');
-		
+
 		// Reset profile card to original avatar
 		previewCardAvatar.src = originalAvatarSrc;
 		newAvatarBadge.classList.add('hidden');
 		avatarRing.classList.add('hidden');
 		previewHint.classList.remove('hidden');
-		
+
 		fileInfo.classList.add('hidden');
 		submitBtn.disabled = true;
 		dropZone.classList.remove('border-primary', 'bg-primary/5');
@@ -336,7 +336,7 @@ DisableHH=true
 	// Initialize banner gradient using shared utility
 	var bannerPreview = document.getElementById('avatar-preview-banner');
 	var updateGradient = null;
-	
+
 	if (window.BannerGradient && bannerPreview) {
 		updateGradient = window.BannerGradient.init('#preview-card-avatar', '#avatar-preview-banner');
 	}

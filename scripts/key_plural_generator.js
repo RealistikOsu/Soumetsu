@@ -8,13 +8,13 @@ fs.readFile("data/js-locales/templates.pot", "utf-8", (err, data) => {
 	var plurals = {}
 	Object.keys(tpl.translations[""]).forEach(key => {
 		let val = tpl.translations[""][key]
-		
+
 		if (typeof val === "undefined")
 			return
-		
+
 		if (!val.msgid_plural)
 			return
-		
+
 		plurals[val.msgid] = val.msgid_plural
 	})
 

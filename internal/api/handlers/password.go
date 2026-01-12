@@ -106,7 +106,7 @@ func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Reque
 	if key == "" {
 		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Password Reset",
-			Messages: []models.Message{models.NewError("Nope.")},
+			Messages: []models.Message{models.NewError("Invalid password reset link.")},
 		})
 		return
 	}
@@ -248,7 +248,7 @@ func (h *PasswordHandler) resetResp(w http.ResponseWriter, r *http.Request, mess
 		KyutGrill: "pwreset.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},
 		Messages:  messages,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 	})
 }
 
@@ -269,13 +269,9 @@ func (h *PasswordHandler) changeResp(w http.ResponseWriter, r *http.Request, use
 }
 
 func (h *PasswordHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	sess, _ := h.store.Get(r, "session")
-	h.addMessage(sess, models.NewWarning("You need to login first."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/login?redir="+r.URL.Path, http.StatusFound)
+	RedirectToLogin(w, r, h.store) // Use shared implementation
 }
 
 func (h *PasswordHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	messages, _ := sess.Values["messages"].([]models.Message)
-	sess.Values["messages"] = append(messages, msg)
+	AddMessage(sess, msg) // Use shared implementation
 }

@@ -4,7 +4,7 @@ DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $registered := or (get .Extra "registeredUsers") "0" }}
-	
+
 	<div class="relative min-h-screen py-10">
 		<!-- Background -->
 		<div class="fixed inset-0 -z-10">
@@ -14,7 +14,7 @@ DisableHH=true
 			></div>
 			<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 		</div>
-	
+
 		<div class="container mx-auto px-4 max-w-6xl">
 			<!-- Header -->
 			<div class="flex items-start gap-4 mb-8">
@@ -28,11 +28,11 @@ DisableHH=true
 					</p>
 				</div>
 			</div>
-	
+
 			<!-- Intro + quick stats -->
 			<div class="card mb-8 overflow-hidden relative">
 				<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-purple-500/15 pointer-events-none"></div>
-	
+
 				<div class="relative p-8 md:p-10">
 					<div class="flex flex-col md:flex-row gap-8 items-start">
 						<div class="flex-1">
@@ -46,7 +46,7 @@ DisableHH=true
 								So… how do you do it?
 							</p>
 						</div>
-	
+
 						<!-- Quick checklist -->
 						<div class="w-full md:w-80">
 							<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6">
@@ -59,7 +59,7 @@ DisableHH=true
 										<p class="text-xs text-gray-400">Before you start</p>
 									</div>
 								</div>
-	
+
 								<ul class="space-y-3 text-sm text-gray-300">
 									<li class="flex items-start gap-3">
 										<i class="fas fa-check mt-0.5 text-green-400"></i>
@@ -81,7 +81,7 @@ DisableHH=true
 										<span>One shortcut edit</span>
 									</li>
 								</ul>
-	
+
 								<div class="mt-5 pt-5 border-t border-dark-border">
 									<p class="text-xs text-gray-400">
 										<i class="fas fa-info-circle mr-2 text-primary"></i>
@@ -93,7 +93,7 @@ DisableHH=true
 					</div>
 				</div>
 			</div>
-	
+
 			<!-- Section divider -->
 			<div class="flex items-center gap-4 mb-8">
 				<div class="flex-1 h-px bg-dark-border"></div>
@@ -103,11 +103,11 @@ DisableHH=true
 				</div>
 				<div class="flex-1 h-px bg-dark-border"></div>
 			</div>
-	
+
 			<!-- Method card -->
 			<div class="card overflow-hidden relative">
 				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 pointer-events-none"></div>
-	
+
 				<div class="relative p-8 md:p-10">
 					<div class="flex flex-col md:flex-row md:items-start gap-6 mb-8">
 						<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -121,7 +121,7 @@ DisableHH=true
 							</p>
 						</div>
 					</div>
-	
+
 					<!-- Steps -->
 					<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 						<!-- Steps list -->
@@ -138,7 +138,7 @@ DisableHH=true
 										</div>
 									</div>
 								</div>
-	
+
 								<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-5">
 									<div class="flex items-start gap-4">
 										<div class="w-9 h-9 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-white font-bold">2</div>
@@ -157,7 +157,7 @@ DisableHH=true
 										</div>
 									</div>
 								</div>
-	
+
 								<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-5">
 									<div class="flex items-start gap-4">
 										<div class="w-9 h-9 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-white font-bold">3</div>
@@ -170,7 +170,7 @@ DisableHH=true
 									</div>
 								</div>
 							</div>
-	
+
 							<!-- Small CTA note -->
 							<div class="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
 								<div class="flex items-start gap-3">
@@ -181,7 +181,7 @@ DisableHH=true
 								</div>
 							</div>
 						</div>
-	
+
 						<!-- Image panel -->
 						<div class="lg:col-span-2">
 							<div class="bg-dark-bg/40 border border-dark-border rounded-2xl overflow-hidden">
@@ -194,7 +194,7 @@ DisableHH=true
 								</div>
 								<img src="/static/image/devserver-image.png" alt="Shortcut target image" class="w-full">
 							</div>
-	
+
 							<div class="mt-4 text-xs text-gray-400">
 								<i class="fas fa-circle-question mr-2 text-gray-500"></i>
 								Make sure there’s a space before
@@ -202,11 +202,10 @@ DisableHH=true
 							</div>
 						</div>
 					</div>
-	
+
 				</div>
 			</div>
-	
+
 		</div>
 	</div>
 {{ end }}
-	

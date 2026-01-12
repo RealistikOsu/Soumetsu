@@ -17,7 +17,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/settings2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -25,7 +25,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col md:flex-row gap-6">
 			{{ template "settingsSidebar" . }}
-			
+
 			<div class="flex-1">
 				{{ if not $isSupporter }}
 					{{ template "supporter_only" . }}
@@ -33,7 +33,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 					{{ $d := qb "SELECT type, value FROM profile_backgrounds WHERE uid = ? LIMIT 1" .Context.User.ID }}
 					{{ $type  := or $d.type.Int -1 }}
 					{{ $value := or $d.value.String "" }}
-					
+
 					<div class="card">
 						<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
 							<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
@@ -53,18 +53,18 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 										<i class="fas fa-id-card"></i>
 										Profile Card Preview
 									</h3>
-									
+
 									<!-- Preview Card -->
 									<div class="card p-0 overflow-hidden relative" id="preview-card">
 										<!-- Change indicator badge -->
 										<div id="change-badge" class="hidden absolute top-2 left-2 z-20 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
 											<i class="fas fa-sparkles mr-1"></i>Preview
 										</div>
-										
+
 										<!-- Banner Area -->
 										<div class="relative h-32 overflow-hidden" id="banner-preview">
 											{{ if eq $type 1 }}
-												<img src="/static/profbackgrounds/{{ $value }}" 
+												<img src="/static/profbackgrounds/{{ $value }}"
 													id="banner-image"
 													class="absolute inset-0 w-full h-full object-cover">
 											{{ else if eq $type 2 }}
@@ -73,7 +73,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 												<div id="banner-default" class="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 banner-gradient-transition"></div>
 											{{ end }}
 											<div class="absolute inset-0 bg-gradient-to-t from-dark-card to-transparent"></div>
-											
+
 											<!-- Rank badges -->
 											<div class="absolute top-2 right-2 flex flex-col items-end gap-1">
 												<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">
@@ -86,12 +86,12 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 												</div>
 											</div>
 										</div>
-										
+
 										<!-- User Info -->
 										<div class="p-4 -mt-8 relative z-10">
 											<div class="flex items-end gap-3 mb-3">
 												<div class="relative">
-													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
+													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}"
 														id="profile-banner-avatar"
 														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg"
 														crossorigin="anonymous">
@@ -105,7 +105,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="bg-dark-bg rounded-lg p-3">
 												<div class="grid grid-cols-3 gap-2 text-center">
 													<div>
@@ -124,7 +124,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 											</div>
 										</div>
 									</div>
-									
+
 									<p id="preview-hint" class="text-xs text-gray-500 mt-2 text-center">
 										<i class="fas fa-info-circle mr-1"></i>Changes will be reflected here in real-time
 									</p>
@@ -170,19 +170,19 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 										<i class="fas fa-palette"></i>
 										Banner Type
 									</h3>
-									
+
 									<div class="grid grid-cols-3 gap-3" id="type-selector">
-										<button type="button" data-type="0" 
+										<button type="button" data-type="0"
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if or (eq $type 0) (eq $type -1) }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-ban text-2xl mb-2 {{ if or (eq $type 0) (eq $type -1) }}text-primary{{ else }}text-gray-500{{ end }}"></i>
 											<p class="text-sm {{ if or (eq $type 0) (eq $type -1) }}text-white{{ else }}text-gray-400{{ end }}">None</p>
 										</button>
-										<button type="button" data-type="1" 
+										<button type="button" data-type="1"
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 1 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-image text-2xl mb-2 {{ if eq $type 1 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
 											<p class="text-sm {{ if eq $type 1 }}text-white{{ else }}text-gray-400{{ end }}">Image</p>
 										</button>
-										<button type="button" data-type="2" 
+										<button type="button" data-type="2"
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 2 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-fill-drip text-2xl mb-2 {{ if eq $type 2 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
 											<p class="text-sm {{ if eq $type 2 }}text-white{{ else }}text-gray-400{{ end }}">Colour</p>
@@ -190,12 +190,9 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 									</div>
 								</div>
 
-								{{ $csrf := csrfGenerate .Context.User.ID }}
-
 								<!-- None Form -->
 								<div id="form-none" class="{{ if and (ne $type 0) (ne $type -1) }}hidden{{ end }}">
 									<form action="/settings/profile-banner/0" method="post">
-										{{ $csrf }}
 										{{ ieForm .Context }}
 										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border text-center">
 											<div class="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
@@ -213,11 +210,10 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<!-- Image Upload Form -->
 								<div id="form-image" class="{{ if ne $type 1 }}hidden{{ end }}">
 									<form action="/settings/profile-banner/1" method="post" enctype="multipart/form-data" id="image-form">
-										{{ $csrf }}
 										{{ ieForm .Context }}
-										
+
 										<!-- Drag & Drop Zone -->
-										<label for="file" 
+										<label for="file"
 											id="drop-zone"
 											class="block border-2 border-dashed border-dark-border rounded-xl p-6 text-center cursor-pointer transition-all hover:border-primary hover:bg-primary/5 group">
 											<div class="space-y-3">
@@ -235,7 +231,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 												</div>
 											</div>
 										</label>
-										
+
 										<input type="file" id="file" class="hidden" required accept="image/*" name="value">
 
 										<!-- File Info -->
@@ -262,19 +258,18 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<!-- Color Picker Form -->
 								<div id="form-color" class="{{ if ne $type 2 }}hidden{{ end }}">
 									<form action="/settings/profile-banner/2" method="post" id="color-form">
-										{{ $csrf }}
 										{{ ieForm .Context }}
-										
+
 										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border">
 											<div class="flex flex-col items-center gap-4">
 												<p class="text-sm text-gray-400 text-center">Pick a colour for your profile banner</p>
-												<input type="text" 
-													id="colorpicker" 
-													name="value" 
+												<input type="text"
+													id="colorpicker"
+													name="value"
 													value="{{ if and (eq $type 2) $value }}{{ $value }}{{ else }}#6366f1{{ end }}"
 													class="input-field text-center">
-												
-												<!-- Quick color presets -->
+
+												<!-- Quick colour presets -->
 												<div class="flex flex-wrap justify-center gap-2">
 													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #6366f1;" data-color="#6366f1"></button>
 													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #8b5cf6;" data-color="#8b5cf6"></button>
@@ -354,7 +349,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 						typeButtons.forEach(function(btn) {
 							btn.addEventListener('click', function() {
 								var type = this.dataset.type;
-								
+
 								// Update button styles
 								typeButtons.forEach(function(b) {
 									b.classList.remove('border-primary', 'bg-primary/10');
@@ -370,12 +365,12 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								this.querySelector('i').classList.add('text-primary');
 								this.querySelector('p').classList.remove('text-gray-400');
 								this.querySelector('p').classList.add('text-white');
-								
+
 								// Show/hide forms
 								formNone.classList.add('hidden');
 								formImage.classList.add('hidden');
 								formColor.classList.add('hidden');
-								
+
 								if (type === '0') {
 									formNone.classList.remove('hidden');
 									updateBannerPreview('none');
@@ -391,17 +386,17 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 						function updateBannerPreview(type, value) {
 							changeBadge.classList.remove('hidden');
 							bannerPreview.innerHTML = '';
-							
+
 							var overlay = document.createElement('div');
 							overlay.className = 'absolute inset-0 bg-gradient-to-t from-dark-card to-transparent';
-							
+
 							var badges = '<div class="absolute top-2 right-2 flex flex-col items-end gap-1">' +
 								'<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">' +
 								'<i class="fas fa-globe text-gray-400"></i><span class="font-semibold">#1,234</span></div>' +
 								'<div class="flex items-center gap-1 text-white bg-black/50 px-2 py-0.5 rounded text-xs backdrop-blur-sm">' +
 								'<i class="fas fa-flag text-gray-400"></i>' +
 								'<span class="font-semibold">#56</span></div></div>';
-							
+
 							if (type === 'none') {
 								var gradientDiv = document.createElement('div');
 								gradientDiv.className = 'absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 banner-gradient-transition';
@@ -409,7 +404,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								bannerPreview.appendChild(gradientDiv);
 								bannerPreview.innerHTML += badges;
 								bannerGradient = gradientDiv;
-								// Extract colors after a short delay to ensure DOM is ready
+								// Extract colours after a short delay to ensure DOM is ready
 								setTimeout(function() {
 									if (profileAvatar && profileAvatar.complete) {
 										extractBannerColors(profileAvatar);
@@ -422,7 +417,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								bannerPreview.innerHTML = '<div class="absolute inset-0" style="background-color: ' + value + ';"></div>' + badges;
 								bannerGradient = null;
 							}
-							
+
 							bannerPreview.appendChild(overlay);
 						}
 
@@ -508,14 +503,14 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 						});
 						// Initialize banner gradient using shared utility
 						var updateGradient = null;
-						
+
 						if (window.BannerGradient) {
 							// Initialize for default banner
 							var profileAvatar = document.getElementById('profile-banner-avatar');
 							if (profileAvatar) {
 								updateGradient = window.BannerGradient.init('#profile-banner-avatar', '#banner-default');
 							}
-							
+
 							// Update gradient when banner type changes to default
 							var originalUpdateBannerPreview = updateBannerPreview;
 							updateBannerPreview = function(type, value) {

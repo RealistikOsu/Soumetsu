@@ -8,7 +8,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/settings2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -30,19 +30,19 @@ DisableHH=true
 		{{ if $d }}
 			<div class="card mb-6">
 				<h3 class="text-xl font-semibold mb-6">Clan Credentials</h3>
-				
+
 				{{ $o := (.Get "clans/isclan?uid=%d" .Context.User.ID).clan.clan }}
 				{{ $c := qb "SELECT * FROM clans WHERE id = ? LIMIT 1" $o }}
 				{{ $tag := or $c.tag.String "" }}
 				{{ $name := or $c.name.String "" }}
 				{{ $desc := or $c.description.String "" }}
 				{{ $icon := or $c.icon.String "" }}
-				
+
 				<form id="register-form" method="post" enctype="multipart/form-data" action="/settings/clan" class="space-y-6">
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clan Name" }}</label>
-						<input type="text" 
-							name="name" 
+						<input type="text"
+							name="name"
 							placeholder="Clan Name"
 							value="{{ $name }}"
 							class="input-field"
@@ -51,8 +51,8 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clantag (2 to 6 characters)" }}</label>
-						<input type="text" 
-							name="tag" 
+						<input type="text"
+							name="tag"
 							placeholder="Clantag"
 							value="{{ $tag }}"
 							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
@@ -62,7 +62,7 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-						<textarea name="description" 
+						<textarea name="description"
 							rows="4"
 							class="input-field resize-none"
 							tabindex="3">{{ $desc }}</textarea>
@@ -70,8 +70,8 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Icon URL (Optional)" }}</label>
-						<input type="text" 
-							name="icon" 
+						<input type="text"
+							name="icon"
 							placeholder="Icon URL"
 							value="{{ $icon }}"
 							class="input-field"
@@ -81,8 +81,8 @@ DisableHH=true
 					{{ ieForm .Context }}
 
 					<div class="flex justify-end pt-4 border-t border-dark-border">
-						<button type="submit" 
-							form="register-form" 
+						<button type="submit"
+							form="register-form"
 							class="btn-primary"
 							tabindex="5">
 							Save
@@ -93,13 +93,13 @@ DisableHH=true
 
 			<div class="card">
 				<h2 class="text-2xl font-display font-bold mb-6">Invite</h2>
-				
+
 				<div class="space-y-4">
 					{{ with .Get "clans/getinvite?id=%d" .Context.User.ID }}
 						<div>
 							<label class="block text-sm font-medium text-gray-300 mb-2">Invite Link</label>
 							<div class="flex gap-2">
-								<input type="text" 
+								<input type="text"
 									value="https://ussr.pl/clans/invites/{{ .invite }}"
 									readonly
 									class="input-field flex-1 bg-dark-bg">

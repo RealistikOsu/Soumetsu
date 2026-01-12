@@ -85,7 +85,7 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			Scripts:        scripts,
 			HeadingOnRight: headingOnRight,
 			Path:           r.URL.Path,
-			FormData:       normaliseURLValues(r.PostForm),
+			FormData:       NormaliseURLValues(r.PostForm),
 			Context:        reqCtx,
 			Session:        sessionWrapper,
 		})
@@ -99,7 +99,7 @@ func (h *PagesHandler) SimplePageWithMessages(templateName, titleBar string, mes
 			Messages: messages,
 			Extra:    extra,
 			Path:     r.URL.Path,
-			FormData: normaliseURLValues(r.PostForm),
+			FormData: NormaliseURLValues(r.PostForm),
 		})
 	}
 }
@@ -175,6 +175,5 @@ func (h *PagesHandler) forbidden(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PagesHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	messages, _ := sess.Values["messages"].([]models.Message)
-	sess.Values["messages"] = append(messages, msg)
+	AddMessage(sess, msg) // Use shared implementation
 }

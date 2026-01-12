@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"math"
 	"math/rand"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
@@ -39,6 +39,11 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 	return template.FuncMap{
 		"html": func(value interface{}) template.HTML {
 			return template.HTML(fmt.Sprint(value))
+		},
+		// Vue template expression helper - outputs Vue delimiters without HTML escaping
+		// Usage: {{ v "data.username" }} outputs: [[ data.username ]]
+		"v": func(expr string) template.HTML {
+			return template.HTML("[[ " + expr + " ]]")
 		},
 		"navbarItem": func(currentPath, name, path string) template.HTML {
 			var act string
@@ -319,7 +324,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			return i
 		},
 		"loadjson": func(jsonfile string) interface{} {
-			f, err := ioutil.ReadFile(jsonfile)
+			f, err := os.ReadFile(jsonfile)
 			if err != nil {
 				return nil
 			}
@@ -331,7 +336,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			return x
 		},
 		"teamJSON": func() map[string]interface{} {
-			f, err := ioutil.ReadFile("team.json")
+			f, err := os.ReadFile("team.json")
 			if err != nil {
 				return nil
 			}
@@ -473,7 +478,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 				return template.HTML("")
 			}
 			var uid int
-			
+
 			// Try to extract user ID from RequestContext
 			// ctx can be *apicontext.RequestContext or accessed via reflection
 			if ctx != nil {
@@ -498,7 +503,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 					}
 				}
 			}
-			
+
 			if uid == 0 {
 				return template.HTML("")
 			}

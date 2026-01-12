@@ -1,12 +1,33 @@
 {
-    overrides: [
-      {
-        files: ["*.html"],
-        options: {
-          parser: "go-template",
-          bracketSameLine: true,
-          htmlWhitespaceSensitivity: "ignore",
-        },
-      },
-    ],
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "options": {
+        "parser": "go-template",
+        "bracketSameLine": true,
+        "htmlWhitespaceSensitivity": "ignore"
+      }
+    },
+    {
+      "files": ["*.json"],
+      "options": {
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": ["*.yaml", "*.yml"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
 }

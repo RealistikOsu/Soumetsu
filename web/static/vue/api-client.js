@@ -19,6 +19,15 @@ const SoumetsuAPI = {
     },
 
     /**
+     * Get CSRF token from meta tag
+     * @returns {string|null} CSRF token or null if not present
+     */
+    getCSRFToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : null;
+    },
+
+    /**
      * Core request method - all v1 API calls flow through here
      * @param {string} endpoint - API endpoint (without /api/v1/ prefix)
      * @param {Object} params - Query parameters
@@ -42,25 +51,94 @@ const SoumetsuAPI = {
     },
 
     /**
-     * POST request
+     * POST request with CSRF protection
      * @param {string} endpoint - API endpoint
      * @param {Object} data - Request body
      * @returns {Promise<Object>} API response
      */
     async post(endpoint, data = {}) {
         const url = `${this.baseURL()}/api/v1/${endpoint}`;
+        const csrfToken = this.getCSRFToken();
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // Include CSRF token if available (for authenticated requests)
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
 
         try {
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
+                credentials: 'same-origin', // Include cookies for session
                 body: JSON.stringify(data),
             });
             return response.json();
         } catch (error) {
             console.error(`API POST failed: ${endpoint}`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * PUT request with CSRF protection
+     * @param {string} endpoint - API endpoint
+     * @param {Object} data - Request body
+     * @returns {Promise<Object>} API response
+     */
+    async put(endpoint, data = {}) {
+        const url = `${this.baseURL()}/api/v1/${endpoint}`;
+        const csrfToken = this.getCSRFToken();
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers,
+                credentials: 'same-origin',
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        } catch (error) {
+            console.error(`API PUT failed: ${endpoint}`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * DELETE request with CSRF protection
+     * @param {string} endpoint - API endpoint
+     * @returns {Promise<Object>} API response
+     */
+    async delete(endpoint) {
+        const url = `${this.baseURL()}/api/v1/${endpoint}`;
+        const csrfToken = this.getCSRFToken();
+
+        const headers = {};
+
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers,
+                credentials: 'same-origin',
+            });
+            return response.json();
+        } catch (error) {
+            console.error(`API DELETE failed: ${endpoint}`, error);
             throw error;
         }
     },

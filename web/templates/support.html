@@ -49,7 +49,7 @@ DisableHH=true
 				<p class="text-gray-400 max-w-2xl mx-auto mb-8">
 					RealistikOsu is a passion project run by students. Your support helps us keep the servers running and develop new features.
 				</p>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
 					<div class="text-center p-4">
 						<div class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -180,7 +180,7 @@ DisableHH=true
 					<div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="month-buttons">
 						{{ range _range 6 }}
 							{{ $months := plus (float .) 1 }}
-							<button type="button" 
+							<button type="button"
 								class="month-btn py-3 px-4 rounded-xl border-2 border-dark-border bg-dark-bg hover:border-primary/50 transition-all text-center {{ if eq . 0 }}border-primary bg-primary/10{{ end }}"
 								data-months="{{ $months }}"
 								data-price="{{ calculateDonorPrice $months }}">
@@ -192,7 +192,7 @@ DisableHH=true
 					<div class="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
 						{{ range _range 6 }}
 							{{ $months := plus (float .) 7 }}
-							<button type="button" 
+							<button type="button"
 								class="month-btn py-3 px-4 rounded-xl border-2 border-dark-border bg-dark-bg hover:border-primary/50 transition-all text-center"
 								data-months="{{ $months }}"
 								data-price="{{ calculateDonorPrice $months }}">
@@ -229,10 +229,10 @@ DisableHH=true
 					<input type="hidden" name="on1" value="RealistikOsu! user to give donor">
 					<input type="hidden" name="custom" value="username={{ $global.User.Username }}" id="ipn-username">
 					<input type="hidden" name="amount" value="{{ calculateDonorPrice 1 }}" id="paypal-amt">
-					
+
 					<div class="mb-6">
 						<label class="block text-sm font-medium text-gray-300 mb-3">Gift to User</label>
-						
+
 						<!-- Selected User Card -->
 						<div id="selected-user-card" class="bg-dark-bg border border-dark-border rounded-xl p-4 mb-3">
 							<div class="flex items-center gap-4">
@@ -257,12 +257,12 @@ DisableHH=true
 								</button>
 							</div>
 						</div>
-						
+
 						<!-- Search Input (initially hidden) -->
 						<div id="search-input-wrapper" class="hidden relative" >
 							<div class="relative">
 								<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-								<input type="text" 
+								<input type="text"
 									id="donate-search-input"
 									placeholder="Search for a user..."
 									class="input-field w-full pl-11"
@@ -271,7 +271,7 @@ DisableHH=true
 									<i class="fas fa-times"></i>
 								</button>
 							</div>
-							
+
 							<!-- Search Results Dropdown -->
 							<div id="donate-search-results" class="hidden absolute z-50 w-full mt-2 bg-dark-card border border-dark-border rounded-xl shadow-xl max-h-80 overflow-y-auto">
 								<div id="donate-search-loading" class="hidden p-4 text-center text-gray-400">
@@ -283,7 +283,7 @@ DisableHH=true
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- Hidden form input -->
 						<input name="os1" type="hidden" value="{{ $global.User.Username }}" id="username-input">
 					</div>
@@ -315,7 +315,7 @@ DisableHH=true
 			document.addEventListener('DOMContentLoaded', function() {
 				var avatarUrl = soumetsuConf.avatars;
 				var apiUrl = soumetsuConf.baseAPI;
-				
+
 				const monthButtons = document.querySelectorAll('.month-btn');
 				const priceDisplay = document.getElementById('price-display');
 				const monthsDisplay = document.getElementById('months-display');
@@ -336,7 +336,7 @@ DisableHH=true
 
 						const months = this.dataset.months;
 						const price = this.dataset.price;
-						
+
 						priceDisplay.textContent = price;
 						monthsDisplay.textContent = months;
 						paypalAmt.value = price;
@@ -354,7 +354,7 @@ DisableHH=true
 				const searchInputWrapper = document.getElementById('search-input-wrapper');
 				const changeUserBtn = document.getElementById('change-user-btn');
 				const cancelSearchBtn = document.getElementById('cancel-search-btn');
-				
+
 				let searchTimeout;
 				let currentUserId = {{ $global.User.ID }};
 				const defaultUsername = '{{ $global.User.Username }}';
@@ -365,31 +365,31 @@ DisableHH=true
 					if (privileges & 4) return { name: 'Supporter', class: 'bg-pink-500/20 text-pink-400' };
 					return { name: 'Player', class: 'bg-gray-500/20 text-gray-400' };
 				}
-				
+
 				function extractUserStats(user) {
 					// Extract stats from the nested structure (from lookup API)
 					var rank = null;
 					var pp = null;
-					
+
 					if (user.stats && user.stats.vn && user.stats.vn.std) {
 						rank = user.stats.vn.std.global_leaderboard_rank;
 						pp = Math.round(user.stats.vn.std.pp || 0);
 					}
-					
+
 					return { rank: rank, pp: pp };
 				}
 
 				function updateUserCard(user) {
 					const role = getUserRole(user.privileges || 0);
 					const stats = extractUserStats(user);
-					
+
 					document.getElementById('selected-avatar').src = avatarUrl + '/' + user.id;
 					document.getElementById('selected-username').textContent = user.username;
 					document.getElementById('selected-role').textContent = role.name;
 					document.getElementById('selected-role').className = 'text-xs px-2 py-1 rounded-full ' + role.class;
 					document.getElementById('selected-rank').innerHTML = '<i class="fas fa-globe-americas mr-1"></i>Global #' + (stats.rank ? stats.rank.toLocaleString() : '--');
 					document.getElementById('selected-pp').innerHTML = '<i class="fas fa-chart-line mr-1"></i>' + (stats.pp ? stats.pp.toLocaleString() : '0') + ' pp';
-					
+
 					// Show supporter badge if they have it
 					const supporterBadge = document.getElementById('selected-supporter-badge');
 					if (user.privileges & 4) {
@@ -397,7 +397,7 @@ DisableHH=true
 					} else {
 						supporterBadge.classList.add('hidden');
 					}
-					
+
 					usernameInput.value = user.username;
 					ipnUsername.value = 'username=' + user.username;
 					currentUserId = user.id;
@@ -423,20 +423,20 @@ DisableHH=true
 					searchResults.classList.add('hidden');
 					searchInput.value = '';
 				}
-				
+
 				function renderUserResult(user) {
 					const role = getUserRole(user.privileges || 0);
 					const stats = extractUserStats(user);
 					const isSupporter = user.privileges & 4;
-					
+
 					var countryHtml = '';
 					if (user.country) {
 						countryHtml = '<img src="/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg" class="w-4 h-3 rounded" alt="' + user.country + '">';
 					}
-					
+
 					const item = document.createElement('div');
 					item.className = 'flex items-center gap-3 p-3 hover:bg-dark-border/50 cursor-pointer transition-colors border-b border-dark-border last:border-0';
-					item.innerHTML = 
+					item.innerHTML =
 						'<div class="relative flex-shrink-0">' +
 							'<img src="' + avatarUrl + '/' + user.id + '" class="w-12 h-12 rounded-xl object-cover border-2 border-dark-border" onerror="this.src=\'/static/images/default-avatar.png\'">' +
 							(isSupporter ? '<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-card"><i class="fas fa-heart text-white" style="font-size: 8px;"></i></div>' : '') +
@@ -453,7 +453,7 @@ DisableHH=true
 							'</div>' +
 						'</div>' +
 						'<i class="fas fa-chevron-right text-gray-500 text-xs"></i>';
-					
+
 					item.addEventListener('click', function() { selectUser(user); });
 					return item;
 				}
@@ -464,8 +464,8 @@ DisableHH=true
 					.then(function(data) {
 						if (data.code === 200 && data.users && data.users.length > 0) {
 							// Find exact match
-							var user = data.users.find(function(u) { 
-								return u.username.toLowerCase() === defaultUsername.toLowerCase(); 
+							var user = data.users.find(function(u) {
+								return u.username.toLowerCase() === defaultUsername.toLowerCase();
 							}) || data.users[0];
 							updateUserCard(user);
 						}
@@ -477,9 +477,9 @@ DisableHH=true
 
 				searchInput.addEventListener('input', function() {
 					const query = this.value.trim();
-					
+
 					clearTimeout(searchTimeout);
-					
+
 					if (query.length < 2) {
 						searchResults.classList.add('hidden');
 						return;
@@ -496,11 +496,11 @@ DisableHH=true
 							.then(function(res) { return res.json(); })
 							.then(function(data) {
 								searchLoading.classList.add('hidden');
-								
+
 								if (data.code === 200 && data.users && data.users.length > 0) {
 									searchList.innerHTML = '';
 									searchList.classList.remove('hidden');
-									
+
 									data.users.slice(0, 8).forEach(function(user) {
 										searchList.appendChild(renderUserResult(user));
 									});
