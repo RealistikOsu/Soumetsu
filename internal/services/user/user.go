@@ -209,6 +209,10 @@ func (s *Service) UpdateUserpage(ctx context.Context, userID int, content string
 	return s.userRepo.UpdateUserpage(ctx, userID, content)
 }
 
+func (s *Service) GetBadgeMembers(ctx context.Context, badgeID int) ([]models.User, error) {
+	return s.userRepo.GetBadgeMembers(ctx, badgeID)
+}
+
 func (s *Service) UnlinkDiscord(ctx context.Context, userID int) error {
 	linked, err := s.discordRepo.IsLinked(ctx, userID)
 	if err != nil {

@@ -3,8 +3,8 @@ DisableHH=true
 */}}
 {{ define "tpl" }}
 <script>
-	window.clanId = {{ .ClanID }};
-	window.clanParam = "{{ .ClanParam }}";
+	window.clanId = {{ .Extra.ClanID }};
+	window.clanParam = "{{ .Extra.ClanParam }}";
 </script>
 
 <div id="clan-app" class="relative min-h-screen py-8">

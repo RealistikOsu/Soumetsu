@@ -223,6 +223,20 @@ func (r *UserRepository) UpdateUserpage(ctx context.Context, userID int, content
 	return err
 }
 
+func (r *UserRepository) GetBadgeMembers(ctx context.Context, badgeID int) ([]models.User, error) {
+	var users []models.User
+	err := r.db.SelectContext(ctx, &users, `
+		SELECT u.id, u.username, u.privileges, u.country, u.register_datetime, u.latest_activity
+		FROM users u
+		JOIN user_badges ub ON u.id = ub.user
+		WHERE ub.badge = ?
+		ORDER BY u.id ASC`, badgeID)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func SafeUsername(username string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(username)), " ", "_")
 }

@@ -359,26 +359,30 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings/user-page", http.StatusFound)
 }
 
-func (h *UserHandler) UserCardInfo(w http.ResponseWriter, r *http.Request) {
-	idParam := chi.URLParam(r, "id")
-	id, _ := strconv.Atoi(idParam)
+func (h *UserHandler) TeamPage(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
 
-	user, err := h.userService.GetByID(r.Context(), id)
-	if err != nil || user == nil {
-		response.JSONError(w, http.StatusNotFound, "User not found")
-		return
+	// IDs: 2 (Dev), 1018 (Admin), 1020 (CM), 30 (GMT), 5 (BAT), 1017 (Social), 1002 (Supporter)
+	badgeIDs := []int{2, 1018, 1020, 30, 5, 1017, 1002}
+	teamData := make(map[int]interface{})
+
+	for _, id := range badgeIDs {
+		members, err := h.userService.GetBadgeMembers(r.Context(), id)
+		if err != nil {
+			members = []models.User{}
+		}
+
+		teamData[id] = map[string]interface{}{
+			"members": members,
+			"Conf":    h.config,
+		}
 	}
 
-	bgType, bgValue, _ := h.userService.GetProfileBackground(r.Context(), id)
-
-	response.JSONSuccess(w, map[string]interface{}{
-		"id":         user.ID,
-		"username":   user.Username,
-		"country":    user.Country,
-		"privileges": user.Privileges,
-		"background": map[string]interface{}{
-			"type":  bgType,
-			"value": bgValue,
+	h.templates.RenderWithRequest(w, r, "team.html", &response.TemplateData{
+		TitleBar: "Team",
+		Context:  reqCtx,
+		Extra: map[string]interface{}{
+			"TeamData": teamData,
 		},
 	})
 }

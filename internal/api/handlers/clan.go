@@ -50,15 +50,17 @@ type ClanPageData struct {
 }
 
 func (h *ClanHandler) ClanPage(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	clanParam := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanParam)
 
 	h.templates.Render(w, "clans/clan.html", &response.TemplateData{
 		TitleBar:  "Clan",
 		DisableHH: true,
-		Context: ClanPageData{
-			ClanID:    clanID,
-			ClanParam: clanParam,
+		Context:   reqCtx,
+		Extra: map[string]interface{}{
+			"ClanID":    clanID,
+			"ClanParam": clanParam,
 		},
 	})
 }
@@ -265,6 +267,7 @@ func (h *ClanHandler) ManagePage(w http.ResponseWriter, r *http.Request) {
 
 	h.templates.Render(w, "settings/clans/manage.html", &response.TemplateData{
 		TitleBar: "Manage Clan",
+		Context:  reqCtx,
 	})
 }
 
@@ -333,12 +336,14 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	h.templates.Render(w, "clans/create.html", &response.TemplateData{
 		TitleBar:  "Create your clan",
 		KyutGrill: "clans.jpg",
 		Scripts:   []string{"https://www.google.com/recaptcha/api.js"},
 		Messages:  messages,
 		FormData:  normaliseURLValues(r.PostForm),
+		Context:   reqCtx,
 	})
 }
 

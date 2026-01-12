@@ -146,6 +146,8 @@ func (a *App) Routes() chi.Router {
 	})
 	r.Get("/beatmapsets/{id}/download", a.BeatmapHandler.DownloadBeatmap)
 
+	r.Get("/team", a.UserHandler.TeamPage)
+
 	a.loadSimplePages(r)
 
 	r.Get("/rank_request", func(w http.ResponseWriter, r *http.Request) {

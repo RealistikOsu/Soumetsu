@@ -123,7 +123,7 @@ new Vue({
             this.statsLoading = true;
 
             try {
-                const resp = await HanayoAPI.clans.getStats(this.clanId, this.mode, this.relax);
+                const resp = await SoumetsuAPI.clans.getStats(this.clanId, this.mode, this.relax);
                 this.stats = resp;
             } catch (err) {
                 console.error('Error loading stats:', err);

@@ -1,5 +1,4 @@
 {{/*###
-Handler=/team
 Include=user_group.html
 KyutGrill=team2.jpg
 DisableHH=true
@@ -56,7 +55,7 @@ DisableHH=true
 					Developers are responsible for all the server side magic. They do all the behind the scene technical things. 
 					They have full power over the server as they run it. Developers have a blue name in the in-game chat.
 				</p>
-				{{ $data := .Get "badges/members?id=%d" 2 }}
+				{{ $data := index .Extra.TeamData 2 }}
 				{{ template "userGroup" $data }}
 			</div>
 		</div>
@@ -78,7 +77,7 @@ DisableHH=true
 					Administrators are all-mighty powerful beings that are here to ensure everything runs smoothly. This can be anything from organising events to hunting hackers. They are cool people ready to help you.
 					{{" They have power in numerous sectors such as the discord server." | html}}
 				</p>
-				{{ template "userGroup" (.Get "badges/members?id=%d" 1018) }}
+				{{ template "userGroup" (index .Extra.TeamData 1018) }}
 			</div>
 		</div>
 
@@ -99,7 +98,7 @@ DisableHH=true
 					Community Managers deal with bans, silences, name changes and pretty much everything that has to do with the community.
 					{{" They take care of our Discord server and reply to emails sent to the support services (Discord)." | html}}
 				</p>
-				{{ template "userGroup" (.Get "badges/members?id=%d" 1020) }}
+				{{ template "userGroup" (index .Extra.TeamData 1020) }}
 			</div>
 		</div>
 
@@ -119,7 +118,7 @@ DisableHH=true
 				<p class="text-gray-300 mb-6 leading-relaxed">
 					{{"Chat moderators manage the chat to make sure The Law&trade; (the rules) is respected." | html}}
 				</p>
-				{{ $data := .Get "badges/members?id=%d" 30 }}
+				{{ $data := index .Extra.TeamData 30 }}
 				{{ template "userGroup" $data }}
 			</div>
 		</div>
@@ -141,7 +140,7 @@ DisableHH=true
 					BATs play beatmaps in the ranking queue and decide whether they are good enough to be ranked or not. 
 					They ensure quality standards are met and help shape the competitive experience for all players.
 				</p>
-				{{ $data := .Get "badges/members?id=%d" 5 }}
+				{{ $data := index .Extra.TeamData 5 }}
 				{{ template "userGroup" $data }}
 			</div>
 		</div>
@@ -163,7 +162,7 @@ DisableHH=true
 					The Social Media Team is responsible for anything regarding RealistikOsu's presence on social medias. 
 					They keep the community informed, engaged, and help grow our presence across various platforms.
 				</p>
-				{{ template "userGroup" (.Get "badges/members?id=%d" 1017) }}
+				{{ template "userGroup" (index .Extra.TeamData 1017) }}
 			</div>
 		</div>
 
@@ -267,16 +266,16 @@ DisableHH=true
 
 	{{ $ := . }}
 	<!-- Modal for supporters -->
-	<div id="supporters-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-		<div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="document.getElementById('supporters-modal').classList.add('hidden')"></div>
-		<div class="relative bg-dark-card rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-dark-border shadow-2xl">
+	<div id="supporters-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" aria-hidden="true">
+		<div id="modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300 ease-out" data-close-modal></div>
+		<div id="modal-panel" class="relative bg-dark-card rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-dark-border shadow-2xl opacity-0 scale-95 transition-all duration-300 ease-out transform">
 			<div class="flex items-center justify-between mb-6">
 				<h2 class="text-3xl font-display font-bold text-white">Our amazing supporters!</h2>
-				<button onclick="document.getElementById('supporters-modal').classList.add('hidden')" class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-dark-border transition-colors">
+				<button data-close-modal class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-dark-border transition-colors">
 					<i class="fas fa-times text-xl"></i>
 				</button>
 			</div>
-			{{ $data := .Get "badges/members?id=%d" 1002 }}
+			{{ $data := index .Extra.TeamData 1002 }}
 			{{ template "userGroup" $data }}
 			<div class="text-center mt-8 pt-6 border-t border-dark-border">
 				<p class="font-semibold text-white mb-4">Do you want to be in this list?</p>
@@ -290,8 +289,52 @@ DisableHH=true
 </div>
 
 <script>
-	document.getElementById('everyone')?.addEventListener('click', function() {
-		document.getElementById('supporters-modal').classList.remove('hidden');
+	document.addEventListener('DOMContentLoaded', function() {
+		const modal = document.getElementById('supporters-modal');
+		const backdrop = document.getElementById('modal-backdrop');
+		const panel = document.getElementById('modal-panel');
+		const openBtn = document.getElementById('everyone');
+		const closeElements = document.querySelectorAll('[data-close-modal]');
+
+		function openModal() {
+			if (!modal) return;
+			modal.classList.remove('hidden');
+			// Force reflow
+			void modal.offsetWidth;
+			
+			modal.setAttribute('aria-hidden', 'false');
+			backdrop.classList.remove('opacity-0');
+			panel.classList.remove('opacity-0', 'scale-95');
+			panel.classList.add('scale-100');
+		}
+
+		function closeModal() {
+			if (!modal) return;
+			
+			modal.setAttribute('aria-hidden', 'true');
+			backdrop.classList.add('opacity-0');
+			panel.classList.remove('scale-100');
+			panel.classList.add('opacity-0', 'scale-95');
+
+			setTimeout(() => {
+				modal.classList.add('hidden');
+			}, 300);
+		}
+
+		if (openBtn) {
+			openBtn.addEventListener('click', openModal);
+		}
+
+		closeElements.forEach(el => {
+			el.addEventListener('click', closeModal);
+		});
+
+		// Close on Escape key
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+				closeModal();
+			}
+		});
 	});
 </script>
 {{ end }}

@@ -263,7 +263,7 @@ DisableHH=true
 							<div class="relative">
 								<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 								<input type="text" 
-									id="user-search-input"
+									id="donate-search-input"
 									placeholder="Search for a user..."
 									class="input-field w-full pl-11"
 									autocomplete="off">
@@ -273,12 +273,12 @@ DisableHH=true
 							</div>
 							
 							<!-- Search Results Dropdown -->
-							<div id="user-search-results" class="hidden absolute z-50 w-full mt-2 bg-dark-card border border-dark-border rounded-xl shadow-xl max-h-80 overflow-y-auto">
-								<div id="user-search-loading" class="hidden p-4 text-center text-gray-400">
+							<div id="donate-search-results" class="hidden absolute z-50 w-full mt-2 bg-dark-card border border-dark-border rounded-xl shadow-xl max-h-80 overflow-y-auto">
+								<div id="donate-search-loading" class="hidden p-4 text-center text-gray-400">
 									<i class="fas fa-spinner fa-spin mr-2"></i>Searching...
 								</div>
-								<div id="user-search-list"></div>
-								<div id="user-search-empty" class="hidden p-4 text-center text-gray-400">
+								<div id="donate-search-list"></div>
+								<div id="donate-search-empty" class="hidden p-4 text-center text-gray-400">
 									<i class="fas fa-user-slash mr-2"></i>No users found
 								</div>
 							</div>
@@ -345,11 +345,11 @@ DisableHH=true
 				});
 
 				// User search functionality
-				const searchInput = document.getElementById('user-search-input');
-				const searchResults = document.getElementById('user-search-results');
-				const searchList = document.getElementById('user-search-list');
-				const searchLoading = document.getElementById('user-search-loading');
-				const searchEmpty = document.getElementById('user-search-empty');
+				const searchInput = document.getElementById('donate-search-input');
+				const searchResults = document.getElementById('donate-search-results');
+				const searchList = document.getElementById('donate-search-list');
+				const searchLoading = document.getElementById('donate-search-loading');
+				const searchEmpty = document.getElementById('donate-search-empty');
 				const selectedUserCard = document.getElementById('selected-user-card');
 				const searchInputWrapper = document.getElementById('search-input-wrapper');
 				const changeUserBtn = document.getElementById('change-user-btn');

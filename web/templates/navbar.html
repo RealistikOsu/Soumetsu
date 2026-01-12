@@ -55,7 +55,7 @@
 					</a>
 					<a href="/clans/leaderboard"
 						class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/clans/leaderboard" }}text-white font-medium{{ end }}">
-						Clan
+						Clans
 					</a>
 
 					<!-- Beatmaps Dropdown -->
@@ -177,7 +177,7 @@
 							</div>
 						</div>
 						<div class="relative">
-							<img src="{{ config " APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}"
+							<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}"
 								alt="{{ .Context.User.Username }}"
 								class="w-10 h-10 rounded-full border-2 border-dark-border group-hover:border-primary transition-colors">
 							<div id="navbar-online-indicator"
@@ -213,7 +213,7 @@
 								Settings
 							</a>
 							<hr class="my-2 border-dark-border">
-							<a href="/logout?k={{ .Session.Get " logout" }}"
+							<a href="/logout?k={{ .Session.Get "logout" }}"
 								class="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-border/50 transition-colors">
 								<i class="fas fa-sign-out-alt w-4"></i>
 								Logout

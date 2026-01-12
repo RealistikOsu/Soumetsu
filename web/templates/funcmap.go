@@ -178,6 +178,10 @@ func FuncMap() template.FuncMap {
 		"timeFromTime": func(t time.Time) template.HTML {
 			return _time(t.Format(time.RFC3339), t)
 		},
+		"timeFromUnix": func(i int64) template.HTML {
+			t := time.Unix(i, 0)
+			return _time(t.Format(time.RFC3339), t)
+		},
 		"timeAddDay": func(s string) template.HTML {
 			t, _ := time.Parse(time.RFC3339, s)
 			t = t.Add(time.Hour * 24)
