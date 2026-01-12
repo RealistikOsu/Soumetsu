@@ -59,7 +59,7 @@ DisableHH=true
 							</a>
 						</div>
 
-						<input type="hidden" name="redir" value="{{ or (get .QueryParams "redir") (index .FormData.redir 0) }}">
+						<input type="hidden" name="redir" value="{{ if get .QueryParams "redir" }}{{ get .QueryParams "redir" }}{{ else }}{{ if index .FormData "redir" }}{{ index (index .FormData "redir") 0 }}{{ end }}{{ end }}">
 						{{ ieForm }}
 
 						<button type="submit" 
