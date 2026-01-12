@@ -3,30 +3,37 @@ NoCompile=true
 */}}
 {{ define "userGroup" }}
 {{ with . }}
-	<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="main-column-grid">
+	<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="main-column-grid">
 		{{ $teamJSON := teamJSON }}
 		{{ range .members }}
 			{{/* ignore fokabot */}}
 			{{ if ne (int .id) 999 }}
 				{{ $tj := index $teamJSON (print .id)}}
-				<a href="/users/{{ .id }}" class="card text-center hover:border-primary transition-colors">
-					<div class="mb-4">
-						<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}" 
-							alt="Avatar" 
-							class="w-full aspect-square rounded-lg object-cover border-2 border-dark-border mx-auto">
-					</div>
-					<div class="space-y-2">
-						<div class="flex items-center justify-center gap-2 font-semibold">
-							{{ country .country false }}
-							<span>{{ .username }}</span>
+				<a href="/users/{{ .id }}" class="group card overflow-hidden relative hover:border-primary/50 transition-all duration-300">
+					<div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+					<div class="relative p-4">
+						<div class="mb-4 relative">
+							<div class="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-dark-border group-hover:border-primary/50 transition-colors">
+								<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}" 
+									alt="{{ .username }}" 
+									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+									onerror="this.src='/static/images/default-avatar.png'">
+								<div class="absolute inset-0 bg-gradient-to-t from-dark-bg/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+							</div>
 						</div>
-						<div class="text-sm text-gray-400" title="Registered">
-							<i class="fas fa-sign-in-alt mr-1"></i>
-							{{ time .registered_on }}
-						</div>
-						<div class="text-sm text-gray-400" title="Latest activity">
-							<i class="fas fa-sign-out-alt mr-1"></i>
-							{{ time .latest_activity }}
+						<div class="space-y-2">
+							<div class="flex items-center justify-center gap-2 font-semibold text-white group-hover:text-primary transition-colors">
+								{{ country .country false }}
+								<span class="truncate">{{ .username }}</span>
+							</div>
+							<div class="flex items-center justify-center gap-1 text-xs text-gray-400" title="Registered">
+								<i class="fas fa-calendar-plus"></i>
+								<span class="truncate">{{ time .registered_on }}</span>
+							</div>
+							<div class="flex items-center justify-center gap-1 text-xs text-gray-400" title="Latest activity">
+								<i class="fas fa-clock"></i>
+								<span class="truncate">{{ time .latest_activity }}</span>
+							</div>
 						</div>
 					</div>
 				</a>
