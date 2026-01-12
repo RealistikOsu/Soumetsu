@@ -218,9 +218,9 @@
             els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
             els.banner.style.backgroundColor = '#0f172a';
 
-            // Extract colors from avatar and apply gradient
+            // Extract colours from avatar and apply gradient
             if (window.BannerGradient && els.avatar) {
-                // Ensure avatar has crossorigin attribute for color extraction
+                // Ensure avatar has crossorigin attribute for colour extraction
                 if (!els.avatar.crossOrigin) {
                     els.avatar.crossOrigin = 'anonymous';
                 }

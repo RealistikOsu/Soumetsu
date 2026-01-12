@@ -50,7 +50,7 @@
 		return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 	}
 
-	// Enhance color for gradient
+	// Enhance colour for gradient
 	function enhanceForGradient(rgb) {
 		const r = rgb[0], g = rgb[1], b = rgb[2];
 		const hsl = rgbToHsl(r, g, b);
@@ -71,7 +71,7 @@
 		return hslToRgb(h, newS, newL);
 	}
 
-	// Extract banner colors from image
+	// Extract banner colours from image
 	function extractBannerColors(img, callback) {
 		if (!img || !img.complete || img.src.startsWith('data:image/svg+xml')) {
 			if (callback) {callback(null);}
@@ -222,7 +222,7 @@
 			});
 		}
 
-		// Extract colors when avatar loads
+		// Extract colours when avatar loads
 		if (avatar.complete && avatar.naturalWidth > 0) {
 			updateGradient();
 		} else {

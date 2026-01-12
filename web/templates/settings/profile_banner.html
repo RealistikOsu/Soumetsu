@@ -269,7 +269,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 													value="{{ if and (eq $type 2) $value }}{{ $value }}{{ else }}#6366f1{{ end }}"
 													class="input-field text-center">
 
-												<!-- Quick color presets -->
+												<!-- Quick colour presets -->
 												<div class="flex flex-wrap justify-center gap-2">
 													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #6366f1;" data-color="#6366f1"></button>
 													<button type="button" class="color-preset w-8 h-8 rounded-full border-2 border-transparent hover:border-white transition-all" style="background-color: #8b5cf6;" data-color="#8b5cf6"></button>
@@ -404,7 +404,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								bannerPreview.appendChild(gradientDiv);
 								bannerPreview.innerHTML += badges;
 								bannerGradient = gradientDiv;
-								// Extract colors after a short delay to ensure DOM is ready
+								// Extract colours after a short delay to ensure DOM is ready
 								setTimeout(function() {
 									if (profileAvatar && profileAvatar.complete) {
 										extractBannerColors(profileAvatar);

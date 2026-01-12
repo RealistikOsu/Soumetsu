@@ -229,7 +229,7 @@ async function search(options, offset = 0, r = false) {
             });
         };
 
-        // Get status color
+        // Get status colour
         const statusColors = {
             "1": "bg-green-500/20 border-green-500/50 text-green-400",
             "3": "bg-blue-500/20 border-blue-500/50 text-blue-400",

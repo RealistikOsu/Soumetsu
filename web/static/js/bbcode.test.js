@@ -85,8 +85,8 @@ describe('BBCode URL Sanitization', () => {
     });
 });
 
-// Test color validation
-describe('BBCode Color Validation', () => {
+// Test colour validation
+describe('BBCode Colour Validation', () => {
     function isValidColor(color) {
         if (!color || typeof color !== 'string') {
             return false;
@@ -94,7 +94,7 @@ describe('BBCode Color Validation', () => {
 
         color = color.trim().toLowerCase();
 
-        // Named colors (basic set)
+        // Named colours (basic set)
         const namedColors = [
             'red',
             'blue',
@@ -125,7 +125,7 @@ describe('BBCode Color Validation', () => {
             return true;
         }
 
-        // Hex colors: #RGB or #RRGGBB
+        // Hex colours: #RGB or #RRGGBB
         if (/^#[0-9a-f]{3}$/.test(color) || /^#[0-9a-f]{6}$/.test(color)) {
             return true;
         }
