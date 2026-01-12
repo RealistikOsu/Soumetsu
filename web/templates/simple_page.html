@@ -1,0 +1,18 @@
+{{ define "simple_page" }}
+<tr>
+	<th colspan="{{ . }}">
+		<div class="simplepag flex justify-between items-center">
+			<div class="flex items-center gap-2">
+				<button class="p-2 text-gray-400 hover:text-white transition-colors" onclick="if (window.history.length > 1) window.history.back()">
+					<i class="fas fa-chevron-left"></i>
+				</button>
+			</div>
+			<div class="flex items-center gap-2">
+				<button class="p-2 text-gray-400 hover:text-white transition-colors" onclick="if (window.history.length > 1) window.history.forward()">
+					<i class="fas fa-chevron-right"></i>
+				</button>
+			</div>
+		</div>
+	</th>
+</tr>
+{{ end }}

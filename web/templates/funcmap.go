@@ -339,7 +339,7 @@ func FuncMap() template.FuncMap {
 			}
 			return false
 		},
-		"capitalise": strings.Title,
+		"capitalise":    strings.Title,
 		"servicePrefix": func(s string) string { return servicePrefixes[s] },
 		"randomLogoColour": func() string {
 			if rand.Int()%4 == 0 {

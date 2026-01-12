@@ -55,7 +55,7 @@ func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 		sessionWrapper = response.NewSessionWrapper(nil)
 	}
 
-	h.templates.Render(w, "homepage.html", &response.TemplateData{
+	h.templates.Render(w, "home.html", &response.TemplateData{
 		TitleBar: "Home",
 		Path:     r.URL.Path,
 		Context:  reqCtx,
@@ -150,7 +150,7 @@ func (h *PagesHandler) DocPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *PagesHandler) EmptyPage(titleBar string, messages ...models.Message) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: titleBar,
 			Messages: messages,
 			Path:     r.URL.Path,

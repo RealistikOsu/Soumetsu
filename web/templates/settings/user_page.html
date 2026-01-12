@@ -1,0 +1,73 @@
+{{/*###
+Handler=/settings/user-page
+KyutGrill=settings2.jpg
+Include=menu.html
+MinPrivileges=2
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+{{ $ := . }}
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+			
+			<div class="flex-1">
+				<div class="card">
+					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+						<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+							<i class="fas fa-file-alt text-primary text-xl"></i>
+						</div>
+						<div>
+							<h2 class="text-2xl font-display font-bold text-white">Edit Userpage</h2>
+							<p class="text-sm text-gray-400">Customize your profile page content</p>
+						</div>
+					</div>
+					
+					{{ $f := ieForm }}
+					{{ with .Get "users/userpage?id=%d" .Context.User.ID }}
+						<form method="post" class="space-y-6">
+							<div>
+								<label class="block text-sm font-medium text-gray-300 mb-2">
+									BBCode Content
+								</label>
+								<textarea name="data" 
+									class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+									rows="15"
+									tabindex="1">{{ .userpage }}</textarea>
+								<p class="text-sm text-gray-400 mt-2">
+									<a href="https://docs.ripple.moe/docs/misc/hanayo_bbcode" target="_blank" class="text-primary hover:underline">
+										BBCode syntax reference
+									</a>
+								</p>
+							</div>
+
+							<div class="border-t border-dark-border pt-6">
+								<h3 class="text-lg font-semibold mb-4">Preview</h3>
+								<div class="bg-dark-bg rounded-lg p-6 border border-dark-border min-h-[200px]" id="userpage-content">
+									{{ parseUserpage .userpage | html }}
+								</div>
+							</div>
+
+							{{ $f }}
+
+							<div class="flex justify-end">
+								<button type="submit" class="btn-primary">
+									Save
+								</button>
+							</div>
+						</form>
+					{{ end }}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{ end }}

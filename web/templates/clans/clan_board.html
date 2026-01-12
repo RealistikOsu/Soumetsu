@@ -1,0 +1,225 @@
+{{/*###
+Handler=/clanboard
+TitleBar=Clanboard
+KyutGrill=clanboard.jpg
+DisableHH=true
+AdditionalJS=/static/vue/pages/clanboard.js
+*/}}
+{{ define "tpl" }}
+<div id="clanboard-app" class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+			style="background-image: url('/static/headers/clanboard.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<!-- Loading State -->
+	<div v-if="loading" class="container mx-auto px-4">
+		<div class="card flex items-center justify-center py-16">
+			<i class="fas fa-spinner fa-spin text-primary text-4xl"></i>
+		</div>
+	</div>
+
+	<!-- Content -->
+	<div v-else class="container mx-auto px-4">
+		<!-- Top 3 Podium -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+			<!-- 2nd Place -->
+			<div v-if="data[1]" class="order-2 md:order-1">
+				<div class="card text-center p-6 relative">
+					<div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+						<div class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold shadow-lg">
+							#2
+						</div>
+					</div>
+					<div class="mt-4">
+						<div v-if="data[1].icon && !data[1].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-gray-400/50 shadow-lg">
+							<img :src="data[1].icon" :alt="data[1].name" class="w-full h-full object-cover" @error="data[1].iconError = true">
+						</div>
+						<div v-else class="w-16 h-16 rounded-xl border-4 border-gray-400/50 shadow-lg bg-dark-card flex items-center justify-center mx-auto">
+							<i class="fas fa-users text-gray-400 text-2xl"></i>
+						</div>
+					</div>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[1].name %></h3>
+					<p class="text-gray-400 text-sm mb-1"><% data[1].tag %></p>
+					<div class="flex items-center justify-center gap-2 mt-3">
+						<i class="fas fa-trophy text-gray-400"></i>
+						<span class="text-gray-300 font-semibold"><% formatNumber(data[1].chosen_mode.pp) %>pp</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1st Place -->
+			<div v-if="data[0]" class="order-1 md:order-2">
+				<div class="card text-center p-6 relative transform md:scale-110">
+					<div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+						<div class="bg-yellow-500 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold shadow-lg shadow-yellow-500/20">
+							#1
+						</div>
+					</div>
+					<div class="mt-4">
+						<div v-if="data[0].icon && !data[0].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
+							<img :src="data[0].icon" :alt="data[0].name" class="w-full h-full object-cover" @error="data[0].iconError = true">
+						</div>
+						<div v-else class="w-16 h-16 rounded-xl border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20 bg-dark-card flex items-center justify-center mx-auto">
+							<i class="fas fa-crown text-yellow-400 text-2xl"></i>
+						</div>
+					</div>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[0].name %></h3>
+					<p class="text-gray-400 text-sm mb-1"><% data[0].tag %></p>
+					<div class="flex items-center justify-center gap-2 mt-3">
+						<i class="fas fa-trophy text-yellow-400"></i>
+						<span class="text-yellow-300 font-semibold text-lg"><% formatNumber(data[0].chosen_mode.pp) %>pp</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3rd Place -->
+			<div v-if="data[2]" class="order-3">
+				<div class="card text-center p-6 relative">
+					<div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+						<div class="bg-orange-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold shadow-lg">
+							#3
+						</div>
+					</div>
+					<div class="mt-4">
+						<div v-if="data[2].icon && !data[2].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
+							<img :src="data[2].icon" :alt="data[2].name" class="w-full h-full object-cover" @error="data[2].iconError = true">
+						</div>
+						<div v-else class="w-16 h-16 rounded-xl border-4 border-orange-600/50 shadow-lg shadow-orange-500/20 bg-dark-card flex items-center justify-center mx-auto">
+							<i class="fas fa-medal text-orange-400 text-2xl"></i>
+						</div>
+					</div>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[2].name %></h3>
+					<p class="text-gray-400 text-sm mb-1"><% data[2].tag %></p>
+					<div class="flex items-center justify-center gap-2 mt-3">
+						<i class="fas fa-trophy text-orange-400"></i>
+						<span class="text-orange-300 font-semibold"><% formatNumber(data[2].chosen_mode.pp) %>pp</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filters -->
+		<div class="card mb-6">
+			<div class="flex flex-wrap items-center gap-4">
+				<!-- Mode Selector -->
+				<div class="flex gap-2">
+					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="mode === 'std' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="loadClanboardData('std', relax, 1)">
+						Standard
+					</button>
+					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="mode === 'taiko' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="if(relax != 'ap') loadClanboardData('taiko', relax, 1)">
+						Taiko
+					</button>
+					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="mode === 'fruits' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="if(relax != 'ap') loadClanboardData('fruits', relax, 1)">
+						Catch
+					</button>
+					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="mode === 'mania' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="if(relax != 'ap' && relax != 'rx') loadClanboardData('mania', relax, 1)">
+						Mania
+					</button>
+				</div>
+
+				<!-- Relax Selector -->
+				<div class="flex gap-2">
+					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="relax === 'vn' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
+					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="relax === 'rx' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="if(mode != 'mania') loadClanboardData(mode, 'rx', 1)">Relax</a>
+					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						:class="relax === 'ap' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						@click.prevent="if(mode != 'mania' && mode != 'fruits' && mode != 'taiko') loadClanboardData(mode, 'ap', 1)">Autopilot</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		<div class="flex items-center justify-between mb-6">
+			<button class="btn-secondary" 
+				:disabled="page <= 1"
+				:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
+				@click.prevent="if(page > 1) loadClanboardData(mode, relax, page - 1)">
+				<i class="fas fa-chevron-left mr-2"></i>
+				Previous
+			</button>
+			<span class="text-gray-300">Page <% page %></span>
+			<button class="btn-secondary"
+				:disabled="data.length < 50"
+				:class="{ 'opacity-50 cursor-not-allowed': data.length < 50 }"
+				@click.prevent="if(data.length >= 50) loadClanboardData(mode, relax, page + 1)">
+				Next
+				<i class="fas fa-chevron-right ml-2"></i>
+			</button>
+		</div>
+
+		<!-- Clan List -->
+		<div class="card">
+			<div class="overflow-x-auto">
+				<table class="w-full">
+					<thead>
+						<tr class="border-b border-dark-border">
+							<th class="text-left py-3 px-4 text-gray-400 font-medium">Rank</th>
+							<th class="text-left py-3 px-4 text-gray-400 font-medium">Clan</th>
+							<th class="text-right py-3 px-4 text-gray-400 font-medium">PP</th>
+							<th class="text-right py-3 px-4 text-gray-400 font-medium">Members</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-if="loading">
+							<td colspan="4" class="py-8 text-center text-gray-400">
+								<i class="fas fa-spinner fa-spin mr-2"></i>
+								Loading...
+							</td>
+						</tr>
+						<tr v-else-if="data.length === 0">
+							<td colspan="4" class="py-8 text-center text-gray-400">
+								No clans found
+							</td>
+						</tr>
+						<tr v-for="(clan, index) in data" :key="clan.id" 
+							class="border-b border-dark-border/50 hover:bg-dark-bg/50">
+							<td class="py-3 px-4 text-gray-300">
+								#<% (page - 1) * 50 + index + 1 + (page > 1 ? 3 : 0) %>
+							</td>
+							<td class="py-3 px-4">
+								<a :href="'/clans/' + clan.id" class="flex items-center gap-3 text-white hover:text-primary">
+									<div v-if="clan.icon && !clan.iconError" class="w-12 h-12 rounded-xl overflow-hidden border-2 border-dark-border shadow-lg">
+										<img :src="clan.icon" :alt="clan.name" class="w-full h-full object-cover" @error="clan.iconError = true">
+									</div>
+									<div v-else class="w-12 h-12 rounded-xl border-2 border-dark-border shadow-lg bg-dark-card flex items-center justify-center">
+										<i class="fas fa-users text-gray-400"></i>
+									</div>
+									<div>
+										<div class="font-semibold"><% clan.name %></div>
+										<div class="text-sm text-gray-400"><% clan.tag %></div>
+									</div>
+								</a>
+							</td>
+							<td class="py-3 px-4 text-right text-primary font-semibold">
+								<% formatNumber(clan.chosen_mode.pp) %>pp
+							</td>
+							<td class="py-3 px-4 text-right text-gray-300">
+								<% clan.member_count || 0 %>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/static/vue/vue.js"></script>
+<script src="/static/vue/api-client.js"></script>
+<script src="/static/vue/pages/clanboard.js"></script>
+{{ end }}

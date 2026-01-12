@@ -333,7 +333,7 @@ func (e *TemplateEngine) NotFound(w http.ResponseWriter, r *http.Request) {
 		Path:     r.URL.Path,
 		Context:  reqCtx,
 	}
-	e.RenderWithStatus(w, "not_found.html", data, http.StatusNotFound)
+	e.RenderWithStatus(w, "errors/error_404.html", data, http.StatusNotFound)
 }
 
 func (e *TemplateEngine) InternalError(w http.ResponseWriter, r *http.Request, err error) {
@@ -351,7 +351,7 @@ func (e *TemplateEngine) InternalError(w http.ResponseWriter, r *http.Request, e
 	}
 	
 	// Render with status code - Render will handle headers
-	e.RenderWithStatus(w, "500.html", data, http.StatusInternalServerError)
+	e.RenderWithStatus(w, "errors/error_500.html", data, http.StatusInternalServerError)
 }
 
 func (e *TemplateEngine) Forbidden(w http.ResponseWriter, r *http.Request) {

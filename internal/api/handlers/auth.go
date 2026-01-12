@@ -56,7 +56,7 @@ func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.Render(w, "login.html", &response.TemplateData{
+	h.templates.Render(w, "auth/login.html", &response.TemplateData{
 		TitleBar:  "Login",
 		KyutGrill: "login.jpg",
 		Path:      r.URL.Path,
@@ -144,7 +144,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Log out",
 			Messages: []models.Message{models.NewWarning("You're already logged out!")},
 		})
@@ -159,7 +159,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	logoutKey, _ := sess.Values["logout"].(string)
 	if logoutKey != r.URL.Query().Get("k") {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Log out",
 			Messages: []models.Message{models.NewWarning("Your session has expired. Please try redoing what you were trying to do.")},
 		})
@@ -191,7 +191,7 @@ func (h *AuthHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("stopsign") != "1" {
 		existingUser, _, _ := h.authService.CheckMultiAccount(r.Context(), apicontext.ClientIP(r), h.getIdentityCookie(r))
 		if existingUser != "" {
-			h.templates.Render(w, "register/peppy.html", &response.TemplateData{
+			h.templates.Render(w, "auth/register/peppy.html", &response.TemplateData{
 				TitleBar: "Register",
 				Extra: map[string]interface{}{
 					"Username": existingUser,
@@ -276,7 +276,7 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	h.templates.Render(w, "register/verify.html", &response.TemplateData{
+	h.templates.Render(w, "auth/register/verify.html", &response.TemplateData{
 		TitleBar:       "Verify account",
 		HeadingOnRight: true,
 		KyutGrill:      "welcome.jpg",
@@ -311,7 +311,7 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 		title = "Welcome back!"
 	}
 
-	h.templates.Render(w, "register/welcome.html", &response.TemplateData{
+	h.templates.Render(w, "auth/register/welcome.html", &response.TemplateData{
 		TitleBar:       title,
 		HeadingOnRight: true,
 		KyutGrill:      "welcome.jpg",
@@ -319,7 +319,7 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) loginResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
-	h.templates.Render(w, "login.html", &response.TemplateData{
+	h.templates.Render(w, "auth/login.html", &response.TemplateData{
 		TitleBar:  "Login",
 		KyutGrill: "login.jpg",
 		Messages:  messages,
@@ -329,7 +329,7 @@ func (h *AuthHandler) loginResp(w http.ResponseWriter, r *http.Request, messages
 }
 
 func (h *AuthHandler) registerResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
-	h.templates.Render(w, "register/register.html", &response.TemplateData{
+	h.templates.Render(w, "auth/register/register.html", &response.TemplateData{
 		TitleBar:  "Register",
 		KyutGrill: "register.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},

@@ -75,7 +75,7 @@ func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.RenderWithRequest(w, r, "settings/settings.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/profile.html", &response.TemplateData{
 		TitleBar: "Settings",
 	})
 }
@@ -206,7 +206,7 @@ func (h *UserHandler) ProfileBackgroundPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	h.templates.RenderWithRequest(w, r, "settings/profilebackground.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/profile_banner.html", &response.TemplateData{
 		TitleBar: "Profile Background",
 	})
 }

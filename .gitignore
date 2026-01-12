@@ -1,8 +1,5 @@
 node_modules
-hanayo
-FrontendPriv
-frontend
-hanayo.conf
+soumetsu
 team.json
 static/profbackgrounds/*
 !static/profbackgrounds/.keep
@@ -11,7 +8,6 @@ semantic/gulpfile.tmp.*.js
 static/oauth-apps/*
 !static/oauth-apps/.keep
 *.exe
-static/Ouroborosv2.zip
 .env
 Gopkg.lock
 Gopkg.toml

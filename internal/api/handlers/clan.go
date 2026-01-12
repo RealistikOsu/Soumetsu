@@ -53,7 +53,7 @@ func (h *ClanHandler) ClanPage(w http.ResponseWriter, r *http.Request) {
 	clanParam := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanParam)
 
-	h.templates.Render(w, "clansample.html", &response.TemplateData{
+	h.templates.Render(w, "clans/clan.html", &response.TemplateData{
 		TitleBar:  "Clan",
 		DisableHH: true,
 		Context: ClanPageData{

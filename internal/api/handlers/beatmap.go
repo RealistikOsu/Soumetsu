@@ -36,7 +36,7 @@ type BeatmapPageData struct {
 func (h *BeatmapHandler) BeatmapPage(w http.ResponseWriter, r *http.Request) {
 	beatmapID := chi.URLParam(r, "bid")
 
-	h.templates.Render(w, "beatmap.html", &response.TemplateData{
+	h.templates.Render(w, "beatmaps/beatmap.html", &response.TemplateData{
 		TitleBar:  "Beatmap",
 		DisableHH: true,
 		Context: BeatmapPageData{
@@ -52,7 +52,7 @@ type BeatmapSetPageData struct {
 func (h *BeatmapHandler) BeatmapSetPage(w http.ResponseWriter, r *http.Request) {
 	setID := chi.URLParam(r, "sid")
 
-	h.templates.Render(w, "beatmapset.html", &response.TemplateData{
+	h.templates.Render(w, "beatmaps/beatmap_set.html", &response.TemplateData{
 		TitleBar:  "Beatmap Set",
 		DisableHH: true,
 		Context: BeatmapSetPageData{

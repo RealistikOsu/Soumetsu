@@ -49,14 +49,14 @@ func NewPasswordHandler(
 func (h *PasswordHandler) ResetPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Password Reset",
 			Messages: []models.Message{models.NewError("You're already logged in!")},
 		})
 		return
 	}
 
-	h.templates.Render(w, "pwreset/request.html", &response.TemplateData{
+	h.templates.Render(w, "password_reset.html", &response.TemplateData{
 		TitleBar:  "Password Reset",
 		KyutGrill: "pwreset.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},
@@ -66,7 +66,7 @@ func (h *PasswordHandler) ResetPage(w http.ResponseWriter, r *http.Request) {
 func (h *PasswordHandler) Reset(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID != 0 {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Password Reset",
 			Messages: []models.Message{models.NewError("You're already logged in!")},
 		})
@@ -104,7 +104,7 @@ func (h *PasswordHandler) Reset(w http.ResponseWriter, r *http.Request) {
 func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("k")
 	if key == "" {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Password Reset",
 			Messages: []models.Message{models.NewError("Nope.")},
 		})
@@ -113,14 +113,14 @@ func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Reque
 
 	username, err := h.authService.GetPasswordResetUsername(r.Context(), key)
 	if err != nil {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Reset password",
 			Messages: []models.Message{models.NewError("That key could not be found. Perhaps it expired?")},
 		})
 		return
 	}
 
-	h.templates.Render(w, "pwreset/continue.html", &response.TemplateData{
+	h.templates.Render(w, "password_reset/continue.html", &response.TemplateData{
 		TitleBar: "Reset Password",
 		Extra: map[string]interface{}{
 			"Username": username,
@@ -131,7 +131,7 @@ func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Reque
 
 func (h *PasswordHandler) ResetContinue(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		h.templates.Render(w, "empty.html", &response.TemplateData{
+		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Reset password",
 			Messages: []models.Message{models.NewError("Invalid form data.")},
 		})
@@ -151,7 +151,7 @@ func (h *PasswordHandler) ResetContinue(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if svcErr, ok := err.(*services.ServiceError); ok {
 			username, _ := h.authService.GetPasswordResetUsername(r.Context(), key)
-			h.templates.Render(w, "pwreset/continue.html", &response.TemplateData{
+			h.templates.Render(w, "password_reset/continue.html", &response.TemplateData{
 				TitleBar: "Reset Password",
 				Messages: []models.Message{models.NewError(svcErr.Message)},
 				Extra: map[string]interface{}{
@@ -243,7 +243,7 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PasswordHandler) resetResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {
-	h.templates.Render(w, "pwreset/request.html", &response.TemplateData{
+	h.templates.Render(w, "password_reset.html", &response.TemplateData{
 		TitleBar:  "Password Reset",
 		KyutGrill: "pwreset.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},

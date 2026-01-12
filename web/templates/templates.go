@@ -17,7 +17,7 @@ var (
 	baseTemplates = []string{
 		"web/templates/base.html",
 		"web/templates/navbar.html",
-		"web/templates/simplepag.html",
+		"web/templates/simple_page.html",
 	}
 )
 

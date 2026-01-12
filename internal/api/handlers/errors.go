@@ -34,7 +34,7 @@ func (h *ErrorsHandler) Forbidden(w http.ResponseWriter, r *http.Request) {
 
 func (h *ErrorsHandler) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	h.templates.Render(w, "empty.html", &response.TemplateData{
+	h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 		TitleBar: "Method Not Allowed",
 	})
 }
