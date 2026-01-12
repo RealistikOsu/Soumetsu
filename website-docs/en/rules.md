@@ -22,9 +22,9 @@ We reserve the right to apply and alter these rules as we see fit.
 ----------------------------------------------------
 
 ## Requirements for a valid liveplay.
-If the staff team believes you to be suspicious, you may be requested to produce a liveplay. A liveplay is a way of confirming one's skill is legitimate and verifying the absence of cheats. 
+If the staff team believes you to be suspicious, you may be requested to produce a liveplay. A liveplay is a way of confirming one's skill is legitimate and verifying the absence of cheats.
 
-- You **HAVE** to be logged into RealistikOsu! 
+- You **HAVE** to be logged into RealistikOsu!
 - Start **your PC** on the recording/stream
 - Make sure both your hands are visible and monitor
 - Try to repeat any of your topplays/play near your skill (unless you are specifically given maps to play)

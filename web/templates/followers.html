@@ -8,7 +8,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/friends.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -34,8 +34,8 @@ DisableHH=true
 				{{ range .subs }}
 					<div class="card hover:border-primary transition-colors text-center">
 						<a href="/users/{{ .id }}" class="block">
-							<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}" 
-								alt="Avatar" 
+							<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}"
+								alt="Avatar"
 								class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-dark-border{{ if not (has .privileges 1) }} opacity-50{{ end }}">
 							<p class="font-medium text-sm{{ if not (has .privileges 1) }} opacity-50{{ end }}">{{ .username }}</p>
 						</a>

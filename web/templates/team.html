@@ -8,7 +8,7 @@ DisableHH=true
 <div class="relative min-h-screen py-10">
 	<!-- Background -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/team2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 	</div>
@@ -31,8 +31,8 @@ DisableHH=true
 			<div class="relative p-8 md:p-10 text-center">
 				<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">Hall of Fame</h2>
 				<p class="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-					This is a list of the outstanding individuals who keep RealistikOsu! the server and its community operating. 
-					These dedicated team members work tirelessly to ensure everything runs smoothly, from technical infrastructure 
+					This is a list of the outstanding individuals who keep RealistikOsu! the server and its community operating.
+					These dedicated team members work tirelessly to ensure everything runs smoothly, from technical infrastructure
 					to community engagement.
 				</p>
 			</div>
@@ -52,7 +52,7 @@ DisableHH=true
 					</div>
 				</div>
 				<p class="text-gray-300 mb-6 leading-relaxed">
-					Developers are responsible for all the server side magic. They do all the behind the scene technical things. 
+					Developers are responsible for all the server side magic. They do all the behind the scene technical things.
 					They have full power over the server as they run it. Developers have a blue name in the in-game chat.
 				</p>
 				{{ $data := index .Extra.TeamData 2 }}
@@ -137,7 +137,7 @@ DisableHH=true
 					</div>
 				</div>
 				<p class="text-gray-300 mb-6 leading-relaxed">
-					BATs play beatmaps in the ranking queue and decide whether they are good enough to be ranked or not. 
+					BATs play beatmaps in the ranking queue and decide whether they are good enough to be ranked or not.
 					They ensure quality standards are met and help shape the competitive experience for all players.
 				</p>
 				{{ $data := index .Extra.TeamData 5 }}
@@ -159,7 +159,7 @@ DisableHH=true
 					</div>
 				</div>
 				<p class="text-gray-300 mb-6 leading-relaxed">
-					The Social Media Team is responsible for anything regarding RealistikOsu's presence on social medias. 
+					The Social Media Team is responsible for anything regarding RealistikOsu's presence on social medias.
 					They keep the community informed, engaged, and help grow our presence across various platforms.
 				</p>
 				{{ template "userGroup" (index .Extra.TeamData 1017) }}
@@ -183,18 +183,18 @@ DisableHH=true
 				<div class="text-center mb-8">
 					<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">Special Credits</h2>
 					<p class="text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
-						Here's a list of people who helped with RealistikOsu and made everything possible! 
+						Here's a list of people who helped with RealistikOsu and made everything possible!
 						We're grateful for their contributions and support.
 					</p>
 				</div>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
 						<div class="flex items-start gap-4">
 							{{ if $global.User.ID }}
 								<a href="/users/{{ $global.User.ID }}" class="flex-shrink-0">
-									<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ $global.User.ID }}" 
-										alt="{{ $global.User.Username }}" 
+									<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ $global.User.ID }}"
+										alt="{{ $global.User.Username }}"
 										class="w-12 h-12 rounded-xl object-cover border-2 border-primary/50 hover:border-primary transition-colors">
 								</a>
 							{{ else }}
@@ -301,7 +301,7 @@ DisableHH=true
 			modal.classList.remove('hidden');
 			// Force reflow
 			void modal.offsetWidth;
-			
+
 			modal.setAttribute('aria-hidden', 'false');
 			backdrop.classList.remove('opacity-0');
 			panel.classList.remove('opacity-0', 'scale-95');
@@ -310,7 +310,7 @@ DisableHH=true
 
 		function closeModal() {
 			if (!modal) return;
-			
+
 			modal.setAttribute('aria-hidden', 'true');
 			backdrop.classList.add('opacity-0');
 			panel.classList.remove('scale-100');

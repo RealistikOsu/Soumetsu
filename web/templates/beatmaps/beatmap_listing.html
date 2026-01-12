@@ -109,7 +109,7 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 <div id="beatmap-search-app" class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/leaderboard2.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -132,16 +132,16 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<i class="fas fa-filter text-primary"></i>
 				<h3 class="font-semibold text-white">Search & Filters</h3>
 			</div>
-			
+
 			<div class="space-y-6">
 				<!-- Search Input -->
 				<div>
 					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Search Beatmaps</label>
 					<div class="relative">
-						<input type="text" 
+						<input type="text"
 							v-model="searchQuery"
 							@input="onSearchInput"
-							placeholder="Search by title, artist, creator..." 
+							placeholder="Search by title, artist, creator..."
 							class="input-field pr-12">
 						<i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
 					</div>
@@ -151,23 +151,23 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<div>
 					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</label>
 					<div class="flex flex-wrap gap-2">
-						<button @click="selectMode('')" 
+						<button @click="selectMode('')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Any
 						</button>
-						<button @click="selectMode('0')" 
+						<button @click="selectMode('0')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '0' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							<i class="fas fa-circle mr-2 text-xs"></i>osu!
 						</button>
-						<button @click="selectMode('1')" 
+						<button @click="selectMode('1')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '1' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							<i class="fas fa-drum mr-2 text-xs"></i>Taiko
 						</button>
-						<button @click="selectMode('2')" 
+						<button @click="selectMode('2')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '2' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							<i class="fas fa-apple-alt mr-2 text-xs"></i>Catch
 						</button>
-						<button @click="selectMode('3')" 
+						<button @click="selectMode('3')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '3' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							<i class="fas fa-keyboard mr-2 text-xs"></i>Mania
 						</button>
@@ -178,31 +178,31 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<div>
 					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Rank Status</label>
 					<div class="flex flex-wrap gap-2">
-						<button @click="selectStatus('NaN')" 
+						<button @click="selectStatus('NaN')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === 'NaN' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Any
 						</button>
-						<button @click="selectStatus('1')" 
+						<button @click="selectStatus('1')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '1' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Ranked
 						</button>
-						<button @click="selectStatus('3')" 
+						<button @click="selectStatus('3')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '3' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Qualified
 						</button>
-						<button @click="selectStatus('4')" 
+						<button @click="selectStatus('4')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '4' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Loved
 						</button>
-						<button @click="selectStatus('0')" 
+						<button @click="selectStatus('0')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '0' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Pending
 						</button>
-						<button @click="selectStatus('-1')" 
+						<button @click="selectStatus('-1')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '-1' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							WIP
 						</button>
-						<button @click="selectStatus('-2')" 
+						<button @click="selectStatus('-2')"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === '-2' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
 							Graveyard
 						</button>
@@ -223,26 +223,26 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 
 		<!-- Results Grid -->
 		<div v-if="beatmaps.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-			<div v-for="beatmap in beatmaps" :key="beatmap.SetID" 
+			<div v-for="beatmap in beatmaps" :key="beatmap.SetID"
 				class="relative">
 				<div :class="'beatmap-card-compact group rounded-lg border border-dark-border hover:border-primary/50 transition-all duration-200 cursor-pointer ' + (currentlyPlaying === beatmap.SetID ? 'musicPlaying' : '')"
 					@click="window.location.href = '/beatmaps/' + beatmap.ChildrenBeatmaps[0].BeatmapID">
 				<!-- Blurred Background -->
-				<div class="beatmap-card-bg" 
+				<div class="beatmap-card-bg"
 					 :style="'background-image: url(https://assets.ppy.sh/beatmaps/' + beatmap.SetID + '/covers/cover.jpg)'"></div>
 				<div class="beatmap-card-overlay"></div>
-				
+
 				<!-- Content -->
 				<div class="relative p-4 flex items-center gap-4">
 					<!-- Cover Thumbnail -->
 					<div class="flex-shrink-0 relative">
 						<a :href="'/beatmaps/' + beatmap.ChildrenBeatmaps[0].BeatmapID" @click.stop>
-							<img :src="'https://assets.ppy.sh/beatmaps/' + beatmap.SetID + '/covers/cover.jpg'" 
-								 :alt="beatmap.Title" 
+							<img :src="'https://assets.ppy.sh/beatmaps/' + beatmap.SetID + '/covers/cover.jpg'"
+								 :alt="beatmap.Title"
 								 class="w-20 h-20 rounded-lg object-cover border-2 border-white/10 shadow-lg">
 						</a>
 						<!-- Play Button -->
-						<button class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay" 
+						<button class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay"
 								@click.stop="togglePlayback(beatmap.SetID, $event)">
 							<i class="fas fa-play text-white text-2xl"></i>
 						</button>
@@ -256,11 +256,11 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 							</h3>
 							<p class="text-gray-300 text-sm truncate mb-2">{{ v "beatmap.Artist" }}</p>
 						</a>
-						
+
 						<div class="flex items-center gap-4 text-xs text-gray-300">
 							<span class="flex items-center gap-1">
 								<i class="fas fa-user text-gray-400"></i>
-								<a :href="'https://osu.ppy.sh/u/' + encodeURIComponent(beatmap.Creator)" 
+								<a :href="'https://osu.ppy.sh/u/' + encodeURIComponent(beatmap.Creator)"
 								   @click.stop
 								   class="text-primary hover:underline font-medium">
 									{{ v "beatmap.Creator" }}
@@ -270,10 +270,10 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 							<span class="flex items-center gap-1.5">
 								<span class="text-gray-400">Difficulties:</span>
 								<div class="flex items-center gap-1">
-									<div v-for="diff in sortDifficulties(beatmap.ChildrenBeatmaps).slice(0, 5)" 
+									<div v-for="diff in sortDifficulties(beatmap.ChildrenBeatmaps).slice(0, 5)"
 										 :key="diff.BeatmapID"
 										 class="relative group/diff">
-										<div class="faa fal" 
+										<div class="faa fal"
 											 :class="'fa-extra-mode-' + modeNames[beatmap.ChildrenBeatmaps[0].Mode]"
 											 :style="'color: rgb(' + getDifficultyColor(diff.DifficultyRating) + '); font-size: 1rem;'">
 										</div>
@@ -299,9 +299,9 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 						</div>
 						<!-- Download Buttons -->
 						<div class="flex items-center gap-2 flex-wrap">
-							<a v-for="source in sources" 
+							<a v-for="source in sources"
 							   :key="source.name"
-							   :href="source.mirror + beatmap.SetID" 
+							   :href="source.mirror + beatmap.SetID"
 							   :title="'Download from ' + source.name"
 							   @click.stop
 							   class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 rounded-lg text-center text-xs text-gray-300 hover:text-white transition-all backdrop-blur-sm">

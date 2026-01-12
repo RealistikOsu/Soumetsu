@@ -6,7 +6,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/clans.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -25,7 +25,7 @@ DisableHH=true
 
 		{{ $regEnabled := qb "SELECT value_int FROM system_settings WHERE name = 'ccreation_enabled'" }}
 		{{ $isClan := qb "SELECT user, clan FROM user_clans WHERE user = ?" .Context.User.ID }}
-		
+
 		{{ if not .Context.User.ID }}
 			<div class="card">
 				<p class="text-gray-300 text-center">Hey! You need to login first!</p>
@@ -47,11 +47,11 @@ DisableHH=true
 						<label class="block text-sm font-medium text-gray-300 mb-2">
 							{{"Your clan may contain alphanumeric characters and these symbols <code>_[]-</code>" | html}}
 						</label>
-						<input type="text" 
-							name="name" 
-							placeholder="Clan Name" 
-							value="{{ .FormData.name }}" 
-							required 
+						<input type="text"
+							name="name"
+							placeholder="Clan Name"
+							value="{{ .FormData.name }}"
+							required
 							pattern="^[A-Za-z0-9 '_\[\]-]{2,15}$"
 							class="input-field"
 							tabindex="1">
@@ -61,10 +61,10 @@ DisableHH=true
 						<label class="block text-sm font-medium text-gray-300 mb-2">
 							Clan Tag (2-6 characters)
 						</label>
-						<input type="text" 
-							name="tag" 
-							placeholder="Clan Tag" 
-							value="{{ .FormData.tag }}" 
+						<input type="text"
+							name="tag"
+							placeholder="Clan Tag"
+							value="{{ .FormData.tag }}"
 							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
 							class="input-field"
 							tabindex="2">
@@ -74,8 +74,8 @@ DisableHH=true
 						<label class="block text-sm font-medium text-gray-300 mb-2">
 							About Clan (Optional)
 						</label>
-						<textarea name="description" 
-							placeholder="About Clan" 
+						<textarea name="description"
+							placeholder="About Clan"
 							rows="4"
 							class="input-field resize-none"
 							tabindex="3">{{ .FormData.description }}</textarea>
@@ -85,9 +85,9 @@ DisableHH=true
 						<label class="block text-sm font-medium text-gray-300 mb-2">
 							Clan Logo [Link] (Optional)
 						</label>
-						<input type="url" 
-							name="icon" 
-							placeholder="Clan Logo" 
+						<input type="url"
+							name="icon"
+							placeholder="Clan Logo"
 							value="{{ .FormData.icon }}"
 							class="input-field"
 							tabindex="4">
@@ -96,8 +96,8 @@ DisableHH=true
 					{{ ieForm .Context }}
 
 					<div class="flex justify-end">
-						<button type="submit" 
-							form="register-form" 
+						<button type="submit"
+							form="register-form"
 							class="btn-primary"
 							tabindex="5">
 							Create Clan

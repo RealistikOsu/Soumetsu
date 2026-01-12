@@ -145,7 +145,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 
 		<!-- Pagination -->
 		<div class="flex items-center justify-between mb-6">
-			<button class="btn-secondary" 
+			<button class="btn-secondary"
 				:disabled="page <= 1"
 				:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
 				@click.prevent="if(page > 1) loadClanboardData(mode, relax, page - 1)">
@@ -186,7 +186,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 								No clans found
 							</td>
 						</tr>
-						<tr v-for="(clan, index) in data" :key="clan.id" 
+						<tr v-for="(clan, index) in data" :key="clan.id"
 							class="border-b border-dark-border/50 hover:bg-dark-bg/50">
 							<td class="py-3 px-4 text-gray-300">
 								#{{ v "(page - 1) * 50 + index + 1 + (page > 1 ? 3 : 0)" }}

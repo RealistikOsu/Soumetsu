@@ -11,7 +11,7 @@
 		const max = Math.max(r, g, b);
 		const min = Math.min(r, g, b);
 		let h, s, l = (max + min) / 2;
-		
+
 		if (max === min) {
 			h = s = 0;
 		} else {
@@ -55,10 +55,10 @@
 		const r = rgb[0], g = rgb[1], b = rgb[2];
 		const hsl = rgbToHsl(r, g, b);
 		const h = hsl[0], s = hsl[1], l = hsl[2];
-		
+
 		let newS = Math.min(100, s * 1.4);
 		if (newS < 50) {newS = Math.min(100, newS + 30);}
-		
+
 		let newL = l;
 		if (newL < 35) {
 			newL = 35;
@@ -67,7 +67,7 @@
 		} else {
 			newL = newL * 0.9 + 50 * 0.1;
 		}
-		
+
 		return hslToRgb(h, newS, newL);
 	}
 
@@ -77,16 +77,16 @@
 			if (callback) {callback(null);}
 			return;
 		}
-		
+
 		try {
 			const canvas = document.createElement('canvas');
 			const ctx = canvas.getContext('2d');
 			const size = 100;
 			canvas.width = size;
 			canvas.height = size;
-			
+
 			ctx.drawImage(img, 0, 0, size, size);
-			
+
 			let imageData;
 			try {
 				imageData = ctx.getImageData(0, 0, size, size);
@@ -94,27 +94,27 @@
 				if (callback) {callback(null);}
 				return;
 			}
-			
+
 			const data = imageData.data;
 			const colorCandidates = [];
 			const sampleStep = 3;
-			
+
 			for (var i = 0; i < data.length; i += 4 * sampleStep) {
 				const r = data[i];
 				const g = data[i + 1];
 				const b = data[i + 2];
 				const a = data[i + 3];
-				
+
 				if (a < 200 || (r + g + b) < 60) {continue;}
-				
+
 				const hsl = rgbToHsl(r, g, b);
 				const h = hsl[0], s = hsl[1], l = hsl[2];
-				
+
 				const saturationScore = s / 100;
 				const lightnessScore = l > 30 && l < 70 ? 1 - Math.abs(l - 50) / 20 : 0.3;
 				const grayPenalty = s < 10 ? 0 : 1;
 				const score = saturationScore * 0.5 + lightnessScore * 0.3 + grayPenalty * 0.2;
-				
+
 				if (score > 0.3) {
 					colorCandidates.push({
 						rgb: [r, g, b],
@@ -123,39 +123,39 @@
 					});
 				}
 			}
-			
+
 			if (colorCandidates.length < 2) {
 				if (callback) {callback(null);}
 				return;
 			}
-			
+
 			colorCandidates.sort(function(a, b) { return b.score - a.score; });
 			const topCandidates = colorCandidates.slice(0, Math.min(15, colorCandidates.length));
 			const color1 = topCandidates[0];
 			let color2 = topCandidates[1];
 			const h1 = color1.hsl[0];
 			let bestPairScore = 0;
-			
+
 			for (var i = 1; i < topCandidates.length; i++) {
 				var candidate = topCandidates[i];
 				var h2 = candidate.hsl[0];
 				var hueDiff = Math.abs(h2 - h1);
 				if (hueDiff > 180) {hueDiff = 360 - hueDiff;}
-				
+
 				const separationScore = hueDiff > 30 && hueDiff < 150 ? 1 : 0.5;
 				const vibrancyScore = (color1.score + candidate.score) / 2;
 				const pairScore = separationScore * 0.6 + vibrancyScore * 0.4;
-				
+
 				if (pairScore > bestPairScore) {
 					bestPairScore = pairScore;
 					color2 = candidate;
 				}
 			}
-			
+
 			var h2 = color2.hsl[0];
 			var hueDiff = Math.abs(h2 - h1);
 			if (hueDiff > 180) {hueDiff = 360 - hueDiff;}
-			
+
 			if (hueDiff < 20 && topCandidates.length > 2) {
 				for (var i = 2; i < topCandidates.length; i++) {
 					var candidate = topCandidates[i];
@@ -168,15 +168,15 @@
 					}
 				}
 			}
-			
+
 			const enhanced1 = enhanceForGradient(color1.rgb);
 			const enhanced2 = enhanceForGradient(color2.rgb);
-			
+
 			const result = {
 				color1: 'rgb(' + enhanced1[0] + ', ' + enhanced1[1] + ', ' + enhanced1[2] + ')',
 				color2: 'rgb(' + enhanced2[0] + ', ' + enhanced2[1] + ', ' + enhanced2[2] + ')'
 			};
-			
+
 			if (callback) {callback(result);}
 			return result;
 		} catch (err) {
@@ -188,7 +188,7 @@
 	// Apply gradient to banner element
 	function applyBannerGradient(bannerElement, colors) {
 		if (!bannerElement) {return;}
-		
+
 		if (colors && colors.color1 && colors.color2) {
 			const color1RGBA = colors.color1.replace('rgb', 'rgba').replace(')', ', 0.2)');
 			const color2RGBA = colors.color2.replace('rgb', 'rgba').replace(')', ', 0.2)');
@@ -203,32 +203,32 @@
 		options = options || {};
 		const avatar = typeof avatarSelector === 'string' ? document.querySelector(avatarSelector) : avatarSelector;
 		const banner = typeof bannerSelector === 'string' ? document.querySelector(bannerSelector) : bannerSelector;
-		
+
 		if (!avatar || !banner) {return;}
-		
+
 		// Ensure avatar has crossorigin attribute
 		if (!avatar.crossOrigin) {
 			avatar.crossOrigin = 'anonymous';
 		}
-		
+
 		// Add transition class if not present
 		if (options.addTransition !== false) {
 			banner.classList.add('banner-gradient-transition');
 		}
-		
+
 		function updateGradient() {
 			extractBannerColors(avatar, function(colors) {
 				applyBannerGradient(banner, colors);
 			});
 		}
-		
+
 		// Extract colors when avatar loads
 		if (avatar.complete && avatar.naturalWidth > 0) {
 			updateGradient();
 		} else {
 			avatar.addEventListener('load', updateGradient);
 		}
-		
+
 		// Return update function for manual triggering
 		return updateGradient;
 	}

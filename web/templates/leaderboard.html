@@ -41,7 +41,7 @@ DisableHH=true
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
 			style="background-image: url('/static/headers/score_feed.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
@@ -95,7 +95,7 @@ DisableHH=true
 					</div>
 				</div>
 			</div>
-			
+
 			<!-- Silver - #2 -->
 			<div @click="window.location.href='/users/' + data[1].id" class="card border-gray-400/50 bg-gradient-to-br from-gray-700/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
 				<div class="absolute inset-0 bg-gradient-to-br from-gray-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -131,7 +131,7 @@ DisableHH=true
 					</div>
 				</div>
 			</div>
-			
+
 			<!-- Bronze - #3 -->
 			<div @click="window.location.href='/users/' + data[2].id" class="card border-orange-600/50 bg-gradient-to-br from-orange-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
 				<div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -168,7 +168,7 @@ DisableHH=true
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- Loading State for Top 3 -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" v-else-if="load && page === 1">
 			<div class="card border-yellow-500/30 animate-pulse" v-for="n in 3" :key="n">
@@ -189,7 +189,7 @@ DisableHH=true
 				<i class="fas fa-filter text-primary"></i>
 				<h3 class="font-semibold text-white">Filters</h3>
 			</div>
-			
+
 			<div class="space-y-4">
 				<!-- Mode Selection -->
 				<div>
@@ -234,7 +234,7 @@ DisableHH=true
 								@click="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadLeaderboardData(sort, mode, 'ap', 1, '')">Autopilot</a>
 						</div>
 					</div>
-					
+
 					<div>
 						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Sort By</p>
 						<div class="flex flex-wrap gap-2">
@@ -285,7 +285,7 @@ DisableHH=true
 				</div>
 				<p class="text-gray-400">Loading leaderboard...</p>
 			</div>
-			
+
 			<!-- Data Table -->
 			<table class="w-full" v-else>
 				<thead class="bg-dark-bg/50">
@@ -299,7 +299,7 @@ DisableHH=true
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="(player, index) in data" :key="player.id" 
+					<tr v-for="(player, index) in data" :key="player.id"
 						:class="'border-b border-dark-border/50 hover:bg-primary/5 transition-all cursor-pointer ' + ((page - 1) * 50 + index < 3 && page === 1 ? 'bg-dark-bg/30' : '')"
 						@click="window.location.href='/users/' + player.id">
 						<td class="py-4 px-4">
@@ -321,8 +321,8 @@ DisableHH=true
 						<td class="py-4 px-4">
 							<div class="flex items-center gap-3">
 								<div class="relative">
-									<img :src="soumetsuConf.avatars + '/' + player.id" 
-										:alt="player.username" 
+									<img :src="soumetsuConf.avatars + '/' + player.id"
+										:alt="player.username"
 										class="w-12 h-12 rounded-full border-2 border-dark-border object-cover">
 									<div v-if="player.privileges & 4" class="absolute -bottom-1 -right-1 w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center border-2 border-dark-card">
 										<i class="fas fa-heart text-white text-[8px]"></i>
@@ -336,9 +336,9 @@ DisableHH=true
 										</span>
 									</div>
 									<div class="flex items-center gap-2 mt-1">
-										<img v-if="player.country" 
-											:src="'/static/images/new-flags/flag-' + player.country.toLowerCase() + '.svg'" 
-											:alt="player.country" 
+										<img v-if="player.country"
+											:src="'/static/images/new-flags/flag-' + player.country.toLowerCase() + '.svg'"
+											:alt="player.country"
 											class="w-5 h-3 rounded-sm">
 										<span class="text-xs text-gray-500">{{ v "player.country" }}</span>
 									</div>
@@ -363,7 +363,7 @@ DisableHH=true
 					</tr>
 				</tbody>
 			</table>
-			
+
 			<!-- Empty State -->
 			<div v-if="!load && data.length === 0" class="py-16 text-center">
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-500/20 flex items-center justify-center">

@@ -199,12 +199,12 @@ async function search(options, offset = 0, r = false) {
     }
 
     document.querySelector("#loading-state").classList.add("hidden");
-    
+
     if (res.length === 0 && !r) {
         document.querySelector("#empty-state").classList.remove("hidden");
         return;
     }
-    
+
     document.querySelector("#empty-state").classList.add("hidden");
 
 
@@ -245,12 +245,12 @@ async function search(options, offset = 0, r = false) {
                 <!-- Cover Image -->
                 <div class="relative h-48 overflow-hidden bg-dark-bg">
                     <a href="/beatmaps/${beatmap.ChildrenBeatmaps[0].BeatmapID}">
-                        <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg" 
-                             alt="${beatmap.Title}" 
+                        <img src="https://assets.ppy.sh/beatmaps/${beatmap.SetID}/covers/cover.jpg"
+                             alt="${beatmap.Title}"
                              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
                     </a>
                     <!-- Play Button Overlay -->
-                    <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay" 
+                    <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity beatmapPlay"
                             onclick="toggleBeatmap(${beatmap.SetID}, this)">
                         <i class="fas fa-play text-white text-5xl"></i>
                     </button>
@@ -277,7 +277,7 @@ async function search(options, offset = 0, r = false) {
                     <!-- Creator -->
                     <div class="mb-3">
                         <p class="text-xs text-gray-500 mb-1">Mapped by</p>
-                        <a href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}" 
+                        <a href="https://osu.ppy.sh/u/${encodeURI(beatmap.Creator)}"
                            class="text-sm text-primary hover:underline font-medium">
                             ${beatmap.Creator}
                         </a>
@@ -301,7 +301,7 @@ async function search(options, offset = 0, r = false) {
 
             diffsHTML.push(`
                 <div class="relative group/diff">
-                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}" 
+                    <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}"
                          style="color: rgb(${colorOfChoice}); font-size: 1.25rem; cursor: pointer;">
                     </div>
                     <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-dark-card border border-dark-border rounded text-xs text-white opacity-0 group-hover/diff:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
@@ -322,7 +322,7 @@ async function search(options, offset = 0, r = false) {
 
         for (const source of sources) {
             mapSection += `
-                        <a href="${source.mirror + String(beatmap.SetID)}" 
+                        <a href="${source.mirror + String(beatmap.SetID)}"
                            title="Download from ${source.name}"
                            class="flex-1 px-3 py-2 bg-dark-bg hover:bg-primary/20 border border-dark-border hover:border-primary rounded-lg text-center text-xs text-gray-300 hover:text-white transition-all">
                             <i class="fas fa-download mr-1"></i>

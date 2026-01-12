@@ -7,7 +7,7 @@
 <div class="relative min-h-screen flex items-center justify-center py-12 px-4">
 	<!-- Background with pattern -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" 
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
 			style="background-image: url('/static/headers/register.jpg');"></div>
 		<div class="absolute inset-0 bg-dark-bg/80"></div>
 		<!-- Decorative grid pattern -->
@@ -51,11 +51,11 @@
 							<label class="block text-sm font-medium text-gray-300 mb-2">
 								Username
 							</label>
-							<input type="text" 
-								name="username" 
-								placeholder="CoolPlayer123" 
-								value="{{ .FormData.username }}" 
-								required 
+							<input type="text"
+								name="username"
+								placeholder="CoolPlayer123"
+								value="{{ .FormData.username }}"
+								required
 								pattern="^[A-Za-z0-9 _\[\]-]{2,15}$"
 								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
 								tabindex="1">
@@ -66,10 +66,10 @@
 							<label class="block text-sm font-medium text-gray-300 mb-2">
 								Email
 							</label>
-							<input type="email" 
-								name="email" 
-								placeholder="you@example.com" 
-								value="{{ .FormData.email }}" 
+							<input type="email"
+								name="email"
+								placeholder="you@example.com"
+								value="{{ .FormData.email }}"
 								required
 								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
 								tabindex="2">
@@ -79,12 +79,12 @@
 							<label class="block text-sm font-medium text-gray-300 mb-2">
 								Password
 							</label>
-							<input type="password" 
-								id="password" 
-								name="password" 
-								placeholder="••••••••" 
-								value="{{ .FormData.password }}" 
-								required 
+							<input type="password"
+								id="password"
+								name="password"
+								placeholder="••••••••"
+								value="{{ .FormData.password }}"
+								required
 								pattern="^.{8,}$"
 								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
 								tabindex="3">
@@ -95,12 +95,12 @@
 							<label class="block text-sm font-medium text-gray-300 mb-2">
 								Confirm Password
 							</label>
-							<input type="password" 
-								id="password_confirm" 
-								name="confirm_password" 
-								placeholder="••••••••" 
-								value="{{ .FormData.confirm_password }}" 
-								required 
+							<input type="password"
+								id="password_confirm"
+								name="confirm_password"
+								placeholder="••••••••"
+								value="{{ .FormData.confirm_password }}"
+								required
 								pattern="^.{8,}$"
 								oninput="check(this)"
 								class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
@@ -115,8 +115,8 @@
 
 						{{ ieForm .Context }}
 
-						<button type="submit" 
-							form="register-form" 
+						<button type="submit"
+							form="register-form"
 							id="THESUBMIT"
 							class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-lg transition-colors"
 							tabindex="5">
@@ -133,8 +133,8 @@
 			<!-- Right side - Anime Character -->
 			<div class="hidden lg:block w-80 relative bg-gradient-to-br from-dark-card to-dark-bg">
 				<div class="absolute inset-0 flex items-end justify-center overflow-hidden">
-					<img src="https://i.imgur.com/qKNYvXl.png" 
-						alt="Join us!" 
+					<img src="https://i.imgur.com/qKNYvXl.png"
+						alt="Join us!"
 						class="w-full h-auto max-h-full object-contain object-bottom"
 						onerror="this.parentElement.style.display='none'">
 				</div>

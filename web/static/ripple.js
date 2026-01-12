@@ -370,7 +370,7 @@ function showMessage(type, message) {
       headerColor = "text-red-300";
       iconColor = "text-red-400";
       break;
-    
+
     case "positive":
     case "success":
       header = "Action completed successfully!";
@@ -380,7 +380,7 @@ function showMessage(type, message) {
       headerColor = "text-green-300";
       iconColor = "text-green-400";
       break;
-    
+
     case "warning":
       header = "Warning!";
       icon = "fas fa-exclamation-triangle";
@@ -389,7 +389,7 @@ function showMessage(type, message) {
       headerColor = "text-orange-300";
       iconColor = "text-orange-400";
       break;
-    
+
     default:
       header = "Notice";
       icon = "fas fa-info-circle";
@@ -399,7 +399,7 @@ function showMessage(type, message) {
       iconColor = "text-blue-400";
       break;
   }
-  
+
   const newEl = $(`
     <div class="alert-message ${bgColor} border ${borderColor} rounded-lg p-4 mb-4 flex items-start gap-3" style="display: none;">
       <i class="${icon} ${iconColor} mt-1"></i>
@@ -579,9 +579,9 @@ function getScoreMods(m, noplus) {
   });
 	if (r.length > 0) {
 		return (noplus ? "" : "+ ") + r.join(", ");
-	} 
+	}
 		return (noplus ? T('None') : '');
-	
+
 }
 
 var modsString = [
