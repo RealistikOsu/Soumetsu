@@ -196,63 +196,75 @@ DisableHH=true
 								<i class="fas fa-chart-simple text-primary"></i>
 								<h3 class="text-lg font-display font-bold text-white">Statistics</h3>
 							</div>
-							<div class="space-y-3">
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">PP</span>
-									<span class="text-white font-semibold">
-										<% addCommas(Math.round(currentStats.pp || 0)) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Accuracy</span>
-									<span class="text-white font-semibold">
-										<% formatAccuracy(currentStats.accuracy) %>%
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Maximum Combo</span>
-									<span class="text-white font-semibold">
-										<% addCommas(currentStats.max_combo || 0) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Ranked Score</span>
-									<span class="text-white font-semibold">
-										<% humanize(currentStats.ranked_score || 0) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Total Score</span>
-									<span class="text-white font-semibold">
-										<% humanize(currentStats.total_score || 0) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Playcount</span>
-									<span class="text-white font-semibold">
-										<% addCommas(currentStats.playcount || 0) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Followers</span>
-									<span class="text-white font-semibold">
-										<% followers.subscount || 0 %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Replay Views</span>
-									<span class="text-white font-semibold">
-										<% addCommas(currentStats.replays_watched || 0) %>
-									</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-gray-400 font-medium">Total Hits</span>
-									<span class="text-white font-semibold">
-										<% addCommas(currentStats.total_hits || 0) %>
-									</span>
+							<div class="bg-dark-bg rounded-lg p-4 mb-4">
+								<div class="grid grid-cols-3 gap-3 text-center">
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% addCommas(Math.round(currentStats.pp || 0)) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">PP</div>
+									</div>
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% formatAccuracy(currentStats.accuracy) %>%
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Accuracy</div>
+									</div>
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% addCommas(currentStats.max_combo || 0) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Max Combo</div>
+									</div>
 								</div>
 							</div>
-							<div class="mt-6">
+							<div class="bg-dark-bg rounded-lg p-4 mb-4">
+								<div class="grid grid-cols-2 gap-3 text-center">
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% humanize(currentStats.ranked_score || 0) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Ranked Score</div>
+									</div>
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% humanize(currentStats.total_score || 0) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Total Score</div>
+									</div>
+								</div>
+							</div>
+							<div class="bg-dark-bg rounded-lg p-4 mb-4">
+								<div class="grid grid-cols-3 gap-3 text-center">
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% addCommas(currentStats.playcount || 0) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Playcount</div>
+									</div>
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% followers.subscount || 0 %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Followers</div>
+									</div>
+									<div>
+										<div class="text-white font-bold text-lg">
+											<% addCommas(currentStats.replays_watched || 0) %>
+										</div>
+										<div class="text-xs text-gray-500 mt-1">Replay Views</div>
+									</div>
+								</div>
+							</div>
+							<div class="bg-dark-bg rounded-lg p-4 mb-4">
+								<div class="text-center">
+									<div class="text-white font-bold text-lg">
+										<% addCommas(currentStats.total_hits || 0) %>
+									</div>
+									<div class="text-xs text-gray-500 mt-1">Total Hits</div>
+								</div>
+							</div>
+							<div class="mt-4">
 								<div class="relative h-2 bg-dark-border rounded-full overflow-hidden mb-2">
 									<div class="h-full bg-primary rounded-full transition-all"
 										:style="'width: ' + levelPercent + '%'"></div>

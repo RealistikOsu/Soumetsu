@@ -31,7 +31,11 @@ type ConfigAccessor interface {
 	GetDiscordServerURL() string
 }
 
-func FuncMap() template.FuncMap {
+type CSRFService interface {
+	Generate(userID int) (string, error)
+}
+
+func FuncMap(csrfService CSRFService) template.FuncMap {
 	return template.FuncMap{
 		"html": func(value interface{}) template.HTML {
 			return template.HTML(fmt.Sprint(value))
@@ -455,10 +459,54 @@ func FuncMap() template.FuncMap {
 			return fmt.Sprint(field.Interface())
 		},
 		"csrfGenerate": func(userID int) string {
-			return ""
+			if csrfService == nil || userID == 0 {
+				return ""
+			}
+			token, err := csrfService.Generate(userID)
+			if err != nil {
+				return ""
+			}
+			return token
 		},
-		"ieForm": func() template.HTML {
-			return template.HTML("")
+		"ieForm": func(ctx interface{}) template.HTML {
+			if csrfService == nil {
+				return template.HTML("")
+			}
+			var uid int
+			
+			// Try to extract user ID from RequestContext
+			// ctx can be *apicontext.RequestContext or accessed via reflection
+			if ctx != nil {
+				ctxVal := reflect.ValueOf(ctx)
+				if ctxVal.Kind() == reflect.Ptr {
+					ctxVal = ctxVal.Elem()
+				}
+				if ctxVal.Kind() == reflect.Struct {
+					userField := ctxVal.FieldByName("User")
+					if userField.IsValid() {
+						if userField.Kind() == reflect.Struct {
+							idField := userField.FieldByName("ID")
+							if idField.IsValid() {
+								switch idField.Kind() {
+								case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+									uid = int(idField.Int())
+								case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+									uid = int(idField.Uint())
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if uid == 0 {
+				return template.HTML("")
+			}
+			token, err := csrfService.Generate(uid)
+			if err != nil {
+				return template.HTML("")
+			}
+			return template.HTML(fmt.Sprintf(`<input type="hidden" name="csrf" value="%s">`, template.HTMLEscapeString(token)))
 		},
 		"systemSettings": func(keys ...string) map[string]interface{} {
 			result := make(map[string]interface{})

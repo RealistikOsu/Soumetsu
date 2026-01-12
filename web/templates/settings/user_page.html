@@ -31,7 +31,6 @@ DisableHH=true
 						</div>
 					</div>
 					
-					{{ $f := ieForm }}
 					<form method="post" action="/settings/user-page" class="space-y-6">
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 							                            <!-- Left: Preview -->
@@ -106,7 +105,7 @@ DisableHH=true
 							</div>
 						</div>
 
-						{{ $f }}
+						{{ ieForm .Context }}
 
 						<!-- Submit Button -->
 						<div class="mt-8 pt-6 border-t border-dark-border flex flex-col sm:flex-row items-center justify-between gap-4">
