@@ -39,8 +39,8 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<i class="fas fa-panorama text-primary text-xl"></i>
 							</div>
 							<div>
-								<h2 class="text-2xl font-display font-bold text-white">{{ .T "Profile Banner" }}</h2>
-								<p class="text-sm text-gray-400">{{ .T "Customize your profile background" }}</p>
+								<h2 class="text-2xl font-display font-bold text-white">Profile Banner</h2>
+								<p class="text-sm text-gray-400">Customize your profile background</p>
 							</div>
 						</div>
 
@@ -50,14 +50,14 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div>
 									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 										<i class="fas fa-id-card"></i>
-										{{ .T "Profile Card Preview" }}
+										Profile Card Preview
 									</h3>
 									
 									<!-- Preview Card -->
 									<div class="card p-0 overflow-hidden relative" id="preview-card">
 										<!-- Change indicator badge -->
 										<div id="change-badge" class="hidden absolute top-2 left-2 z-20 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
-											<i class="fas fa-sparkles mr-1"></i>{{ .T "Preview" }}
+											<i class="fas fa-sparkles mr-1"></i>Preview
 										</div>
 										
 										<!-- Banner Area -->
@@ -98,7 +98,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 													<h4 class="text-lg font-display font-bold text-white">{{ .Context.User.Username }}</h4>
 													<div class="flex items-center gap-2 text-xs text-gray-400">
 														<i class="fas fa-user"></i>
-														<span>{{ .T "Player" }}</span>
+														<span>Player</span>
 													</div>
 												</div>
 											</div>
@@ -123,7 +123,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 									</div>
 									
 									<p id="preview-hint" class="text-xs text-gray-500 mt-2 text-center">
-										<i class="fas fa-info-circle mr-1"></i>{{ .T "Changes will be reflected here in real-time" }}
+										<i class="fas fa-info-circle mr-1"></i>Changes will be reflected here in real-time
 									</p>
 								</div>
 
@@ -131,7 +131,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
 									<h4 class="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
 										<i class="fas fa-image"></i>
-										{{ .T "Current Banner" }}
+										Current Banner
 									</h4>
 									<div class="flex items-center gap-3">
 										{{ if eq $type 1 }}
@@ -139,20 +139,20 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 												<img src="/static/profbackgrounds/{{ $value }}" class="w-full h-full object-cover">
 											</div>
 											<div>
-												<p class="text-white text-sm">{{ .T "Custom Image" }}</p>
-												<p class="text-xs text-gray-500">{{ .T "Uploaded image" }}</p>
+												<p class="text-white text-sm">Custom Image</p>
+												<p class="text-xs text-gray-500">Uploaded image</p>
 											</div>
 										{{ else if eq $type 2 }}
 											<div class="w-16 h-10 rounded border border-dark-border" style="background-color: {{ $value }};"></div>
 											<div>
-												<p class="text-white text-sm">{{ .T "Solid Colour" }}</p>
+												<p class="text-white text-sm">Solid Colour</p>
 												<p class="text-xs text-gray-500">{{ $value }}</p>
 											</div>
 										{{ else }}
 											<div class="w-16 h-10 rounded border border-dark-border bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
 											<div>
-												<p class="text-white text-sm">{{ .T "Default" }}</p>
-												<p class="text-xs text-gray-500">{{ .T "Using default gradient" }}</p>
+												<p class="text-white text-sm">Default</p>
+												<p class="text-xs text-gray-500">Using default gradient</p>
 											</div>
 										{{ end }}
 									</div>
@@ -165,24 +165,24 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div>
 									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 										<i class="fas fa-palette"></i>
-										{{ .T "Banner Type" }}
+										Banner Type
 									</h3>
 									
 									<div class="grid grid-cols-3 gap-3" id="type-selector">
 										<button type="button" data-type="0" 
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if or (eq $type 0) (eq $type -1) }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-ban text-2xl mb-2 {{ if or (eq $type 0) (eq $type -1) }}text-primary{{ else }}text-gray-500{{ end }}"></i>
-											<p class="text-sm {{ if or (eq $type 0) (eq $type -1) }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "None" }}</p>
+											<p class="text-sm {{ if or (eq $type 0) (eq $type -1) }}text-white{{ else }}text-gray-400{{ end }}">None</p>
 										</button>
 										<button type="button" data-type="1" 
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 1 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-image text-2xl mb-2 {{ if eq $type 1 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
-											<p class="text-sm {{ if eq $type 1 }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "Image" }}</p>
+											<p class="text-sm {{ if eq $type 1 }}text-white{{ else }}text-gray-400{{ end }}">Image</p>
 										</button>
 										<button type="button" data-type="2" 
 											class="type-btn p-4 rounded-lg border-2 transition-all text-center {{ if eq $type 2 }}border-primary bg-primary/10{{ else }}border-dark-border hover:border-gray-600{{ end }}">
 											<i class="fas fa-fill-drip text-2xl mb-2 {{ if eq $type 2 }}text-primary{{ else }}text-gray-500{{ end }}"></i>
-											<p class="text-sm {{ if eq $type 2 }}text-white{{ else }}text-gray-400{{ end }}">{{ .T "Colour" }}</p>
+											<p class="text-sm {{ if eq $type 2 }}text-white{{ else }}text-gray-400{{ end }}">Colour</p>
 										</button>
 									</div>
 								</div>
@@ -198,10 +198,10 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 											<div class="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
 												<i class="fas fa-ban text-3xl text-gray-600"></i>
 											</div>
-											<p class="text-gray-400 mb-4">{{ .T "Use the default gradient banner" }}</p>
+											<p class="text-gray-400 mb-4">Use the default gradient banner</p>
 											<button type="submit" class="btn-primary inline-flex items-center gap-2">
 												<i class="fas fa-save"></i>
-												{{ .T "Use Default" }}
+												Use Default
 											</button>
 										</div>
 									</form>
@@ -222,8 +222,8 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 													<i class="fas fa-cloud-upload-alt text-2xl text-gray-500 group-hover:text-primary transition-colors"></i>
 												</div>
 												<div>
-													<p class="text-white font-medium">{{ .T "Drop your image here" }}</p>
-													<p class="text-sm text-gray-500">{{ .T "or click to browse" }}</p>
+													<p class="text-white font-medium">Drop your image here</p>
+													<p class="text-sm text-gray-500">or click to browse</p>
 												</div>
 												<div class="flex items-center justify-center gap-2 text-xs text-gray-500">
 													<span class="px-2 py-1 bg-dark-bg rounded">PNG</span>
@@ -251,7 +251,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 
 										<button type="submit" id="image-submit" disabled class="btn-primary w-full mt-4 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
 											<i class="fas fa-save"></i>
-											{{ .T "Save Banner" }}
+											Save Banner
 										</button>
 									</form>
 								</div>
@@ -264,7 +264,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 										
 										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border">
 											<div class="flex flex-col items-center gap-4">
-												<p class="text-sm text-gray-400 text-center">{{ .T "Pick a color for your profile banner" }}</p>
+												<p class="text-sm text-gray-400 text-center">Pick a color for your profile banner</p>
 												<input type="text" 
 													id="colorpicker" 
 													name="value" 
@@ -287,7 +287,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 
 										<button type="submit" class="btn-primary w-full mt-4 inline-flex items-center justify-center gap-2">
 											<i class="fas fa-save"></i>
-											{{ .T "Save Colour" }}
+											Save Colour
 										</button>
 									</form>
 								</div>
@@ -296,20 +296,20 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
 									<h4 class="text-blue-300 font-medium mb-2 flex items-center gap-2">
 										<i class="fas fa-info-circle"></i>
-										{{ .T "Banner Guidelines" }}
+										Banner Guidelines
 									</h4>
 									<ul class="text-sm text-gray-400 space-y-1">
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											{{ .T "Recommended size: 1920x400 pixels" }}
+											Recommended size: 1920x400 pixels
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											{{ .T "Wide, landscape images work best" }}
+											Wide, landscape images work best
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
-											{{ .T "No inappropriate or offensive content" }}
+											No inappropriate or offensive content
 										</li>
 									</ul>
 								</div>
@@ -321,8 +321,8 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 											<i class="fas fa-heart text-yellow-400"></i>
 										</div>
 										<div>
-											<p class="text-yellow-300 font-medium">{{ .T "Supporter Feature" }}</p>
-											<p class="text-sm text-gray-400">{{ .T "Thank you for supporting us!" }}</p>
+											<p class="text-yellow-300 font-medium">Supporter Feature</p>
+											<p class="text-sm text-gray-400">Thank you for supporting us!</p>
 										</div>
 									</div>
 								</div>

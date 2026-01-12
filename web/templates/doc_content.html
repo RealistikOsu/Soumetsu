@@ -27,7 +27,7 @@ DisableHH=true
 					{{ if not .IsUpdated }}
 						<div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-4">
 							<p class="text-yellow-300 text-sm">
-								{{ $.T "It seems like the original version of this file has been updated, so this file is out of date and may contain inaccurate information. If you want to make sure to be up-to-date, please refer to the <a href=\"%s%s\" class=\"text-yellow-200 hover:underline\">English version</a>." $.Path "?lang=en" | html }}
+								{{ printf "It seems like the original version of this file has been updated, so this file is out of date and may contain inaccurate information. If you want to make sure to be up-to-date, please refer to the <a href=\"%s%s\" class=\"text-yellow-200 hover:underline\">English version</a>." $.Path "?lang=en" | html }}
 							</p>
 						</div>
 					{{ end }}
@@ -40,7 +40,7 @@ DisableHH=true
 				</div>
 			{{ else }}
 				<div class="card">
-					<p class="text-gray-300">{{ $.T "Documentation file not found!" }}</p>
+					<p class="text-gray-300">Documentation file not found!</p>
 				</div>
 			{{ end }}
 		{{ end }}
@@ -48,7 +48,7 @@ DisableHH=true
 		<div class="mt-8">
 			<a href="/doc" class="btn-secondary inline-flex items-center gap-2">
 				<i class="fas fa-arrow-left"></i>
-				{{ .T "View all docs" }}
+				View all docs
 			</a>
 		</div>
 	</div>

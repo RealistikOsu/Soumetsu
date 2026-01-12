@@ -25,8 +25,8 @@ AdditionalJS=/static/vue/pages/rank_request.js
 					<i class="fas fa-star text-white text-2xl"></i>
 				</div>
 				<div class="flex-1">
-					<h1 class="text-4xl md:text-5xl font-display font-bold text-white">{{ .T "Rank Request" }}</h1>
-					<p class="text-gray-400 mt-1">{{ .T "Submit beatmaps for ranking consideration" }}</p>
+					<h1 class="text-4xl md:text-5xl font-display font-bold text-white">Rank Request</h1>
+					<p class="text-gray-400 mt-1">Submit beatmaps for ranking consideration</p>
 				</div>
 			</div>
 	
@@ -38,10 +38,10 @@ AdditionalJS=/static/vue/pages/rank_request.js
 					<!-- Intro -->
 					<div class="text-center max-w-3xl mx-auto">
 						<h2 class="text-2xl md:text-3xl font-display font-bold text-white mb-3">
-							{{ .T "Request beatmaps for ranking" }}
+							Request beatmaps for ranking
 						</h2>
 						<p class="text-gray-300 leading-relaxed">
-							{{ .T "Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!" }}
+							Want to play an unranked beatmap and get pp? You can submit beatmaps rank requests here!
 						</p>
 					</div>
 	
@@ -50,7 +50,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 						<div class="flex-1 h-px bg-dark-border"></div>
 						<div class="flex items-center gap-2 text-gray-400">
 							<i class="fas fa-clock text-primary"></i>
-							<span class="font-medium">{{ .T "Queue status" }}</span>
+							<span class="font-medium">Queue status</span>
 						</div>
 						<div class="flex-1 h-px bg-dark-border"></div>
 					</div>
@@ -60,8 +60,8 @@ AdditionalJS=/static/vue/pages/rank_request.js
 						<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/20 flex items-center justify-center">
 							<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
 						</div>
-						<h3 class="text-2xl font-display font-bold text-white mb-2">{{ .T "Loading queue status..." }}</h3>
-						<p class="text-gray-400">{{ .T "Fetching the latest rank request info." }}</p>
+						<h3 class="text-2xl font-display font-bold text-white mb-2">Loading queue status...</h3>
+						<p class="text-gray-400">Fetching the latest rank request info.</p>
 					</div>
 	
 					<!-- API unavailable -->
@@ -70,30 +70,30 @@ AdditionalJS=/static/vue/pages/rank_request.js
 							<i class="fas fa-plug-circle-xmark text-red-400 text-2xl"></i>
 						</div>
 	
-						<h3 class="text-2xl font-display font-bold text-white mb-2">{{ .T "Rank request service unavailable" }}</h3>
+						<h3 class="text-2xl font-display font-bold text-white mb-2">Rank request service unavailable</h3>
 						<p class="text-gray-400 leading-relaxed mb-6">
-							{{ .T "The queue is currently unavailable. This usually means the API is offline or not yet configured." }}
+							The queue is currently unavailable. This usually means the API is offline or not yet configured.
 						</p>
 	
 						<div class="bg-dark-bg border border-dark-border rounded-xl p-4 text-left text-sm text-gray-300 max-w-xl mx-auto">
 							<p class="mb-2">
 								<i class="fas fa-info-circle mr-2 text-primary"></i>
-								{{ .T "What you can do:" }}
+								What you can do:
 							</p>
 							<ul class="list-disc list-inside space-y-1 text-gray-400">
-								<li>{{ .T "Check back later once the service is online" }}</li>
-								<li>{{ .T "Contact staff if this persists" }}</li>
-								<li>{{ .T "Verify backend API configuration" }}</li>
+								<li>Check back later once the service is online</li>
+								<li>Contact staff if this persists</li>
+								<li>Verify backend API configuration</li>
 							</ul>
 	
 							<p class="mt-3 text-xs text-gray-500">
 								<i class="fas fa-wrench mr-2"></i>
-								{{ .T "Error:" }} <% errorMessage || 'Unknown' %>
+								Error: <% errorMessage || 'Unknown' %>
 							</p>
 						</div>
 	
 						<button type="button" class="btn-secondary mt-6" @click="fetchStatus">
-							<i class="fas fa-rotate-right mr-2"></i>{{ .T "Retry" }}
+							<i class="fas fa-rotate-right mr-2"></i>Retry
 						</button>
 					</div>
 	
@@ -104,12 +104,12 @@ AdditionalJS=/static/vue/pages/rank_request.js
 							<div class="bg-dark-bg/50 border border-dark-border rounded-2xl p-6 h-full">
 								<div class="flex items-start justify-between gap-4">
 									<div>
-										<p class="text-sm text-gray-400 mb-1">{{ .T "Requests submitted" }}</p>
-										<p class="text-xs text-gray-500">{{ .T "In the past 24 hours" }}</p>
+										<p class="text-sm text-gray-400 mb-1">Requests submitted</p>
+										<p class="text-xs text-gray-500">In the past 24 hours</p>
 									</div>
 	
 									<div v-if="status && status.submitted_by_user" class="text-xs px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
-										<i class="fas fa-user mr-2"></i>{{ .T "Includes yours" }}
+										<i class="fas fa-user mr-2"></i>Includes yours
 									</div>
 								</div>
 	
@@ -119,7 +119,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 									</div>
 	
 									<div v-if="status && status.submitted_by_user" class="mt-2 text-sm text-gray-400">
-										(<% safeInt(status.submitted_by_user) %>/<% safeInt(status.max_per_user) %> {{ .T "by you" }})
+										(<% safeInt(status.submitted_by_user) %>/<% safeInt(status.max_per_user) %> by you)
 									</div>
 								</div>
 	
@@ -140,8 +140,8 @@ AdditionalJS=/static/vue/pages/rank_request.js
 										<i class="fas fa-paper-plane text-yellow-400"></i>
 									</div>
 									<div>
-										<p class="text-white font-semibold">{{ .T "Submit a beatmap" }}</p>
-										<p class="text-xs text-gray-400">{{ .T "Paste a beatmap link from this site" }}</p>
+										<p class="text-white font-semibold">Submit a beatmap</p>
+										<p class="text-xs text-gray-400">Paste a beatmap link from this site</p>
 									</div>
 								</div>
 	
@@ -152,17 +152,17 @@ AdditionalJS=/static/vue/pages/rank_request.js
 										</div>
 										<div>
 											<h3 class="text-lg font-semibold text-orange-300 mb-1">
-												{{ .T "You have reached your daily limit for requesting beatmaps!" }}
+												You have reached your daily limit for requesting beatmaps!
 											</h3>
 											<p v-if="status && status.next_expiration" class="text-gray-300">
-												{{ .T "Please try again " }}<b><% status.next_expiration %></b>
+												Please try again <b><% status.next_expiration %></b>
 											</p>
 										</div>
 									</div>
 								</div>
 	
 								<form class="space-y-4" @submit.prevent="submitBeatmap">
-									<label class="block text-sm font-medium text-gray-300">{{ .T "Beatmap URL" }}</label>
+									<label class="block text-sm font-medium text-gray-300">Beatmap URL</label>
 	
 									<div class="flex flex-col sm:flex-row gap-3">
 										<div class="relative flex-1">
@@ -182,17 +182,17 @@ AdditionalJS=/static/vue/pages/rank_request.js
 											:disabled="submitting || (status && status.can_submit === false) || !apiConfigured"
 										>
 											<span v-if="!submitting">
-												{{ .T "Submit" }} <i class="fas fa-arrow-right ml-2"></i>
+												Submit <i class="fas fa-arrow-right ml-2"></i>
 											</span>
 											<span v-else>
-												<i class="fas fa-spinner fa-spin mr-2"></i>{{ .T "Submitting..." }}
+												<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...
 											</span>
 										</button>
 									</div>
 	
 									<div v-if="!apiConfigured" class="text-sm text-orange-300">
 										<i class="fas fa-circle-exclamation mr-2"></i>
-										{{ .T "Submission is unavailable: API is not configured." }}
+										Submission is unavailable: API is not configured.
 									</div>
 	
 									<div v-if="submitMessage" class="text-sm" :class="submitOk ? 'text-green-300' : 'text-orange-300'">
@@ -202,7 +202,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 	
 									<div class="mt-2 text-xs text-gray-400">
 										<i class="fas fa-shield-alt mr-2 text-primary"></i>
-										{{ .T "Requests are rate-limited to keep the queue fair for everyone." }}
+										Requests are rate-limited to keep the queue fair for everyone.
 									</div>
 								</form>
 	

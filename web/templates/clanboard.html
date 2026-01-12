@@ -43,13 +43,13 @@ AdditionalJS=/static/vue/pages/clanboard.js
 					<i class="fas fa-shield-alt text-purple-400 text-2xl"></i>
 				</div>
 				<div>
-					<h1 class="text-4xl font-display font-bold text-white">{{ .T "Clans Leaderboard" }}</h1>
-					<p class="text-gray-400">{{ .T "Top clans ranked by combined performance" }}</p>
+					<h1 class="text-4xl font-display font-bold text-white">Clans Leaderboard</h1>
+					<p class="text-gray-400">Top clans ranked by combined performance</p>
 				</div>
 			</div>
 			<a href="/clans/create" class="btn-primary inline-flex items-center gap-2 self-start sm:self-auto">
 				<i class="fas fa-plus"></i>
-				{{ .T "Create Clan" }}
+				Create Clan
 			</a>
 		</div>
 
@@ -86,7 +86,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
 							<div class="text-lg font-bold text-gray-300"><% convertIntToLabel(safeValue(data[0].chosen_mode?.total_score, 0)) %></div>
-							<div class="text-xs text-gray-500">{{ .T "Total Score" }}</div>
+							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
 				</div>
@@ -123,7 +123,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
 							<div class="text-lg font-bold text-gray-400"><% convertIntToLabel(safeValue(data[1].chosen_mode?.total_score, 0)) %></div>
-							<div class="text-xs text-gray-500">{{ .T "Total Score" }}</div>
+							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
 				</div>
@@ -160,7 +160,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
 							<div class="text-lg font-bold text-gray-400"><% convertIntToLabel(safeValue(data[2].chosen_mode?.total_score, 0)) %></div>
-							<div class="text-xs text-gray-500">{{ .T "Total Score" }}</div>
+							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
 				</div>
@@ -188,13 +188,13 @@ AdditionalJS=/static/vue/pages/clanboard.js
 		<div class="card mb-6">
 			<div class="flex items-center gap-2 mb-4">
 				<i class="fas fa-filter text-purple-400"></i>
-				<h3 class="font-semibold text-white">{{ .T "Filters" }}</h3>
+				<h3 class="font-semibold text-white">Filters</h3>
 			</div>
 			
 			<div class="space-y-4">
 				<!-- Game Mode Selection -->
 				<div>
-					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Game Mode" }}</p>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</p>
 					<div class="flex flex-wrap gap-2">
 						<a :href="'/clans/leaderboard?mode=std&rx='+relax+'&p=1'"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
@@ -221,7 +221,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 
 				<!-- Play Type Selection -->
 				<div>
-					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Play Type" }}</p>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Play Type</p>
 					<div class="flex flex-wrap gap-2">
 						<a :href="'/clans/leaderboard?mode='+mode+'&rx=vn&p=1'"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (relax == 'vn' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
@@ -243,19 +243,19 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<a :href="'/clans/leaderboard?mode='+mode+'&rx='+relax+'&p='+(page-1)"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-purple-500 hover:text-purple-400')"
 					@click.prevent="if(page > 1) loadClanboardData(mode, relax, page - 1)">
-					<i class="fas fa-chevron-left"></i> {{ .T "Previous" }}
+					<i class="fas fa-chevron-left"></i> Previous
 				</a>
 				<span class="px-4 py-2 bg-purple-500/10 rounded-lg border border-purple-500/30 text-sm">
-					{{ .T "Page" }} <span class="text-purple-400 font-bold"><% page %></span>
+					Page <span class="text-purple-400 font-bold"><% page %></span>
 				</span>
 				<a :href="'/clans/leaderboard?mode='+mode+'&rx='+relax+'&p='+(page+1)"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-purple-500 hover:text-purple-400')"
 					@click.prevent="if(data.length >= 50) loadClanboardData(mode, relax, page + 1)">
-					{{ .T "Next" }} <i class="fas fa-chevron-right"></i>
+					Next <i class="fas fa-chevron-right"></i>
 				</a>
 			</div>
 			<p class="text-gray-400 text-sm hidden sm:block">
-				<i class="fas fa-shield-alt mr-1"></i>{{ .T "Showing" }} <span class="text-white font-medium"><% data.length %></span> {{ .T "clans" }}
+				<i class="fas fa-shield-alt mr-1"></i>Showing <span class="text-white font-medium"><% data.length %></span> clans
 			</p>
 		</div>
 
@@ -266,18 +266,18 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
 					<i class="fas fa-spinner fa-spin text-purple-400 text-2xl"></i>
 				</div>
-				<p class="text-gray-400">{{ .T "Loading clans..." }}</p>
+				<p class="text-gray-400">Loading clans...</p>
 			</div>
 			
 			<table class="w-full" v-else>
 				<thead class="bg-dark-bg/50">
 					<tr class="border-b border-dark-border">
-						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider w-20">{{ .T "Rank" }}</th>
-						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">{{ .T "Clan" }}</th>
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider w-20">Rank</th>
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">Clan</th>
 						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">PP</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden md:table-cell">{{ .T "Total Score" }}</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden lg:table-cell">{{ .T "Play Count" }}</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden xl:table-cell">{{ .T "Members" }}</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden md:table-cell">Total Score</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden lg:table-cell">Play Count</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden xl:table-cell">Members</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -315,7 +315,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 									</div>
 									<div class="flex items-center gap-2 mt-1">
 										<span v-if="clan.members" class="text-xs text-gray-500">
-											<i class="fas fa-users mr-1"></i><% clan.members %> {{ .T "members" }}
+											<i class="fas fa-users mr-1"></i><% clan.members %> members
 										</span>
 									</div>
 								</div>
@@ -348,10 +348,10 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-500/20 flex items-center justify-center">
 					<i class="fas fa-shield-alt text-gray-500 text-2xl"></i>
 				</div>
-				<p class="text-gray-400 mb-4">{{ .T "No clans found" }}</p>
+				<p class="text-gray-400 mb-4">No clans found</p>
 				<a href="/clans/create" class="btn-primary inline-flex items-center gap-2">
 					<i class="fas fa-plus"></i>
-					{{ .T "Create the first clan!" }}
+					Create the first clan!
 				</a>
 			</div>
 		</div>

@@ -18,13 +18,13 @@
 	{{ if .Context.User.ID }}
 		<div class="bg-dark-card rounded-xl border border-dark-border p-8 max-w-md w-full text-center">
 			<i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
-			<p class="text-gray-300">{{ .T "You're already logged in!" }}</p>
+			<p class="text-gray-300">You're already logged in!</p>
 			<a href="/users/{{ .Context.User.ID }}" class="btn-primary inline-block mt-4">Go to Profile</a>
 		</div>
 	{{ else if not ($regEnabled.value_int.Bool) }}
 		<div class="bg-dark-card rounded-xl border border-dark-border p-8 max-w-md w-full text-center">
 			<i class="fas fa-times-circle text-red-400 text-4xl mb-4"></i>
-			<p class="text-red-300">{{ .T "Sorry, it's not possible to register at the moment. Please try again later." }}</p>
+			<p class="text-red-300">Sorry, it's not possible to register at the moment. Please try again later.</p>
 		</div>
 	{{ else }}
 		{{ if eq (get .QueryParams "stopsign") "1" }}
@@ -32,7 +32,7 @@
 				<div class="bg-orange-900/50 border border-orange-600 rounded-lg p-4 backdrop-blur-sm">
 					<div class="flex items-center gap-3">
 						<i class="fas fa-exclamation-triangle text-orange-400"></i>
-						<p class="text-orange-200 text-sm">{{ .T "Remember: this seems like it's your second account! Do not multiaccount, or you're likely to get restricted!" | html }}</p>
+						<p class="text-orange-200 text-sm">{{"Remember: this seems like it's your second account! Do not multiaccount, or you're likely to get restricted!" | html}}</p>
 					</div>
 				</div>
 			</div>

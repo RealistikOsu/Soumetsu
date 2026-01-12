@@ -8,7 +8,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{ if .TitleBar }}{{ .T .TitleBar }} :: {{ end }}RealistikOsu!</title>
+	<title>{{ if .TitleBar }}{{.TitleBar}} :: {{ end }}RealistikOsu!</title>
 
 	<script>
 		var soumetsuConf = {
@@ -161,7 +161,7 @@
 					<i class="fas fa-ban text-red-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-red-300 mb-1">You have been restricted!</div>
-						<p class="text-sm text-gray-300">{{ $.T "Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href='https://discord.gg/8ySdzhyMtt' class='text-blue-400 hover:underline'>Discord Server</a>." | html }}</p>
+						<p class="text-sm text-gray-300">{{"Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href='https://discord.gg/8ySdzhyMtt' class='text-blue-400 hover:underline'>Discord Server</a>." | html}}</p>
 					</div>
 				</div>
 			{{ end }}
@@ -200,7 +200,7 @@
 					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-orange-300 mb-1">We are currently working on our score submission server...</div>
-						<p class="text-sm text-gray-300">{{ $.T "RealistikOsu!'s score submission is currently in maintenance mode. You will not be allowed to submit scores for the time being." }}</p>
+						<p class="text-sm text-gray-300">RealistikOsu!'s score submission is currently in maintenance mode. You will not be allowed to submit scores for the time being.</p>
 					</div>
 				</div>
 			{{ end }}
@@ -211,7 +211,7 @@
 					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-orange-300 mb-1">We are currently working on our website...</div>
-						<p class="text-sm text-gray-300">{{ $.T "The RealistikOsu website is currently in maintenance mode. Only staff members are allowed to access the entire website." }}</p>
+						<p class="text-sm text-gray-300">The RealistikOsu website is currently in maintenance mode. Only staff members are allowed to access the entire website.</p>
 					</div>
 				</div>
 			{{ end }}

@@ -120,8 +120,8 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<i class="fas fa-music text-primary text-2xl"></i>
 			</div>
 			<div>
-				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Beatmap Search" }}</h1>
-				<p class="text-gray-400">{{ .T "Browse and search for beatmaps" }}</p>
+				<h1 class="text-4xl font-display font-bold text-white">Beatmap Search</h1>
+				<p class="text-gray-400">Browse and search for beatmaps</p>
 			</div>
 		</div>
 
@@ -129,13 +129,13 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 		<div class="card mb-6">
 			<div class="flex items-center gap-2 mb-4">
 				<i class="fas fa-filter text-primary"></i>
-				<h3 class="font-semibold text-white">{{ .T "Search & Filters" }}</h3>
+				<h3 class="font-semibold text-white">Search & Filters</h3>
 			</div>
 			
 			<div class="space-y-6">
 				<!-- Search Input -->
 				<div>
-					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Search Beatmaps" }}</label>
+					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Search Beatmaps</label>
 					<div class="relative">
 						<input type="text" 
 							v-model="searchQuery"
@@ -148,7 +148,7 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 
 				<!-- Game Mode -->
 				<div>
-					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Game Mode" }}</label>
+					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</label>
 					<div class="flex flex-wrap gap-2">
 						<button @click="selectMode('')" 
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedMode === '' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
@@ -175,7 +175,7 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 
 				<!-- Rank Status -->
 				<div>
-					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Rank Status" }}</label>
+					<label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Rank Status</label>
 					<div class="flex flex-wrap gap-2">
 						<button @click="selectStatus('NaN')" 
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (selectedStatus === 'NaN' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')">
@@ -216,7 +216,7 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
 					<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
 				</div>
-				<p class="text-gray-400">{{ .T "Searching beatmaps..." }}</p>
+				<p class="text-gray-400">Searching beatmaps...</p>
 			</div>
 		</div>
 
@@ -317,7 +317,7 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 			<div class="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
 				<i class="fas fa-spinner fa-spin text-primary text-xl"></i>
 			</div>
-			<p class="text-gray-400 text-sm">{{ .T "Loading more beatmaps..." }}</p>
+			<p class="text-gray-400 text-sm">Loading more beatmaps...</p>
 		</div>
 
 		<!-- Empty State -->
@@ -326,8 +326,8 @@ AdditionalJS=/static/vue/pages/beatmap_search.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-500/20 flex items-center justify-center">
 					<i class="fas fa-music text-gray-500 text-2xl"></i>
 				</div>
-				<p class="text-gray-400">{{ .T "No beatmaps found" }}</p>
-				<p class="text-gray-500 text-sm mt-2">{{ .T "Try adjusting your search or filters" }}</p>
+				<p class="text-gray-400">No beatmaps found</p>
+				<p class="text-gray-500 text-sm mt-2">Try adjusting your search or filters</p>
 			</div>
 		</div>
 	</div>

@@ -20,8 +20,8 @@ DisableHH=true
 				<i class="fas fa-user-friends text-pink-400 text-2xl"></i>
 			</div>
 			<div>
-				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Friends" }}</h1>
-				<p class="text-gray-400">{{ .T "On this page you can see all of your friends, and unfriend them as you see fit." }}</p>
+				<h1 class="text-4xl font-display font-bold text-white">Friends</h1>
+				<p class="text-gray-400">On this page you can see all of your friends, and unfriend them as you see fit.</p>
 			</div>
 		</div>
 
@@ -45,7 +45,7 @@ DisableHH=true
 								data-userid="{{ .id }}"
 								onclick="handleFriendAction(this)">
 								<i class="fas {{ if .is_mutual }}fa-heart text-red-400{{ else }}fa-minus text-green-400{{ end }} mr-2"></i>
-								<span>{{ if .is_mutual }}{{ $.T "Mutual" }}{{ else }}{{ $.T "Remove" }}{{ end }}</span>
+								<span>{{ if .is_mutual }}Mutual{{ else }}Remove{{ end }}</span>
 							</button>
 						</a>
 					</div>

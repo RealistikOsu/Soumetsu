@@ -17,7 +17,7 @@ DisableHH=true
 	{{ if .Context.User.Username }}
 		<div class="bg-dark-card rounded-xl border border-dark-border p-8 max-w-md w-full text-center">
 			<i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
-			<p class="text-gray-300">{{ .T "You're already logged in!" }}</p>
+			<p class="text-gray-300">You're already logged in!</p>
 			<a href="/users/{{ .Context.User.ID }}" class="btn-primary inline-block mt-4">Go to Profile</a>
 		</div>
 	{{ else }}

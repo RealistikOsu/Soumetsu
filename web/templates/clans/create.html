@@ -18,8 +18,8 @@ DisableHH=true
 				<i class="fas fa-shield-alt text-purple-400 text-2xl"></i>
 			</div>
 			<div>
-				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Create Clan" }}</h1>
-				<p class="text-gray-400">{{ .T "Start your own community" }}</p>
+				<h1 class="text-4xl font-display font-bold text-white">Create Clan</h1>
+				<p class="text-gray-400">Start your own community</p>
 			</div>
 		</div>
 
@@ -28,28 +28,28 @@ DisableHH=true
 		
 		{{ if not .Context.User.ID }}
 			<div class="card">
-				<p class="text-gray-300 text-center">{{ .T "Hey! You need to login first!" }}</p>
+				<p class="text-gray-300 text-center">Hey! You need to login first!</p>
 			</div>
 		{{ else if not ($regEnabled.value_int.Bool) }}
 			<div class="card border-red-500/50 bg-red-900/20">
-				<p class="text-red-300 text-center">{{ .T "You may not currently create clans..." }}</p>
+				<p class="text-red-300 text-center">You may not currently create clans...</p>
 			</div>
 		{{ else if ($isClan) }}
 			<div class="card">
-				<p class="text-gray-300 text-center">{{ .T "Seems like you're already in the clan." }}</p>
+				<p class="text-gray-300 text-center">Seems like you're already in the clan.</p>
 			</div>
 		{{ else }}
 			<div class="card">
-				<h3 class="text-xl font-semibold mb-6">{{ .T "Clan Details" }}</h3>
+				<h3 class="text-xl font-semibold mb-6">Clan Details</h3>
 
 				<form id="register-form" method="post" action="/clans/create" class="space-y-6">
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
-							{{ .T "Your clan may contain alphanumeric characters and these symbols <code>_[]-</code>" | html }}
+							{{"Your clan may contain alphanumeric characters and these symbols <code>_[]-</code>" | html}}
 						</label>
 						<input type="text" 
 							name="name" 
-							placeholder="{{ .T "Clan Name" }}" 
+							placeholder="Clan Name" 
 							value="{{ .FormData.name }}" 
 							required 
 							pattern="^[A-Za-z0-9 '_\[\]-]{2,15}$"
@@ -59,11 +59,11 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
-							{{ .T "Clan Tag (2-6 characters)" }}
+							Clan Tag (2-6 characters)
 						</label>
 						<input type="text" 
 							name="tag" 
-							placeholder="{{ .T "Clan Tag" }}" 
+							placeholder="Clan Tag" 
 							value="{{ .FormData.tag }}" 
 							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
 							class="input-field"
@@ -72,10 +72,10 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
-							{{ .T "About Clan (Optional)" }}
+							About Clan (Optional)
 						</label>
 						<textarea name="description" 
-							placeholder="{{ .T "About Clan" }}" 
+							placeholder="About Clan" 
 							rows="4"
 							class="input-field resize-none"
 							tabindex="3">{{ .FormData.description }}</textarea>
@@ -83,11 +83,11 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
-							{{ .T "Clan Logo [Link] (Optional)" }}
+							Clan Logo [Link] (Optional)
 						</label>
 						<input type="url" 
 							name="icon" 
-							placeholder="{{ .T "Clan Logo" }}" 
+							placeholder="Clan Logo" 
 							value="{{ .FormData.icon }}"
 							class="input-field"
 							tabindex="4">
@@ -100,7 +100,7 @@ DisableHH=true
 							form="register-form" 
 							class="btn-primary"
 							tabindex="5">
-							{{ .T "Create Clan" }}
+							Create Clan
 						</button>
 					</div>
 				</form>

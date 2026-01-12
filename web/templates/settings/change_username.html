@@ -30,8 +30,8 @@ DisableHH=true
 								<i class="fas fa-at text-yellow-400 text-xl"></i>
 							</div>
 							<div>
-								<h2 class="text-2xl font-display font-bold text-white">{{ .T "Change Username" }}</h2>
-								<p class="text-sm text-gray-400">{{ .T "Update your display name" }}</p>
+								<h2 class="text-2xl font-display font-bold text-white">Change Username</h2>
+								<p class="text-sm text-gray-400">Update your display name</p>
 							</div>
 						</div>
 
@@ -41,14 +41,14 @@ DisableHH=true
 								<div>
 									<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 										<i class="fas fa-eye"></i>
-										{{ .T "Preview" }}
+										Preview
 									</h3>
 									
 									<!-- Profile Card Preview -->
 									<div class="card p-0 overflow-hidden relative" id="preview-card">
 										<!-- Change indicator badge -->
 										<div id="change-badge" class="hidden absolute top-2 left-2 z-20 bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-medium shadow-lg">
-											<i class="fas fa-sparkles mr-1"></i>{{ .T "New Name" }}
+											<i class="fas fa-sparkles mr-1"></i>New Name
 										</div>
 										
 										<!-- Banner -->
@@ -66,7 +66,7 @@ DisableHH=true
 													<h4 id="preview-username" class="text-lg font-display font-bold text-white transition-all">{{ .Context.User.Username }}</h4>
 													<div class="flex items-center gap-2 text-xs text-gray-400">
 														<i class="fas fa-user"></i>
-														<span>{{ .T "Player" }}</span>
+														<span>Player</span>
 													</div>
 												</div>
 											</div>
@@ -95,14 +95,14 @@ DisableHH=true
 								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
 									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 										<i class="fas fa-user-tag"></i>
-										{{ .T "Current Username" }}
+										Current Username
 									</h4>
 									<div class="flex items-center gap-3">
 										<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
 											class="w-12 h-12 rounded-full border-2 border-dark-border">
 										<div>
 											<p class="text-white font-bold text-lg">{{ .Context.User.Username }}</p>
-											<p class="text-xs text-gray-500">{{ .T "Your current display name" }}</p>
+											<p class="text-xs text-gray-500">Your current display name</p>
 										</div>
 									</div>
 								</div>
@@ -111,7 +111,7 @@ DisableHH=true
 								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
 									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 										<i class="fas fa-trophy"></i>
-										{{ .T "Leaderboard Preview" }}
+										Leaderboard Preview
 									</h4>
 									<div class="space-y-2">
 										<div class="flex items-center gap-3 p-2 bg-dark-card rounded-lg opacity-50">
@@ -140,7 +140,7 @@ DisableHH=true
 									<div class="mb-6">
 										<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 											<i class="fas fa-edit"></i>
-											{{ .T "New Username" }}
+											New Username
 										</h3>
 										<div class="relative">
 											<input id="new-username" 
@@ -162,15 +162,15 @@ DisableHH=true
 										<div id="validation-messages" class="mt-3 space-y-2">
 											<div id="val-length" class="flex items-center gap-2 text-xs text-gray-500">
 												<i class="fas fa-circle text-[6px]"></i>
-												<span>{{ .T "3-16 characters" }}</span>
+												<span>3-16 characters</span>
 											</div>
 											<div id="val-chars" class="flex items-center gap-2 text-xs text-gray-500">
 												<i class="fas fa-circle text-[6px]"></i>
-												<span>{{ .T "Letters, numbers, spaces, - and _ only" }}</span>
+												<span>Letters, numbers, spaces, - and _ only</span>
 											</div>
 											<div id="val-different" class="flex items-center gap-2 text-xs text-gray-500">
 												<i class="fas fa-circle text-[6px]"></i>
-												<span>{{ .T "Different from current username" }}</span>
+												<span>Different from current username</span>
 											</div>
 										</div>
 									</div>
@@ -179,13 +179,13 @@ DisableHH=true
 									<div class="mb-6">
 										<h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
 											<i class="fas fa-clock"></i>
-											{{ .T "Cooldown Status" }}
+											Cooldown Status
 										</h3>
 										<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
 											{{ if $last }}
 												<div class="flex items-center justify-between mb-2">
-													<span class="text-sm text-gray-400">{{ .T "Next change available" }}</span>
-													<span id="change-time" class="text-sm font-medium text-white" data-timestamp="{{ $last.replaced_at }}">{{ .T "Calculating..." }}</span>
+													<span class="text-sm text-gray-400">Next change available</span>
+													<span id="change-time" class="text-sm font-medium text-white" data-timestamp="{{ $last.replaced_at }}">Calculating...</span>
 												</div>
 												<div class="h-2 bg-dark-border rounded-full overflow-hidden">
 													<div id="progress-bar" class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-500" style="width: 0%"></div>
@@ -197,8 +197,8 @@ DisableHH=true
 														<i class="fas fa-check text-green-400"></i>
 													</div>
 													<div>
-														<p class="text-green-400 font-medium">{{ .T "Ready to change!" }}</p>
-														<p class="text-xs text-gray-500">{{ .T "You can change your username now" }}</p>
+														<p class="text-green-400 font-medium">Ready to change!</p>
+														<p class="text-xs text-gray-500">You can change your username now</p>
 													</div>
 												</div>
 											{{ end }}
@@ -210,7 +210,7 @@ DisableHH=true
 
 									<button type="submit" id="submit-btn" class="btn-primary w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-0">
 										<i class="fas fa-save"></i>
-										{{ .T "Change Username" }}
+										Change Username
 									</button>
 								</form>
 
@@ -218,20 +218,20 @@ DisableHH=true
 								<div class="p-4 bg-orange-900/20 border border-orange-700/50 rounded-lg">
 									<h4 class="text-orange-300 font-medium mb-2 flex items-center gap-2">
 										<i class="fas fa-exclamation-triangle"></i>
-										{{ .T "Important" }}
+										Important
 									</h4>
 									<ul class="text-sm text-gray-400 space-y-2">
 										<li class="flex items-start gap-2">
 											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
-											<span>{{ .T "Do not use inappropriate or offensive names" }}</span>
+											<span>Do not use inappropriate or offensive names</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-times text-red-400 mt-1 text-xs"></i>
-											<span>{{ .T "Do not impersonate other players or staff" }}</span>
+											<span>Do not impersonate other players or staff</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-info-circle text-blue-400 mt-1 text-xs"></i>
-											<span>{{ .T "Violations may result in account restriction" }}</span>
+											<span>Violations may result in account restriction</span>
 										</li>
 									</ul>
 								</div>
@@ -240,20 +240,20 @@ DisableHH=true
 								<div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
 									<h4 class="text-blue-300 font-medium mb-2 flex items-center gap-2">
 										<i class="fas fa-info-circle"></i>
-										{{ .T "Username Guidelines" }}
+										Username Guidelines
 									</h4>
 									<ul class="text-sm text-gray-400 space-y-1">
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>{{ .T "Must be between 3 and 16 characters" }}</span>
+											<span>Must be between 3 and 16 characters</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>{{ .T "Can contain letters, numbers, spaces, - and _" }}</span>
+											<span>Can contain letters, numbers, spaces, - and _</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>{{ .T "7 day cooldown between changes" }}</span>
+											<span>7 day cooldown between changes</span>
 										</li>
 									</ul>
 								</div>
@@ -265,8 +265,8 @@ DisableHH=true
 											<i class="fas fa-heart text-yellow-400"></i>
 										</div>
 										<div>
-											<p class="text-yellow-300 font-medium">{{ .T "Supporter Feature" }}</p>
-											<p class="text-sm text-gray-400">{{ .T "Thank you for supporting us!" }}</p>
+											<p class="text-yellow-300 font-medium">Supporter Feature</p>
+											<p class="text-sm text-gray-400">Thank you for supporting us!</p>
 										</div>
 									</div>
 								</div>
@@ -369,15 +369,15 @@ DisableHH=true
 								
 								changeTime.textContent = days + ' day' + (days > 1 ? 's' : '');
 								progressBar.style.width = percent + '%';
-								cooldownMessage.textContent = '{{ .T "Please wait before changing your username again" }}';
+								cooldownMessage.textContent = 'Please wait before changing your username again';
 								
 								newUsernameInput.disabled = true;
 								submitBtn.disabled = true;
 								submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 							} else {
-								changeTime.textContent = '{{ .T "Now!" }}';
+								changeTime.textContent = 'Now!';
 								progressBar.style.width = '100%';
-								cooldownMessage.textContent = '{{ .T "You can change your username now" }}';
+								cooldownMessage.textContent = 'You can change your username now';
 								cooldownMessage.classList.add('text-green-400');
 							}
 						}

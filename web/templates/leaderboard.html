@@ -57,8 +57,8 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				<i class="fas fa-trophy text-primary text-2xl"></i>
 			</div>
 			<div>
-				<h1 class="text-4xl font-display font-bold text-white">{{ .T "Leaderboard" }}</h1>
-				<p class="text-gray-400">{{ .T "Top players ranked by performance" }}</p>
+				<h1 class="text-4xl font-display font-bold text-white">Leaderboard</h1>
+				<p class="text-gray-400">Top players ranked by performance</p>
 			</div>
 		</div>
 
@@ -185,13 +185,13 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 		<div class="card mb-6">
 			<div class="flex items-center gap-2 mb-4">
 				<i class="fas fa-filter text-primary"></i>
-				<h3 class="font-semibold text-white">{{ .T "Filters" }}</h3>
+				<h3 class="font-semibold text-white">Filters</h3>
 			</div>
 			
 			<div class="space-y-4">
 				<!-- Mode Selection -->
 				<div>
-					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Game Mode" }}</p>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</p>
 					<div class="flex flex-wrap gap-2">
 						<a :href="'/leaderboard?m=std&sort='+sort+'&rx='+relax+'&p=1'"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
@@ -219,7 +219,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				<!-- Type & Sort Selection -->
 				<div class="flex flex-wrap gap-6">
 					<div>
-						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Play Type" }}</p>
+						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Play Type</p>
 						<div class="flex flex-wrap gap-2">
 							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx=vn&p=1'"
 								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (relax == 'vn' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
@@ -234,7 +234,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 					</div>
 					
 					<div>
-						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">{{ .T "Sort By" }}</p>
+						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Sort By</p>
 						<div class="flex flex-wrap gap-2">
 							<a :href="'/leaderboard?m='+mode+'&sort=pp&rx='+relax+'&p=1'"
 								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'pp' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
@@ -258,19 +258,19 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page-1)+'&c='+country"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
 					@click.prevent="if(page > 1) loadLeaderboardData(sort, mode, relax, page - 1, country)">
-					<i class="fas fa-chevron-left"></i> {{ .T "Previous" }}
+					<i class="fas fa-chevron-left"></i> Previous
 				</a>
 				<span class="px-4 py-2 bg-primary/10 rounded-lg border border-primary/30 text-sm">
-					{{ .T "Page" }} <span class="text-primary font-bold"><% page %></span>
+					Page <span class="text-primary font-bold"><% page %></span>
 				</span>
 				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&rx='+relax+'&p='+(page+1)+'&c='+country"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
 					@click.prevent="if(data.length >= 50) loadLeaderboardData(sort, mode, relax, page + 1, country)">
-					{{ .T "Next" }} <i class="fas fa-chevron-right"></i>
+					Next <i class="fas fa-chevron-right"></i>
 				</a>
 			</div>
 			<p class="text-gray-400 text-sm hidden sm:block">
-				<i class="fas fa-users mr-1"></i>{{ .T "Showing" }} <span class="text-white font-medium"><% data.length %></span> {{ .T "players" }}
+				<i class="fas fa-users mr-1"></i>Showing <span class="text-white font-medium"><% data.length %></span> players
 			</p>
 		</div>
 
@@ -281,19 +281,19 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
 					<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
 				</div>
-				<p class="text-gray-400">{{ .T "Loading leaderboard..." }}</p>
+				<p class="text-gray-400">Loading leaderboard...</p>
 			</div>
 			
 			<!-- Data Table -->
 			<table class="w-full" v-else>
 				<thead class="bg-dark-bg/50">
 					<tr class="border-b border-dark-border">
-						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider w-20">{{ .T "Rank" }}</th>
-						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">{{ .T "Player" }}</th>
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider w-20">Rank</th>
+						<th class="text-left py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">Player</th>
 						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider">PP</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden md:table-cell">{{ .T "Accuracy" }}</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden lg:table-cell">{{ .T "Play Count" }}</th>
-						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden xl:table-cell">{{ .T "Level" }}</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden md:table-cell">Accuracy</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden lg:table-cell">Play Count</th>
+						<th class="text-right py-4 px-4 text-gray-400 font-medium text-xs uppercase tracking-wider hidden xl:table-cell">Level</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -367,7 +367,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-500/20 flex items-center justify-center">
 					<i class="fas fa-users-slash text-gray-500 text-2xl"></i>
 				</div>
-				<p class="text-gray-400">{{ .T "No players found" }}</p>
+				<p class="text-gray-400">No players found</p>
 			</div>
 		</div>
 	</div>
