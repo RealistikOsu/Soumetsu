@@ -88,14 +88,14 @@ describe('BBCode URL Sanitization', () => {
 // Test colour validation
 describe('BBCode Colour Validation', () => {
     function isValidColour(colour) {
-        if (!colour || typeof color !== 'string') {
+        if (!colour || typeof colour !== 'string') {
             return false;
         }
 
         colour = colour.trim().toLowerCase();
 
         // Named colours (basic set)
-        const namedColors = [
+        const namedColours = [
             'red',
             'blue',
             'green',
@@ -121,7 +121,7 @@ describe('BBCode Colour Validation', () => {
             'fuchsia',
         ];
 
-        if (namedColors.includes(colour)) {
+        if (namedColours.includes(colour)) {
             return true;
         }
 
