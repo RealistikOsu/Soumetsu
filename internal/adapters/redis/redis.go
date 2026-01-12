@@ -38,7 +38,7 @@ func (c *Client) Del(ctx context.Context, keys ...string) error {
 	return c.Client.Del(keys...).Err()
 }
 
-func (c *Client) Publish(ctx context.Context, channel string, message string) error {
+func (c *Client) Publish(ctx context.Context, channel string, message any) error {
 	return c.Client.Publish(channel, message).Err()
 }
 
