@@ -277,17 +277,27 @@
 	var indicator = document.getElementById('navbar-online-indicator');
 	var rankEl = document.getElementById('navbar-user-rank');
 	
-	// Fetch online status from Bancho API
-	if (indicator && typeof soumetsuConf !== 'undefined' && soumetsuConf.banchoAPI) {
-		fetch(soumetsuConf.banchoAPI + '/api/v1/isOnline?id=' + userId)
-			.then(function(r) { return r.json(); })
-			.then(function(data) {
-				if (data.status === 200 && data.result) {
-					indicator.classList.remove('bg-gray-500');
-					indicator.classList.add('bg-green-500');
-				} else {
+	// Fetch online status from API
+	if (indicator) {
+		fetch('/api/status/' + userId)
+			.then(function(r) {
+				if (r.status === 204) {
+					// User is offline
 					indicator.classList.remove('bg-gray-500');
 					indicator.classList.add('bg-gray-600');
+					return;
+				}
+				if (r.status === 200) {
+					return r.json().then(function(data) {
+						if (data.code === 200) {
+							// User is online
+							indicator.classList.remove('bg-gray-500');
+							indicator.classList.add('bg-green-500');
+						} else {
+							indicator.classList.remove('bg-gray-500');
+							indicator.classList.add('bg-gray-600');
+						}
+					});
 				}
 			})
 			.catch(function() {

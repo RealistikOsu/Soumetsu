@@ -120,6 +120,22 @@ new Vue({
             hasAdmin: window.hasAdmin || false,
             avatarURL: window.soumetsuConf?.avatars || 'https://a.ussr.pl',
             baseAPI: window.soumetsuConf?.baseAPI || '',
+            
+            // Banner colors
+            bannerColors: null, // { color1: 'rgb(...)', color2: 'rgb(...)' }
+        }
+    },
+    watch: {
+        userID(newVal) {
+            if (newVal) {
+                // Try to extract colors from avatar if it's already loaded
+                this.$nextTick(() => {
+                    const avatarImg = this.$refs.profileAvatar;
+                    if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
+                        this.extractBannerColors({ target: avatarImg });
+                    }
+                });
+            }
         }
     },
     computed: {
@@ -160,6 +176,17 @@ new Vue({
         levelInt() {
             if (!this.currentStats?.level) return 0;
             return Math.floor(this.currentStats.level);
+        },
+        bannerGradient() {
+            if (this.bannerColors && this.bannerColors.color1 && this.bannerColors.color2) {
+                // Convert rgb to rgba with 20% opacity (0.2)
+                const color1RGBA = this.bannerColors.color1.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                const color2RGBA = this.bannerColors.color2.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                return {
+                    background: `linear-gradient(to bottom right, ${color1RGBA}, ${color2RGBA})`
+                };
+            }
+            return {}; // Fallback to default CSS gradient
         }
     },
     async created() {
@@ -620,6 +647,225 @@ new Vue({
             
             img.src = 'data:image/svg+xml,' + svgData;
             img.onerror = null; // Prevent infinite loop
+        },
+        
+        extractBannerColors(event) {
+            const img = event.target;
+            
+            // Skip if image failed to load or is the fallback SVG
+            if (!img.complete || img.src.startsWith('data:image/svg+xml')) {
+                return;
+            }
+            
+            try {
+                // Create a canvas to analyze the image
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size (smaller for performance)
+                const size = 100;
+                canvas.width = size;
+                canvas.height = size;
+                
+                // Draw the image to canvas
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                // Get image data (may fail due to CORS if server doesn't allow it)
+                let imageData;
+                try {
+                    imageData = ctx.getImageData(0, 0, size, size);
+                } catch (corsError) {
+                    // CORS error - can't read pixel data from cross-origin image
+                    // Silently fall back to default gradient
+                    this.bannerColors = null;
+                    return;
+                }
+                const data = imageData.data;
+                
+                // Convert RGB to HSL for better color analysis
+                const rgbToHsl = (r, g, b) => {
+                    r /= 255; g /= 255; b /= 255;
+                    const max = Math.max(r, g, b);
+                    const min = Math.min(r, g, b);
+                    let h, s, l = (max + min) / 2;
+                    
+                    if (max === min) {
+                        h = s = 0; // achromatic
+                    } else {
+                        const d = max - min;
+                        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                        switch (max) {
+                            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                            case g: h = ((b - r) / d + 2) / 6; break;
+                            case b: h = ((r - g) / d + 4) / 6; break;
+                        }
+                    }
+                    return [h * 360, s * 100, l * 100];
+                };
+                
+                // Collect vibrant colors with scoring
+                const colorCandidates = [];
+                const sampleStep = 3; // Sample more pixels for better selection
+                
+                for (let i = 0; i < data.length; i += 4 * sampleStep) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const a = data[i + 3];
+                    
+                    // Skip transparent or very dark pixels
+                    if (a < 200 || (r + g + b) < 60) continue;
+                    
+                    const [h, s, l] = rgbToHsl(r, g, b);
+                    
+                    // Score colors based on:
+                    // 1. Saturation (more saturated = better)
+                    // 2. Lightness (not too dark, not too light - sweet spot 30-70%)
+                    // 3. Avoid pure grays
+                    const saturationScore = s / 100;
+                    const lightnessScore = l > 30 && l < 70 ? 1 - Math.abs(l - 50) / 20 : 0.3;
+                    const grayPenalty = s < 10 ? 0 : 1;
+                    
+                    const score = saturationScore * 0.5 + lightnessScore * 0.3 + grayPenalty * 0.2;
+                    
+                    // Only consider colors with decent scores
+                    if (score > 0.3) {
+                        colorCandidates.push({
+                            rgb: [r, g, b],
+                            hsl: [h, s, l],
+                            score: score
+                        });
+                    }
+                }
+                
+                if (colorCandidates.length < 2) {
+                    this.bannerColors = null;
+                    return;
+                }
+                
+                // Sort by score and get top candidates
+                colorCandidates.sort((a, b) => b.score - a.score);
+                const topCandidates = colorCandidates.slice(0, Math.min(15, colorCandidates.length));
+                
+                // Find two colors that create a good gradient
+                // Strategy: Pick the best color, then find a complementary/analogous color
+                const color1 = topCandidates[0];
+                let color2 = topCandidates[1];
+                
+                // Try to find a color that's either:
+                // 1. Complementary (opposite hue) for contrast
+                // 2. Analogous (similar hue) for harmony
+                // 3. Or just the second best distinct color
+                const h1 = color1.hsl[0];
+                let bestPairScore = 0;
+                
+                for (let i = 1; i < topCandidates.length; i++) {
+                    const candidate = topCandidates[i];
+                    const h2 = candidate.hsl[0];
+                    
+                    // Calculate hue difference
+                    let hueDiff = Math.abs(h2 - h1);
+                    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+                    
+                    // Score based on:
+                    // - Good hue separation (30-150 degrees is ideal)
+                    // - Both colors are vibrant
+                    const separationScore = hueDiff > 30 && hueDiff < 150 ? 1 : 0.5;
+                    const vibrancyScore = (color1.score + candidate.score) / 2;
+                    const pairScore = separationScore * 0.6 + vibrancyScore * 0.4;
+                    
+                    if (pairScore > bestPairScore) {
+                        bestPairScore = pairScore;
+                        color2 = candidate;
+                    }
+                }
+                
+                // If we found a good complementary color, use it; otherwise use second best
+                const h2 = color2.hsl[0];
+                let hueDiff = Math.abs(h2 - h1);
+                if (hueDiff > 180) hueDiff = 360 - hueDiff;
+                
+                // If colors are too similar, try to find a more distinct one
+                if (hueDiff < 20 && topCandidates.length > 2) {
+                    // Look for a color with better separation
+                    for (let i = 2; i < topCandidates.length; i++) {
+                        const candidate = topCandidates[i];
+                        const candidateH = candidate.hsl[0];
+                        let diff = Math.abs(candidateH - h1);
+                        if (diff > 180) diff = 360 - diff;
+                        if (diff > 40) {
+                            color2 = candidate;
+                            break;
+                        }
+                    }
+                }
+                
+                let color1RGB = color1.rgb;
+                let color2RGB = color2.rgb;
+                
+                // Enhance colors for a vibrant, cool gradient
+                const enhanceForGradient = (rgb) => {
+                    let [r, g, b] = rgb;
+                    
+                    // Convert to HSL for easier manipulation
+                    const [h, s, l] = rgbToHsl(r, g, b);
+                    
+                    // Enhance saturation - make colors pop
+                    let newS = Math.min(100, s * 1.4); // Boost saturation by 40%
+                    if (newS < 50) newS = Math.min(100, newS + 30); // Minimum 50% saturation
+                    
+                    // Adjust lightness for optimal gradient visibility
+                    let newL = l;
+                    if (newL < 35) {
+                        newL = 35; // Don't let it get too dark
+                    } else if (newL > 65) {
+                        newL = 65; // Don't let it get too light
+                    } else {
+                        // Slight boost towards middle for better visibility
+                        newL = newL * 0.9 + 50 * 0.1;
+                    }
+                    
+                    // Convert back to RGB
+                    const hslToRgb = (h, s, l) => {
+                        h /= 360; s /= 100; l /= 100;
+                        let r, g, b;
+                        if (s === 0) {
+                            r = g = b = l;
+                        } else {
+                            const hue2rgb = (p, q, t) => {
+                                if (t < 0) t += 1;
+                                if (t > 1) t -= 1;
+                                if (t < 1/6) return p + (q - p) * 6 * t;
+                                if (t < 1/2) return q;
+                                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                                return p;
+                            };
+                            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                            const p = 2 * l - q;
+                            r = hue2rgb(p, q, h + 1/3);
+                            g = hue2rgb(p, q, h);
+                            b = hue2rgb(p, q, h - 1/3);
+                        }
+                        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+                    };
+                    
+                    return hslToRgb(h, newS, newL);
+                };
+                
+                const enhanced1 = enhanceForGradient(color1RGB);
+                const enhanced2 = enhanceForGradient(color2RGB);
+                
+                // Store the colors
+                this.bannerColors = {
+                    color1: `rgb(${enhanced1[0]}, ${enhanced1[1]}, ${enhanced1[2]})`,
+                    color2: `rgb(${enhanced2[0]}, ${enhanced2[1]}, ${enhanced2[2]})`
+                };
+                
+            } catch (err) {
+                // Silently fall back to default gradient on any error
+                // (CORS errors are already handled above)
+                this.bannerColors = null;
+            }
         },
         
         // Friend actions

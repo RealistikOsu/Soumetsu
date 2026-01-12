@@ -67,7 +67,8 @@ DisableHH=true
 				<div class="card p-0 overflow-hidden sticky top-4">
 					<!-- Profile Banner -->
 					<div class="relative h-48 overflow-hidden">
-						<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20"></div>
+						<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 banner-gradient-transition" 
+							:style="bannerGradient"></div>
 						<div class="absolute top-4 right-4 flex flex-col items-end gap-2">
 							<!-- Global Rank -->
 							<div v-if="currentStats" class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
@@ -88,8 +89,11 @@ DisableHH=true
 							<img v-if="user && userID" :src="avatarURL + '/' + userID" 
 								:alt="user ? user.username : ''" 
 								class="w-24 h-24 rounded-full border-4 border-dark-card object-cover flex-shrink-0"
+								crossorigin="anonymous"
 								@error="handleAvatarError($event, userID)"
-								loading="lazy">
+								@load="extractBannerColors($event)"
+								loading="lazy"
+								ref="profileAvatar">
 							<!-- Badges on the same line as profile picture, aligned to the right -->
 							<div v-if="user.badges?.length || user.custom_badge" class="flex gap-2 bg-dark-card/95 backdrop-blur-sm rounded-full px-3 py-2 border border-dark-border shadow-lg items-center ml-auto">
 								<span v-for="badge in user.badges" :key="badge.id" class="badge-tooltip-container relative text-primary text-base leading-none inline-flex items-center justify-center badge-icon cursor-help transition-opacity hover:opacity-80 group">
@@ -726,6 +730,10 @@ DisableHH=true
 </div>
 
 <style>
+.banner-gradient-transition {
+	transition: background 0.8s ease-in-out;
+}
+
 .rank-badge-compact {
 	@apply w-10 h-10 flex items-center justify-center rounded-lg font-bold text-base;
 	background: rgba(30, 41, 59, 0.9);
