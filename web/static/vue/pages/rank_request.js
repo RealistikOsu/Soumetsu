@@ -1,7 +1,4 @@
-const rankRequestApp = Vue.createApp({
-	compilerOptions: {
-		delimiters: ["<%", "%>"]
-	},
+const rankRequestApp = Soumetsu.createApp({
 	data() {
 		return {
 			load: true,

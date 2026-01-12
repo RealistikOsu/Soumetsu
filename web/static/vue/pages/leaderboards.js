@@ -1,7 +1,4 @@
-const leaderboardApp = Vue.createApp({
-    compilerOptions: {
-        delimiters: ["<%", "%>"]
-    },
+const leaderboardApp = Soumetsu.createApp({
     data() {
         return {
             data: [],

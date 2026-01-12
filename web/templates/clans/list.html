@@ -25,6 +25,8 @@ AdditionalJS=/static/vue/pages/clanboard.js
 </script>
 
 <script src="/static/vue/vue.js"></script>
+<script src="/static/vue/soumetsu-app.js"></script>
+<script src="/static/vue/api-client.js"></script>
 
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
@@ -75,7 +77,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="flex-1 min-w-0">
 							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[0].name" }}</p>
-							<p v-if="data[0].tag" class="text-yellow-400/70 text-sm font-medium">{{ v "[ data[0].tag" }}]</p>
+							<p v-if="data[0].tag" class="text-yellow-400/70 text-sm font-medium">{{ v "'[' + data[0].tag + ']'" }}</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
@@ -112,7 +114,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="flex-1 min-w-0">
 							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[1].name" }}</p>
-							<p v-if="data[1].tag" class="text-gray-400/70 text-sm font-medium">{{ v "[ data[1].tag" }}]</p>
+							<p v-if="data[1].tag" class="text-gray-400/70 text-sm font-medium">{{ v "'[' + data[1].tag + ']'" }}</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
@@ -149,7 +151,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 						<div class="flex-1 min-w-0">
 							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[2].name" }}</p>
-							<p v-if="data[2].tag" class="text-orange-400/70 text-sm font-medium">{{ v "[ data[2].tag" }}]</p>
+							<p v-if="data[2].tag" class="text-orange-400/70 text-sm font-medium">{{ v "'[' + data[2].tag + ']'" }}</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
@@ -310,7 +312,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 								<div class="min-w-0">
 									<div class="flex items-center gap-2 flex-wrap">
 										<span class="font-semibold text-white hover:text-purple-400 transition-colors truncate">{{ v "clan.name" }}</span>
-										<span v-if="clan.tag" class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium">{{ v "[ clan.tag" }}]</span>
+										<span v-if="clan.tag" class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium">{{ v "'[' + clan.tag + ']'" }}</span>
 									</div>
 									<div class="flex items-center gap-2 mt-1">
 										<span v-if="clan.members" class="text-xs text-gray-500">

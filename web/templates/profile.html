@@ -14,6 +14,8 @@ DisableHH=true
 </script>
 
 <script src="/static/vue/vue.js"></script>
+<script src="/static/vue/soumetsu-app.js"></script>
+<script src="/static/vue/api-client.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/static/js/bbcode.js"></script>
 
@@ -134,7 +136,7 @@ DisableHH=true
 						<div class="bg-dark-bg rounded-lg p-4 mb-4">
 							<h1 class="text-2xl font-display font-bold mb-3 text-white">
 								<a v-if="user.clan?.id" :href="'/clans/' + user.clan.id"
-									class="text-primary hover:underline mr-2">{{ v "[ user.clan.tag" }}]</a>
+									class="text-primary hover:underline mr-2">{{ v "'[' + user.clan.tag + ']'" }}</a>
 								<span>
 									{{ v "user.username" }}
 								</span>
@@ -336,8 +338,7 @@ DisableHH=true
 							<div class="relative p-3 flex items-center gap-3">
 								<div
 									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100,
-										score.count_50, score.count_miss) %>
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -403,8 +404,7 @@ DisableHH=true
 							<div class="relative p-3 flex items-center gap-3">
 								<div
 									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100,
-										score.count_50, score.count_miss) %>
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -530,8 +530,7 @@ DisableHH=true
 							<div class="relative p-3 flex items-center gap-3">
 								<div
 									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100,
-										score.count_50, score.count_miss) %>
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -601,8 +600,7 @@ DisableHH=true
 								</div>
 								<div
 									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									<% getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100,
-										score.count_50, score.count_miss) %>
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -805,8 +803,7 @@ DisableHH=true
 					<div class="flex items-center gap-6 mb-6">
 						<div
 							:class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss).toLowerCase().replace('+', 'h')">
-							<% getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300,
-								selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss) %>
+							[[ getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss) ]]
 						</div>
 						<div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">

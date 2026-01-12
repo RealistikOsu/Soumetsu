@@ -41,7 +41,7 @@ DisableHH=true
 					<i class="fas fa-users text-4xl text-gray-500"></i>
 				</div>
 				<div class="flex-1">
-					<div class="text-gray-400 mb-1">{{ v "[ clan.tag" }}]</div>
+					<div class="text-gray-400 mb-1">{{ v "'[' + clan.tag + ']'" }}</div>
 					<h1 class="text-4xl font-display font-bold mb-2">{{ v "clan.name" }}</h1>
 					<p class="text-gray-300">{{ v "clan.description" }}</p>
 				</div>
@@ -215,6 +215,7 @@ DisableHH=true
 </div>
 
 <script src="/static/vue/vue.js"></script>
+<script src="/static/vue/soumetsu-app.js"></script>
 <script src="/static/vue/api-client.js"></script>
 <script src="/static/vue/pages/clan.js"></script>
 {{ end }}

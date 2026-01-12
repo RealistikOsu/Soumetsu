@@ -1,7 +1,4 @@
-const profileApp = Vue.createApp({
-    compilerOptions: {
-        delimiters: ["<%", "%>"]
-    },
+const profileApp = Soumetsu.createApp({
     data() {
         return {
             // User data
@@ -869,33 +866,61 @@ const profileApp = Vue.createApp({
         
         getBadgeIconClass(icon) {
             if (!icon) {return 'fas fa-question';}
-            
+
             // Trim whitespace
             icon = String(icon).trim();
-            
+
             // If it already has a Font Awesome class prefix (fas, far, fab, etc.), return as is
             if (/^(fas|far|fal|fad|fab|fak)\s+fa-/.test(icon)) {
                 return icon;
             }
-            
-            // If it starts with "fa-" but no prefix, add "fas"
+
+            // Color map for legacy badge formats
+            const colorMap = {
+                'purple': 'text-purple-400',
+                'yellow': 'text-yellow-400',
+                'red': 'text-red-400',
+                'teal': 'text-teal-400',
+                'green': 'text-green-400',
+                'blue': 'text-blue-400',
+                'pink': 'text-pink-400',
+                'orange': 'text-orange-400',
+                'gray': 'text-gray-400',
+                'white': 'text-white'
+            };
+            const colorPattern = Object.keys(colorMap).join('|');
+
+            // Strip leading "fa-" for legacy format detection (e.g., "fa-purple fa-star" -> "purple fa-star")
+            const strippedIcon = icon.replace(/^fa-\s*/, '');
+
+            // Try pattern with "fa-" after color: {color} fa-{icon} or {color}fa-{icon}
+            const colorFaIconMatch = strippedIcon.match(new RegExp('^(' + colorPattern + ')\\s*fa-(.+)$', 'i'));
+            if (colorFaIconMatch) {
+                const color = colorFaIconMatch[1].toLowerCase();
+                const iconName = colorFaIconMatch[2].trim();
+                return 'fas fa-' + iconName + ' ' + (colorMap[color] || 'text-primary');
+            }
+
+            // Try pattern without "fa-": {color} {icon} or {color}{icon} (e.g., "red gift" or "redgift")
+            const colorIconMatch = strippedIcon.match(new RegExp('^(' + colorPattern + ')\\s*(.+)$', 'i'));
+            if (colorIconMatch) {
+                const color = colorIconMatch[1].toLowerCase();
+                const iconName = colorIconMatch[2].trim().replace(/^fa-/, '');
+                return 'fas fa-' + iconName + ' ' + (colorMap[color] || 'text-primary');
+            }
+
+            // If it starts with "fa-" but no color pattern, add "fas" prefix
             if (icon.startsWith('fa-')) {
                 return 'fas ' + icon;
             }
-            
+
             // Handle Font Awesome Unicode values (like "f005", "F005", "\uf005")
-            // These should be converted to class names if possible, but for now we'll try to use them as-is
-            // If it looks like a Unicode value (hexadecimal), we might need special handling
             if (/^[fF][0-9a-fA-F]{3}$/.test(icon) || /^\\?u?[fF][0-9a-fA-F]{3}$/.test(icon)) {
-                // This is likely a Unicode value - Font Awesome uses these internally
-                // We'll need to find the corresponding icon name or use a fallback
-                // For now, return a question mark icon
                 console.warn('Badge icon appears to be a Unicode value:', icon);
                 return 'fas fa-question';
             }
-            
+
             // If it's just the icon name (like "plane", "star", etc.), add both "fas" and "fa-" prefix
-            // Remove any existing "fa-" prefix to avoid duplication
             const iconName = icon.replace(/^fa-/, '').replace(/[^a-z0-9-]/gi, '');
             return 'fas fa-' + iconName;
         },

@@ -1,7 +1,4 @@
-const beatmapSearchApp = Vue.createApp({
-    compilerOptions: {
-        delimiters: ["<%", "%>"]
-    },
+const beatmapSearchApp = Soumetsu.createApp({
     data() {
         return {
             // Search state

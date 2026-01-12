@@ -356,7 +356,7 @@
 					var favMode = data.favourite_mode || 0;
 					var stats = data.stats.vn;
 					if (stats) {
-						var modeStats = stats{{ v "'std', 'taiko', 'ctb', 'mania'][favMode" }};
+						var modeStats = stats[['std', 'taiko', 'ctb', 'mania'][favMode]];
 						if (modeStats && modeStats.global_leaderboard_rank) {
 							rankEl.textContent = '#' + modeStats.global_leaderboard_rank.toLocaleString();
 						} else {

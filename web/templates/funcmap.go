@@ -41,9 +41,9 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			return template.HTML(fmt.Sprint(value))
 		},
 		// Vue template expression helper - outputs Vue delimiters without HTML escaping
-		// Usage: {{ v "data.username" }} outputs: <% data.username %>
+		// Usage: {{ v "data.username" }} outputs: [[ data.username ]]
 		"v": func(expr string) template.HTML {
-			return template.HTML("<% " + expr + " %>")
+			return template.HTML("[[ " + expr + " ]]")
 		},
 		"navbarItem": func(currentPath, name, path string) template.HTML {
 			var act string

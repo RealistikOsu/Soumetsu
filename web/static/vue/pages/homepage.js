@@ -1,7 +1,4 @@
-const homepageApp = Vue.createApp({
-    compilerOptions: {
-        delimiters: ["<%", "%>"]
-    },
+const homepageApp = Soumetsu.createApp({
     data() {
         return {
             // Stats (passed from server via window)

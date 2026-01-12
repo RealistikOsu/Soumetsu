@@ -1,7 +1,4 @@
-const clanboardApp = Vue.createApp({
-    compilerOptions: {
-        delimiters: ["<%", "%>"]
-    },
+const clanboardApp = Soumetsu.createApp({
     data() {
         return {
             data: [],
