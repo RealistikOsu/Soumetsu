@@ -13,6 +13,7 @@ RUN go mod download && go mod verify
 # Copy Go source code only (cached unless .go files change)
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
+COPY web/templates/*.go ./web/templates/
 
 # Build the binary with optimizations
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o soumetsu ./cmd/soumetsu

@@ -7,26 +7,27 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 {{ define "tpl" }}
 
 {{ $user := . }}
-{{ $favMode := .Gin.Query "m" }}
-{{ $rxMode := .Gin.Query "rx" }}
-{{ $sortType := .Gin.Query "sort" }}
-{{ $country := .Gin.Query "c" }}
-{{ $page := atoi (.Gin.Query "p") }}
+{{ $favMode := or (get .QueryParams "m") "" }}
+{{ $rxMode := or (get .QueryParams "rx") "" }}
+{{ $sortType := or (get .QueryParams "sort") "" }}
+{{ $country := or (get .QueryParams "c") "" }}
+{{ $pageStr := or (get .QueryParams "p") "" }}
+{{ $page := atoi $pageStr }}
 <script type='text/javascript'>
-	var mode = {{ $favMode }}.toLowerCase();
+	var mode = "{{ $favMode }}".toLowerCase();
 	if (mode == "") {
 		mode = "std"
 	}
-	var relax = {{ $rxMode }}.toLowerCase();
+	var relax = "{{ $rxMode }}".toLowerCase();
 	if (relax == "") {
 		relax = "vn"
 	}
 	var page = {{ $page }};
 	if (page <= 0) page = 1;
-	var sort = {{ $sortType }}.toLowerCase();
+	var sort = "{{ $sortType }}".toLowerCase();
 	if (sort == "")
 		sort = "pp";
-	var country = {{ $country }}.toUpperCase();
+	var country = "{{ $country }}".toUpperCase();
 
 	// Helper function to get role info
 	function getPlayerRole(privileges) {

@@ -27,7 +27,7 @@
 			<p class="text-red-300">{{ .T "Sorry, it's not possible to register at the moment. Please try again later." }}</p>
 		</div>
 	{{ else }}
-		{{ if eq (.Gin.Query "stopsign") "1" }}
+		{{ if eq (get .QueryParams "stopsign") "1" }}
 			<div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4">
 				<div class="bg-orange-900/50 border border-orange-600 rounded-lg p-4 backdrop-blur-sm">
 					<div class="flex items-center gap-3">
@@ -107,13 +107,13 @@
 								tabindex="4">
 						</div>
 
-						{{ with config "RECAPTCHA_SITE_KEY" }}
+						{{ with config "RECAPTCHA_SITE_KEY" .Conf }}
 							<div class="flex justify-center py-2">
 								<div class="h-captcha" data-sitekey="{{ . }}" data-theme="dark"></div>
 							</div>
 						{{ end }}
 
-						{{ ieForm .Gin }}
+						{{ ieForm }}
 
 						<button type="submit" 
 							form="register-form" 

@@ -90,7 +90,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 										<div class="p-4 -mt-8 relative z-10">
 											<div class="flex items-end gap-3 mb-3">
 												<div class="relative">
-													<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+													<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
 														class="w-16 h-16 rounded-full border-3 border-dark-card object-cover shadow-lg">
 													<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-dark-card"></div>
 												</div>
@@ -193,7 +193,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div id="form-none" class="{{ if and (ne $type 0) (ne $type -1) }}hidden{{ end }}">
 									<form action="/settings/profile-banner/0" method="post">
 										{{ $csrf }}
-										{{ ieForm .Gin }}
+										{{ ieForm }}
 										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border text-center">
 											<div class="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
 												<i class="fas fa-ban text-3xl text-gray-600"></i>
@@ -211,7 +211,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div id="form-image" class="{{ if ne $type 1 }}hidden{{ end }}">
 									<form action="/settings/profile-banner/1" method="post" enctype="multipart/form-data" id="image-form">
 										{{ $csrf }}
-										{{ ieForm .Gin }}
+										{{ ieForm }}
 										
 										<!-- Drag & Drop Zone -->
 										<label for="file" 
@@ -260,7 +260,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								<div id="form-color" class="{{ if ne $type 2 }}hidden{{ end }}">
 									<form action="/settings/profile-banner/2" method="post" id="color-form">
 										{{ $csrf }}
-										{{ ieForm .Gin }}
+										{{ ieForm }}
 										
 										<div class="p-6 bg-dark-bg rounded-lg border border-dark-border">
 											<div class="flex flex-col items-center gap-4">

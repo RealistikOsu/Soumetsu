@@ -6,9 +6,10 @@ AdditionalJS=/static/vue/pages/clanboard.js
 */}}
 {{ define "tpl" }}
 
-{{ $favMode := .Gin.Query "mode" }}
-{{ $page := atoi (.Gin.Query "p") }}
-{{ $relax := .Gin.Query "rx" }}
+{{ $favMode := or (get .QueryParams "mode") "" }}
+{{ $pageStr := or (get .QueryParams "p") "" }}
+{{ $page := atoi $pageStr }}
+{{ $relax := or (get .QueryParams "rx") "" }}
 <script>
 	var favouriteMode = {{ $favMode }};
 	var mode = {{ $favMode }};

@@ -37,12 +37,11 @@ type AppConfig struct {
 
 // DatabaseConfig holds MySQL database configuration.
 type DatabaseConfig struct {
-	Scheme string
-	Host   string
-	Port   int
-	User   string
-	Pass   string
-	Name   string
+	Host string
+	Port int
+	User string
+	Pass string
+	Name string
 }
 
 // DSN returns the database connection string.
@@ -109,24 +108,23 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Port:         mustEnvInt("APP_PORT"),
-			Env:          mustEnv("APP_ENV"),
-			CookieSecret: mustEnv("APP_COOKIE_SECRET"),
-			SoumetsuKey:  mustEnv("APP_SOUMETSU_KEY"),
-			BaseURL:      mustEnv("APP_BASE_URL"),
-			AvatarURL:    mustEnv("APP_AVATAR_URL"),
-			APIURL:       mustEnv("APP_API_URL"),
-			BanchoURL:    mustEnv("APP_BANCHO_URL"),
-			AvatarsPath:  mustEnv("APP_INTERNAL_AVATARS_PATH"),
-			BannersPath:  mustEnv("APP_INTERNAL_BANNERS_PATH"),
+			Port:         mustEnvInt("SOUMETSU_PORT"),
+			Env:          mustEnv("SOUMETSU_ENV"),
+			CookieSecret: mustEnv("SOUMETSU_COOKIE_SECRET"),
+			SoumetsuKey:  mustEnv("SOUMETSU_KEY"),
+			BaseURL:      mustEnv("SOUMETSU_BASE_URL"),
+			AvatarURL:    mustEnv("SOUMETSU_AVATAR_URL"),
+			APIURL:       mustEnv("SOUMETSU_API_URL"),
+			BanchoURL:    mustEnv("SOUMETSU_BANCHO_URL"),
+			AvatarsPath:  mustEnv("SOUMETSU_INTERNAL_AVATARS_PATH"),
+			BannersPath:  mustEnv("SOUMETSU_INTERNAL_BANNERS_PATH"),
 		},
 		Database: DatabaseConfig{
-			Scheme: mustEnv("DB_SCHEME"),
-			Host:   mustEnv("DB_HOST"),
-			Port:   mustEnvInt("DB_PORT"),
-			User:   mustEnv("DB_USER"),
-			Pass:   mustEnv("DB_PASS"),
-			Name:   mustEnv("DB_NAME"),
+			Host: mustEnv("MYSQL_HOST"),
+			Port:   mustEnvInt("MYSQL_TCP_PORT"),
+			User:   mustEnv("MYSQL_USER"),
+			Pass:   mustEnv("MYSQL_PASSWORD"),
+			Name:   mustEnv("MYSQL_DATABASE"),
 		},
 		Redis: RedisConfig{
 			MaxConnections: mustEnvInt("REDIS_MAX_CONNECTIONS"),
@@ -150,8 +148,8 @@ func Load() (*Config, error) {
 			UserLookupURL:   mustEnv("DISCORD_USER_LOOKUP_URL"),
 		},
 		Beatmap: BeatmapConfig{
-			MirrorAPIURL:      mustEnv("BEATMAP_MIRROR_API_URL"),
-			DownloadMirrorURL: mustEnv("BEATMAP_DOWNLOAD_MIRROR_URL"),
+			MirrorAPIURL:      mustEnv("SOUMETSU_BEATMAP_MIRROR_API_URL"),
+			DownloadMirrorURL: mustEnv("SOUMETSU_BEATMAP_DOWNLOAD_MIRROR_URL"),
 		},
 		Security: SecurityConfig{
 			RecaptchaSiteKey:   mustEnv("RECAPTCHA_SITE_KEY"),

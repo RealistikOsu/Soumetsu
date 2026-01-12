@@ -7,7 +7,7 @@ services:
       - "8080:80"
     environment:
       - APP_COMPONENT=api
-      - APP_ENV=development
+      - SOUMETSU_ENV=development
     env_file:
       - .env
     volumes:
@@ -28,7 +28,7 @@ services:
       - "8081:80"
     environment:
       - APP_COMPONENT=api
-      - APP_ENV=development
+      - SOUMETSU_ENV=development
     env_file:
       - .env
     volumes:

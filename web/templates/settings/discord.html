@@ -6,8 +6,8 @@ DisableHH=true
 AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
 */}}
 {{ define "tpl" }}
-{{ $isLinked := qb "SELECT discord_id FROM discord_oauth WHERE user_id = ?" .Context.User.ID }}
-{{ $discordID := $isLinked.discord_id.String }}
+{{ $isLinked := get .Extra "discordLinked" }}
+{{ $discordID := get .Extra "discordID" }}
 
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->

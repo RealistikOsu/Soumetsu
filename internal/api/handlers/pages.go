@@ -16,13 +16,13 @@ import (
 
 // PageConfig represents configuration for a simple page.
 type PageConfig struct {
-	Handler         string
-	Template        string
-	TitleBar        string
-	KyutGrill       string
-	MinPrivileges   common.UserPrivileges
-	Scripts         []string
-	HeadingOnRight  bool
+	Handler        string
+	Template       string
+	TitleBar       string
+	KyutGrill      string
+	MinPrivileges  common.UserPrivileges
+	Scripts        []string
+	HeadingOnRight bool
 }
 
 // PagesHandler handles simple static page requests.
@@ -50,9 +50,21 @@ func NewPagesHandler(
 
 // HomePage renders the home page.
 func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+
+	// Get session for template access
+	var sessionWrapper *response.SessionWrapper
+	if sess, err := h.store.Get(r, "session"); err == nil {
+		sessionWrapper = response.NewSessionWrapper(sess)
+	} else {
+		sessionWrapper = response.NewSessionWrapper(nil)
+	}
+
 	h.templates.Render(w, "homepage.html", &response.TemplateData{
 		TitleBar: "Home",
 		Path:     r.URL.Path,
+		Context:  reqCtx,
+		Session:  sessionWrapper,
 	})
 }
 
@@ -67,6 +79,14 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			return
 		}
 
+		// Get session for template access
+		var sessionWrapper *response.SessionWrapper
+		if sess, err := h.store.Get(r, "session"); err == nil {
+			sessionWrapper = response.NewSessionWrapper(sess)
+		} else {
+			sessionWrapper = response.NewSessionWrapper(nil)
+		}
+
 		h.templates.Render(w, templateName, &response.TemplateData{
 			TitleBar:       titleBar,
 			KyutGrill:      kyutGrill,
@@ -74,6 +94,8 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			HeadingOnRight: headingOnRight,
 			Path:           r.URL.Path,
 			FormData:       normaliseURLValues(r.PostForm),
+			Context:        reqCtx,
+			Session:        sessionWrapper,
 		})
 	}
 }

@@ -1,8 +1,8 @@
 {{ define "base" }}
-{{ $cf := .ClientFlags }}
+		{{ $cf := or .ClientFlags 0 }}
 {{ $ds := band $cf 1 }}
 {{ $   := . }}
-{{ $frozen := qb "SELECT frozen FROM users WHERE id = ?" .Context.User.ID }}
+{{ $frozen := .Frozen }}
 <!DOCTYPE html>
 <html lang="en" class="{{ if $ds }}dark{{ end }}">
 <head>
@@ -12,13 +12,13 @@
 
 	<script>
 		var soumetsuConf = {
-			avatars:   {{ .Conf.APP_AVATAR_URL }},
-			banchoAPI: {{ .Conf.APP_BANCHO_URL }},
-			baseAPI:   {{ .Conf.APP_API_URL }},
-			cheesegullAPI: {{ .Conf.BEATMAP_MIRROR_API_URL }},
+			avatars:   "{{ config "APP_AVATAR_URL" .Conf }}",
+			banchoAPI: "{{ config "APP_BANCHO_URL" .Conf }}",
+			baseAPI:   "{{ config "APP_API_URL" .Conf }}",
+			cheesegullAPI: "{{ config "BEATMAP_MIRROR_API_URL" .Conf }}",
 			language:  "en",
 		};
-		var currentUserID = {{ .Context.User.ID }};
+		var currentUserID = {{ if .Context }}{{ .Context.User.ID }}{{ else }}0{{ end }};
 	</script>
 
 	<!-- Tailwind CSS (Dev CDN - JIT mode) -->
@@ -156,7 +156,7 @@
 				</div>
 			</noscript>
 			
-			{{ if and .Context.User.Username (not (has .Context.User.Privileges 1)) }}
+			{{ if and .Context .Context.User.Username (not (has .Context.User.Privileges 1)) }}
 				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-ban text-red-400 mt-1"></i>
 					<div>
@@ -166,7 +166,7 @@
 				</div>
 			{{ end }}
 			
-			{{ if $frozen.frozen.Bool }}
+			{{ if $frozen }}
 				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-asterisk text-red-400 mt-1"></i>
 					<div>
@@ -182,18 +182,20 @@
 				{{ end }}
 			{{ end }}
 			
-			{{ $settings := systemSettings "website_maintenance" "game_maintenance" "website_global_alert" }}
-			{{ with $settings.website_global_alert.String }}
+			{{ $settings := .SystemSettings }}
+			{{ $alert := get $settings "website_global_alert" }}
+			{{ if and $alert (get $alert "String") }}
 				<div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-info-circle text-blue-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-blue-300 mb-1">Something interesting for you about RealistikOsu...</div>
-						<p class="text-sm text-gray-300">{{ . | html }}</p>
+						<p class="text-sm text-gray-300">{{ get $alert "String" | html }}</p>
 					</div>
 				</div>
 			{{ end }}
 			
-			{{ with $settings.game_maintenance.Int }}
+			{{ $gameMaintenance := get $settings "game_maintenance" }}
+			{{ if and $gameMaintenance (get $gameMaintenance "Int") }}
 				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
 					<div>
@@ -203,7 +205,8 @@
 				</div>
 			{{ end }}
 			
-			{{ with $settings.website_maintenance.Int }}
+			{{ $websiteMaintenance := get $settings "website_maintenance" }}
+			{{ if and $websiteMaintenance (get $websiteMaintenance "Int") }}
 				<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-4 flex items-start gap-3">
 					<i class="fas fa-exclamation-circle text-orange-400 mt-1"></i>
 					<div>
@@ -235,7 +238,7 @@
 					<a href="https://github.com/RealistikOsu" class="text-gray-400 hover:text-white transition-colors text-sm">
 						GitHub
 					</a>
-					<a href="{{ .Conf.DISCORD_SERVER_URL }}" class="text-gray-400 hover:text-white transition-colors text-sm">
+					<a href="{{ config "DISCORD_SERVER_URL" .Conf }}" class="text-gray-400 hover:text-white transition-colors text-sm">
 						Discord
 					</a>
 					<a href="https://status.ussr.pl" class="text-primary hover:text-primary-dark transition-colors text-sm font-medium">

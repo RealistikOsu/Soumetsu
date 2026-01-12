@@ -16,7 +16,7 @@ type DB struct {
 
 // New creates a new MySQL database connection.
 func New(cfg config.DatabaseConfig) (*DB, error) {
-	db, err := sqlx.Open(cfg.Scheme, cfg.DSN())
+	db, err := sqlx.Open("mysql", cfg.DSN())
 	if err != nil {
 		return nil, err
 	}

@@ -231,6 +231,9 @@ func (a *App) initTemplates() error {
 
 	// Create response engine wrapper
 	a.ResponseEngine = response.NewTemplateEngine(engine.GetTemplates(), funcMap)
+	
+	// Set config for template access
+	a.ResponseEngine.SetConfig(a.Config)
 
 	return nil
 }

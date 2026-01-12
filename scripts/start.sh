@@ -1,13 +1,13 @@
-#!/usr/bin/env bash
-set -eo pipefail
+#!/bin/sh
+set -e
 
 if [ -z "$APP_COMPONENT" ]; then
   echo "Please set APP_COMPONENT"
   exit 1
 fi
 
-if [ -z "$APP_ENV" ]; then
-  echo "Please set APP_ENV"
+if [ -z "$SOUMETSU_ENV" ]; then
+  echo "Please set SOUMETSU_ENV"
   exit 1
 fi
 

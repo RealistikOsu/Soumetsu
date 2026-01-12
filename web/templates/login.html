@@ -59,8 +59,8 @@ DisableHH=true
 							</a>
 						</div>
 
-						<input type="hidden" name="redir" value="{{ or (.Gin.Query "redir") .FormData.redir }}">
-						{{ ieForm .Gin }}
+						<input type="hidden" name="redir" value="{{ or (get .QueryParams "redir") (index .FormData.redir 0) }}">
+						{{ ieForm }}
 
 						<button type="submit" 
 							form="login-form" 

@@ -43,13 +43,13 @@ DisableHH=true
 						tabindex="1">
 				</div>
 
-				{{ with config "RECAPTCHA_SITE_KEY" }}
+				{{ with config "RECAPTCHA_SITE_KEY" .Conf }}
 					<div class="flex justify-center">
 						<div class="h-captcha" data-sitekey="{{ . }}" data-theme="dark"></div>
 					</div>
 				{{ end }}
 
-				{{ ieForm .Gin }}
+				{{ ieForm }}
 
 				<button type="submit" 
 					form="pw-reset-form" 

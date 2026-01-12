@@ -31,7 +31,7 @@ DisableHH=true
 						</div>
 					</div>
 					
-					{{ $f := ieForm .Gin }}
+					{{ $f := ieForm }}
 					{{ with .Get "users/userpage?id=%d" .Context.User.ID }}
 						<form method="post" class="space-y-6">
 							<div>

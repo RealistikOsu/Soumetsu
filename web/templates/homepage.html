@@ -8,8 +8,8 @@ DisableHH=true
 {{ $ds := band $cf 1 }}
 
 <script>
-	window.onlineUsers = parseInt("{{ rediget "ripple:online_users" }}") || 0;
-	window.registeredUsers = parseInt("{{ rediget "ripple:registered_users" }}") || 0;
+	window.onlineUsers = parseInt("{{ or (get .Extra "onlineUsers") "0" }}") || 0;
+	window.registeredUsers = parseInt("{{ or (get .Extra "registeredUsers") "0" }}") || 0;
 </script>
 
 <div id="homepage-app" class="relative min-h-screen">

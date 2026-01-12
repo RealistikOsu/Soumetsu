@@ -14,7 +14,12 @@ DisableHH=true
 
 	<div class="container mx-auto px-4 max-w-4xl">
 		{{ $ := . }}
-		{{ with documentationData (.Gin.Param "id") (or (.Gin.Query "lang") .Context.Language) }}
+		{{ $docID := or (get .Params "id") "" }}
+		{{ $lang := or (get .QueryParams "lang") "" }}
+		{{ if and .Context $lang }}
+			{{ $lang = .Context.Language }}
+		{{ end }}
+		{{ with documentationData $docID $lang }}
 			{{ if .Title }}
 				<div class="card mb-6">
 					<h1 class="text-4xl font-display font-bold mb-4">{{ .Title }}</h1>
@@ -22,7 +27,7 @@ DisableHH=true
 					{{ if not .IsUpdated }}
 						<div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-4">
 							<p class="text-yellow-300 text-sm">
-								{{ $.T "It seems like the original version of this file has been updated, so this file is out of date and may contain inaccurate information. If you want to make sure to be up-to-date, please refer to the <a href=\"%s%s\" class=\"text-yellow-200 hover:underline\">English version</a>." $.Gin.Request.URL.Path "?lang=en" | html }}
+								{{ $.T "It seems like the original version of this file has been updated, so this file is out of date and may contain inaccurate information. If you want to make sure to be up-to-date, please refer to the <a href=\"%s%s\" class=\"text-yellow-200 hover:underline\">English version</a>." $.Path "?lang=en" | html }}
 							</p>
 						</div>
 					{{ end }}

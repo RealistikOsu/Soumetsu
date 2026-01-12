@@ -26,7 +26,7 @@ DisableHH=true
 		</div>
 
 		{{ $ := . }}
-		{{ $page := or (atoint (.Gin.Query "p")) 1 }}
+		{{ $page := or (atoint (get .QueryParams "p")) 1 }}
 		{{ $friends := .Get "friends?p=%d&l=40&sort=username,asc" $page }}
 		
 		{{ with $friends }}
@@ -34,7 +34,7 @@ DisableHH=true
 				{{ range .friends }}
 					<div class="card text-center hover:border-primary transition-colors{{ if not (has .privileges 1) }} opacity-50{{ end }}">
 						<a href="/users/{{ .id }}" class="block">
-							<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+							<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}" 
 								alt="Avatar" 
 								class="w-full aspect-square rounded-lg mb-4 object-cover border-2 border-dark-border">
 							<div class="flex items-center justify-center gap-2 mb-3">

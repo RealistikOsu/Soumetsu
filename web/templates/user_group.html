@@ -11,7 +11,7 @@ NoCompile=true
 				{{ $tj := index $teamJSON (print .id)}}
 				<a href="/users/{{ .id }}" class="card text-center hover:border-primary transition-colors">
 					<div class="mb-4">
-						<img src="{{ config "APP_AVATAR_URL" }}/{{ .id }}" 
+						<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}" 
 							alt="Avatar" 
 							class="w-full aspect-square rounded-lg object-cover border-2 border-dark-border mx-auto">
 					</div>

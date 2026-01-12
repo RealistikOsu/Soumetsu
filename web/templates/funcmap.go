@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math"
 	"math/rand"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,8 +23,19 @@ import (
 	"zxq.co/ripple/playstyle"
 )
 
+// ConfigAccessor is an interface for accessing config values in templates
+type ConfigAccessor interface {
+	GetAvatarURL() string
+	GetBanchoURL() string
+	GetAPIURL() string
+	GetBeatmapMirrorAPIURL() string
+	GetRecaptchaSiteKey() string
+	GetDiscordServerURL() string
+}
+
 // FuncMap returns the template function map.
 // Note: This version removes all DB queries - data should be passed from handlers.
+// Config should be passed via TemplateData.Conf and accessed directly in templates.
 func FuncMap() template.FuncMap {
 	return template.FuncMap{
 		// html disables HTML escaping on the values it is given.
@@ -159,17 +171,31 @@ func FuncMap() template.FuncMap {
 			return float64(i)
 		},
 		// atoi converts a string to an int and then a float64.
-		// If s is not an actual int, it returns nil.
-		"atoi": func(s string) interface{} {
-			i, err := strconv.Atoi(s)
+		// If s is not an actual int, it returns 0.
+		"atoi": func(s interface{}) interface{} {
+			if s == nil {
+				return 0
+			}
+			str := fmt.Sprint(s)
+			if str == "" {
+				return 0
+			}
+			i, err := strconv.Atoi(str)
 			if err != nil {
-				return nil
+				return 0
 			}
 			return float64(i)
 		},
 		// atoint is like atoi but returns always an int.
-		"atoint": func(s string) int {
-			i, _ := strconv.Atoi(s)
+		"atoint": func(s interface{}) int {
+			if s == nil {
+				return 0
+			}
+			str := fmt.Sprint(s)
+			if str == "" {
+				return 0
+			}
+			i, _ := strconv.Atoi(str)
 			return i
 		},
 		// parseUserpage compiles BBCode to HTML.
@@ -443,6 +469,123 @@ func FuncMap() template.FuncMap {
 		},
 		// stringLower converts a string to lowercase
 		"stringLower": strings.ToLower,
+		// qb is a stub function that returns empty/default values
+		// Templates should not directly query the database - data should be passed from handlers
+		"qb": func(query string, args ...interface{}) map[string]interface{} {
+			// Return empty map with default structure to prevent template errors
+			return map[string]interface{}{
+				"frozen": map[string]interface{}{
+					"Bool": false,
+				},
+			}
+		},
+		// rediget is a stub function that returns empty/default values
+		// Templates should not directly query Redis - data should be passed from handlers
+		"rediget": func(key string) string {
+			return "0" // Return "0" as default for numeric values
+		},
+		// config accesses config values using reflection
+		// Usage: {{ config "APP_AVATAR_URL" .Conf }} or {{ config "APP_AVATAR_URL" }}
+		// Note: If .Conf is not passed, it should be available in template data
+		"config": func(key string, confs ...interface{}) string {
+			var conf interface{}
+			if len(confs) > 0 && confs[0] != nil {
+				conf = confs[0]
+			}
+			// If conf is not provided, return empty string (templates should pass .Conf)
+			if conf == nil {
+				return ""
+			}
+			// Use reflection to access config struct fields
+			val := reflect.ValueOf(conf)
+			if val.Kind() == reflect.Ptr {
+				val = val.Elem()
+			}
+			if val.Kind() != reflect.Struct {
+				return ""
+			}
+
+			// Map config keys to struct fields
+			keyMap := map[string]struct {
+				section string
+				field   string
+			}{
+				"APP_AVATAR_URL":         {"App", "AvatarURL"},
+				"APP_BANCHO_URL":         {"App", "BanchoURL"},
+				"APP_API_URL":            {"App", "APIURL"},
+				"BEATMAP_MIRROR_API_URL": {"Beatmap", "MirrorAPIURL"},
+				"RECAPTCHA_SITE_KEY":     {"Security", "RecaptchaSiteKey"},
+				"DISCORD_SERVER_URL":     {"Discord", "ServerURL"},
+			}
+
+			mapping, ok := keyMap[key]
+			if !ok {
+				return ""
+			}
+
+			// Access the section (e.g., App, Security, etc.)
+			sectionField := val.FieldByName(mapping.section)
+			if !sectionField.IsValid() || sectionField.Kind() != reflect.Struct {
+				return ""
+			}
+
+			// Access the field within the section
+			field := sectionField.FieldByName(mapping.field)
+			if !field.IsValid() || !field.CanInterface() {
+				return ""
+			}
+
+			// Return the value as a string (templates will handle quoting for JavaScript)
+			return fmt.Sprint(field.Interface())
+		},
+		// csrfGenerate generates a CSRF token (stub - should be passed from handler)
+		"csrfGenerate": func(userID int) string {
+			// Return empty string - CSRF tokens should be generated in handlers
+			return ""
+		},
+		// ieForm generates form fields (CSRF token and other hidden fields)
+		// Usage: {{ ieForm }} - no parameters needed, uses template context
+		"ieForm": func() template.HTML {
+			// Return empty - form fields should be generated in handlers and passed via TemplateData
+			// CSRF tokens should be passed via TemplateData.Extra or similar
+			return template.HTML("")
+		},
+		// systemSettings retrieves system settings (stub - should be passed from handler)
+		"systemSettings": func(keys ...string) map[string]interface{} {
+			// Return empty map with default structure
+			result := make(map[string]interface{})
+			for _, key := range keys {
+				result[key] = map[string]interface{}{
+					"String": "",
+					"Int":    0,
+				}
+			}
+			return result
+		},
+		// T is a translation function (stub - returns key as-is for now)
+		"T": func(key string) string {
+			return key
+		},
+		// country renders a country flag image
+		// Usage: {{ country "US" false }} - renders flag image for country code
+		// The second parameter controls whether to show country name (not currently used)
+		"country": func(countryCode string, showName bool) template.HTML {
+			if countryCode == "" {
+				return template.HTML("")
+			}
+			// Render country flag image
+			countryLower := strings.ToLower(countryCode)
+			html := fmt.Sprintf(`<img src="/static/images/new-flags/flag-%s.svg" class="w-4 h-3 rounded" alt="%s">`, countryLower, countryCode)
+			return template.HTML(html)
+		},
+		// dcAPI fetches Discord user data (stub - should be passed from handler)
+		// Usage: {{ with dcAPI $discordID }} ... {{ end }}
+		// Note: Discord data should be fetched in handlers and passed via TemplateData.Extra["discordUser"]
+		"dcAPI": func(discordID interface{}) interface{} {
+			// Return nil - Discord data should be passed from handlers via TemplateData.Extra["discordUser"]
+			// The template expects an object with .avatar.link and .raw.username
+			return nil
+		},
 	}
 }
 
