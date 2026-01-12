@@ -7,18 +7,18 @@ import (
 )
 
 type User struct {
-	ID              int                    `db:"id"`
-	Username        string                 `db:"username"`
-	UsernameSafe    string                 `db:"username_safe"`
-	Email           string                 `db:"email"`
-	Password        string                 `db:"password_md5"`
-	PasswordVersion int                    `db:"password_version"`
-	Privileges      common.UserPrivileges  `db:"privileges"`
-	Flags           uint64                 `db:"flags"`
-	Country         string                 `db:"country"`
-	RegisteredOn    int64                  `db:"register_datetime"`
-	LatestActivity  int64                  `db:"latest_activity"`
-	Coins           int                    `db:"coins"`
+	ID              int                   `db:"id"`
+	Username        string                `db:"username"`
+	UsernameSafe    string                `db:"username_safe"`
+	Email           string                `db:"email"`
+	Password        string                `db:"password_md5"`
+	PasswordVersion int                   `db:"password_version"`
+	Privileges      common.UserPrivileges `db:"privileges"`
+	Flags           uint64                `db:"flags"`
+	Country         string                `db:"country"`
+	RegisteredOn    int64                 `db:"register_datetime"`
+	LatestActivity  int64                 `db:"latest_activity"`
+	Coins           int                   `db:"coins"`
 }
 
 type SessionUser struct {
@@ -93,14 +93,14 @@ func (m ClanMembership) IsClanOwner() bool {
 }
 
 type UserStats struct {
-	UserID         int     `db:"id"`
-	RankedScore    int64   `db:"ranked_score"`
-	TotalScore     int64   `db:"total_score"`
-	PlayCount      int     `db:"playcount"`
-	PP             float64 `db:"pp"`
-	Accuracy       float64 `db:"avg_accuracy"`
-	MaxCombo       int     `db:"max_combo"`
-	TotalHits      int     `db:"total_hits"`
-	ReplayViews    int     `db:"replays_watched"`
-	Level          float64 `db:"level"`
+	UserID      int     `db:"id"`
+	RankedScore int64   `db:"ranked_score"`
+	TotalScore  int64   `db:"total_score"`
+	PlayCount   int     `db:"playcount"`
+	PP          float64 `db:"pp"`
+	Accuracy    float64 `db:"avg_accuracy"`
+	MaxCombo    int     `db:"max_combo"`
+	TotalHits   int     `db:"total_hits"`
+	ReplayViews int     `db:"replays_watched"`
+	Level       float64 `db:"level"`
 }

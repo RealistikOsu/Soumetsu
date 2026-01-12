@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -60,7 +59,7 @@ func (h *AuthHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 		TitleBar:  "Login",
 		KyutGrill: "login.jpg",
 		Path:      r.URL.Path,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 	})
 }
 
@@ -261,7 +260,7 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 	userID, valid := h.validateIdentityCookie(r)
 	if !valid {
 		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Nope."))
+		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
 		sess.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -271,7 +270,7 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 	h.db.QueryRowContext(r.Context(), "SELECT privileges FROM users WHERE id = ?", userID).Scan(&privileges)
 	if privileges&(1<<20) == 0 {
 		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Nope."))
+		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
 		sess.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -294,7 +293,7 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 	userID, valid := h.validateIdentityCookie(r)
 	if !valid {
 		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Nope."))
+		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
 		sess.Save(r, w)
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -324,7 +323,7 @@ func (h *AuthHandler) loginResp(w http.ResponseWriter, r *http.Request, messages
 		TitleBar:  "Login",
 		KyutGrill: "login.jpg",
 		Messages:  messages,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 		Path:      r.URL.Path,
 	})
 }
@@ -335,7 +334,7 @@ func (h *AuthHandler) registerResp(w http.ResponseWriter, r *http.Request, messa
 		KyutGrill: "register.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},
 		Messages:  messages,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 	})
 }
 
@@ -383,11 +382,4 @@ func (h *AuthHandler) validateIdentityCookie(r *http.Request) (int, bool) {
 	}
 
 	return userID, true
-}
-
-func normaliseURLValues(uv url.Values) map[string][]string {
-	if uv == nil {
-		return nil
-	}
-	return map[string][]string(uv)
 }

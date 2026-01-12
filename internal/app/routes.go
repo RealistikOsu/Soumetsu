@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/RealistikOsu/RealistikAPI/common"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/handlers"
 	apimiddleware "github.com/RealistikOsu/soumetsu/internal/api/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func (a *App) Routes() chi.Router {

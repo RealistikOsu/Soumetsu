@@ -109,10 +109,10 @@ func Load() (*Config, error) {
 		},
 		Database: DatabaseConfig{
 			Host: mustEnv("MYSQL_HOST"),
-			Port:   mustEnvInt("MYSQL_TCP_PORT"),
-			User:   mustEnv("MYSQL_USER"),
-			Pass:   mustEnv("MYSQL_PASSWORD"),
-			Name:   mustEnv("MYSQL_DATABASE"),
+			Port: mustEnvInt("MYSQL_TCP_PORT"),
+			User: mustEnv("MYSQL_USER"),
+			Pass: mustEnv("MYSQL_PASSWORD"),
+			Name: mustEnv("MYSQL_DATABASE"),
 		},
 		Redis: RedisConfig{
 			MaxConnections: mustEnvInt("REDIS_MAX_CONNECTIONS"),

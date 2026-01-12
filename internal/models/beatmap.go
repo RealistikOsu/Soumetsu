@@ -31,13 +31,13 @@ type BeatmapSet struct {
 }
 
 const (
-	StatusGraveyard  = -2
-	StatusWIP        = -1
-	StatusPending    = 0
-	StatusRanked     = 1
-	StatusApproved   = 2
-	StatusQualified  = 3
-	StatusLoved      = 4
+	StatusGraveyard = -2
+	StatusWIP       = -1
+	StatusPending   = 0
+	StatusRanked    = 1
+	StatusApproved  = 2
+	StatusQualified = 3
+	StatusLoved     = 4
 )
 
 func (b BeatmapSet) IsRanked() bool {

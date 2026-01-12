@@ -4,8 +4,8 @@
 package main
 
 import (
-	"io/ioutil"
 	"log/slog"
+	"os"
 
 	"github.com/thehowl/conf"
 )
@@ -37,13 +37,13 @@ func main() {
 			panic(err)
 		}
 		d = append(d, confData...)
-		fileData, err := ioutil.ReadFile("templates/" + p.Template)
+		fileData, err := os.ReadFile("templates/" + p.Template)
 		if err != nil {
 			panic(err)
 		}
 		d = append(d, []byte("*/}}\n")...)
 		d = append(d, fileData...)
-		err = ioutil.WriteFile("templates/"+p.Template, d, 0644)
+		err = os.WriteFile("templates/"+p.Template, d, 0644)
 		if err != nil {
 			panic(err)
 		}

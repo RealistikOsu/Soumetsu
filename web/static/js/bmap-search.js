@@ -75,17 +75,17 @@ function toggleBeatmap(id, elm) {
 
     if (beatmapTimer) {clearInterval(beatmapTimer);}
 
-    for (const i in beatmapAudios) {
-        if (beatmapAudios[i].id == id) {
-            if (!beatmapAudios[i].playing) {
-                beatmapAudios[i].audio.volume = 0.2;
-                beatmapAudios[i].audio.currentTime = 0;
-                beatmapAudios[i].audio.play();
+    for (const item of beatmapAudios) {
+        if (item.id == id) {
+            if (!item.playing) {
+                item.audio.volume = 0.2;
+                item.audio.currentTime = 0;
+                item.audio.play();
 
                 elm.innerHTML = '<i class="fas fa-stop text-white text-5xl"></i>';
                 elm.closest(".card").classList.add("musicPlaying");
 
-                const audio = beatmapAudios[i].audio;
+                const audio = item.audio;
                 beatmapTimer = setInterval(() => {
                     const played = 100 * audio.currentTime / audio.duration;
 
@@ -97,25 +97,25 @@ function toggleBeatmap(id, elm) {
                     if (audio.currentTime == audio.duration) {
                         // Beatmap has finished playing.
                         audio.currentTime = 0;
-                        beatmapAudios[i].playing = false;
+                        item.playing = false;
                         elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
                         elm.closest(".card").classList.remove("musicPlaying");
                     }
                 }, 1);
             } else {
-                beatmapAudios[i].audio.pause();
+                item.audio.pause();
 
                 elm.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
                 elm.closest(".card").classList.remove("musicPlaying");
-            };
+            }
 
-            beatmapAudios[i].playing = !beatmapAudios[i].playing;
+            item.playing = !item.playing;
         } else {
-            beatmapAudios[i].audio.currentTime = 0;
-            beatmapAudios[i].audio.pause();
-            beatmapAudios[i].playing = false;
-        };
-    };
+            item.audio.currentTime = 0;
+            item.audio.pause();
+            item.playing = false;
+        }
+    }
 };
 
 async function search(options, offset = 0, r = false) {
@@ -186,8 +186,9 @@ async function search(options, offset = 0, r = false) {
         link += `&status=${options.status || 0}`
     }
 
+    let res;
     try {
-        var res = await fetch(link).then(o => o.json());
+        res = await fetch(link).then(o => o.json());
     }
     catch {
         document.querySelector("#loading-state").classList.add("hidden");

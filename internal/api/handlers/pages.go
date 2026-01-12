@@ -85,7 +85,7 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			Scripts:        scripts,
 			HeadingOnRight: headingOnRight,
 			Path:           r.URL.Path,
-			FormData:       normaliseURLValues(r.PostForm),
+			FormData:       NormaliseURLValues(r.PostForm),
 			Context:        reqCtx,
 			Session:        sessionWrapper,
 		})
@@ -99,7 +99,7 @@ func (h *PagesHandler) SimplePageWithMessages(templateName, titleBar string, mes
 			Messages: messages,
 			Extra:    extra,
 			Path:     r.URL.Path,
-			FormData: normaliseURLValues(r.PostForm),
+			FormData: NormaliseURLValues(r.PostForm),
 		})
 	}
 }

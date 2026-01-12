@@ -3,7 +3,6 @@ package templates
 import (
 	"bufio"
 	"html/template"
-	"io/ioutil"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -76,7 +75,7 @@ func (e *Engine) GetSimplePages() []TemplateConfig {
 
 func (e *Engine) loadTemplates(subdir string) error {
 	dirPath := filepath.Join(e.templatesDir, subdir)
-	entries, err := ioutil.ReadDir(dirPath)
+	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return err
 	}

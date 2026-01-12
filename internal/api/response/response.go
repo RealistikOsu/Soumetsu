@@ -213,7 +213,7 @@ func (e *TemplateEngine) Render(w http.ResponseWriter, name string, data *Templa
 	var buf bytes.Buffer
 	bufWriter := &bufferedResponseWriter{
 		ResponseWriter: w,
-		buffer:        &buf,
+		buffer:         &buf,
 		headersWritten: false,
 	}
 
@@ -349,7 +349,7 @@ func (e *TemplateEngine) InternalError(w http.ResponseWriter, r *http.Request, e
 		Path:     path,
 		Context:  reqCtx,
 	}
-	
+
 	// Render with status code - Render will handle headers
 	e.RenderWithStatus(w, "errors/error_500.html", data, http.StatusInternalServerError)
 }

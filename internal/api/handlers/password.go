@@ -106,7 +106,7 @@ func (h *PasswordHandler) ResetContinuePage(w http.ResponseWriter, r *http.Reque
 	if key == "" {
 		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{
 			TitleBar: "Password Reset",
-			Messages: []models.Message{models.NewError("Nope.")},
+			Messages: []models.Message{models.NewError("Invalid password reset link.")},
 		})
 		return
 	}
@@ -248,7 +248,7 @@ func (h *PasswordHandler) resetResp(w http.ResponseWriter, r *http.Request, mess
 		KyutGrill: "pwreset.jpg",
 		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},
 		Messages:  messages,
-		FormData:  normaliseURLValues(r.PostForm),
+		FormData:  NormaliseURLValues(r.PostForm),
 	})
 }
 
