@@ -250,7 +250,11 @@ new Vue({
         async loadUserpage() {
             try {
                 const resp = await this.api(`users/userpage?id=${this.userID}`);
-                this.userpage = resp.userpage || null;
+                if (resp.userpage && window.parseBBCode) {
+                    this.userpage = window.parseBBCode(resp.userpage);
+                } else {
+                    this.userpage = resp.userpage || null;
+                }
             } catch (err) {
                 console.error('Error loading userpage:', err);
             }
