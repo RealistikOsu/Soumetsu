@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/RealistikOsu/soumetsu/internal/config"
@@ -39,7 +40,14 @@ func (c *Client) Del(ctx context.Context, keys ...string) error {
 }
 
 func (c *Client) Publish(ctx context.Context, channel string, message any) error {
-	return c.Client.Publish(channel, message).Err()
+	var msg string
+	switch v := message.(type) {
+	case string:
+		msg = v
+	default:
+		msg = fmt.Sprintf("%v", message)
+	}
+	return c.Client.Publish(channel, msg).Err()
 }
 
 func (c *Client) Exists(ctx context.Context, key string) (bool, error) {
