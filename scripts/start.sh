@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 if [ -z "$APP_COMPONENT" ]; then
@@ -11,9 +11,10 @@ if [ -z "$SOUMETSU_ENV" ]; then
   exit 1
 fi
 
+cd /app
 if [ "$APP_COMPONENT" = "api" ]; then
-    exec ./soumetsu
+  ./soumetsu
 else
-    echo "Unknown component: $APP_COMPONENT"
-    exit 1
+  echo "Unknown component: $APP_COMPONENT"
+  exit 1
 fi

@@ -8,6 +8,7 @@ services:
     environment:
       - APP_COMPONENT=api
       - SOUMETSU_ENV=development
+      - SOUMETSU_PORT=80
     env_file:
       - .env
     volumes:
@@ -29,6 +30,7 @@ services:
     environment:
       - APP_COMPONENT=api
       - SOUMETSU_ENV=development
+      - SOUMETSU_PORT=80
     env_file:
       - .env
     volumes:

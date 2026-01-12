@@ -24,7 +24,7 @@ FROM alpine:3.19
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata bash
 
 # Create non-root user for security
 RUN adduser -D -g '' appuser
@@ -53,4 +53,4 @@ RUN chown -R appuser:appuser /app
 # Switch to non-root user
 USER appuser
 
-CMD ["./scripts/start.sh"]
+CMD ["/app/scripts/start.sh"]
