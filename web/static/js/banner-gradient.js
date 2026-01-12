@@ -1,5 +1,5 @@
 /**
- * Shared utility for extracting colors from avatar images and applying them as banner gradients
+ * Shared utility for extracting colours from avatar images and applying them as banner gradients
  */
 
 (function() {
@@ -50,7 +50,7 @@
 		return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 	}
 
-	// Enhance color for gradient
+	// Enhance colour for gradient
 	function enhanceForGradient(rgb) {
 		const r = rgb[0], g = rgb[1], b = rgb[2];
 		const hsl = rgbToHsl(r, g, b);
@@ -71,8 +71,8 @@
 		return hslToRgb(h, newS, newL);
 	}
 
-	// Extract banner colors from image
-	function extractBannerColors(img, callback) {
+	// Extract banner colours from image
+	function extractBannerColours(img, callback) {
 		if (!img || !img.complete || img.src.startsWith('data:image/svg+xml')) {
 			if (callback) {callback(null);}
 			return;
@@ -96,7 +96,7 @@
 			}
 
 			const data = imageData.data;
-			const colorCandidates = [];
+			const colourCandidates = [];
 			const sampleStep = 3;
 
 			for (var i = 0; i < data.length; i += 4 * sampleStep) {
@@ -116,7 +116,7 @@
 				const score = saturationScore * 0.5 + lightnessScore * 0.3 + grayPenalty * 0.2;
 
 				if (score > 0.3) {
-					colorCandidates.push({
+					colourCandidates.push({
 						rgb: [r, g, b],
 						hsl: [h, s, l],
 						score: score
@@ -124,16 +124,16 @@
 				}
 			}
 
-			if (colorCandidates.length < 2) {
+			if (colourCandidates.length < 2) {
 				if (callback) {callback(null);}
 				return;
 			}
 
-			colorCandidates.sort(function(a, b) { return b.score - a.score; });
-			const topCandidates = colorCandidates.slice(0, Math.min(15, colorCandidates.length));
-			const color1 = topCandidates[0];
-			let color2 = topCandidates[1];
-			const h1 = color1.hsl[0];
+			colourCandidates.sort(function(a, b) { return b.score - a.score; });
+			const topCandidates = colourCandidates.slice(0, Math.min(15, colourCandidates.length));
+			const colour1 = topCandidates[0];
+			let colour2 = topCandidates[1];
+			const h1 = colour1.hsl[0];
 			let bestPairScore = 0;
 
 			for (var i = 1; i < topCandidates.length; i++) {
@@ -143,16 +143,16 @@
 				if (hueDiff > 180) {hueDiff = 360 - hueDiff;}
 
 				const separationScore = hueDiff > 30 && hueDiff < 150 ? 1 : 0.5;
-				const vibrancyScore = (color1.score + candidate.score) / 2;
+				const vibrancyScore = (colour1.score + candidate.score) / 2;
 				const pairScore = separationScore * 0.6 + vibrancyScore * 0.4;
 
 				if (pairScore > bestPairScore) {
 					bestPairScore = pairScore;
-					color2 = candidate;
+					colour2 = candidate;
 				}
 			}
 
-			var h2 = color2.hsl[0];
+			var h2 = colour2.hsl[0];
 			var hueDiff = Math.abs(h2 - h1);
 			if (hueDiff > 180) {hueDiff = 360 - hueDiff;}
 
@@ -163,18 +163,18 @@
 					let diff = Math.abs(candidateH - h1);
 					if (diff > 180) {diff = 360 - diff;}
 					if (diff > 40) {
-						color2 = candidate;
+						colour2 = candidate;
 						break;
 					}
 				}
 			}
 
-			const enhanced1 = enhanceForGradient(color1.rgb);
-			const enhanced2 = enhanceForGradient(color2.rgb);
+			const enhanced1 = enhanceForGradient(colour1.rgb);
+			const enhanced2 = enhanceForGradient(colour2.rgb);
 
 			const result = {
-				color1: 'rgb(' + enhanced1[0] + ', ' + enhanced1[1] + ', ' + enhanced1[2] + ')',
-				color2: 'rgb(' + enhanced2[0] + ', ' + enhanced2[1] + ', ' + enhanced2[2] + ')'
+				colour1: 'rgb(' + enhanced1[0] + ', ' + enhanced1[1] + ', ' + enhanced1[2] + ')',
+				colour2: 'rgb(' + enhanced2[0] + ', ' + enhanced2[1] + ', ' + enhanced2[2] + ')'
 			};
 
 			if (callback) {callback(result);}
@@ -186,13 +186,13 @@
 	}
 
 	// Apply gradient to banner element
-	function applyBannerGradient(bannerElement, colors) {
+	function applyBannerGradient(bannerElement, colours) {
 		if (!bannerElement) {return;}
 
-		if (colors && colors.color1 && colors.color2) {
-			const color1RGBA = colors.color1.replace('rgb', 'rgba').replace(')', ', 0.2)');
-			const color2RGBA = colors.color2.replace('rgb', 'rgba').replace(')', ', 0.2)');
-			bannerElement.style.background = 'linear-gradient(to bottom right, ' + color1RGBA + ', ' + color2RGBA + ')';
+		if (colours && colours.colour1 && colours.colour2) {
+			const colour1RGBA = colours.colour1.replace('rgb', 'rgba').replace(')', ', 0.2)');
+			const colour2RGBA = colours.colour2.replace('rgb', 'rgba').replace(')', ', 0.2)');
+			bannerElement.style.background = 'linear-gradient(to bottom right, ' + colour1RGBA + ', ' + colour2RGBA + ')';
 		} else {
 			bannerElement.style.background = '';
 		}
@@ -217,12 +217,12 @@
 		}
 
 		function updateGradient() {
-			extractBannerColors(avatar, function(colors) {
-				applyBannerGradient(banner, colors);
+			extractBannerColours(avatar, function(colours) {
+				applyBannerGradient(banner, colours);
 			});
 		}
 
-		// Extract colors when avatar loads
+		// Extract colours when avatar loads
 		if (avatar.complete && avatar.naturalWidth > 0) {
 			updateGradient();
 		} else {

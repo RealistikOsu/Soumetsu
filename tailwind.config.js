@@ -14,7 +14,7 @@ module.exports = {
         dark: {
           bg: '#0F172A', // Dark background
           card: '#1E293B', // Card background
-          border: '#334155', // Border color
+          border: '#334155', // Border colour
         },
       },
       fontFamily: {

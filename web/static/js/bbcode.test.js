@@ -85,17 +85,17 @@ describe('BBCode URL Sanitization', () => {
     });
 });
 
-// Test color validation
-describe('BBCode Color Validation', () => {
-    function isValidColor(color) {
-        if (!color || typeof color !== 'string') {
+// Test colour validation
+describe('BBCode Colour Validation', () => {
+    function isValidColour(colour) {
+        if (!colour || typeof colour !== 'string') {
             return false;
         }
 
-        color = color.trim().toLowerCase();
+        colour = colour.trim().toLowerCase();
 
-        // Named colors (basic set)
-        const namedColors = [
+        // Named colours (basic set)
+        const namedColours = [
             'red',
             'blue',
             'green',
@@ -121,17 +121,17 @@ describe('BBCode Color Validation', () => {
             'fuchsia',
         ];
 
-        if (namedColors.includes(color)) {
+        if (namedColours.includes(colour)) {
             return true;
         }
 
-        // Hex colors: #RGB or #RRGGBB
-        if (/^#[0-9a-f]{3}$/.test(color) || /^#[0-9a-f]{6}$/.test(color)) {
+        // Hex colours: #RGB or #RRGGBB
+        if (/^#[0-9a-f]{3}$/.test(colour) || /^#[0-9a-f]{6}$/.test(colour)) {
             return true;
         }
 
         // RGB format: rgb(r, g, b)
-        if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(color)) {
+        if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(colour)) {
             return true;
         }
 

@@ -132,7 +132,7 @@ async function search(options, offset = 0, r = false) {
         "4": "Loved"
     };
 
-    const Colors = {
+    const Colours = {
         "138, 174, 23": [0.0, 1.99],
         "154, 212, 223": [2.0, 2.69],
         "222, 179, 42": [2.7, 3.99],
@@ -229,7 +229,7 @@ async function search(options, offset = 0, r = false) {
             });
         };
 
-        // Get status color
+        // Get status colour
         const statusColors = {
             "1": "bg-green-500/20 border-green-500/50 text-green-400",
             "3": "bg-blue-500/20 border-blue-500/50 text-blue-400",
@@ -291,18 +291,18 @@ async function search(options, offset = 0, r = false) {
 
         for (const diff of diffs) {
             const sr = diff.DifficultyRating.toFixed(2);
-            let colorOfChoice;
+            let colourOfChoice;
 
-            for (const i in Colors) {
-                if (sr >= Colors[i][0] && sr <= Colors[i][1]) {
-                    colorOfChoice = i;
+            for (const i in Colours) {
+                if (sr >= Colours[i][0] && sr <= Colours[i][1]) {
+                    colourOfChoice = i;
                 };
             };
 
             diffsHTML.push(`
                 <div class="relative group/diff">
                     <div class="faa fal fa-extra-mode-${Mode[beatmap.ChildrenBeatmaps[0].Mode]}"
-                         style="color: rgb(${colorOfChoice}); font-size: 1.25rem; cursor: pointer;">
+                         style="color: rgb(${colourOfChoice}); font-size: 1.25rem; cursor: pointer;">
                     </div>
                     <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-dark-card border border-dark-border rounded text-xs text-white opacity-0 group-hover/diff:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                         ${diff.DiffName} - ${sr}★

@@ -81,13 +81,13 @@
         return '';
     }
 
-    // Validate color value - only allow safe CSS color values
-    function sanitizeColor(color) {
-        if (!color || typeof color !== 'string') { return ''; }
+    // Validate colour value - only allow safe CSS colour values
+    function sanitizeColour(colour) {
+        if (!colour || typeof colour !== 'string') { return ''; }
 
-        const trimmed = color.trim().toLowerCase();
+        const trimmed = colour.trim().toLowerCase();
 
-        // Allow hex colors
+        // Allow hex colours
         if (/^#[0-9a-f]{3,8}$/i.test(trimmed)) {
             return trimmed;
         }
@@ -101,7 +101,7 @@
             return '';
         }
 
-        // Allow named colors (common ones)
+        // Allow named colours (common ones)
         const namedColors = [
             'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple',
             'pink', 'brown', 'gray', 'grey', 'cyan', 'magenta', 'lime', 'navy',
@@ -164,13 +164,13 @@
     }
 
     function parseColour(text) {
-        // Secure color parsing - validate color values
-        text = text.replace(/\x5B(color|colour)=([^\x5D]+)\]/g, function(match, tag, color) {
-            const safeColor = sanitizeColor(color);
-            if (safeColor) {
-                return "<span style='color: " + safeColor + "'>";
+        // Secure colour parsing - validate colour values
+        text = text.replace(/\x5B(color|colour)=([^\x5D]+)\]/g, function(match, tag, colour) {
+            const safeColour = sanitizeColour(colour);
+            if (safeColour) {
+                return "<span style='color: " + safeColour + "'>";
             }
-            return ''; // Strip invalid color tags
+            return ''; // Strip invalid colour tags
         });
         text = text.replace(/\x5B\/(color|colour)\x5D/g, "</span>");
         return text;
