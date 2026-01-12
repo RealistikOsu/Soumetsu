@@ -1,6 +1,7 @@
-new Vue({
-    el: "#homepage-app",
-    delimiters: ["<%", "%>"],
+const homepageApp = Vue.createApp({
+    compilerOptions: {
+        delimiters: ["<%", "%>"]
+    },
     data() {
         return {
             // Stats (passed from server via window)
@@ -56,8 +57,10 @@ new Vue({
 
         // Helper: Add commas to numbers
         addCommas(num) {
-            if (num === undefined || num === null) return '0';
+            if (num === undefined || num === null) {return '0';}
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         },
     },
 });
+
+homepageApp.mount('#homepage-app');

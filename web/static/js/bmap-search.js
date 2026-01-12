@@ -17,9 +17,9 @@ function buttons() {
     const status = document.querySelectorAll("#status-button");
     let typeTimer;
 
-    for (let elm of modes) {
+    for (const elm of modes) {
         elm.addEventListener("click", function () {
-            for (let others of modes) {
+            for (const others of modes) {
                 others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
                 others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
@@ -32,9 +32,9 @@ function buttons() {
         });
     };
 
-    for (let elm of status) {
+    for (const elm of status) {
         elm.addEventListener("click", function () {
-            for (let others of status) {
+            for (const others of status) {
                 others.classList.remove("bg-primary", "border-primary", "text-white", "shadow-lg", "shadow-primary/25");
                 others.classList.add("bg-dark-bg", "border-dark-border", "text-gray-300");
             };
@@ -66,16 +66,16 @@ function buttons() {
 
 function toggleBeatmap(id, elm) {
     // Stop all other playing beatmaps
-    for (let map of document.querySelectorAll(".beatmapPlay")) {
+    for (const map of document.querySelectorAll(".beatmapPlay")) {
         map.innerHTML = '<i class="fas fa-play text-white text-5xl"></i>';
     }
-    for (let map of document.querySelectorAll(".card")) {
+    for (const map of document.querySelectorAll(".card")) {
         map.classList.remove("musicPlaying");
     }
 
-    if (beatmapTimer) clearInterval(beatmapTimer);
+    if (beatmapTimer) {clearInterval(beatmapTimer);}
 
-    for (let i in beatmapAudios) {
+    for (const i in beatmapAudios) {
         if (beatmapAudios[i].id == id) {
             if (!beatmapAudios[i].playing) {
                 beatmapAudios[i].audio.volume = 0.2;
@@ -175,7 +175,7 @@ async function search(options, offset = 0, r = false) {
         color: rgb(5, 5, 5);
     */
 
-    var link = `${mirror_api}/search?offset=${options.offset || 0}&amount=${options.amount || 20}&query=${querys}`
+    let link = `${mirror_api}/search?offset=${options.offset || 0}&amount=${options.amount || 20}&query=${querys}`
     if (options.mode != "NaN" && options.mode == "") {
         link += `&mode=`
     } else if (options.mode != "NaN") {
@@ -211,7 +211,7 @@ async function search(options, offset = 0, r = false) {
     //console.log(querys);
     //console.log(res);
 
-    for (let beatmap of res) {
+    for (const beatmap of res) {
         const diffsHTML = [];
         // Bubble sort to sort diffs.
         const diffs = beatmap.ChildrenBeatmaps;
@@ -288,11 +288,11 @@ async function search(options, offset = 0, r = false) {
                         <div class="flex flex-wrap gap-1">
         `;
 
-        for (let diff of diffs) {
+        for (const diff of diffs) {
             const sr = diff.DifficultyRating.toFixed(2);
             let colorOfChoice;
 
-            for (let i in Colors) {
+            for (const i in Colors) {
                 if (sr >= Colors[i][0] && sr <= Colors[i][1]) {
                     colorOfChoice = i;
                 };
@@ -319,7 +319,7 @@ async function search(options, offset = 0, r = false) {
                     <div class="flex flex-wrap gap-2 pt-3 border-t border-dark-border">
         `;
 
-        for (let source of sources) {
+        for (const source of sources) {
             mapSection += `
                         <a href="${source.mirror + String(beatmap.SetID)}" 
                            title="Download from ${source.name}"

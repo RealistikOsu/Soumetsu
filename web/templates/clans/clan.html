@@ -27,7 +27,7 @@ DisableHH=true
 		<div class="card text-center py-16">
 			<i class="fas fa-users text-gray-500 text-5xl mb-4"></i>
 			<h2 class="text-2xl font-bold text-white mb-2">Clan Not Found</h2>
-			<p class="text-gray-400"><% error %></p>
+			<p class="text-gray-400">{{ v "error" }}</p>
 		</div>
 	</div>
 
@@ -41,9 +41,9 @@ DisableHH=true
 					<i class="fas fa-users text-4xl text-gray-500"></i>
 				</div>
 				<div class="flex-1">
-					<div class="text-gray-400 mb-1">[<% clan.tag %>]</div>
-					<h1 class="text-4xl font-display font-bold mb-2"><% clan.name %></h1>
-					<p class="text-gray-300"><% clan.description %></p>
+					<div class="text-gray-400 mb-1">{{ v "[ clan.tag" }}]</div>
+					<h1 class="text-4xl font-display font-bold mb-2">{{ v "clan.name" }}</h1>
+					<p class="text-gray-300">{{ v "clan.description" }}</p>
 				</div>
 			</div>
 		</div>
@@ -79,7 +79,7 @@ DisableHH=true
 				:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 				:disabled="isModeDisabled(m)"
 				@click="setMode(m)">
-				<% name %>
+				{{ v "name" }}
 			</button>
 		</div>
 
@@ -101,31 +101,31 @@ DisableHH=true
 					<tbody>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">Global Rank</td>
-							<td class="py-2 text-right text-white font-semibold">#<% addCommas(stats.rank || 0) %></td>
+							<td class="py-2 text-right text-white font-semibold">#{{ v "addCommas(stats.rank || 0)" }}</td>
 						</tr>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">PP</td>
-							<td class="py-2 text-right text-primary font-semibold"><% addCommas(stats.chosen_mode?.pp || 0) %>pp</td>
+							<td class="py-2 text-right text-primary font-semibold">{{ v "addCommas(stats.chosen_mode?.pp || 0)" }}pp</td>
 						</tr>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">Ranked Score</td>
-							<td class="py-2 text-right text-white"><% addCommas(stats.chosen_mode?.ranked_score || 0) %></td>
+							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.ranked_score || 0)" }}</td>
 						</tr>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">Total Score</td>
-							<td class="py-2 text-right text-white"><% addCommas(stats.chosen_mode?.total_score || 0) %></td>
+							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.total_score || 0)" }}</td>
 						</tr>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">Total Playcount</td>
-							<td class="py-2 text-right text-white"><% addCommas(stats.chosen_mode?.playcount || 0) %></td>
+							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.playcount || 0)" }}</td>
 						</tr>
 						<tr class="border-b border-dark-border/50">
 							<td class="py-2 text-gray-400">Total Replays Watched</td>
-							<td class="py-2 text-right text-white"><% addCommas(stats.chosen_mode?.replays_watched || 0) %></td>
+							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.replays_watched || 0)" }}</td>
 						</tr>
 						<tr>
 							<td class="py-2 text-gray-400">Total Hits</td>
-							<td class="py-2 text-right text-white"><% addCommas(stats.chosen_mode?.total_hits || 0) %></td>
+							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.total_hits || 0)" }}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -175,11 +175,11 @@ DisableHH=true
 						<img :src="avatarURL + '/' + owner.id" :alt="owner.username" class="w-12 h-12 rounded-full border-2 border-dark-border">
 						<div>
 							<a :href="'/users/' + owner.id" class="text-white hover:text-primary font-semibold">
-								<% owner.username %>
+								{{ v "owner.username" }}
 							</a>
 							<div class="flex items-center gap-1 text-sm text-gray-400">
 								<img :src="'/static/images/new-flags/flag-' + owner.country.toLowerCase() + '.svg'" class="w-4 h-3">
-								<span><% owner.country.toUpperCase() %></span>
+								<span>{{ v "owner.country.toUpperCase()" }}</span>
 							</div>
 						</div>
 					</div>
@@ -202,10 +202,10 @@ DisableHH=true
 				   class="flex items-center gap-3 p-3 rounded-lg bg-dark-bg/50 hover:bg-dark-bg transition-colors">
 					<img :src="avatarURL + '/' + member.id" :alt="member.username" class="w-10 h-10 rounded-full border border-dark-border">
 					<div class="flex-1 min-w-0">
-						<p class="text-white font-semibold truncate"><% member.username %></p>
+						<p class="text-white font-semibold truncate">{{ v "member.username" }}</p>
 						<div class="flex items-center gap-1 text-xs text-gray-400">
 							<img :src="'/static/images/new-flags/flag-' + member.country.toLowerCase() + '.svg'" class="w-3 h-2">
-							<span><% member.country.toUpperCase() %></span>
+							<span>{{ v "member.country.toUpperCase()" }}</span>
 						</div>
 					</div>
 				</a>

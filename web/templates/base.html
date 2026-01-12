@@ -9,6 +9,9 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{ if .TitleBar }}{{.TitleBar}} :: {{ end }}RealistikOsu!</title>
+	{{ if .Context }}{{ if .Context.User.ID }}
+	<meta name="csrf-token" content="{{ csrfGenerate .Context.User.ID }}">
+	{{ end }}{{ end }}
 
 	<script>
 		var soumetsuConf = {

@@ -1,6 +1,6 @@
 (function() {
     // Only run on non-mobile
-    if (window.innerWidth < 768) return;
+    if (window.innerWidth < 768) {return;}
 
     // Inject CSS
     const style = document.createElement('style');
@@ -115,16 +115,16 @@
             badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${color} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
         };
 
-        if (privileges & 8192) add('fas fa-gavel', 'text-red-400', 'Admin'); // ManageUsers
-        else if (privileges & 4096) add('fas fa-shield-alt', 'text-purple-400', 'Moderator'); // AccessRAP
+        if (privileges & 8192) {add('fas fa-gavel', 'text-red-400', 'Admin');} // ManageUsers
+        else if (privileges & 4096) {add('fas fa-shield-alt', 'text-purple-400', 'Moderator');} // AccessRAP
         
-        if (privileges & 4) add('fas fa-heart', 'text-yellow-400', 'Supporter'); // Donor
+        if (privileges & 4) {add('fas fa-heart', 'text-yellow-400', 'Supporter');} // Donor
         
         return badges.join('');
     }
 
     async function fetchUser(id) {
-        if (cache[id] && (Date.now() - cache[id].time < 60000)) return cache[id].data;
+        if (cache[id] && (Date.now() - cache[id].time < 60000)) {return cache[id].data;}
 
         try {
             const [infoResp, statusResp] = await Promise.all([
@@ -133,7 +133,7 @@
             ]);
 
             // Adjust check for external API response code
-            if (infoResp.code !== 200) throw new Error("User not found");
+            if (infoResp.code !== 200) {throw new Error("User not found");}
 
             const data = {
                 ...infoResp,
@@ -149,7 +149,7 @@
     }
 
     function updateCard(data) {
-        if (!data) return;
+        if (!data) {return;}
 
         // Content
         els.usernameLink.textContent = data.username;
@@ -247,7 +247,7 @@
                     applyGradient();
                 } else {
                     // Wait for avatar to load
-                    var loadHandler = function() {
+                    const loadHandler = function() {
                         applyGradient();
                         els.avatar.removeEventListener('load', loadHandler);
                     };
@@ -341,13 +341,13 @@
     // Event Delegation
     document.addEventListener('mouseover', (e) => {
         const link = e.target.closest('a');
-        if (!link) return;
+        if (!link) {return;}
 
         // Ignore links inside the card itself to prevent recursion
-        if (link.closest('#user-card-popover')) return;
+        if (link.closest('#user-card-popover')) {return;}
 
         const href = link.getAttribute('href');
-        if (!href) return;
+        if (!href) {return;}
 
         // Match /u/123 or /users/123
         const match = href.match(/^\/(?:u|users)\/(\d+)$/);
@@ -355,7 +355,7 @@
             const id = parseInt(match[1]);
             
             // Do not show for current user if inside navbar
-            if (id === window.currentUserID && link.closest('nav')) return;
+            if (id === window.currentUserID && link.closest('nav')) {return;}
             
             clearTimeout(hideTimeout);
             showTimeout = setTimeout(() => showCard(link, id), 200);

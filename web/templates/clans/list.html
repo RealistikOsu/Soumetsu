@@ -25,7 +25,6 @@ AdditionalJS=/static/vue/pages/clanboard.js
 </script>
 
 <script src="/static/vue/vue.js"></script>
-<script src="/static/vue/vue-axios.js"></script>
 
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
@@ -75,17 +74,17 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							</div>
 						</div>
 						<div class="flex-1 min-w-0">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[0].name %></p>
-							<p v-if="data[0].tag" class="text-yellow-400/70 text-sm font-medium">[<% data[0].tag %>]</p>
+							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[0].name" }}</p>
+							<p v-if="data[0].tag" class="text-yellow-400/70 text-sm font-medium">{{ v "[ data[0].tag" }}]</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-2xl font-bold text-yellow-400"><% addCommas(Math.round(safeValue(data[0].chosen_mode?.pp, 0))) %></div>
+							<div class="text-2xl font-bold text-yellow-400">{{ v "addCommas(Math.round(safeValue(data[0].chosen_mode?.pp, 0)))" }}</div>
 							<div class="text-xs text-gray-500">PP</div>
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-lg font-bold text-gray-300"><% convertIntToLabel(safeValue(data[0].chosen_mode?.total_score, 0)) %></div>
+							<div class="text-lg font-bold text-gray-300">{{ v "convertIntToLabel(safeValue(data[0].chosen_mode?.total_score, 0))" }}</div>
 							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
@@ -112,17 +111,17 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							</div>
 						</div>
 						<div class="flex-1 min-w-0">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[1].name %></p>
-							<p v-if="data[1].tag" class="text-gray-400/70 text-sm font-medium">[<% data[1].tag %>]</p>
+							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[1].name" }}</p>
+							<p v-if="data[1].tag" class="text-gray-400/70 text-sm font-medium">{{ v "[ data[1].tag" }}]</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-2xl font-bold text-gray-300"><% addCommas(Math.round(safeValue(data[1].chosen_mode?.pp, 0))) %></div>
+							<div class="text-2xl font-bold text-gray-300">{{ v "addCommas(Math.round(safeValue(data[1].chosen_mode?.pp, 0)))" }}</div>
 							<div class="text-xs text-gray-500">PP</div>
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-lg font-bold text-gray-400"><% convertIntToLabel(safeValue(data[1].chosen_mode?.total_score, 0)) %></div>
+							<div class="text-lg font-bold text-gray-400">{{ v "convertIntToLabel(safeValue(data[1].chosen_mode?.total_score, 0))" }}</div>
 							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
@@ -149,17 +148,17 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							</div>
 						</div>
 						<div class="flex-1 min-w-0">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[2].name %></p>
-							<p v-if="data[2].tag" class="text-orange-400/70 text-sm font-medium">[<% data[2].tag %>]</p>
+							<p class="font-display font-bold text-xl truncate text-white">{{ v "data[2].name" }}</p>
+							<p v-if="data[2].tag" class="text-orange-400/70 text-sm font-medium">{{ v "[ data[2].tag" }}]</p>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-3">
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-2xl font-bold text-orange-400"><% addCommas(Math.round(safeValue(data[2].chosen_mode?.pp, 0))) %></div>
+							<div class="text-2xl font-bold text-orange-400">{{ v "addCommas(Math.round(safeValue(data[2].chosen_mode?.pp, 0)))" }}</div>
 							<div class="text-xs text-gray-500">PP</div>
 						</div>
 						<div class="bg-dark-bg/50 rounded-lg p-3 text-center">
-							<div class="text-lg font-bold text-gray-400"><% convertIntToLabel(safeValue(data[2].chosen_mode?.total_score, 0)) %></div>
+							<div class="text-lg font-bold text-gray-400">{{ v "convertIntToLabel(safeValue(data[2].chosen_mode?.total_score, 0))" }}</div>
 							<div class="text-xs text-gray-500">Total Score</div>
 						</div>
 					</div>
@@ -246,7 +245,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 					<i class="fas fa-chevron-left"></i> Previous
 				</a>
 				<span class="px-4 py-2 bg-purple-500/10 rounded-lg border border-purple-500/30 text-sm">
-					Page <span class="text-purple-400 font-bold"><% page %></span>
+					Page <span class="text-purple-400 font-bold">{{ v "page" }}</span>
 				</span>
 				<a :href="'/clans/leaderboard?mode='+mode+'&rx='+relax+'&p='+(page+1)"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-purple-500 hover:text-purple-400')"
@@ -255,7 +254,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				</a>
 			</div>
 			<p class="text-gray-400 text-sm hidden sm:block">
-				<i class="fas fa-shield-alt mr-1"></i>Showing <span class="text-white font-medium"><% data.length %></span> clans
+				<i class="fas fa-shield-alt mr-1"></i>Showing <span class="text-white font-medium">{{ v "data.length" }}</span> clans
 			</p>
 		</div>
 
@@ -296,7 +295,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 									<i class="fas fa-award text-orange-400 text-sm"></i>
 								</span>
 								<span v-else :class="'font-bold text-lg ' + ((page - 1) * 50 + index < 10 ? 'text-gray-300' : 'text-gray-500')">
-									#<% (page - 1) * 50 + index + 1 %>
+									#{{ v "(page - 1) * 50 + index + 1" }}
 								</span>
 							</div>
 						</td>
@@ -310,12 +309,12 @@ AdditionalJS=/static/vue/pages/clanboard.js
 								</div>
 								<div class="min-w-0">
 									<div class="flex items-center gap-2 flex-wrap">
-										<span class="font-semibold text-white hover:text-purple-400 transition-colors truncate"><% clan.name %></span>
-										<span v-if="clan.tag" class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium">[<% clan.tag %>]</span>
+										<span class="font-semibold text-white hover:text-purple-400 transition-colors truncate">{{ v "clan.name" }}</span>
+										<span v-if="clan.tag" class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium">{{ v "[ clan.tag" }}]</span>
 									</div>
 									<div class="flex items-center gap-2 mt-1">
 										<span v-if="clan.members" class="text-xs text-gray-500">
-											<i class="fas fa-users mr-1"></i><% clan.members %> members
+											<i class="fas fa-users mr-1"></i>{{ v "clan.members" }} members
 										</span>
 									</div>
 								</div>
@@ -323,19 +322,19 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</td>
 						<td class="py-4 px-4 text-right">
 							<div class="flex flex-col items-end">
-								<span class="text-purple-400 font-bold text-lg"><% addCommas(Math.round(safeValue(clan.chosen_mode?.pp, 0))) %></span>
+								<span class="text-purple-400 font-bold text-lg">{{ v "addCommas(Math.round(safeValue(clan.chosen_mode?.pp, 0)))" }}</span>
 								<span class="text-gray-500 text-xs">pp</span>
 							</div>
 						</td>
 						<td class="py-4 px-4 text-right hidden md:table-cell">
-							<span class="text-gray-300 font-medium"><% convertIntToLabel(safeValue(clan.chosen_mode?.total_score, 0)) %></span>
+							<span class="text-gray-300 font-medium">{{ v "convertIntToLabel(safeValue(clan.chosen_mode?.total_score, 0))" }}</span>
 						</td>
 						<td class="py-4 px-4 text-right hidden lg:table-cell">
-							<span class="text-gray-400"><% addCommas(safeValue(clan.chosen_mode?.playcount, 0)) %></span>
+							<span class="text-gray-400">{{ v "addCommas(safeValue(clan.chosen_mode?.playcount, 0))" }}</span>
 						</td>
 						<td class="py-4 px-4 text-right hidden xl:table-cell">
 							<span v-if="clan.members" class="px-2 py-1 bg-dark-bg rounded text-gray-400 text-sm">
-								<i class="fas fa-users mr-1"></i><% clan.members %>
+								<i class="fas fa-users mr-1"></i>{{ v "clan.members" }}
 							</span>
 							<span v-else class="text-gray-500">-</span>
 						</td>

@@ -8,7 +8,6 @@ AdditionalJS=/static/vue/pages/rank_request.js
 {{ define "tpl" }}
 	
 	<script src="/static/vue/vue.js"></script>
-	<script src="/static/vue/vue-axios.js"></script>
 	
 	<div class="relative min-h-screen py-10">
 		<!-- Background -->
@@ -88,7 +87,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 	
 							<p class="mt-3 text-xs text-gray-500">
 								<i class="fas fa-wrench mr-2"></i>
-								Error: <% errorMessage || 'Unknown' %>
+								Error: {{ v "errorMessage || 'Unknown'" }}
 							</p>
 						</div>
 	
@@ -115,11 +114,11 @@ AdditionalJS=/static/vue/pages/rank_request.js
 	
 								<div class="mt-5">
 									<div class="text-4xl md:text-5xl font-bold text-white leading-none">
-										<span><% safeInt(status.submitted) %>/<% safeInt(status.queue_size) %></span>
+										<span>{{ v "safeInt(status.submitted)" }}/{{ v "safeInt(status.queue_size)" }}</span>
 									</div>
 	
 									<div v-if="status && status.submitted_by_user" class="mt-2 text-sm text-gray-400">
-										(<% safeInt(status.submitted_by_user) %>/<% safeInt(status.max_per_user) %> by you)
+										({{ v "safeInt(status.submitted_by_user)" }}/{{ v "safeInt(status.max_per_user)" }} by you)
 									</div>
 								</div>
 	
@@ -127,7 +126,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 									<div class="relative h-3 bg-dark-border rounded-full overflow-hidden">
 										<div class="h-full bg-gradient-to-r from-primary to-yellow-400 rounded-full transition-all duration-300" :style="{ width: percent + '%' }"></div>
 									</div>
-									<p class="text-right text-sm text-gray-400 mt-2"><% percent %>%</p>
+									<p class="text-right text-sm text-gray-400 mt-2">{{ v "percent" }}%</p>
 								</div>
 							</div>
 						</div>
@@ -155,7 +154,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 												You have reached your daily limit for requesting beatmaps!
 											</h3>
 											<p v-if="status && status.next_expiration" class="text-gray-300">
-												Please try again <b><% status.next_expiration %></b>
+												Please try again <b>{{ v "status.next_expiration" }}</b>
 											</p>
 										</div>
 									</div>
@@ -197,7 +196,7 @@ AdditionalJS=/static/vue/pages/rank_request.js
 	
 									<div v-if="submitMessage" class="text-sm" :class="submitOk ? 'text-green-300' : 'text-orange-300'">
 										<i class="fas" :class="submitOk ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
-										<span class="ml-2"><% submitMessage %></span>
+										<span class="ml-2">{{ v "submitMessage" }}</span>
 									</div>
 	
 									<div class="mt-2 text-xs text-gray-400">

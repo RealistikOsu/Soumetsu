@@ -124,7 +124,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	go h.authService.SetCountry(r.Context(), result.User.ID, clientIP)
 
 	sess.Values["userid"] = result.User.ID
-	sess.Values["pw"] = crypto.MD5(result.User.Password)
+	// Use SHA-256 instead of MD5 for session validation (more secure)
+	sess.Values["pw"] = crypto.HashSessionToken(result.User.Password)
 	sess.Values["logout"] = crypto.GenerateLogoutKey()
 	sess.Values["token"] = token
 
@@ -339,8 +340,7 @@ func (h *AuthHandler) registerResp(w http.ResponseWriter, r *http.Request, messa
 }
 
 func (h *AuthHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	messages, _ := sess.Values["messages"].([]models.Message)
-	sess.Values["messages"] = append(messages, msg)
+	AddMessage(sess, msg) // Use shared implementation
 }
 
 func (h *AuthHandler) getIdentityCookie(r *http.Request) string {

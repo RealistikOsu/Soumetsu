@@ -1,34 +1,121 @@
 (function(window) {
     'use strict';
 
+    // Safe URL protocols whitelist
+    const SAFE_URL_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+    const SAFE_MEDIA_PROTOCOLS = ['http:', 'https:'];
+
     function randString(n) {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        for (var i = 0; i < n; i++)
+        let text = "";
+        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        for (let i = 0; i < n; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
         return text;
     }
 
     function clamp(x, min, max) {
-        if (x < min) return min;
-        if (x > max) return max;
+        if (x < min) { return min; }
+        if (x > max) { return max; }
         return x;
     }
 
     function clampFloat(x, min, max) {
-        if (x < min) return min;
-        if (x > max) return max;
+        if (x < min) { return min; }
+        if (x > max) { return max; }
         return x;
     }
 
     function escapeHtml(text) {
-        if (!text) return '';
+        if (!text) { return ''; }
         return text
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    // Escape for use in HTML attributes (additional safety)
+    function escapeAttr(text) {
+        if (!text) { return ''; }
+        return escapeHtml(text).replace(/`/g, "&#96;");
+    }
+
+    // Validate URL protocol - returns safe URL or empty string
+    function sanitizeUrl(url, allowedProtocols) {
+        if (!url || typeof url !== 'string') { return ''; }
+
+        const trimmedUrl = url.trim();
+        if (!trimmedUrl) { return ''; }
+
+        // Check for javascript:, data:, vbscript:, etc.
+        const lowerUrl = trimmedUrl.toLowerCase().replace(/\s/g, '');
+
+        // Block dangerous protocols
+        if (lowerUrl.startsWith('javascript:') ||
+            lowerUrl.startsWith('data:') ||
+            lowerUrl.startsWith('vbscript:') ||
+            lowerUrl.startsWith('file:')) {
+            return '';
+        }
+
+        // If it's a relative URL or anchor, allow it
+        if (trimmedUrl.startsWith('/') || trimmedUrl.startsWith('#') || trimmedUrl.startsWith('./')) {
+            return escapeAttr(trimmedUrl);
+        }
+
+        // Try to parse as URL to validate protocol
+        try {
+            const parsed = new URL(trimmedUrl, window.location.origin);
+            if (allowedProtocols.includes(parsed.protocol)) {
+                return escapeAttr(trimmedUrl);
+            }
+        } catch (e) {
+            // If URL parsing fails, check if it looks like a relative path
+            if (!trimmedUrl.includes(':')) {
+                return escapeAttr(trimmedUrl);
+            }
+        }
+
+        return '';
+    }
+
+    // Validate color value - only allow safe CSS color values
+    function sanitizeColor(color) {
+        if (!color || typeof color !== 'string') { return ''; }
+
+        const trimmed = color.trim().toLowerCase();
+
+        // Allow hex colors
+        if (/^#[0-9a-f]{3,8}$/i.test(trimmed)) {
+            return trimmed;
+        }
+
+        // Allow rgb/rgba/hsl/hsla
+        if (/^(rgb|rgba|hsl|hsla)\([^)]+\)$/i.test(trimmed)) {
+            // Additional check: no expressions or urls inside
+            if (!/expression|url|javascript/i.test(trimmed)) {
+                return trimmed;
+            }
+            return '';
+        }
+
+        // Allow named colors (common ones)
+        const namedColors = [
+            'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple',
+            'pink', 'brown', 'gray', 'grey', 'cyan', 'magenta', 'lime', 'navy',
+            'teal', 'aqua', 'maroon', 'olive', 'silver', 'fuchsia', 'transparent',
+            'gold', 'coral', 'crimson', 'darkblue', 'darkgreen', 'darkred', 'lightblue',
+            'lightgreen', 'lightgray', 'lightgrey', 'darkgray', 'darkgrey', 'indigo',
+            'violet', 'turquoise', 'salmon', 'khaki', 'plum', 'orchid', 'tomato',
+            'skyblue', 'steelblue', 'slategray', 'slategrey', 'wheat', 'tan'
+        ];
+        if (namedColors.includes(trimmed)) {
+            return trimmed;
+        }
+
+        return '';
     }
 
     function parseBold(text) {
@@ -38,8 +125,8 @@
     }
 
     function parseCentre(text) {
-        text = text.replace(/\x5Bcentre\x5D/g, "<center>").replace(/\x5B\/centre\x5D/g, "</center>");
-        text = text.replace(/\x5Bcenter\x5D/g, "<center>").replace(/\x5B\/center\x5D/g, "</center>");
+        text = text.replace(/\x5Bcentre\x5D/g, "<div style='text-align: center;'>").replace(/\x5B\/centre\x5D/g, "</div>");
+        text = text.replace(/\x5Bcenter\x5D/g, "<div style='text-align: center;'>").replace(/\x5B\/center\x5D/g, "</div>");
         return text;
     }
 
@@ -56,8 +143,8 @@
     }
 
     function parseStrike(text) {
-        text = text.replace(/\x5Bs\x5D/g, "<strike>").replace(/\x5B\/s\x5D/g, "</strike>");
-        text = text.replace(/\x5Bstrike\x5D/g, "<strike>").replace(/\x5B\/strike\x5D/g, "</strike>");
+        text = text.replace(/\x5Bs\x5D/g, "<s>").replace(/\x5B\/s\x5D/g, "</s>");
+        text = text.replace(/\x5Bstrike\x5D/g, "<s>").replace(/\x5B\/strike\x5D/g, "</s>");
         return text;
     }
 
@@ -77,24 +164,54 @@
     }
 
     function parseColour(text) {
-        text = text.replace(/\x5B(color|colour)=([^\x5D:]+)\]/g, "<span style='color: $2'>");
+        // Secure color parsing - validate color values
+        text = text.replace(/\x5B(color|colour)=([^\x5D]+)\]/g, function(match, tag, color) {
+            const safeColor = sanitizeColor(color);
+            if (safeColor) {
+                return "<span style='color: " + safeColor + "'>";
+            }
+            return ''; // Strip invalid color tags
+        });
         text = text.replace(/\x5B\/(color|colour)\x5D/g, "</span>");
         return text;
     }
 
     function parseAudio(text) {
-        return text.replace(/\x5Baudio\x5D([^\[]+)\[\/audio\]\n?/g, "<audio controls='controls' preload='none' src='$1'></audio>");
+        return text.replace(/\x5Baudio\x5D([^\[]+)\[\/audio\]\n?/g, function(match, url) {
+            const safeUrl = sanitizeUrl(url, SAFE_MEDIA_PROTOCOLS);
+            if (safeUrl) {
+                return "<audio controls='controls' preload='none' src='" + safeUrl + "'></audio>";
+            }
+            return '[invalid audio url]';
+        });
     }
 
     function parseUrl(text) {
-        text = text.replace(/\x5Burl\x5D(.+?)\[\/url\]/g, "<a rel='nofollow' href='$1'>$1</a>");
-        text = text.replace(/\x5Burl=([^\x5D]+)\]/g, "<a rel='nofollow' href='$1'>");
-        text = text.replace(/\x5B\/url\x5D/g, "</a>");
+        // [url]link[/url] - URL is both href and text
+        text = text.replace(/\x5Burl\x5D([^\[]+?)\[\/url\]/g, function(match, url) {
+            const safeUrl = sanitizeUrl(url, SAFE_URL_PROTOCOLS);
+            if (safeUrl) {
+                return "<a rel='nofollow noopener' target='_blank' href='" + safeUrl + "'>" + escapeHtml(url) + "</a>";
+            }
+            return escapeHtml(url); // Just show the text without link
+        });
+
+        // [url=link]text[/url] - URL in attribute
+        text = text.replace(/\x5Burl=([^\x5D]+)\]([^\[]*)\[\/url\]/g, function(match, url, linkText) {
+            const safeUrl = sanitizeUrl(url, SAFE_URL_PROTOCOLS);
+            if (safeUrl) {
+                return "<a rel='nofollow noopener' target='_blank' href='" + safeUrl + "'>" + (linkText || safeUrl) + "</a>";
+            }
+            return linkText || ''; // Just show text without link
+        });
+
         return text;
     }
 
     function parseQuote(text) {
-        text = text.replace(/\x5Bquote="([^"]+)"\]\s*/g, "<blockquote class='bbcode-blockquote'><h4>$1 wrote:</h4>");
+        text = text.replace(/\x5Bquote="([^"]+)"\]\s*/g, function(match, author) {
+            return "<blockquote class='bbcode-blockquote'><h4>" + escapeHtml(author) + " wrote:</h4>";
+        });
         text = text.replace(/\x5Bquote\x5D\s*/g, "<blockquote class='bbcode-blockquote'>");
         text = text.replace(/\s*\[\/quote\]\n?/g, "</blockquote>");
         return text;
@@ -102,36 +219,62 @@
 
     function parseSize(text) {
         text = text.replace(/\x5Bsize=(\d+)\]/g, function(match, size) {
-            size = clamp(parseInt(size), 30, 200);
-            return "<span style='font-size: " + size + "%'>";
+            const safeSize = clamp(parseInt(size, 10), 30, 200);
+            return "<span style='font-size: " + safeSize + "%'>";
         });
         text = text.replace(/\x5B\/size\x5D/g, "</span>");
         return text;
     }
 
     function parseEmail(text) {
-        text = text.replace(/\x5Bemail\](([^\x5B]+)@([^\x5B]+))\[\/email\]/g, "<a rel='nofollow' href='mailto:$1'>$1</a>");
-        text = text.replace(/\x5Bemail=(([^\x5B]+)@([^\x5B]+))\]/g, "<a rel='nofollow' href='mailto:$1'>");
-        text = text.replace(/\x5B\/email\x5D/g, "</a>");
+        // Validate email format before creating mailto link
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        text = text.replace(/\x5Bemail\]([^\x5B]+)\[\/email\]/g, function(match, email) {
+            const trimmedEmail = email.trim();
+            if (emailRegex.test(trimmedEmail)) {
+                return "<a rel='nofollow' href='mailto:" + escapeAttr(trimmedEmail) + "'>" + escapeHtml(trimmedEmail) + "</a>";
+            }
+            return escapeHtml(email);
+        });
+
+        text = text.replace(/\x5Bemail=([^\x5D]+)\]([^\[]*)\[\/email\]/g, function(match, email, linkText) {
+            const trimmedEmail = email.trim();
+            if (emailRegex.test(trimmedEmail)) {
+                return "<a rel='nofollow' href='mailto:" + escapeAttr(trimmedEmail) + "'>" + (linkText || escapeHtml(trimmedEmail)) + "</a>";
+            }
+            return linkText || escapeHtml(email);
+        });
+
         return text;
     }
 
     function parseProfile(text) {
-         text = text.replace(/\x5Bprofile(?:=([0-9]+))?\](.*?)(\[\/profile\])/g, function(match, id, content) {
+        text = text.replace(/\x5Bprofile(?:=([0-9]+))?\](.*?)\[\/profile\]/g, function(match, id, content) {
+            const safeContent = escapeHtml(content);
             if (id) {
-                return "<a href='/u/" + id + "'>" + content + "</a>";
+                // ID is already validated as numeric by the regex
+                return "<a href='/u/" + id + "'>" + safeContent + "</a>";
             }
-            return "<a href='/u/" + content + "'>/u/" + content + "</a>";
+            return "<a href='/u/" + escapeAttr(content) + "'>/u/" + safeContent + "</a>";
         });
         return text;
     }
 
     function parseImage(text) {
         text = text.replace(/\x5Bimg\x5D([^\x5B]+)\[\/img\]/g, function(match, url) {
-            return "<img src='" + url + "' loading='lazy'/>";
+            const safeUrl = sanitizeUrl(url, SAFE_MEDIA_PROTOCOLS);
+            if (safeUrl) {
+                return "<img src='" + safeUrl + "' loading='lazy' alt='User image'/>";
+            }
+            return '[invalid image url]';
         });
-        text = text.replace(/\x5Bimg=([^\x5B]+)\]\[\/img\]/g, function(match, url) {
-            return "<img src='" + url + "' loading='lazy'/>";
+        text = text.replace(/\x5Bimg=([^\x5D]+)\]\[\/img\]/g, function(match, url) {
+            const safeUrl = sanitizeUrl(url, SAFE_MEDIA_PROTOCOLS);
+            if (safeUrl) {
+                return "<img src='" + safeUrl + "' loading='lazy' alt='User image'/>";
+            }
+            return '[invalid image url]';
         });
         return text;
     }
@@ -142,85 +285,131 @@
         text = text.replace(/\x5B\/\*\]\n?\n?/g, "</li>");
         text = text.replace(/\s*\[\*\]/g, "<li>");
         text = text.replace(/\s*\[\/list\]\n?\n?/g, "</ol>");
-        
+
         text = text.replace(/\x5Blist=[^\x5D]+\](.+?)(<li>|<\/ol>)/g, "<ul class='bbcode-list-title'><li>$1</li></ul><ol>$2");
         text = text.replace(/\x5Blist\](.+?)(<li>|<\/ol>)/g, "<ul class='bbcode-list-title'><li>$1</li></ul><ol style='list-style-type: disc;'>$2");
-        
+
         return text;
     }
 
     function parseImagemap(text) {
-        return text.replace(/\x5Bimagemap\]\s+([\s\S]+?)\[\/imagemap\]\n?/g, function(match, content) {
-            const parts = content.trim().split(/\s+/);
-            if (parts.length < 1) return "";
-            
-            const imageUrl = parts[0];
-            let pseudoHtml = "<div class='bbcode-imagemap'><img src='" + imageUrl + "' class='bbcode-imagemap-image' loading='lazy'>";
-            
-            const linesStr = content.substring(content.indexOf(imageUrl) + imageUrl.length);
-            const lineRegex = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+?)\s*$/gm;
-            
-            let lineMatch;
-            while ((lineMatch = lineRegex.exec(linesStr)) !== null) {
-                let x = parseFloat(lineMatch[1]) || 0;
-                let y = parseFloat(lineMatch[2]) || 0;
-                let w = parseFloat(lineMatch[3]) || 0;
-                let h = parseFloat(lineMatch[4]) || 0;
-                let redirect = lineMatch[5];
-                let title = lineMatch[6];
-                
+        // Simplified regex to avoid ReDoS
+        return text.replace(/\x5Bimagemap\]\s*([\s\S]+?)\[\/imagemap\]\n?/g, function(match, content) {
+            const lines = content.trim().split('\n');
+            if (lines.length < 1) { return ""; }
+
+            const imageUrl = sanitizeUrl(lines[0].trim(), SAFE_MEDIA_PROTOCOLS);
+            if (!imageUrl) { return '[invalid imagemap]'; }
+
+            let pseudoHtml = "<div class='bbcode-imagemap'><img src='" + imageUrl + "' class='bbcode-imagemap-image' loading='lazy' alt='Imagemap'>";
+
+            // Process remaining lines
+            for (let i = 1; i < lines.length; i++) {
+                const parts = lines[i].trim().split(/\s+/);
+                if (parts.length < 6) { continue; }
+
+                let x = clampFloat(parseFloat(parts[0]) || 0, 0, 100);
+                let y = clampFloat(parseFloat(parts[1]) || 0, 0, 100);
+                let w = clampFloat(parseFloat(parts[2]) || 0, 0, 100);
+                let h = clampFloat(parseFloat(parts[3]) || 0, 0, 100);
+                const redirect = parts[4];
+                const title = escapeAttr(parts.slice(5).join(' '));
+
                 let tag = "a";
-                if (redirect === "#") tag = "span";
-                
-                x = clampFloat(x, 0, 100);
-                y = clampFloat(y, 0, 100);
-                w = clampFloat(w, 0, 100);
-                h = clampFloat(h, 0, 100);
-                
-                let tooltipPos = "top center";
-                if (y < 13.0) tooltipPos = "bottom center";
-                
-                pseudoHtml += "<" + tag + " class='bbcode-imagemap-tooltip' href='" + redirect + "' style='left: " + x + "%; top: " + y + "%; width: " + w + "%; height: " + h + "%;' data-tooltip='" + title + "' data-position='" + tooltipPos + "'></" + tag + ">";
+                let hrefAttr = "";
+
+                if (redirect === "#") {
+                    tag = "span";
+                } else {
+                    const safeRedirect = sanitizeUrl(redirect, SAFE_URL_PROTOCOLS);
+                    if (!safeRedirect) { continue; } // Skip invalid URLs
+                    hrefAttr = " href='" + safeRedirect + "'";
+                }
+
+                const tooltipPos = y < 13.0 ? "bottom center" : "top center";
+
+                pseudoHtml += "<" + tag + " class='bbcode-imagemap-tooltip'" + hrefAttr + " style='left: " + x + "%; top: " + y + "%; width: " + w + "%; height: " + h + "%;' data-tooltip='" + title + "' data-position='" + tooltipPos + "'></" + tag + ">";
             }
-            
+
             pseudoHtml += "</div>";
-            return pseudoHtml.replace(/\n/g, "");
+            return pseudoHtml;
         });
     }
 
     function parseBox(text) {
-        text = text.replace(/\x5Bbox=([\s\S]*?)\]\n*/g, function(match, title) {
+        text = text.replace(/\x5Bbox=([^\]]*)\]\n*/g, function(match, title) {
             const id = randString(6);
-            return "<div class='bbcode-box'><button class='bbcode-box-btn' id='btn-" + id + "' type='button' onclick='toggleBBCodeBox(this)'><i id='icon-" + id + "' class='bbcode-box-icon fa-solid fa-angle-right'></i><span>" + title + "</span></button><div class='bbcode-box-content bbcode-hidden' id='content-" + id + "'>";
+            const safeTitle = escapeHtml(title);
+            return "<div class='bbcode-box'><button class='bbcode-box-btn' id='btn-" + id + "' type='button' data-box-id='" + id + "'><i id='icon-" + id + "' class='bbcode-box-icon fa-solid fa-angle-right'></i><span>" + safeTitle + "</span></button><div class='bbcode-box-content bbcode-hidden' id='content-" + id + "'>";
         });
-        
+
         text = text.replace(/\n*\[\/box\]\n?/g, "</div></div>");
-        
+
         text = text.replace(/\x5Bspoilerbox\]\n*/g, function() {
             const id = randString(6);
-            return "<div class='bbcode-box'><button class='bbcode-box-btn' id='btn-" + id + "' type='button' onclick='toggleBBCodeBox(this)'><i id='icon-" + id + "' class='bbcode-box-icon fa-solid fa-angle-right'></i><span>SPOILER</span></button><div class='bbcode-box-content bbcode-hidden' id='content-" + id + "'>";
+            return "<div class='bbcode-box'><button class='bbcode-box-btn' id='btn-" + id + "' type='button' data-box-id='" + id + "'><i id='icon-" + id + "' class='bbcode-box-icon fa-solid fa-angle-right'></i><span>SPOILER</span></button><div class='bbcode-box-content bbcode-hidden' id='content-" + id + "'>";
         });
-        
+
         text = text.replace(/\n*\[\/spoilerbox\]\n?/g, "</div></div>");
-        
+
         return text;
     }
 
     function parseYoutube(text) {
-        text = text.replace(/\x5Byoutube\]https:\/\/(.*)youtube\.com\/watch\?v=([^&]+)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://www.youtube.com/embed/$2");
-        text = text.replace(/\x5Byoutube\]https:\/\/(.*)youtu\.be\/([^?]+)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://www.youtube.com/embed/$2");
-        text = text.replace(/\x5Byoutube\]https:\/\/(.*)youtube\.com\/embed\/([^?]+)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://www.youtube.com/embed/$2");
-        text = text.replace(/\x5Byoutube\](.*)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://www.youtube.com/embed/$1");
-        text = text.replace(/\x5B\/youtube\]\n?/g, "?rel=0' frameborder='0' allowfullscreen></iframe></div></div>");
+        // Validate YouTube URLs more strictly
+        const youtubeIdRegex = /^[a-zA-Z0-9_-]{11}$/;
+
+        // Handle various YouTube URL formats
+        text = text.replace(/\x5Byoutube\]([^\[]+)\[\/youtube\]\n?/g, function(match, url) {
+            let videoId = '';
+
+            // Try to extract video ID from various formats
+            const patterns = [
+                /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+                /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+                /^([a-zA-Z0-9_-]{11})$/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    videoId = match[1];
+                    break;
+                }
+            }
+
+            if (videoId && youtubeIdRegex.test(videoId)) {
+                return "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://www.youtube.com/embed/" + videoId + "?rel=0' frameborder='0' allowfullscreen loading='lazy'></iframe></div></div>";
+            }
+            return '[invalid youtube url]';
+        });
+
         return text;
     }
 
     function parseTwitch(text) {
         const domain = window.location.hostname;
-        
-        text = text.replace(/\x5Btwitch\]https:\/\/(.*)\.twitch\.tv\/(.*)\/clip\/([^?]+)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://clips.twitch.tv/embed?clip=$3");
-        text = text.replace(/\x5Btwitch\](.*)/g, "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://clips.twitch.tv/embed?clip=$1");
-        text = text.replace(/\x5B\/twitch\]\n?/g, "&parent=" + domain + "' frameborder='0' allowfullscreen></iframe></div></div>");
+        // Validate Twitch clip IDs (alphanumeric with some special chars)
+        const clipIdRegex = /^[a-zA-Z0-9_-]+$/;
+
+        text = text.replace(/\x5Btwitch\]([^\[]+)\[\/twitch\]\n?/g, function(match, url) {
+            let clipId = '';
+
+            // Extract clip ID from URL or use directly
+            const clipMatch = url.match(/clip\/([a-zA-Z0-9_-]+)/);
+            if (clipMatch) {
+                clipId = clipMatch[1];
+            } else if (clipIdRegex.test(url.trim())) {
+                clipId = url.trim();
+            }
+
+            if (clipId && clipIdRegex.test(clipId)) {
+                return "<div class='bbcode-video-box'><div class='bbcode-video'><iframe src='https://clips.twitch.tv/embed?clip=" + escapeAttr(clipId) + "&parent=" + escapeAttr(domain) + "' frameborder='0' allowfullscreen loading='lazy'></iframe></div></div>";
+            }
+            return '[invalid twitch url]';
+        });
+
         return text;
     }
 
@@ -245,10 +434,12 @@
     }
 
     function convertBBCode(text) {
-        if (!text) return '';
-        
+        if (!text) { return ''; }
+
+        // Escape HTML entities first to prevent XSS
         text = escapeHtml(text);
 
+        // Parse BBCode tags (order matters for nested tags)
         text = parseImagemap(text);
         text = parseBox(text);
         text = parseCode(text);
@@ -256,7 +447,7 @@
         text = parseNotice(text);
         text = parseQuote(text);
         text = parseHeading(text);
-        
+
         text = parseAudio(text);
         text = parseBold(text);
         text = parseCentre(text);
@@ -276,16 +467,42 @@
         text = parseLeft(text);
         text = parseRight(text);
 
+        // Convert newlines to <br>
         text = text.replace(/\n/g, "<br>");
-        
+
         return "<div class='bbcode-container'>" + text + "</div>";
     }
-    
+
+    // Event delegation for BBCode box toggle (avoids inline onclick)
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.bbcode-box-btn');
+        if (!btn) { return; }
+
+        const id = btn.getAttribute('data-box-id');
+        if (!id) { return; }
+
+        const content = document.getElementById('content-' + id);
+        const icon = document.getElementById('icon-' + id);
+
+        if (content && icon) {
+            if (content.classList.contains('bbcode-hidden')) {
+                content.classList.remove('bbcode-hidden');
+                icon.classList.remove('fa-angle-right');
+                icon.classList.add('fa-angle-down');
+            } else {
+                content.classList.add('bbcode-hidden');
+                icon.classList.remove('fa-angle-down');
+                icon.classList.add('fa-angle-right');
+            }
+        }
+    });
+
+    // Legacy support for inline onclick (will be removed in future)
     window.toggleBBCodeBox = function(btn) {
         const id = btn.id.replace('btn-', '');
         const content = document.getElementById('content-' + id);
         const icon = document.getElementById('icon-' + id);
-        
+
         if (content.classList.contains('bbcode-hidden')) {
             content.classList.remove('bbcode-hidden');
             icon.classList.remove('fa-angle-right');

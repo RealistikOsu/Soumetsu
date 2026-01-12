@@ -1,6 +1,7 @@
-new Vue({
-    el: "#beatmap-search-app",
-    delimiters: ["<%", "%>"],
+const beatmapSearchApp = Vue.createApp({
+    compilerOptions: {
+        delimiters: ["<%", "%>"]
+    },
     data() {
         return {
             // Search state
@@ -109,7 +110,7 @@ new Vue({
         setupScrollListener() {
             let searchDebounce;
             window.addEventListener('scroll', () => {
-                if (this.loading || !this.hasMore) return;
+                if (this.loading || !this.hasMore) {return;}
                 
                 if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
                     clearTimeout(searchDebounce);
@@ -132,7 +133,7 @@ new Vue({
         },
         
         getDifficultyColor(sr) {
-            for (let color in this.difficultyColors) {
+            for (const color in this.difficultyColors) {
                 const [min, max] = this.difficultyColors[color];
                 if (sr >= min && sr <= max) {
                     return color;
@@ -193,7 +194,7 @@ new Vue({
                 }
                 
                 // Progress tracking
-                if (this.beatmapTimer) clearInterval(this.beatmapTimer);
+                if (this.beatmapTimer) {clearInterval(this.beatmapTimer);}
                 this.beatmapTimer = setInterval(() => {
                     if (!audioObj.playing || !audioObj.audio) {
                         clearInterval(this.beatmapTimer);
@@ -252,3 +253,5 @@ new Vue({
         }
     }
 });
+
+beatmapSearchApp.mount('#beatmap-search-app');

@@ -41,11 +41,11 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							<i class="fas fa-users text-gray-400 text-2xl"></i>
 						</div>
 					</div>
-					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[1].name %></h3>
-					<p class="text-gray-400 text-sm mb-1"><% data[1].tag %></p>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2">{{ v "data[1].name" }}</h3>
+					<p class="text-gray-400 text-sm mb-1">{{ v "data[1].tag" }}</p>
 					<div class="flex items-center justify-center gap-2 mt-3">
 						<i class="fas fa-trophy text-gray-400"></i>
-						<span class="text-gray-300 font-semibold"><% formatNumber(data[1].chosen_mode.pp) %>pp</span>
+						<span class="text-gray-300 font-semibold">{{ v "formatNumber(data[1].chosen_mode.pp)" }}pp</span>
 					</div>
 				</div>
 			</div>
@@ -66,11 +66,11 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							<i class="fas fa-crown text-yellow-400 text-2xl"></i>
 						</div>
 					</div>
-					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[0].name %></h3>
-					<p class="text-gray-400 text-sm mb-1"><% data[0].tag %></p>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2">{{ v "data[0].name" }}</h3>
+					<p class="text-gray-400 text-sm mb-1">{{ v "data[0].tag" }}</p>
 					<div class="flex items-center justify-center gap-2 mt-3">
 						<i class="fas fa-trophy text-yellow-400"></i>
-						<span class="text-yellow-300 font-semibold text-lg"><% formatNumber(data[0].chosen_mode.pp) %>pp</span>
+						<span class="text-yellow-300 font-semibold text-lg">{{ v "formatNumber(data[0].chosen_mode.pp)" }}pp</span>
 					</div>
 				</div>
 			</div>
@@ -91,11 +91,11 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							<i class="fas fa-medal text-orange-400 text-2xl"></i>
 						</div>
 					</div>
-					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2"><% data[2].name %></h3>
-					<p class="text-gray-400 text-sm mb-1"><% data[2].tag %></p>
+					<h3 class="text-xl font-display font-bold text-white mt-4 mb-2">{{ v "data[2].name" }}</h3>
+					<p class="text-gray-400 text-sm mb-1">{{ v "data[2].tag" }}</p>
 					<div class="flex items-center justify-center gap-2 mt-3">
 						<i class="fas fa-trophy text-orange-400"></i>
-						<span class="text-orange-300 font-semibold"><% formatNumber(data[2].chosen_mode.pp) %>pp</span>
+						<span class="text-orange-300 font-semibold">{{ v "formatNumber(data[2].chosen_mode.pp)" }}pp</span>
 					</div>
 				</div>
 			</div>
@@ -152,7 +152,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<i class="fas fa-chevron-left mr-2"></i>
 				Previous
 			</button>
-			<span class="text-gray-300">Page <% page %></span>
+			<span class="text-gray-300">Page {{ v "page" }}</span>
 			<button class="btn-secondary"
 				:disabled="data.length < 50"
 				:class="{ 'opacity-50 cursor-not-allowed': data.length < 50 }"
@@ -189,7 +189,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						<tr v-for="(clan, index) in data" :key="clan.id" 
 							class="border-b border-dark-border/50 hover:bg-dark-bg/50">
 							<td class="py-3 px-4 text-gray-300">
-								#<% (page - 1) * 50 + index + 1 + (page > 1 ? 3 : 0) %>
+								#{{ v "(page - 1) * 50 + index + 1 + (page > 1 ? 3 : 0)" }}
 							</td>
 							<td class="py-3 px-4">
 								<a :href="'/clans/' + clan.id" class="flex items-center gap-3 text-white hover:text-primary">
@@ -200,16 +200,16 @@ AdditionalJS=/static/vue/pages/clanboard.js
 										<i class="fas fa-users text-gray-400"></i>
 									</div>
 									<div>
-										<div class="font-semibold"><% clan.name %></div>
-										<div class="text-sm text-gray-400"><% clan.tag %></div>
+										<div class="font-semibold">{{ v "clan.name" }}</div>
+										<div class="text-sm text-gray-400">{{ v "clan.tag" }}</div>
 									</div>
 								</a>
 							</td>
 							<td class="py-3 px-4 text-right text-primary font-semibold">
-								<% formatNumber(clan.chosen_mode.pp) %>pp
+								{{ v "formatNumber(clan.chosen_mode.pp)" }}pp
 							</td>
 							<td class="py-3 px-4 text-right text-gray-300">
-								<% clan.member_count || 0 %>
+								{{ v "clan.member_count || 0" }}
 							</td>
 						</tr>
 					</tbody>

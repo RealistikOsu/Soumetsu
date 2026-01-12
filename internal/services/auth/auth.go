@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -172,7 +173,10 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (int64, err
 		return 0, err
 	}
 
-	apiKey, _ := crypto.GenerateRandomString(64)
+	apiKey, err := crypto.GenerateRandomString(64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to generate API key: %w", err)
+	}
 
 	userID, err := s.userRepo.Create(ctx, input.Username, input.Email, hashedPassword, apiKey,
 		common.UserPrivilegePendingVerification, time.Now().Unix())
@@ -181,6 +185,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (int64, err
 	}
 
 	if err := s.statsRepo.InitializeUserStats(ctx, userID, input.Username); err != nil {
+		log.Printf("warning: failed to initialize stats for user %d: %v", userID, err)
 	}
 
 	s.redis.Client.Incr("ripple:registered_users")

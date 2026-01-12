@@ -1,61 +1,6 @@
-new Vue({
-    el: "#profile-app",
-    delimiters: ["<%", "%>"],
-    filters: {
-        badgeIcon(icon) {
-            if (!icon) {
-                return 'fas fa-question';
-            }
-            
-            // Convert to string and trim
-            icon = String(icon).trim();
-            
-            // If it already has a Font Awesome class prefix (fas, far, fab, etc.), return as is
-            if (/^(fas|far|fal|fad|fab|fak)\s+fa-/.test(icon)) {
-                return icon;
-            }
-            
-            // Handle cases like "purple fa-star", "yellow fa-heart", "red gift", etc.
-            // Extract the icon name part (usually after a space or color word)
-            // Look for patterns like: "color fa-iconname" or "color iconname"
-            const parts = icon.split(/\s+/);
-            let iconPart = icon;
-            
-            // If there are multiple parts, try to find the one that looks like an icon name
-            if (parts.length > 1) {
-                // Look for parts that start with "fa-" or are common icon names
-                const iconParts = parts.filter(p => 
-                    p.startsWith('fa-') || 
-                    ['star', 'heart', 'gift', 'desktop', 'beer', 'trophy', 'medal', 'crown'].includes(p.toLowerCase())
-                );
-                if (iconParts.length > 0) {
-                    iconPart = iconParts[0];
-                } else {
-                    // Take the last part as it's likely the icon name
-                    iconPart = parts[parts.length - 1];
-                }
-            }
-            
-            // If it starts with "fa-" but no prefix, add "fas"
-            if (iconPart.startsWith('fa-')) {
-                return 'fas ' + iconPart;
-            }
-            
-            // Handle Font Awesome Unicode values (like "f005", "F005", "\uf005")
-            if (/^[fF][0-9a-fA-F]{3}$/.test(iconPart) || /^\\?u?[fF][0-9a-fA-F]{3}$/.test(iconPart)) {
-                return 'fas fa-question';
-            }
-            
-            // If it's just the icon name (like "plane", "star", "beer", etc.), add both "fas" and "fa-" prefix
-            // Sanitize to only allow alphanumeric and hyphens
-            const iconName = iconPart.replace(/^fa-/, '').replace(/[^a-z0-9-]/gi, '').toLowerCase();
-            
-            if (!iconName) {
-                return 'fas fa-question';
-            }
-            
-            return 'fas fa-' + iconName;
-        }
+const profileApp = Vue.createApp({
+    compilerOptions: {
+        delimiters: ["<%", "%>"]
     },
     data() {
         return {
@@ -126,19 +71,6 @@ new Vue({
             bannerColors: null, // { color1: 'rgb(...)', color2: 'rgb(...)' }
         }
     },
-    watch: {
-        userID(newVal) {
-            if (newVal) {
-                // Try to extract colors from avatar if it's already loaded
-                this.$nextTick(() => {
-                    const avatarImg = this.$refs.profileAvatar;
-                    if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
-                        this.extractBannerColors({ target: avatarImg });
-                    }
-                });
-            }
-        }
-    },
     computed: {
         isOwnProfile() {
             return this.currentUserID === this.userID && this.currentUserID !== 0;
@@ -147,19 +79,19 @@ new Vue({
             return this.currentUserID !== 0 && this.currentUserID !== this.userID;
         },
         currentStats() {
-            if (!this.user?.stats) return null;
+            if (!this.user?.stats) {return null;}
             const rxKey = ['vn', 'rx', 'ap'][this.relax];
             const modeKey = ['std', 'taiko', 'ctb', 'mania'][this.mode];
             return this.user.stats[rxKey]?.[modeKey] || null;
         },
         mixedMode() {
             let m = this.mode;
-            if (this.relax === 1) m += 4;
-            else if (this.relax === 2) m += 7;
+            if (this.relax === 1) {m += 4;}
+            else if (this.relax === 2) {m += 7;}
             return m;
         },
         displayedAchievements() {
-            if (!this.achievements.length) return [];
+            if (!this.achievements.length) {return [];}
             const achieved = this.achievements.filter(a => a.achieved);
             if (this.achievementsExpanded) {
                 return this.isOwnProfile ? this.achievements : achieved;
@@ -171,11 +103,11 @@ new Vue({
             return (this.isOwnProfile ? this.achievements : achieved).length > 8;
         },
         levelPercent() {
-            if (!this.currentStats?.level) return 0;
+            if (!this.currentStats?.level) {return 0;}
             return Math.round((this.currentStats.level % 1) * 100);
         },
         levelInt() {
-            if (!this.currentStats?.level) return 0;
+            if (!this.currentStats?.level) {return 0;}
             return Math.floor(this.currentStats.level);
         },
         bannerGradient() {
@@ -188,6 +120,19 @@ new Vue({
                 };
             }
             return {}; // Fallback to default CSS gradient
+        }
+    },
+    watch: {
+        userID(newVal) {
+            if (newVal) {
+                // Try to extract colors from avatar if it's already loaded
+                this.$nextTick(() => {
+                    const avatarImg = this.$refs.profileAvatar;
+                    if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
+                        this.extractBannerColors({ target: avatarImg });
+                    }
+                });
+            }
         }
     },
     async created() {
@@ -273,7 +218,7 @@ new Vue({
                 }
             });
             const queryStr = searchParams.toString();
-            if (queryStr) urlStr += `?${queryStr}`;
+            if (queryStr) {urlStr += `?${queryStr}`;}
             const resp = await fetch(urlStr);
             return resp.json();
         },
@@ -322,12 +267,12 @@ new Vue({
         },
         
         async loadFriendStatus() {
-            if (!this.canInteract) return;
+            if (!this.canInteract) {return;}
             try {
                 const resp = await this.api('friends/with', { id: this.userID });
-                if (resp.mutual) this.friendStatus = 2;
-                else if (resp.friend) this.friendStatus = 1;
-                else this.friendStatus = 0;
+                if (resp.mutual) {this.friendStatus = 2;}
+                else if (resp.friend) {this.friendStatus = 1;}
+                else {this.friendStatus = 0;}
             } catch (err) {
                 console.error('Error loading friend status:', err);
             }
@@ -339,10 +284,10 @@ new Vue({
         },
         
         async loadOnlineStatus() {
-            if (!this.userID || !this.banchoAPI) return;
+            if (!this.userID || !this.banchoAPI) {return;}
             
             const indicator = document.getElementById('profile-online-indicator');
-            if (!indicator) return;
+            if (!indicator) {return;}
             
             try {
                 const resp = await fetch(`${this.banchoAPI}/api/status/${this.userID}`);
@@ -384,7 +329,7 @@ new Vue({
         
         renderChart() {
             const chartEl = this.$refs.chartContainer;
-            if (!chartEl || !this.graphData?.length) return;
+            if (!chartEl || !this.graphData?.length) {return;}
             
             const isRank = this.graphType === 'rank';
             const points = isRank 
@@ -465,7 +410,7 @@ new Vue({
         },
         
         changeGraphType(type) {
-            if (this.graphType === type) return;
+            if (this.graphType === type) {return;}
             this.graphType = type;
             this.loadGraph();
         },
@@ -487,7 +432,7 @@ new Vue({
         
         async loadScores(type) {
             const scoreData = this.scores[type];
-            if (scoreData.loading || !scoreData.hasMore) return;
+            if (scoreData.loading || !scoreData.hasMore) {return;}
             
             scoreData.loading = true;
             scoreData.page++;
@@ -528,7 +473,7 @@ new Vue({
         
         async loadMostPlayed() {
             const scoreData = this.scores.mostPlayed;
-            if (scoreData.loading || !scoreData.hasMore) return;
+            if (scoreData.loading || !scoreData.hasMore) {return;}
             
             scoreData.loading = true;
             scoreData.page++;
@@ -560,7 +505,7 @@ new Vue({
         
         // Comments
         async loadComments() {
-            if (this.commentLoading || !this.hasMoreComments) return;
+            if (this.commentLoading || !this.hasMoreComments) {return;}
             
             this.commentLoading = true;
             this.commentPage++;
@@ -595,7 +540,7 @@ new Vue({
         },
         
         async postComment() {
-            if (!this.commentText.trim() || this.commentText.length > 380 || this.commentPosting) return;
+            if (!this.commentText.trim() || this.commentText.length > 380 || this.commentPosting) {return;}
             
             const commentToPost = this.commentText.trim();
             this.commentPosting = true;
@@ -635,7 +580,7 @@ new Vue({
         },
         
         async deleteComment(id) {
-            if (!confirm('Are you sure you want to delete this comment?')) return;
+            if (!confirm('Are you sure you want to delete this comment?')) {return;}
             
             try {
                 const resp = await fetch(`${this.baseAPI}/api/v1/users/comments/delete?id=${id}`, {
@@ -683,7 +628,7 @@ new Vue({
         
         extractBannerColors(event) {
             const img = event.target;
-            if (!window.BannerGradient) return;
+            if (!window.BannerGradient) {return;}
             
             window.BannerGradient.extract(img, (colors) => {
                 this.bannerColors = colors;
@@ -692,7 +637,7 @@ new Vue({
         
         // Friend actions
         async toggleFriend() {
-            if (this.friendLoading || !this.canInteract) return;
+            if (this.friendLoading || !this.canInteract) {return;}
             
             this.friendLoading = true;
             const action = this.friendStatus > 0 ? 'del' : 'add';
@@ -703,9 +648,9 @@ new Vue({
                 });
                 const data = await resp.json();
                 
-                if (data.mutual) this.friendStatus = 2;
-                else if (data.friend) this.friendStatus = 1;
-                else this.friendStatus = 0;
+                if (data.mutual) {this.friendStatus = 2;}
+                else if (data.friend) {this.friendStatus = 1;}
+                else {this.friendStatus = 0;}
                 
                 // Update follower count
                 if (action === 'add') {
@@ -722,7 +667,7 @@ new Vue({
         
         // Mode/Relax switching
         setMode(mode) {
-            if (this.mode === mode) return;
+            if (this.mode === mode) {return;}
             this.mode = mode;
             this.updateURL();
             this.loadAllScores();
@@ -730,10 +675,10 @@ new Vue({
         },
         
         setRelax(rx) {
-            if (this.relax === rx) return;
+            if (this.relax === rx) {return;}
             // Check availability
-            if (rx === 1 && this.mode === 3) return; // No relax for mania
-            if (rx === 2 && this.mode !== 0) return; // Autopilot only for std
+            if (rx === 1 && this.mode === 3) {return;} // No relax for mania
+            if (rx === 2 && this.mode !== 0) {return;} // Autopilot only for std
             
             this.relax = rx;
             this.updateURL();
@@ -772,7 +717,7 @@ new Vue({
         },
         
         async togglePin() {
-            if (!this.pinModalScore) return;
+            if (!this.pinModalScore) {return;}
             
             const isPinned = !!this.pinnedInfo;
             const endpoint = isPinned 
@@ -792,21 +737,21 @@ new Vue({
         
         // Helpers
         addCommas(num) {
-            if (num === undefined || num === null) return '0';
+            if (num === undefined || num === null) {return '0';}
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         },
         
         humanize(num) {
-            if (num === undefined || num === null) return '0';
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            if (num === undefined || num === null) {return '0';}
+            if (num >= 1e12) {return (num / 1e12).toFixed(2) + 'T';}
+            if (num >= 1e9) {return (num / 1e9).toFixed(2) + 'B';}
+            if (num >= 1e6) {return (num / 1e6).toFixed(2) + 'M';}
+            if (num >= 1e3) {return (num / 1e3).toFixed(2) + 'K';}
             return num.toString();
         },
         
         formatAccuracy(acc) {
-            if (acc === undefined || acc === null) return '0.00';
+            if (acc === undefined || acc === null) {return '0.00';}
             return parseFloat(acc).toFixed(2);
         },
         
@@ -832,7 +777,7 @@ new Vue({
         },
         
         formatDate(timestamp) {
-            if (!timestamp) return 'Unknown';
+            if (!timestamp) {return 'Unknown';}
             
             let date;
             // Handle Unix timestamp (seconds)
@@ -848,7 +793,7 @@ new Vue({
             }
             
             // Check if date is valid
-            if (isNaN(date.getTime())) return 'Unknown';
+            if (isNaN(date.getTime())) {return 'Unknown';}
             
             return new Intl.DateTimeFormat('en-gb', { 
                 day: 'numeric', 
@@ -866,20 +811,20 @@ new Vue({
             if (mode === 0 || mode === 1) {
                 const r300 = c300 / total;
                 const r50 = c50 / total;
-                if (r300 === 1) return ss;
-                if (r300 > 0.9 && r50 <= 0.01 && cmiss === 0) return s;
-                if ((r300 > 0.8 && cmiss === 0) || r300 > 0.9) return 'A';
-                if ((r300 > 0.7 && cmiss === 0) || r300 > 0.8) return 'B';
-                if (r300 > 0.6) return 'C';
+                if (r300 === 1) {return ss;}
+                if (r300 > 0.9 && r50 <= 0.01 && cmiss === 0) {return s;}
+                if ((r300 > 0.8 && cmiss === 0) || r300 > 0.9) {return 'A';}
+                if ((r300 > 0.7 && cmiss === 0) || r300 > 0.8) {return 'B';}
+                if (r300 > 0.6) {return 'C';}
                 return 'D';
             }
             
             if (mode === 2 || mode === 3) {
-                if (acc === 100) return ss;
-                if (acc > (mode === 2 ? 98 : 95)) return s;
-                if (acc > (mode === 2 ? 94 : 90)) return 'A';
-                if (acc > (mode === 2 ? 90 : 80)) return 'B';
-                if (acc > (mode === 2 ? 85 : 70)) return 'C';
+                if (acc === 100) {return ss;}
+                if (acc > (mode === 2 ? 98 : 95)) {return s;}
+                if (acc > (mode === 2 ? 94 : 90)) {return 'A';}
+                if (acc > (mode === 2 ? 90 : 80)) {return 'B';}
+                if (acc > (mode === 2 ? 85 : 70)) {return 'C';}
                 return 'D';
             }
             
@@ -887,7 +832,7 @@ new Vue({
         },
         
         getScoreMods(mods) {
-            if (!mods) return 'None';
+            if (!mods) {return 'None';}
             const modNames = [];
             const modMap = {
                 1: 'NF', 2: 'EZ', 4: 'TD', 8: 'HD', 16: 'HR', 32: 'SD',
@@ -895,7 +840,7 @@ new Vue({
                 2048: 'AU', 4096: 'SO', 8192: 'AP', 16384: 'PF'
             };
             for (const [bit, name] of Object.entries(modMap)) {
-                if (mods & parseInt(bit)) modNames.push(name);
+                if (mods & parseInt(bit)) {modNames.push(name);}
             }
             return modNames.length ? modNames.join('') : 'None';
         },
@@ -916,14 +861,14 @@ new Vue({
         },
         
         escapeHTML(str) {
-            if (!str) return '';
+            if (!str) {return '';}
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
         },
         
         getBadgeIconClass(icon) {
-            if (!icon) return 'fas fa-question';
+            if (!icon) {return 'fas fa-question';}
             
             // Trim whitespace
             icon = String(icon).trim();
@@ -961,9 +906,11 @@ new Vue({
         },
         
         isRelaxAvailable(rx) {
-            if (rx === 1) return this.mode !== 3; // No relax for mania
-            if (rx === 2) return this.mode === 0; // Autopilot only for std
+            if (rx === 1) {return this.mode !== 3;} // No relax for mania
+            if (rx === 2) {return this.mode === 0;} // Autopilot only for std
             return true;
         }
     }
 });
+
+profileApp.mount('#profile-app');

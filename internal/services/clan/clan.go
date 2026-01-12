@@ -2,6 +2,7 @@ package clan
 
 import (
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/RealistikOsu/soumetsu/internal/adapters/redis"
@@ -133,7 +134,10 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) error {
 	}
 
 	if input.Tag != clan.Tag {
-		userIDs, _ := s.clanRepo.GetAllMemberUserIDs(ctx, input.ClanID)
+		userIDs, err := s.clanRepo.GetAllMemberUserIDs(ctx, input.ClanID)
+		if err != nil {
+			log.Printf("warning: failed to get clan member IDs for update notification: %v", err)
+		}
 		for _, userID := range userIDs {
 			s.publishClanUpdate(ctx, userID)
 		}

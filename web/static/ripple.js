@@ -18,7 +18,7 @@
 
 // this object contains tiny snippets that were deemed too small to be worth
 // their own file.
-var singlePageSnippets = {
+const singlePageSnippets = {
   "/2fa_gateway" : function() {
     $('#telegram-code')
       .on('input', function() {
@@ -44,97 +44,13 @@ var singlePageSnippets = {
       });
   },
 
-  "/leaderboard" : function() {
-    page = page === 0 ? 1 : page;
-
-    function loadLeaderboard() {
-      var wl = window.location;
-      window.history.replaceState(
-        '', document.title,
-        wl.pathname + "?mode=" + favouriteMode + "&p=" + page +
-              (country != "" ? "&country=" + encodeURI(country) : "") +
-              wl.hash);
-      api("leaderboard", {
-        mode : favouriteMode,
-        p : page,
-        l : 50,
-        country : country,
-      },
-      function(data) {
-        var tb = $(".ui.table tbody");
-        tb.find("tr").remove();
-        if (data.users == null) {
-          disableSimplepagButtons(true);
-          data.users = [];
-        }
-        var i = 0;
-        data.users.forEach(function(v) {
-          tb.append($("<tr />").append(
-            $("<td />").text("#" + ((page - 1) * 50 + (++i))),
-            $("<td />").html("<a href='/users/" + v.id +
-                                    "' title='View profile'><img src='https://ussr.pl/static/flags/" +
-                                    user.country + ".png' class='new-flag'></img>" +
-                                    escapeHTML(v.username) + "</a>"),
-            $("<td />").html(
-              scoreOrPP(v.chosen_mode.ranked_score, v.chosen_mode.pp)),
-            $("<td />").text(v.chosen_mode.accuracy.toFixed(2) + "%"),
-            // bonus points if you get the undertale joke
-            $("<td />").html(addCommas(v.chosen_mode.playcount) +
-                                   " <i title='" + T("Why, LOVE, of course!") +
-                                   "'>(lv. " + v.chosen_mode.level.toFixed(0) +
-                                   ")</i>")));
-        });
-        disableSimplepagButtons(data.users.length < 50);
-      });
-    }
-    function scoreOrPP(s, pp) {
-      if (pp === 0)
-        return "<b>" + addCommas(s) + "</b>";
-      return "<b>" + addCommas(pp) + "pp</b> (" + addCommas(s) + ")"
-    }
-
-    // country stuff
-    $("#country-chooser-modal")
-      .click(function() {
-        $(".ui.modal").modal("show");
-      });
-    $(".lb-country")
-      .click(function() {
-        country = $(this).data("country");
-        page = 1;
-        $(".ui.modal").modal("hide");
-        loadLeaderboard();
-      });
-
-    loadLeaderboard();
-    setupSimplepag(loadLeaderboard);
-    $("#mode-menu .item")
-      .click(function(e) {
-        e.preventDefault();
-        $("#mode-menu .active.item").removeClass("active");
-        $(this).addClass("active");
-        favouriteMode = $(this).data("mode");
-        country = "";
-        page = 1;
-        loadLeaderboard();
-      });
-    $("#rx-menu .item")
-      .click(function(e) {
-        e.preventDefault();
-        $("#rx-menu .active.item").removeClass("active");
-        $(this).addClass("active");
-        country = "";
-        page = 1;
-        rx = $(this).data("rx");
-        loadLeaderboard();
-      });
-  },
+  // "/leaderboard" - Now handled by Vue app in leaderboards.js
 
   "/friends" : function() {
     $(".smalltext.button")
       .click(function() {
-        var t = $(this);
-        var delAdd = t.data("deleted") === "1" ? "add" : "del";
+        const t = $(this);
+        const delAdd = t.data("deleted") === "1" ? "add" : "del";
         console.log(delAdd);
         t.addClass("disabled");
         api("friends/" + delAdd, {user : +t.data("userid")}, function(data) {
@@ -158,7 +74,7 @@ var singlePageSnippets = {
   },
 
   "/register/verify" : function() {
-    var qu = query("u");
+    const qu = query("u");
     setInterval(function() {
       $.getJSON(soumetsuConf.banchoAPI + "/api/v1/verifiedStatus?u=" + qu,
         function(data) {
@@ -182,24 +98,24 @@ var singlePageSnippets = {
     $("input[name='custom_badge.show']")
       .change(function() {
         if ($(this).is(":checked"))
-          $("#custom-badge-fields").slideDown();
+          {$("#custom-badge-fields").slideDown();}
         else
-          $("#custom-badge-fields").slideUp();
+          {$("#custom-badge-fields").slideUp();}
       });
-    var isDark = $("#dark-site").is(":checked");
+    const isDark = $("#dark-site").is(":checked");
     $("form")
       .submit(function(e) {
         e.preventDefault();
 
-        var darkSetting = $("#dark-site").is(":checked")
+        const darkSetting = $("#dark-site").is(":checked")
         if (darkSetting != isDark) {
-          var cflags = document.cookie.replace(/(?:(?:^|.*;\s*)cflags\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+          let cflags = document.cookie.replace(/(?:(?:^|.*;\s*)cflags\s*\=\s*([^;]*).*$)|^.*$/, "$1");
           cflags = darkSetting ? +cflags | 1 : +cflags & ~1;
           document.cookie = "cflags=" + cflags + ";path=/;max-age=31536000";
         }
 
-        var obj = formToObject($(this));
-        var ps = 0;
+        const obj = formToObject($(this));
+        let ps = 0;
         $(this)
           .find("input[data-sv]")
           .each(function(_, el) {
@@ -209,7 +125,7 @@ var singlePageSnippets = {
             }
           });
         obj.play_style = ps;
-        var f = $(this);
+        const f = $(this);
         api("users/self/settings", obj, function(data) {
           if (darkSetting != isDark) {
             window.location.reload();
@@ -223,19 +139,19 @@ var singlePageSnippets = {
   },
 
   "/settings/userpage" : function() {
-    var lastTimeout = null;
+    let lastTimeout = null;
     $("textarea[name='data']")
       .on('input', function() {
         if (lastTimeout !== null) {
           clearTimeout(lastTimeout);
         }
-        var v = $(this).val();
+        const v = $(this).val();
         lastTimeout = setTimeout(function() {
           $("#userpage-content").addClass("loading");
           $.post(
             "/settings/userpage/parse",
             $("textarea[name='data']").val(), function(data) {
-              var e =
+              const e =
                       $("#userpage-content").removeClass("loading").html(data);
               if (typeof twemoji !== "undefined") {
                 twemoji.parse(e[0]);
@@ -246,8 +162,8 @@ var singlePageSnippets = {
     $("form")
       .submit(function(e) {
         e.preventDefault();
-        var obj = formToObject($(this));
-        var f = $(this);
+        const obj = formToObject($(this));
+        const f = $(this);
         api("users/self/userpage", obj, function(data) {
           showMessage("success", "Your userpage has been saved.");
           f.removeClass("loading");
@@ -263,12 +179,12 @@ var singlePageSnippets = {
   "/settings/avatar" : function() {
     $("#file")
       .change(function(e) {
-        var f = e.target.files;
+        const f = e.target.files;
         if (f.length < 1) {
           return;
         }
-        var u = window.URL.createObjectURL(f[0]);
-        var i = $("#avatar-img")[0];
+        const u = window.URL.createObjectURL(f[0]);
+        const i = $("#avatar-img")[0];
         i.src = u;
         i.onload = function() { window.URL.revokeObjectURL(this.src); };
       });
@@ -279,36 +195,36 @@ var singlePageSnippets = {
       $("#queue-info").html(data.submitted + "/" + data.queue_size);
 
       if (data.submitted_by_user == 0)
-        $("#by-you").attr("hidden", "hidden");
+        {$("#by-you").attr("hidden", "hidden");}
       else
-        $("#by-you").removeAttr("hidden");
+        {$("#by-you").removeAttr("hidden");}
 
       $("#submitted-by-user").text(data.submitted_by_user);
       $("#max-per-user").text(data.max_per_user);
 
-      var perc = (data.submitted / data.queue_size * 100).toFixed(0);
+      const perc = (data.submitted / data.queue_size * 100).toFixed(0);
       $("#progressbar .progress").text(perc + "%");
       $("#progressbar")
         .progress({
           percent : perc,
         });
       if (data.can_submit)
-        $("#b-form .input, #b-form .button").removeClass("disabled");
+        {$("#b-form .input, #b-form .button").removeClass("disabled");}
       else
-        $("#b-form .input, #b-form .button").addClass("disabled");
+        {$("#b-form .input, #b-form .button").addClass("disabled");}
     }
     setInterval(function() {
       api("beatmaps/rank_requests/status", {}, updateRankRequestPage);
     }, 10000);
-    var re = /^https?:\/\/osu.ppy.sh\/(s|b)\/(\d+)$/gi;
-    var re_ussr = /^https?:\/\/ussr.pl\/(s|b)\/(\d+)$/gi;
+    const re = /^https?:\/\/osu.ppy.sh\/(s|b)\/(\d+)$/gi;
+    const re_ussr = /^https?:\/\/ussr.pl\/(s|b)\/(\d+)$/gi;
     $("#b-form")
       .submit(function(e) {
         e.preventDefault();
-        var v = $("#beatmap").val().trim();
-        var reData = re.exec(v);
+        const v = $("#beatmap").val().trim();
+        let reData = re.exec(v);
         re.exec(); // apparently this is always null, idk
-        var reData2 = re_ussr.exec(v)
+        const reData2 = re_ussr.exec(v)
         re_ussr.exec()
         if (reData === null && reData2 === null) {
           showMessage(
@@ -321,13 +237,13 @@ var singlePageSnippets = {
 
         // Bruh.
         if (reData === null)
-          reData = reData2;
-        var postData = {};
+          {reData = reData2;}
+        const postData = {};
         if (reData[1] == "s")
-          postData.set_id = +reData[2];
+          {postData.set_id = +reData[2];}
         else
-          postData.id = +reData[2];
-        var t = $(this);
+          {postData.id = +reData[2];}
+        const t = $(this);
         api("beatmaps/rank_requests", postData,
           function(data) {
             t.removeClass("loading");
@@ -338,7 +254,7 @@ var singlePageSnippets = {
           function(data) {
             t.removeClass("loading");
             if (data.code == 406)
-              showMessage("warning", "That beatmap is already ranked!");
+              {showMessage("warning", "That beatmap is already ranked!");}
           },
           true);
         return false;
@@ -357,12 +273,12 @@ var singlePageSnippets = {
       });
     $("#file")
       .change(function(e) {
-        var f = e.target.files;
+        const f = e.target.files;
         if (f.length < 1) {
           return;
         }
-        var u = window.URL.createObjectURL(f[0]);
-        var i = document.createElement("img");
+        const u = window.URL.createObjectURL(f[0]);
+        const i = document.createElement("img");
         i.src = u;
         i.onload = function() { window.URL.revokeObjectURL(this.src); };
         $("#image-background").empty().append(i);
@@ -388,16 +304,16 @@ $(document)
     }
 
     // RealistikOsu! stuff
-    var f = singlePageSnippets[window.location.pathname];
+    const f = singlePageSnippets[window.location.pathname];
     if (typeof f === 'function')
-      f();
+      {f();}
     if (typeof deferredToPageLoad === "function")
-      deferredToPageLoad();
+      {deferredToPageLoad();}
 
     $(document)
       .keydown(function(e) {
-        var activeElement = $(document.activeElement);
-        var isInput = activeElement.is(":input,[contenteditable]");
+        const activeElement = $(document.activeElement);
+        const isInput = activeElement.is(":input,[contenteditable]");
         if ((e.which === 83 || e.which === 115) && !isInput) {
           $("#user-search-input").focus();
           e.preventDefault();
@@ -413,7 +329,7 @@ $(document)
 
     $("#language-selector .item")
       .click(function() {
-        var lang = $(this).data("lang");
+        const lang = $(this).data("lang");
         document.cookie = "language=" + lang + ";path=/;max-age=31536000";
         window.location.reload();
       });
@@ -422,7 +338,7 @@ $(document)
     // (propritize bancho over irc)
     if (isLoggedIn()) {
       regularAPI('status/' + currentUserID, {}, function(resp) {
-        var onlineClass = "offline";
+        let onlineClass = "offline";
         if (resp.code === 200) {
           onlineClass = "online";
         }
@@ -438,12 +354,12 @@ function closeClosestMessage() {
 function showMessage(type, message) {
   // Please dont steal this... Or at least credit us.
 
-  var icon = "";
-  var header = "";
-  var bgColor = "";
-  var borderColor = "";
-  var headerColor = "";
-  var iconColor = "";
+  let icon = "";
+  let header = "";
+  let bgColor = "";
+  let borderColor = "";
+  let headerColor = "";
+  let iconColor = "";
 
   switch (type) {
     case "error":
@@ -484,7 +400,7 @@ function showMessage(type, message) {
       break;
   }
   
-  var newEl = $(`
+  const newEl = $(`
     <div class="alert-message ${bgColor} border ${borderColor} rounded-lg p-4 mb-4 flex items-start gap-3" style="display: none;">
       <i class="${icon} ${iconColor} mt-1"></i>
       <div class="flex-grow">
@@ -503,17 +419,17 @@ function showMessage(type, message) {
 
 // function for all api calls
 function _api(base, endpoint, data, success, failure, post, handleAllFailures) {
-  if (typeof data == "function") {
+  if (typeof data === "function") {
     success = data;
     data = null;
   }
-  if (typeof failure == "boolean") {
+  if (typeof failure === "boolean") {
     post = failure;
     failure = undefined;
   }
   handleAllFailures = (typeof handleAllFailures !== undefined) ? handleAllFailures : false;
 
-  var errorMessage =
+  const errorMessage =
       "An error occurred while contacting the RealistikOsu! API. Please report this to a RealistikOsu! developer.";
 
   $.ajax({
@@ -536,7 +452,7 @@ function _api(base, endpoint, data, success, failure, post, handleAllFailures) {
       success(data);
     },
     error : function(jqXHR, textStatus, errorThrown) {
-      if (typeof failure == "function" &&
+      if (typeof failure === "function" &&
         (handleAllFailures || (jqXHR.status >= 400 && jqXHR.status < 500))
       ) {
         failure(jqXHR.responseJSON);
@@ -566,20 +482,29 @@ function banchoAPI(endpoint, data, success, failure, post, handleAllFailures) {
   return _api(soumetsuConf.banchoAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
-var modes = {
+function regularAPI(endpoint, data, success, failure, post, handleAllFailures) {
+  // Silently fail by default for status checks
+  if (typeof failure === "undefined") {
+    handleAllFailures = true;
+    failure = function(data) {};
+  }
+  return _api(soumetsuConf.banchoAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
+}
+
+const modes = {
   0 : "osu! standard",
   1 : "Taiko",
   2 : "Catch",
   3 : "osu!mania",
 };
-var modesShort = {
+const modesShort = {
   0 : "std",
   1 : "taiko",
   2 : "ctb",
   3 : "mania",
 };
 
-var entityMap = {
+const entityMap = {
   "&" : "&amp;",
   "<" : "&lt;",
   ">" : "&gt;",
@@ -593,32 +518,32 @@ function escapeHTML(str) {
 }
 
 function setupSimplepag(callback) {
-  var el = $(".simplepag");
+  const el = $(".simplepag");
   el.find(".left.floated .item").click(function() {
     if ($(this).hasClass("disabled"))
-      return false;
+      {return false;}
     page--;
     callback();
   });
   el.find(".right.floated .item").click(function() {
     if ($(this).hasClass("disabled"))
-      return false;
+      {return false;}
     page++;
     callback();
   });
 }
 function disableSimplepagButtons(right) {
-  var el = $(".simplepag");
+  const el = $(".simplepag");
 
   if (page <= 1)
-    el.find(".left.floated .item").addClass("disabled");
+    {el.find(".left.floated .item").addClass("disabled");}
   else
-    el.find(".left.floated .item").removeClass("disabled");
+    {el.find(".left.floated .item").removeClass("disabled");}
 
   if (right)
-    el.find(".right.floated .item").addClass("disabled");
+    {el.find(".right.floated .item").addClass("disabled");}
   else
-    el.find(".right.floated .item").removeClass("disabled");
+    {el.find(".right.floated .item").removeClass("disabled");}
 }
 
 window.URL = window.URL || window.webkitURL;
@@ -629,7 +554,7 @@ function addCommas(nStr) {
   x = nStr.split('.');
   x1 = x[0];
   x2 = x.length > 1 ? '.' + x[1] : '';
-  var rgx = /(\d+)(\d{3})/;
+  const rgx = /(\d+)(\d{3})/;
   while (rgx.test(x1)) {
     x1 = x1.replace(rgx, '$1' +
                              ',' +
@@ -640,23 +565,23 @@ function addCommas(nStr) {
 
 // helper functions copied from user.js in old-frontend
 function getScoreMods(m, noplus) {
-	var r = [];
+	const r = [];
   // has nc => remove dt
   if ((m & 512) == 512)
-    m = m & ~64;
+    {m = m & ~64;}
   // has pf => remove sd
   if ((m & 16384) == 16384)
-    m = m & ~32;
+    {m = m & ~32;}
   modsString.forEach(function(v, idx) {
-    var val = 1 << idx;
+    const val = 1 << idx;
     if ((m & val) > 0)
-      r.push(v);
+      {r.push(v);}
   });
 	if (r.length > 0) {
 		return (noplus ? "" : "+ ") + r.join(", ");
-	} else {
+	} 
 		return (noplus ? T('None') : '');
-	}
+	
 }
 
 var modsString = [
@@ -692,11 +617,11 @@ var modsString = [
 
 // time format (seconds -> hh:mm:ss notation)
 function timeFormat(t) {
-  var h = Math.floor(t / 3600);
+  const h = Math.floor(t / 3600);
   t %= 3600;
-  var m = Math.floor(t / 60);
-  var s = t % 60;
-  var c = "";
+  const m = Math.floor(t / 60);
+  const s = t % 60;
+  let c = "";
   if (h > 0) {
     c += h + ":";
     if (m < 10) {
@@ -719,26 +644,26 @@ function query(name, url) {
     url = window.location.href;
   }
   name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+  const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
     results = regex.exec(url);
   if (!results)
-    return null;
+    {return null;}
   if (!results[2])
-    return '';
+    {return '';}
   return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 // Useful for forms contacting the RealistikOsu! API
 function formToObject(form) {
-  var inputs = form.find("input, textarea, select");
-  var obj = {};
+  const inputs = form.find("input, textarea, select");
+  let obj = {};
   inputs.each(function(_, el) {
     el = $(el);
     if (el.attr("name") === undefined) {
       return;
     }
-    var parts = el.attr("name").split(".");
-    var value;
+    const parts = el.attr("name").split(".");
+    let value;
     switch (el.attr("type")) {
     case "checkbox":
       value = el.is(":checked");
@@ -766,7 +691,7 @@ function modifyObjectDynamically(obj, inds, set) {
     obj[inds[0]] = set;
   } else if (inds.length > 1) {
     if (typeof obj[inds[0]] !== "object")
-      obj[inds[0]] = {};
+      {obj[inds[0]] = {};}
     obj[inds[0]] = modifyObjectDynamically(obj[inds[0]], inds.slice(1), set);
   }
   return obj;
@@ -777,21 +702,21 @@ function T(s, settings) {
   if (typeof settings !== "undefined" &&
       typeof settings.count !== "undefined" &&
       settings.count !== 1)
-    s = keyPlurals[s];
+    {s = keyPlurals[s];}
   return s;
 }
 
-var apiPrivileges = [
+const apiPrivileges = [
   "ReadConfidential", "Write", "ManageBadges", "BetaKeys", "ManageSettings",
   "ViewUserAdvanced", "ManageUser", "ManageRoles", "ManageAPIKeys", "Blog",
   "APIMeta", "Beatmap", "Bancho"
 ];
 
 function privilegesToString(privs) {
-  var privList = [];
+  const privList = [];
   apiPrivileges.forEach(function(value, index) {
     if ((privs & (1 << (index + 1))) != 0)
-      privList.push(value);
+      {privList.push(value);}
   });
   return privList.join(", ");
 }

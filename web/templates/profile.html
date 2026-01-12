@@ -14,7 +14,6 @@ DisableHH=true
 </script>
 
 <script src="/static/vue/vue.js"></script>
-<script src="/static/vue/vue-axios.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/static/js/bbcode.js"></script>
 
@@ -34,7 +33,7 @@ DisableHH=true
 			<i class="fas fa-user-slash text-gray-500 text-5xl mb-4"></i>
 			<h2 class="text-2xl font-bold text-white mb-2">User Not Found</h2>
 			<p class="text-gray-400">
-				<% error %>
+				{{ v "error" }}
 			</p>
 		</div>
 	</div>
@@ -84,14 +83,14 @@ DisableHH=true
 								class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
 								<i
 									:class="'fas fa-globe ' + (currentStats.global_leaderboard_rank === 1 ? 'text-yellow-400' : currentStats.global_leaderboard_rank === 2 ? 'text-gray-300' : currentStats.global_leaderboard_rank === 3 ? 'text-orange-600' : 'text-gray-400')"></i>
-								<span class="font-semibold">#<% currentStats.global_leaderboard_rank || '-' %></span>
+								<span class="font-semibold">#{{ v "currentStats.global_leaderboard_rank || '-'" }}</span>
 							</div>
 							<!-- Country Rank -->
 							<div v-if="currentStats && user.country"
 								class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
 								<img :src="'/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg'"
 									class="w-5 h-4 rounded">
-								<span class="font-semibold">#<% currentStats.country_leaderboard_rank || '-' %></span>
+								<span class="font-semibold">#{{ v "currentStats.country_leaderboard_rank || '-'" }}</span>
 							</div>
 						</div>
 					</div>
@@ -117,16 +116,16 @@ DisableHH=true
 								class="flex gap-2 bg-dark-card/95 backdrop-blur-sm rounded-full px-3 py-2 border border-dark-border shadow-lg items-center ml-auto">
 								<span v-for="badge in user.badges" :key="badge.id"
 									class="badge-tooltip-container relative text-primary text-base leading-none inline-flex items-center justify-center badge-icon cursor-help transition-opacity hover:opacity-80 group">
-									<i :class="badge.icon | badgeIcon" aria-hidden="true"></i>
+									<i :class="getBadgeIconClass(badge.icon)" aria-hidden="true"></i>
 									<span class="badge-tooltip">
-										<% badge.name %>
+										{{ v "badge.name" }}
 									</span>
 								</span>
 								<span v-if="user.custom_badge"
 									class="badge-tooltip-container relative text-primary text-base leading-none inline-flex items-center justify-center badge-icon cursor-help transition-opacity hover:opacity-80 group">
-									<i :class="user.custom_badge.icon | badgeIcon" aria-hidden="true"></i>
+									<i :class="getBadgeIconClass(user.custom_badge.icon)" aria-hidden="true"></i>
 									<span class="badge-tooltip">
-										<% user.custom_badge.name %>
+										{{ v "user.custom_badge.name" }}
 									</span>
 								</span>
 							</div>
@@ -135,9 +134,9 @@ DisableHH=true
 						<div class="bg-dark-bg rounded-lg p-4 mb-4">
 							<h1 class="text-2xl font-display font-bold mb-3 text-white">
 								<a v-if="user.clan?.id" :href="'/clans/' + user.clan.id"
-									class="text-primary hover:underline mr-2">[<% user.clan.tag %>]</a>
+									class="text-primary hover:underline mr-2">{{ v "[ user.clan.tag" }}]</a>
 								<span>
-									<% user.username %>
+									{{ v "user.username" }}
 								</span>
 							</h1>
 
@@ -147,17 +146,17 @@ DisableHH=true
 										:src="'/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg'"
 										class="w-6 h-4 rounded">
 									<span class="text-sm text-gray-300">
-										<% getCountryName(user.country) %>
+										{{ v "getCountryName(user.country)" }}
 									</span>
 								</div>
 							</div>
 
 							<div class="border-t border-dark-border pt-3 space-y-2 text-sm text-gray-300">
 								<div>Join Date: <b>
-										<% formatDate(user.registered_on) %>
+										{{ v "formatDate(user.registered_on)" }}
 									</b></div>
 								<div>Last Seen: <b>
-										<% formatDate(user.latest_activity) %>
+										{{ v "formatDate(user.latest_activity)" }}
 									</b></div>
 							</div>
 
@@ -167,7 +166,7 @@ DisableHH=true
 									:disabled="friendLoading">
 									<i
 										:class="friendStatus === 2 ? 'fas fa-user-friends' : friendStatus === 1 ? 'fas fa-user-times' : 'fas fa-user-plus'"></i>
-									<% followers.allFriended %>
+									{{ v "followers.allFriended" }}
 								</button>
 								<a v-if="hasAdmin" :href="'https://old.ussr.pl/user/edit/' + userID"
 									class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-sm py-2 px-3"
@@ -191,7 +190,7 @@ DisableHH=true
 							<button v-for="(modeName, modeIdx) in ['std', 'taiko', 'ctb', 'mania']" :key="modeIdx"
 								@click="setMode(modeIdx)"
 								:class="'px-3 py-2 rounded-lg border text-center text-sm transition-colors ' + (mode === modeIdx ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">
-								<% modeName %>
+								{{ v "modeName" }}
 							</button>
 						</div>
 
@@ -205,19 +204,19 @@ DisableHH=true
 								<div class="grid grid-cols-3 gap-3 text-center">
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% addCommas(Math.round(currentStats.pp || 0)) %>
+											{{ v "addCommas(Math.round(currentStats.pp || 0))" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">PP</div>
 									</div>
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% formatAccuracy(currentStats.accuracy) %>%
+											{{ v "formatAccuracy(currentStats.accuracy)" }}%
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Accuracy</div>
 									</div>
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% addCommas(currentStats.max_combo || 0) %>
+											{{ v "addCommas(currentStats.max_combo || 0)" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Max Combo</div>
 									</div>
@@ -227,13 +226,13 @@ DisableHH=true
 								<div class="grid grid-cols-2 gap-3 text-center">
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% humanize(currentStats.ranked_score || 0) %>
+											{{ v "humanize(currentStats.ranked_score || 0)" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Ranked Score</div>
 									</div>
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% humanize(currentStats.total_score || 0) %>
+											{{ v "humanize(currentStats.total_score || 0)" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Total Score</div>
 									</div>
@@ -243,19 +242,19 @@ DisableHH=true
 								<div class="grid grid-cols-3 gap-3 text-center">
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% addCommas(currentStats.playcount || 0) %>
+											{{ v "addCommas(currentStats.playcount || 0)" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Playcount</div>
 									</div>
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% followers.subscount || 0 %>
+											{{ v "followers.subscount || 0" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Followers</div>
 									</div>
 									<div>
 										<div class="text-white font-bold text-lg">
-											<% addCommas(currentStats.replays_watched || 0) %>
+											{{ v "addCommas(currentStats.replays_watched || 0)" }}
 										</div>
 										<div class="text-xs text-gray-500 mt-1">Replay Views</div>
 									</div>
@@ -264,7 +263,7 @@ DisableHH=true
 							<div class="bg-dark-bg rounded-lg p-4 mb-4">
 								<div class="text-center">
 									<div class="text-white font-bold text-lg">
-										<% addCommas(currentStats.total_hits || 0) %>
+										{{ v "addCommas(currentStats.total_hits || 0)" }}
 									</div>
 									<div class="text-xs text-gray-500 mt-1">Total Hits</div>
 								</div>
@@ -275,7 +274,7 @@ DisableHH=true
 										:style="'width: ' + levelPercent + '%'"></div>
 								</div>
 								<div class="text-center text-sm text-gray-400">
-									Level <% levelInt %> (<% levelPercent %>%)
+									Level {{ v "levelInt" }} ({{ v "levelPercent" }}%)
 								</div>
 							</div>
 						</div>
@@ -344,32 +343,32 @@ DisableHH=true
 									<p class="text-white font-medium text-sm truncate leading-tight">
 										<a :href="'/b/' + score.beatmap.beatmap_id"
 											class="hover:text-primary transition-colors" @click.stop>
-											<% escapeHTML(score.beatmap.song_name) %>
+											{{ v "escapeHTML(score.beatmap.song_name)" }}
 										</a>
 									</p>
 									<div class="flex items-center gap-2 text-xs text-gray-300">
 										<span>
-											<% addCommas(score.score) %>
+											{{ v "addCommas(score.score)" }}
 										</span>
 										<span class="text-gray-500">•</span>
 										<span>
-											<% addCommas(score.max_combo) %>x
+											{{ v "addCommas(score.max_combo)" }}x
 										</span>
 										<span class="text-gray-500">•</span>
 										<span class="font-medium text-gray-200">
-											<% getScoreMods(score.mods) %>
+											{{ v "getScoreMods(score.mods)" }}
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										<% timeAgo(score.time) %>
+										{{ v "timeAgo(score.time)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
 									<div class="text-primary font-bold text-base leading-none">
-										<% ppOrScore(score.pp, score.score, score.beatmap.ranked) %>
+										{{ v "ppOrScore(score.pp, score.score, score.beatmap.ranked)" }}
 									</div>
 									<div class="text-gray-300 text-xs font-medium">
-										<% formatAccuracy(score.accuracy) %>%
+										{{ v "formatAccuracy(score.accuracy)" }}%
 									</div>
 								</div>
 							</div>
@@ -411,32 +410,32 @@ DisableHH=true
 									<p class="text-white font-medium text-sm truncate leading-tight">
 										<a :href="'/b/' + score.beatmap.beatmap_id"
 											class="hover:text-primary transition-colors" @click.stop>
-											<% escapeHTML(score.beatmap.song_name) %>
+											{{ v "escapeHTML(score.beatmap.song_name)" }}
 										</a>
 									</p>
 									<div class="flex items-center gap-2 text-xs text-gray-300">
 										<span>
-											<% addCommas(score.score) %>
+											{{ v "addCommas(score.score)" }}
 										</span>
 										<span class="text-gray-500">•</span>
 										<span>
-											<% addCommas(score.max_combo) %>x
+											{{ v "addCommas(score.max_combo)" }}x
 										</span>
 										<span class="text-gray-500">•</span>
 										<span class="font-medium text-gray-200">
-											<% getScoreMods(score.mods) %>
+											{{ v "getScoreMods(score.mods)" }}
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										<% timeAgo(score.time) %>
+										{{ v "timeAgo(score.time)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
 									<div class="text-primary font-bold text-base leading-none">
-										<% ppOrScore(score.pp, score.score, score.beatmap.ranked) %>
+										{{ v "ppOrScore(score.pp, score.score, score.beatmap.ranked)" }}
 									</div>
 									<div class="text-gray-300 text-xs font-medium">
-										<% formatAccuracy(score.accuracy) %>%
+										{{ v "formatAccuracy(score.accuracy)" }}%
 									</div>
 								</div>
 								<div v-if="isOwnProfile && score.completed >= 2" class="flex-shrink-0 ml-1">
@@ -462,7 +461,7 @@ DisableHH=true
 					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 						<i class="fas fa-play text-primary"></i>
 						<h3 class="text-xl font-display font-bold text-white">Most Played Beatmaps <span
-								v-if="scores.mostPlayed.total" class="text-gray-400">(<% scores.mostPlayed.total %>
+								v-if="scores.mostPlayed.total" class="text-gray-400">({{ v "scores.mostPlayed.total" }}
 									)</span></h3>
 					</div>
 					<div v-if="scores.mostPlayed.data.length === 0 && !scores.mostPlayed.loading"
@@ -481,12 +480,12 @@ DisableHH=true
 								<div class="flex-1 min-w-0">
 									<a :href="'/beatmaps/' + beatmap.beatmap.beatmap_id"
 										class="text-white font-medium hover:text-primary truncate block">
-										<% escapeHTML(beatmap.beatmap.song_name) %>
+										{{ v "escapeHTML(beatmap.beatmap.song_name)" }}
 									</a>
 								</div>
 								<div class="text-right">
 									<div class="text-primary font-bold"><i class="fas fa-play mr-1"></i>
-										<% addCommas(beatmap.playcount) %>
+										{{ v "addCommas(beatmap.playcount)" }}
 									</div>
 								</div>
 							</div>
@@ -538,32 +537,32 @@ DisableHH=true
 									<p class="text-white font-medium text-sm truncate leading-tight">
 										<a :href="'/b/' + score.beatmap.beatmap_id"
 											class="hover:text-primary transition-colors" @click.stop>
-											<% escapeHTML(score.beatmap.song_name) %>
+											{{ v "escapeHTML(score.beatmap.song_name)" }}
 										</a>
 									</p>
 									<div class="flex items-center gap-2 text-xs text-gray-300">
 										<span>
-											<% addCommas(score.score) %>
+											{{ v "addCommas(score.score)" }}
 										</span>
 										<span class="text-gray-500">•</span>
 										<span>
-											<% addCommas(score.max_combo) %>x
+											{{ v "addCommas(score.max_combo)" }}x
 										</span>
 										<span class="text-gray-500">•</span>
 										<span class="font-medium text-gray-200">
-											<% getScoreMods(score.mods) %>
+											{{ v "getScoreMods(score.mods)" }}
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										<% timeAgo(score.time) %>
+										{{ v "timeAgo(score.time)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
 									<div class="text-primary font-bold text-base leading-none">
-										<% ppOrScore(score.pp, score.score, score.beatmap.ranked) %>
+										{{ v "ppOrScore(score.pp, score.score, score.beatmap.ranked)" }}
 									</div>
 									<div class="text-gray-300 text-xs font-medium">
-										<% formatAccuracy(score.accuracy) %>%
+										{{ v "formatAccuracy(score.accuracy)" }}%
 									</div>
 								</div>
 							</div>
@@ -582,7 +581,7 @@ DisableHH=true
 					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 						<i class="fas fa-trophy text-yellow-400"></i>
 						<h3 class="text-xl font-display font-bold text-white">First Places <span
-								v-if="scores.first.total" class="text-gray-400">(<% scores.first.total %>)</span></h3>
+								v-if="scores.first.total" class="text-gray-400">({{ v "scores.first.total" }})</span></h3>
 					</div>
 					<div v-if="scores.first.data.length === 0 && !scores.first.loading" class="py-8 text-center">
 						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
@@ -609,32 +608,32 @@ DisableHH=true
 									<p class="text-white font-medium text-sm truncate leading-tight">
 										<a :href="'/b/' + score.beatmap.beatmap_id"
 											class="hover:text-primary transition-colors" @click.stop>
-											<% escapeHTML(score.beatmap.song_name) %>
+											{{ v "escapeHTML(score.beatmap.song_name)" }}
 										</a>
 									</p>
 									<div class="flex items-center gap-2 text-xs text-gray-300">
 										<span>
-											<% addCommas(score.score) %>
+											{{ v "addCommas(score.score)" }}
 										</span>
 										<span class="text-gray-500">•</span>
 										<span>
-											<% addCommas(score.max_combo) %>x
+											{{ v "addCommas(score.max_combo)" }}x
 										</span>
 										<span class="text-gray-500">•</span>
 										<span class="font-medium text-gray-200">
-											<% getScoreMods(score.mods) %>
+											{{ v "getScoreMods(score.mods)" }}
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										<% timeAgo(score.time) %>
+										{{ v "timeAgo(score.time)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
 									<div class="text-primary font-bold text-base leading-none">
-										<% ppOrScore(score.pp, score.score, score.beatmap.ranked) %>
+										{{ v "ppOrScore(score.pp, score.score, score.beatmap.ranked)" }}
 									</div>
 									<div class="text-gray-300 text-xs font-medium">
-										<% formatAccuracy(score.accuracy) %>%
+										{{ v "formatAccuracy(score.accuracy)" }}%
 									</div>
 								</div>
 							</div>
@@ -677,7 +676,7 @@ DisableHH=true
 				<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 					<i class="fas fa-comment text-primary"></i>
 					<h3 class="text-xl font-display font-bold text-white">
-						Comments (<% commentsInfo.disabled ? 0 : (commentsInfo.total || 0) %>)
+						Comments ({{ v "commentsInfo.disabled ? 0 : (commentsInfo.total || 0)" }})
 					</h3>
 				</div>
 
@@ -701,7 +700,7 @@ DisableHH=true
 									@keydown.meta.enter="postComment"></textarea>
 								<div class="flex items-center justify-between mt-2">
 									<span class="text-xs text-gray-400">
-										<% commentText.length %>/380
+										{{ v "commentText.length" }}/380
 									</span>
 									<button @click="postComment"
 										:disabled="!commentText.trim() || commentText.length > 380 || commentPosting"
@@ -737,11 +736,11 @@ DisableHH=true
 									<div class="flex items-center gap-2">
 										<a :href="'/users/' + comment.user_id"
 											class="font-semibold text-white hover:text-primary transition-colors">
-											<% comment.username %>
+											{{ v "comment.username" }}
 										</a>
 										<span class="text-xs text-gray-500">•</span>
 										<span class="text-xs text-gray-500">
-											<% timeAgo(comment.time) %>
+											{{ v "timeAgo(comment.time)" }}
 										</span>
 									</div>
 									<button v-if="currentUserID === comment.user_id || hasAdmin"
@@ -752,7 +751,7 @@ DisableHH=true
 									</button>
 								</div>
 								<p class="text-gray-300 whitespace-pre-wrap break-words">
-									<% escapeHTML(comment.comment || comment.message) %>
+									{{ v "escapeHTML(comment.comment || comment.message)" }}
 								</p>
 							</div>
 						</div>
@@ -790,7 +789,7 @@ DisableHH=true
 							<h2 class="text-2xl font-display font-bold text-white mb-2">Score Details</h2>
 							<a :href="'/beatmaps/' + selectedScore.beatmap.beatmap_id"
 								class="text-white/90 hover:text-primary text-lg font-medium transition-colors block truncate">
-								<% escapeHTML(selectedScore.beatmap.song_name) %>
+								{{ v "escapeHTML(selectedScore.beatmap.song_name)" }}
 							</a>
 						</div>
 						<button @click="closeScoreModal"
@@ -813,25 +812,25 @@ DisableHH=true
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
 								<div class="text-white/60 text-xs font-medium mb-1">Performance</div>
 								<div class="text-primary font-bold text-xl">
-									<% addCommas(Math.round(selectedScore.pp || 0)) %>pp
+									{{ v "addCommas(Math.round(selectedScore.pp || 0))" }}pp
 								</div>
 							</div>
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
 								<div class="text-white/60 text-xs font-medium mb-1">Accuracy</div>
 								<div class="text-white font-bold text-xl">
-									<% formatAccuracy(selectedScore.accuracy) %>%
+									{{ v "formatAccuracy(selectedScore.accuracy)" }}%
 								</div>
 							</div>
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
 								<div class="text-white/60 text-xs font-medium mb-1">Score</div>
 								<div class="text-white font-bold text-lg">
-									<% addCommas(selectedScore.score) %>
+									{{ v "addCommas(selectedScore.score)" }}
 								</div>
 							</div>
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
 								<div class="text-white/60 text-xs font-medium mb-1">Combo</div>
 								<div class="text-white font-bold text-lg">
-									<% addCommas(selectedScore.max_combo) %>x
+									{{ v "addCommas(selectedScore.max_combo)" }}x
 								</div>
 							</div>
 						</div>
@@ -845,21 +844,20 @@ DisableHH=true
 								<span v-if="getScoreMods(selectedScore.mods) === 'None'"
 									class="text-white/50">None</span>
 								<span v-else class="text-primary">
-									<% getScoreMods(selectedScore.mods) %>
+									{{ v "getScoreMods(selectedScore.mods)" }}
 								</span>
 							</div>
 						</div>
 						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
 							<div class="text-white/60 text-sm font-medium mb-2">Max Combo</div>
 							<div class="text-white font-semibold text-lg">
-								<% addCommas(selectedScore.max_combo) %> / <% addCommas(selectedScore.beatmap.max_combo)
-										%>x
+								{{ v "addCommas(selectedScore.max_combo)" }} / {{ v "addCommas(selectedScore.beatmap.max_combo)" }}x
 							</div>
 						</div>
 						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
 							<div class="text-white/60 text-sm font-medium mb-2">Achieved</div>
 							<div class="text-white font-semibold">
-								<% timeAgo(selectedScore.time) %>
+								{{ v "timeAgo(selectedScore.time)" }}
 							</div>
 						</div>
 					</div>
@@ -870,25 +868,25 @@ DisableHH=true
 						<div class="grid grid-cols-4 gap-3">
 							<div class="text-center">
 								<div class="text-green-400 font-bold text-xl mb-1">
-									<% selectedScore.count_300 %>
+									{{ v "selectedScore.count_300" }}
 								</div>
 								<div class="text-white/60 text-xs">300s</div>
 							</div>
 							<div class="text-center">
 								<div class="text-blue-400 font-bold text-xl mb-1">
-									<% selectedScore.count_100 %>
+									{{ v "selectedScore.count_100" }}
 								</div>
 								<div class="text-white/60 text-xs">100s</div>
 							</div>
 							<div class="text-center">
 								<div class="text-purple-400 font-bold text-xl mb-1">
-									<% selectedScore.count_50 %>
+									{{ v "selectedScore.count_50" }}
 								</div>
 								<div class="text-white/60 text-xs">50s</div>
 							</div>
 							<div class="text-center">
 								<div class="text-red-400 font-bold text-xl mb-1">
-									<% selectedScore.count_miss %>
+									{{ v "selectedScore.count_miss" }}
 								</div>
 								<div class="text-white/60 text-xs">Misses</div>
 							</div>
@@ -913,18 +911,18 @@ DisableHH=true
 		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showPinModal = false"></div>
 		<div class="relative bg-dark-card rounded-lg p-6 max-w-md w-full mx-4 border border-dark-border">
 			<h2 class="text-xl font-display font-bold text-white mb-4">
-				<% pinnedInfo ? 'Unpin' : 'Pin' %> Score
+				{{ v "pinnedInfo ? 'Unpin' : 'Pin'" }} Score
 			</h2>
 			<p class="text-gray-300 mb-4">
-				<% pinModalScore.beatmap.song_name %>
+				{{ v "pinModalScore.beatmap.song_name" }}
 			</p>
 			<p v-if="pinnedInfo" class="text-gray-400 text-sm mb-4">
-				Pinned on <% formatDate(pinnedInfo.pinned_at) %>
+				Pinned on {{ v "formatDate(pinnedInfo.pinned_at)" }}
 			</p>
 			<div class="flex gap-2">
 				<button @click="togglePin"
 					:class="'btn-primary flex-1 ' + (pinnedInfo ? 'bg-red-600 hover:bg-red-700' : '')">
-					<% pinnedInfo ? 'Unpin' : 'Pin' %> Score
+					{{ v "pinnedInfo ? 'Unpin' : 'Pin'" }} Score
 				</button>
 				<button @click="showPinModal = false" class="btn-secondary">Cancel</button>
 			</div>

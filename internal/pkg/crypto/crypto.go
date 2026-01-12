@@ -3,6 +3,7 @@ package crypto
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 
@@ -63,4 +64,18 @@ func GeneratePasswordResetKey() (string, error) {
 func GenerateLogoutKey() string {
 	key, _ := GenerateRandomHex(16)
 	return key
+}
+
+// GenerateSessionVersion creates a random token for session validation
+// This is used instead of password hashes to detect if a session should be invalidated
+func GenerateSessionVersion() string {
+	token, _ := GenerateRandomHex(32)
+	return token
+}
+
+// HashSessionToken creates a SHA-256 hash of the session token for comparison
+// This is more secure than MD5 for session validation
+func HashSessionToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
 }

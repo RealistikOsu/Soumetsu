@@ -356,7 +356,7 @@
 					var favMode = data.favourite_mode || 0;
 					var stats = data.stats.vn;
 					if (stats) {
-						var modeStats = stats[['std', 'taiko', 'ctb', 'mania'][favMode]];
+						var modeStats = stats{{ v "'std', 'taiko', 'ctb', 'mania'][favMode" }};
 						if (modeStats && modeStats.global_leaderboard_rank) {
 							rankEl.textContent = '#' + modeStats.global_leaderboard_rank.toLocaleString();
 						} else {
@@ -397,37 +397,107 @@
 			return num ? num.toLocaleString() : '0';
 		}
 
-		function renderUserHtml(user) {
+		// Escape HTML to prevent XSS
+		function escapeHtml(text) {
+			if (!text) return '';
+			var div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		// Validate country code (2-letter ISO)
+		function isValidCountryCode(code) {
+			return code && /^[A-Za-z]{2}$/.test(code);
+		}
+
+		// Safe user rendering using DOM methods
+		function renderUserElement(user) {
+			// Validate user ID is numeric
+			var userId = parseInt(user.id, 10);
+			if (isNaN(userId) || userId <= 0) return null;
+
 			var role = getRoleInfo(user.privileges || 0);
 			var rank = user.stats && user.stats.vn && user.stats.vn.std ? user.stats.vn.std.global_leaderboard_rank : null;
 			var pp = user.stats && user.stats.vn && user.stats.vn.std ? Math.round(user.stats.vn.std.pp) : null;
 
-			var roleHtml = '';
+			// Create link element
+			var link = document.createElement('a');
+			link.href = '/users/' + userId;
+			link.className = 'flex items-center gap-3 p-3 hover:bg-dark-border/50 transition-colors border-b border-dark-border/50 last:border-0';
+
+			// Avatar image
+			var avatar = document.createElement('img');
+			avatar.src = avatarUrl + '/' + userId;
+			avatar.className = 'w-10 h-10 rounded-full border-2 border-dark-border object-cover';
+			avatar.alt = escapeHtml(user.username || 'User');
+			avatar.loading = 'lazy';
+			link.appendChild(avatar);
+
+			// Content container
+			var content = document.createElement('div');
+			content.className = 'flex-1 min-w-0';
+
+			// Name row
+			var nameRow = document.createElement('div');
+			nameRow.className = 'flex items-center gap-2';
+
+			var nameSpan = document.createElement('span');
+			nameSpan.className = 'text-white font-medium truncate';
+			nameSpan.textContent = user.username || 'Unknown'; // textContent auto-escapes
+			nameRow.appendChild(nameSpan);
+
+			// Country flag (if valid)
+			if (isValidCountryCode(user.country)) {
+				var flag = document.createElement('img');
+				flag.src = '/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg';
+				flag.className = 'w-4 h-3 rounded';
+				flag.alt = user.country.toUpperCase();
+				nameRow.appendChild(flag);
+			}
+
+			content.appendChild(nameRow);
+
+			// Stats row
+			var statsRow = document.createElement('div');
+			statsRow.className = 'flex items-center gap-2 mt-0.5';
+
 			if (role) {
-				roleHtml = '<span class="text-xs px-2 py-0.5 rounded ' + role.bg + ' ' + role.color + '">' + role.name + '</span>';
+				var roleSpan = document.createElement('span');
+				roleSpan.className = 'text-xs px-2 py-0.5 rounded ' + role.bg + ' ' + role.color;
+				roleSpan.textContent = role.name;
+				statsRow.appendChild(roleSpan);
 			} else if (rank) {
-				roleHtml = '<span class="text-xs text-gray-400">#' + formatNumber(rank) + '</span>';
+				var rankSpan = document.createElement('span');
+				rankSpan.className = 'text-xs text-gray-400';
+				rankSpan.textContent = '#' + formatNumber(rank);
+				statsRow.appendChild(rankSpan);
 			}
 
-			var countryHtml = '';
-			if (user.country) {
-				countryHtml = '<img src="/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg" class="w-4 h-3 rounded" alt="' + user.country + '">';
+			if (pp) {
+				var ppSpan = document.createElement('span');
+				ppSpan.className = 'text-xs text-primary';
+				ppSpan.textContent = formatNumber(pp) + 'pp';
+				statsRow.appendChild(ppSpan);
 			}
 
-			return '<a href="/users/' + user.id + '" class="flex items-center gap-3 p-3 hover:bg-dark-border/50 transition-colors border-b border-dark-border/50 last:border-0">' +
-				'<img src="' + avatarUrl + '/' + user.id + '" class="w-10 h-10 rounded-full border-2 border-dark-border object-cover" alt="' + user.username + '">' +
-				'<div class="flex-1 min-w-0">' +
-				'<div class="flex items-center gap-2">' +
-				'<span class="text-white font-medium truncate">' + user.username + '</span>' +
-				countryHtml +
-				'</div>' +
-				'<div class="flex items-center gap-2 mt-0.5">' +
-				roleHtml +
-				(pp ? '<span class="text-xs text-primary">' + formatNumber(pp) + 'pp</span>' : '') +
-				'</div>' +
-				'</div>' +
-				'<i class="fas fa-chevron-right text-gray-500 text-xs"></i>' +
-				'</a>';
+			content.appendChild(statsRow);
+			link.appendChild(content);
+
+			// Chevron icon
+			var chevron = document.createElement('i');
+			chevron.className = 'fas fa-chevron-right text-gray-500 text-xs';
+			link.appendChild(chevron);
+
+			return link;
+		}
+
+		// Legacy function for backwards compatibility (deprecated)
+		function renderUserHtml(user) {
+			var el = renderUserElement(user);
+			if (!el) return '';
+			var wrapper = document.createElement('div');
+			wrapper.appendChild(el);
+			return wrapper.innerHTML;
 		}
 
 		function initSearch(inputId, resultsId, contentId, containerId, noResultsId, errorId, loadingId) {
@@ -442,8 +512,21 @@
 			if (!searchInput || !searchResults) return;
 
 			function renderResults(users) {
+				// Clear existing content safely
+				while (searchResultsContent.firstChild) {
+					searchResultsContent.removeChild(searchResultsContent.firstChild);
+				}
+
 				if (!users || users.length === 0) {
-					searchResultsContent.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm"><i class="fas fa-user-slash mb-2 text-lg block"></i>No users found</div>';
+					// Create "no results" message using DOM methods
+					var noResultsDiv = document.createElement('div');
+					noResultsDiv.className = 'p-4 text-center text-gray-400 text-sm';
+					var icon = document.createElement('i');
+					icon.className = 'fas fa-user-slash mb-2 text-lg block';
+					noResultsDiv.appendChild(icon);
+					noResultsDiv.appendChild(document.createTextNode('No users found'));
+					searchResultsContent.appendChild(noResultsDiv);
+
 					if (searchNoResults) {
 						searchNoResults.classList.remove('hidden');
 					}
@@ -456,7 +539,13 @@
 				if (searchNoResults) searchNoResults.classList.add('hidden');
 				if (searchError) searchError.classList.add('hidden');
 
-				searchResultsContent.innerHTML = users.map(renderUserHtml).join('');
+				// Render users safely using DOM methods
+				users.forEach(function(user) {
+					var el = renderUserElement(user);
+					if (el) {
+						searchResultsContent.appendChild(el);
+					}
+				});
 			}
 
 			function doSearch(query) {
@@ -467,7 +556,18 @@
 
 				if (searchLoading) searchLoading.classList.remove('hidden');
 				searchResults.classList.remove('hidden');
-				searchResultsContent.innerHTML = '<div class="p-4 text-center text-gray-400"><i class="fas fa-spinner fa-spin"></i></div>';
+
+				// Show loading spinner using DOM methods
+				while (searchResultsContent.firstChild) {
+					searchResultsContent.removeChild(searchResultsContent.firstChild);
+				}
+				var loadingDiv = document.createElement('div');
+				loadingDiv.className = 'p-4 text-center text-gray-400';
+				var spinner = document.createElement('i');
+				spinner.className = 'fas fa-spinner fa-spin';
+				loadingDiv.appendChild(spinner);
+				searchResultsContent.appendChild(loadingDiv);
+
 				if (searchNoResults) searchNoResults.classList.add('hidden');
 				if (searchError) searchError.classList.add('hidden');
 
@@ -483,7 +583,17 @@
 					})
 					.catch(function () {
 						if (searchLoading) searchLoading.classList.add('hidden');
-						searchResultsContent.innerHTML = '<div class="p-4 text-center text-red-400 text-sm"><i class="fas fa-exclamation-circle mb-2 text-lg block"></i>Error searching</div>';
+						// Show error using DOM methods
+						while (searchResultsContent.firstChild) {
+							searchResultsContent.removeChild(searchResultsContent.firstChild);
+						}
+						var errorDiv = document.createElement('div');
+						errorDiv.className = 'p-4 text-center text-red-400 text-sm';
+						var errorIcon = document.createElement('i');
+						errorIcon.className = 'fas fa-exclamation-circle mb-2 text-lg block';
+						errorDiv.appendChild(errorIcon);
+						errorDiv.appendChild(document.createTextNode('Error searching'));
+						searchResultsContent.appendChild(errorDiv);
 					});
 			}
 

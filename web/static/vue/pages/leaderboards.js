@@ -1,6 +1,7 @@
-new Vue({
-    el: "#app",
-    delimiters: ["<%", "%>"],
+const leaderboardApp = Vue.createApp({
+    compilerOptions: {
+        delimiters: ["<%", "%>"]
+    },
     data() {
         return {
             data: [],
@@ -12,83 +13,82 @@ new Vue({
             load: true,
             page: window.page || 1,
             country: window.country || '',
+            soumetsuConf: window.soumetsuConf || {},
         }
+    },
+    computed: {
     },
     created() {
         // Use window variables set by Go template
         this.loadLeaderboardData(
-            window.sort || 'pp', 
-            window.mode || 'std', 
-            window.relax || 'vn', 
-            window.page || 1, 
+            window.sort || 'pp',
+            window.mode || 'std',
+            window.relax || 'vn',
+            window.page || 1,
             window.country || ''
         )
     },
     methods: {
-        loadLeaderboardData(sort, mode, relax, page, country) {
-            var vm = this;
+        async loadLeaderboardData(sort, mode, relax, page, country) {
             if (window.event) {
                 window.event.preventDefault();
             }
-            vm.load = true;
-            vm.mode = mode;
-            vm.relax = relax;
+            this.load = true;
+            this.mode = mode;
+            this.relax = relax;
             switch (mode) {
                 case 'taiko':
-                    vm.modeInt = 1;
+                    this.modeInt = 1;
                     break
                 case 'fruits':
-                    vm.modeInt = 2;
+                    this.modeInt = 2;
                     break
                 case 'mania':
-                    vm.modeInt = 3;
+                    this.modeInt = 3;
                     break
                 default:
-                    vm.modeInt = 0;
+                    this.modeInt = 0;
             }
 
             switch (relax) {
                 case 'rx':
-                    vm.relaxInt = 1;
+                    this.relaxInt = 1;
                     break;
                 case 'ap':
-                    vm.relaxInt = 2;
+                    this.relaxInt = 2;
                     break;
                 default:
-                    vm.relaxInt = 0;
+                    this.relaxInt = 0;
             }
 
-            vm.sort = sort;
-            vm.page = page;
+            this.sort = sort;
+            this.page = page;
             if (country == null)
-                vm.country = ''
+                {this.country = ''}
             else
-                vm.country = country.toUpperCase()
-            if (vm.page <= 0 || vm.page == null)
-                vm.page = 1;
-            window.history.replaceState('', document.title, `/leaderboard?m=${vm.mode}&rx=${vm.relax}&sort=${vm.sort}&p=${vm.page}&c=${vm.country}`);
-            vm.$axios.get(soumetsuConf.baseAPI + "/api/v1/leaderboard", {
-                params: {
-                    mode: vm.modeInt,
-                    sort: vm.sort,
-                    rx: vm.relaxInt,
-                    p: vm.page,
-                    country: vm.country,
-                }
-            })
-                .then(function (response) {
-                    vm.data = response.data.users || [];
-                    vm.load = false;
-                })
-                .catch(function (error) {
-                    console.error('Leaderboard error:', error);
-                    vm.data = [];
-                    vm.load = false;
-                });
+                {this.country = country.toUpperCase()}
+            if (this.page <= 0 || this.page == null)
+                {this.page = 1;}
+            window.history.replaceState('', document.title, `/leaderboard?m=${this.mode}&rx=${this.relax}&sort=${this.sort}&p=${this.page}&c=${this.country}`);
+
+            try {
+                const response = await SoumetsuAPI.leaderboard.get(
+                    this.modeInt,
+                    this.relaxInt,
+                    this.sort,
+                    this.page,
+                    this.country
+                );
+                this.data = response.users || [];
+            } catch (error) {
+                console.error('Leaderboard error:', error);
+                this.data = [];
+            }
+            this.load = false;
         },
         addCommas(integer) {
             integer += "", x = integer.split("."), x1 = x[0], x2 = x.length > 1 ? "." + x[1] : "";
-            for (var t = /(\d+)(\d{3})/; t.test(x1);) x1 = x1.replace(t, "$1,$2");
+            for (let t = /(\d+)(\d{3})/; t.test(x1);) {x1 = x1.replace(t, "$1,$2");}
             return x1 + x2;
         },
         convertIntToLabel(number) {
@@ -96,7 +96,7 @@ new Vue({
             return Math.abs(Number(number)) >= 1.0e+12
 
                 ? (Math.abs(Number(number)) / 1.0e+12).toFixed(2) + " trillion"
-                // Nine Zeroes for Billion 
+                // Nine Zeroes for Billion
                 : Math.abs(Number(number)) >= 1.0e+9
 
                     ? (Math.abs(Number(number)) / 1.0e+9).toFixed(2) + " billion"
@@ -123,17 +123,24 @@ new Vue({
             return false;
         },
         countryName(str) {
-            var getCountryNames = new Intl.DisplayNames(['en'], { type: 'region' });
+            const getCountryNames = new Intl.DisplayNames(['en'], { type: 'region' });
             return getCountryNames.of(str.toUpperCase())
         },
         formatAccuracy(acc) {
-            if (acc === undefined || acc === null) return '0.00';
+            if (acc === undefined || acc === null) {return '0.00';}
             return parseFloat(acc).toFixed(2);
         },
         safeValue(val, def) {
             return val !== undefined && val !== null ? val : def;
+        },
+        getPlayerRole(privileges) {
+            if (privileges & 8388608) return { name: 'Admin', color: 'text-red-400', bg: 'bg-red-500/20', icon: 'fa-shield-alt' };
+            if (privileges & 4194304) return { name: 'Moderator', color: 'text-purple-400', bg: 'bg-purple-500/20', icon: 'fa-gavel' };
+            if (privileges & 256) return { name: 'BAT', color: 'text-blue-400', bg: 'bg-blue-500/20', icon: 'fa-music' };
+            if (privileges & 4) return { name: 'Supporter', color: 'text-pink-400', bg: 'bg-pink-500/20', icon: 'fa-heart' };
+            return null;
         }
-    },
-    computed: {
     }
 });
+
+leaderboardApp.mount('#app');

@@ -1,6 +1,7 @@
-new Vue({
-    el: "#clan-app",
-    delimiters: ["<%", "%>"],
+const clanApp = Vue.createApp({
+    compilerOptions: {
+        delimiters: ["<%", "%>"]
+    },
     data() {
         return {
             // Clan data
@@ -133,7 +134,7 @@ new Vue({
         },
 
         async checkUserClanStatus() {
-            if (this.currentUserID <= 0) return;
+            if (this.currentUserID <= 0) {return;}
 
             try {
                 const resp = await SoumetsuAPI.clans.isInClan(this.currentUserID);
@@ -148,14 +149,14 @@ new Vue({
         },
 
         setMode(m) {
-            if (this.mode === m) return;
+            if (this.mode === m) {return;}
             this.mode = m;
             this.updateURL();
             this.loadStats();
         },
 
         setRelax(rx) {
-            if (this.relax === rx) return;
+            if (this.relax === rx) {return;}
             this.relax = rx;
             this.updateURL();
             this.loadStats();
@@ -170,35 +171,37 @@ new Vue({
 
         // Mode compatibility checks
         isRelaxDisabled(rx) {
-            if (rx === 1 && this.mode === 3) return true; // No relax for mania
-            if (rx === 2 && this.mode !== 0) return true; // Autopilot only for std
+            if (rx === 1 && this.mode === 3) {return true;} // No relax for mania
+            if (rx === 2 && this.mode !== 0) {return true;} // Autopilot only for std
             return false;
         },
 
         isModeDisabled(m) {
-            if (this.relax === 1 && m === 3) return true; // No mania for relax
-            if (this.relax === 2 && m !== 0) return true; // Autopilot only for std
+            if (this.relax === 1 && m === 3) {return true;} // No mania for relax
+            if (this.relax === 2 && m !== 0) {return true;} // Autopilot only for std
             return false;
         },
 
         // Helper: Add commas to numbers
         addCommas(num) {
-            if (num === undefined || num === null) return '0';
+            if (num === undefined || num === null) {return '0';}
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         },
 
         // Helper: Format accuracy
         formatAccuracy(acc) {
-            if (acc === undefined || acc === null) return '0.00';
+            if (acc === undefined || acc === null) {return '0.00';}
             return parseFloat(acc).toFixed(2);
         },
 
         // Helper: Escape HTML
         escapeHTML(str) {
-            if (!str) return '';
+            if (!str) {return '';}
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
         },
     },
 });
+
+clanApp.mount('#clan-app');
