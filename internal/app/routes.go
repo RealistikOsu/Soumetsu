@@ -76,6 +76,9 @@ func (a *App) Routes() chi.Router {
 		r.Get("/settings/discord", a.UserHandler.DiscordPage)
 		r.Get("/settings/discord/unlink", a.UserHandler.UnlinkDiscord)
 
+		r.Get("/settings/user-page", a.UserHandler.UserpageSettingsPage)
+		r.Post("/settings/user-page", a.UserHandler.UpdateUserpage)
+
 		r.Post("/settings/profbanner/{type}", func(w http.ResponseWriter, r *http.Request) {
 			routeType := chi.URLParam(r, "type")
 			http.Redirect(w, r, "/settings/profile-banner/"+routeType, http.StatusTemporaryRedirect)

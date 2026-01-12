@@ -209,6 +209,20 @@ func (r *UserRepository) GetClanMembership(ctx context.Context, userID int) (*mo
 	return &membership, nil
 }
 
+func (r *UserRepository) GetUserpage(ctx context.Context, userID int) (string, error) {
+	var content string
+	err := r.db.QueryRowContext(ctx, "SELECT userpage_content FROM users_stats WHERE id = ?", userID).Scan(&content)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	return content, err
+}
+
+func (r *UserRepository) UpdateUserpage(ctx context.Context, userID int, content string) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE users_stats SET userpage_content = ? WHERE id = ?", content, userID)
+	return err
+}
+
 func SafeUsername(username string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(username)), " ", "_")
 }

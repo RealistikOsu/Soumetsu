@@ -296,6 +296,93 @@ func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/settings/discord", http.StatusFound)
 }
 
+func (h *UserHandler) UserpageSettingsPage(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	content, err := h.userService.GetUserpage(r.Context(), reqCtx.User.ID)
+	if err != nil {
+		h.templates.InternalError(w, r, err)
+		return
+	}
+
+	h.templates.RenderWithRequest(w, r, "settings/user_page.html", &response.TemplateData{
+		TitleBar: "Edit Userpage",
+		Context:  reqCtx,
+		Extra: map[string]interface{}{
+			"Userpage": content,
+		},
+	})
+}
+
+func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	sess, err := h.store.Get(r, "session")
+	if err != nil {
+		h.templates.InternalError(w, r, err)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.addMessage(sess, models.NewError("Invalid form data."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/user-page", http.StatusFound)
+		return
+	}
+
+	if ok, _ := h.csrf.Validate(reqCtx.User.ID, r.FormValue("csrf")); !ok {
+		h.addMessage(sess, models.NewError("Your session has expired."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/user-page", http.StatusFound)
+		return
+	}
+
+	content := r.FormValue("data")
+	err = h.userService.UpdateUserpage(r.Context(), reqCtx.User.ID, content)
+	if err != nil {
+		h.addMessage(sess, models.NewError("Failed to update userpage."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/user-page", http.StatusFound)
+		return
+	}
+
+	h.addMessage(sess, models.NewSuccess("Userpage updated successfully!"))
+	sess.Save(r, w)
+	http.Redirect(w, r, "/settings/user-page", http.StatusFound)
+}
+
+func (h *UserHandler) UserCardInfo(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, _ := strconv.Atoi(idParam)
+
+	user, err := h.userService.GetByID(r.Context(), id)
+	if err != nil || user == nil {
+		response.JSONError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	bgType, bgValue, _ := h.userService.GetProfileBackground(r.Context(), id)
+
+	response.JSONSuccess(w, map[string]interface{}{
+		"id":         user.ID,
+		"username":   user.Username,
+		"country":    user.Country,
+		"privileges": user.Privileges,
+		"background": map[string]interface{}{
+			"type":  bgType,
+			"value": bgValue,
+		},
+	})
+}
+
 func (h *UserHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	sess, _ := h.store.Get(r, "session")
 	h.addMessage(sess, models.NewWarning("You need to login first."))

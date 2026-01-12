@@ -65,7 +65,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 		<!-- Top 3 Players Cards - Dynamic -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" v-if="data && data.length >= 3 && page === 1">
 			<!-- Gold - #1 -->
-			<a :href="'/users/' + data[0].id" class="card border-yellow-500/50 bg-gradient-to-br from-yellow-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+			<div @click="window.location.href='/users/' + data[0].id" class="card border-yellow-500/50 bg-gradient-to-br from-yellow-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
 				<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 				<div class="absolute top-3 right-3 flex items-center gap-2">
 					<span class="text-3xl font-display font-black text-yellow-400/30">#1</span>
@@ -79,7 +79,9 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 					</div>
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2 mb-1">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[0].username %></p>
+							<p class="font-display font-bold text-xl truncate text-white">
+								<a :href="'/users/' + data[0].id" class="hover:underline relative z-10" @click.stop><% data[0].username %></a>
+							</p>
 						</div>
 						<div class="flex items-center gap-2 mb-2">
 							<img v-if="data[0].country" :src="'/static/images/new-flags/flag-' + data[0].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
@@ -96,10 +98,10 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 						</div>
 					</div>
 				</div>
-			</a>
+			</div>
 			
 			<!-- Silver - #2 -->
-			<a :href="'/users/' + data[1].id" class="card border-gray-400/50 bg-gradient-to-br from-gray-700/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+			<div @click="window.location.href='/users/' + data[1].id" class="card border-gray-400/50 bg-gradient-to-br from-gray-700/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
 				<div class="absolute inset-0 bg-gradient-to-br from-gray-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 				<div class="absolute top-3 right-3 flex items-center gap-2">
 					<span class="text-3xl font-display font-black text-gray-400/30">#2</span>
@@ -113,7 +115,9 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 					</div>
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2 mb-1">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[1].username %></p>
+							<p class="font-display font-bold text-xl truncate text-white">
+								<a :href="'/users/' + data[1].id" class="hover:underline relative z-10" @click.stop><% data[1].username %></a>
+							</p>
 						</div>
 						<div class="flex items-center gap-2 mb-2">
 							<img v-if="data[1].country" :src="'/static/images/new-flags/flag-' + data[1].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
@@ -130,10 +134,10 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 						</div>
 					</div>
 				</div>
-			</a>
+			</div>
 			
 			<!-- Bronze - #3 -->
-			<a :href="'/users/' + data[2].id" class="card border-orange-600/50 bg-gradient-to-br from-orange-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
+			<div @click="window.location.href='/users/' + data[2].id" class="card border-orange-600/50 bg-gradient-to-br from-orange-900/30 to-dark-card relative overflow-hidden hover:scale-[1.02] transition-all cursor-pointer group">
 				<div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 				<div class="absolute top-3 right-3 flex items-center gap-2">
 					<span class="text-3xl font-display font-black text-orange-400/30">#3</span>
@@ -147,7 +151,9 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 					</div>
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2 mb-1">
-							<p class="font-display font-bold text-xl truncate text-white"><% data[2].username %></p>
+							<p class="font-display font-bold text-xl truncate text-white">
+								<a :href="'/users/' + data[2].id" class="hover:underline relative z-10" @click.stop><% data[2].username %></a>
+							</p>
 						</div>
 						<div class="flex items-center gap-2 mb-2">
 							<img v-if="data[2].country" :src="'/static/images/new-flags/flag-' + data[2].country.toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
@@ -164,7 +170,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 						</div>
 					</div>
 				</div>
-			</a>
+			</div>
 		</div>
 		
 		<!-- Loading State for Top 3 -->
@@ -196,7 +202,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 						<a :href="'/leaderboard?m=std&sort='+sort+'&rx='+relax+'&p=1'"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click="loadLeaderboardData(sort, 'std', relax, 1, '')">
-							<i class="fas fa-circle mr-2 text-xs"></i>osu!standard
+							<i class="fas fa-circle-1 mr-2 text-xs"></i>osu!std
 						</a>
 						<a :href="'/leaderboard?m=taiko&sort='+sort+'&rx='+relax+'&p=1'"
 							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
@@ -328,7 +334,7 @@ AdditionalJS=/static/vue/pages/leaderboards.js
 								</div>
 								<div class="min-w-0">
 									<div class="flex items-center gap-2 flex-wrap">
-										<span class="font-semibold text-white hover:text-primary transition-colors truncate"><% player.username %></span>
+										<a :href="'/users/' + player.id" class="font-semibold text-white hover:text-primary transition-colors truncate" @click.stop><% player.username %></a>
 										<span v-if="getPlayerRole(player.privileges)" :class="'text-xs px-2 py-0.5 rounded-full whitespace-nowrap ' + getPlayerRole(player.privileges).bg + ' ' + getPlayerRole(player.privileges).color">
 											<i :class="'fas ' + getPlayerRole(player.privileges).icon + ' mr-1'"></i><% getPlayerRole(player.privileges).name %>
 										</span>

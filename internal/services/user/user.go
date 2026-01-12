@@ -176,6 +176,10 @@ func (s *Service) SetProfileBackground(ctx context.Context, userID int, bgType s
 	return s.bgRepo.SetBackground(ctx, userID, typeInt, value)
 }
 
+func (s *Service) GetProfileBackground(ctx context.Context, userID int) (int, string, error) {
+	return s.bgRepo.GetBackground(ctx, userID)
+}
+
 func (s *Service) UploadProfileBanner(ctx context.Context, userID int, file io.Reader) error {
 	img, _, err := image.Decode(file)
 	if err != nil {
@@ -194,6 +198,15 @@ func (s *Service) UploadProfileBanner(ctx context.Context, userID int, file io.R
 	}
 
 	return s.bgRepo.SetBackground(ctx, userID, 1, "")
+}
+
+func (s *Service) GetUserpage(ctx context.Context, userID int) (string, error) {
+	return s.userRepo.GetUserpage(ctx, userID)
+}
+
+func (s *Service) UpdateUserpage(ctx context.Context, userID int, content string) error {
+	// Optional: Add validation for content length here
+	return s.userRepo.UpdateUserpage(ctx, userID, content)
 }
 
 func (s *Service) UnlinkDiscord(ctx context.Context, userID int) error {

@@ -1,5 +1,4 @@
 {{/*###
-Handler=/settings/user-page
 KyutGrill=settings2.jpg
 Include=menu.html
 MinPrivileges=2
@@ -7,6 +6,7 @@ DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $ := . }}
+<link rel="stylesheet" href="/static/profiles/profile.css">
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
@@ -27,47 +27,122 @@ DisableHH=true
 						</div>
 						<div>
 							<h2 class="text-2xl font-display font-bold text-white">Edit Userpage</h2>
-							<p class="text-sm text-gray-400">Customise your profile page content</p>
+							<p class="text-sm text-gray-400">Customise your profile's "me!" section</p>
 						</div>
 					</div>
 					
 					{{ $f := ieForm }}
-					{{ with .Get "users/userpage?id=%d" .Context.User.ID }}
-						<form method="post" class="space-y-6">
-							<div>
-								<label class="block text-sm font-medium text-gray-300 mb-2">
-									BBCode Content
-								</label>
-								<textarea name="data" 
-									class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-									rows="15"
-									tabindex="1">{{ .userpage }}</textarea>
-								<p class="text-sm text-gray-400 mt-2">
-									<a href="https://docs.ripple.moe/docs/misc/hanayo_bbcode" target="_blank" class="text-primary hover:underline">
-										BBCode syntax reference
-									</a>
-								</p>
-							</div>
-
-							<div class="border-t border-dark-border pt-6">
-								<h3 class="text-lg font-semibold mb-4">Preview</h3>
-								<div class="bg-dark-bg rounded-lg p-6 border border-dark-border min-h-[200px]" id="userpage-content">
-									{{ parseUserpage .userpage | html }}
+					<form method="post" action="/settings/user-page" class="space-y-6">
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							                            <!-- Left: Preview -->
+							                            <div class="space-y-6">
+							                                <div>
+							                                    <h3 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+							                                        <i class="fas fa-eye"></i>
+							                                        Live Preview
+							                                    </h3>
+							                                    
+							                                    <!-- Profile Section Preview -->
+							                                    <div class="card">
+							                                        <div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
+							                                            <i class="fas fa-address-card text-primary"></i>
+							                                            <h3 class="text-xl font-display font-bold text-white">me!</h3>
+							                                        </div>
+							                                        <div class="prose prose-invert max-w-none min-h-[200px]" id="preview-content">
+							                                            <!-- Content injected by JS -->
+							                                        </div>
+							                                    </div>
+							                                    <p class="text-xs text-gray-500 mt-2 text-center">
+							                                        <i class="fas fa-info-circle mr-1"></i>
+							                                        This is how it will look on your profile
+							                                    </p>
+							                                </div>
+								<!-- Tips -->
+								<div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+									<h4 class="text-blue-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-lightbulb"></i>
+										Formatting Tips
+									</h4>
+									<ul class="text-sm text-gray-400 space-y-1">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-bold text-blue-400 mt-1 text-xs"></i>
+											Use [b]bold[/b] for emphasis
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-link text-blue-400 mt-1 text-xs"></i>
+											[url=...]text[/url] for links
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-image text-blue-400 mt-1 text-xs"></i>
+											[img]url[/img] for images
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-code text-blue-400 mt-1 text-xs"></i>
+											Check the reference for more!
+										</li>
+									</ul>
 								</div>
 							</div>
 
-							{{ $f }}
-
-							<div class="flex justify-end">
-								<button type="submit" class="btn-primary">
-									Save
-								</button>
+							<!-- Right: Editor -->
+							<div class="space-y-6">
+								<div>
+									<div class="flex items-center justify-between mb-3">
+										<h3 class="text-sm font-medium text-gray-400 flex items-center gap-2">
+											<i class="fas fa-edit"></i>
+											Content Editor
+										</h3>
+										<a href="https://docs.ripple.moe/docs/misc/hanayo_bbcode" target="_blank" class="text-xs text-primary hover:underline flex items-center gap-1">
+											<i class="fas fa-external-link-alt"></i> Syntax Guide
+										</a>
+									</div>
+									
+									<textarea name="data" id="bbcode-input"
+										class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder-gray-600"
+										rows="20"
+										placeholder="Write something about yourself..."
+										tabindex="1">{{ .Extra.Userpage }}</textarea>
+								</div>
 							</div>
-						</form>
-					{{ end }}
+						</div>
+
+						{{ $f }}
+
+						<!-- Submit Button -->
+						<div class="mt-8 pt-6 border-t border-dark-border flex flex-col sm:flex-row items-center justify-between gap-4">
+							<p class="text-sm text-gray-500">
+								<i class="fas fa-check-circle mr-1"></i>
+								Changes are saved immediately
+							</p>
+							<button type="submit" class="btn-primary inline-flex items-center gap-2">
+								<i class="fas fa-save"></i>
+								Save Changes
+							</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+<script src="/static/js/bbcode.js"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const input = document.getElementById('bbcode-input');
+		const preview = document.getElementById('preview-content');
+		
+		function updatePreview() {
+			if (window.parseBBCode && input && preview) {
+				preview.innerHTML = window.parseBBCode(input.value);
+			}
+		}
+
+		if (input) {
+			input.addEventListener('input', updatePreview);
+			// Initial parse
+			updatePreview();
+		}
+	});
+</script>
 {{ end }}
