@@ -120,6 +120,7 @@ new Vue({
             hasAdmin: window.hasAdmin || false,
             avatarURL: window.soumetsuConf?.avatars || 'https://a.ussr.pl',
             baseAPI: window.soumetsuConf?.baseAPI || '',
+            banchoAPI: window.soumetsuConf?.banchoAPI || '',
             
             // Banner colors
             bannerColors: null, // { color1: 'rgb(...)', color2: 'rgb(...)' }
@@ -246,6 +247,9 @@ new Vue({
                 // Update URL
                 this.updateURL();
                 
+                // Load online status
+                this.loadOnlineStatus();
+                
                 // Load scores and graph after basic data
                 this.loadAllScores();
                 this.loadGraph();
@@ -332,6 +336,30 @@ new Vue({
         async loadDiscordInfo() {
             // This would need a backend endpoint to check discord linking
             // For now, we skip this
+        },
+        
+        async loadOnlineStatus() {
+            if (!this.userID || !this.banchoAPI) return;
+            
+            const indicator = document.getElementById('profile-online-indicator');
+            if (!indicator) return;
+            
+            try {
+                const resp = await fetch(`${this.banchoAPI}/api/status/${this.userID}`);
+                const data = await resp.json();
+                
+                if (data.status === 200) {
+                    indicator.classList.remove('bg-gray-500');
+                    indicator.classList.add('bg-green-500');
+                } else {
+                    indicator.classList.remove('bg-gray-500');
+                    indicator.classList.add('bg-gray-600');
+                }
+            } catch (err) {
+                // On error, set to offline (gray)
+                indicator.classList.remove('bg-gray-500');
+                indicator.classList.add('bg-gray-600');
+            }
         },
         
         async loadGraph() {

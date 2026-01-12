@@ -99,14 +99,19 @@ DisableHH=true
 					<!-- Profile Info -->
 					<div class="p-6 -mt-16 relative z-10">
 						<div class="flex items-center gap-4 mb-4">
-							<img v-if="user && userID" :src="avatarURL + '/' + userID" :alt="user ? user.username : ''"
-								class="w-24 h-24 rounded-full border-4 border-dark-card object-cover flex-shrink-0"
-								crossorigin="anonymous"
-								@error="handleAvatarError($event, userID)"
-								@load="extractBannerColors($event)"
-								loading="lazy"
-								ref="profileAvatar"
-								@error="handleAvatarError($event, userID)" loading="lazy">
+							<div class="relative">
+								<img v-if="user && userID" :src="avatarURL + '/' + userID" :alt="user ? user.username : ''"
+									class="w-24 h-24 rounded-full border-4 border-dark-card object-cover flex-shrink-0"
+									crossorigin="anonymous"
+									@error="handleAvatarError($event, userID)"
+									@load="extractBannerColors($event)"
+									loading="lazy"
+									ref="profileAvatar"
+									@error="handleAvatarError($event, userID)" loading="lazy">
+								<div id="profile-online-indicator"
+									class="absolute bottom-2 right-2 w-6 h-6 rounded-full border-[3px] border-dark-card bg-gray-500">
+								</div>
+							</div>
 							<!-- Badges on the same line as profile picture, aligned to the right -->
 							<div v-if="user.badges?.length || user.custom_badge"
 								class="flex gap-2 bg-dark-card/95 backdrop-blur-sm rounded-full px-3 py-2 border border-dark-border shadow-lg items-center ml-auto">
