@@ -6,8 +6,8 @@ DisableHH=true
 <link rel="stylesheet" href="/static/profiles/profile.css">
 
 <script>
-	window.profileUserParam = {{ .UserID }};
-	window.profileIsNumeric = {{ .IsNumeric }};
+	window.profileUserParam = {{ index .Extra "UserID" }};
+	window.profileIsNumeric = {{ index .Extra "IsNumeric" }};
 	window.currentUserID = {{ .Context.User.ID }};
 	window.hasAdmin = {{ hasAdmin .Context.User.Privileges }};
 </script>

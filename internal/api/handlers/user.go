@@ -46,28 +46,30 @@ func NewUserHandler(
 	}
 }
 
-// ProfileData contains data for the profile page.
-type ProfileData struct {
-	UserID    string
-	IsNumeric bool
-}
-
 // Profile renders a user profile page.
 func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
-	userParam := chi.URLParam(r, "user")
+	userParam := chi.URLParam(r, "id")
+	if userParam == "" {
+		userParam = chi.URLParam(r, "user")
+	}
 
 	// Check if it's a numeric ID or username
 	_, err := strconv.Atoi(userParam)
 	isNumeric := err == nil
 
-	h.templates.Render(w, "profile.html", &response.TemplateData{
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+
+	data := &response.TemplateData{
 		TitleBar:  "Profile",
 		DisableHH: true,
-		Context: ProfileData{
-			UserID:    userParam,
-			IsNumeric: isNumeric,
+		Context:   reqCtx,
+		Extra: map[string]interface{}{
+			"UserID":    userParam,
+			"IsNumeric": isNumeric,
 		},
-	})
+	}
+
+	h.templates.Render(w, "profile.html", data)
 }
 
 // SettingsPage renders the settings page.
@@ -78,7 +80,7 @@ func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.Render(w, "settings/settings.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/settings.html", &response.TemplateData{
 		TitleBar: "Settings",
 	})
 }
@@ -91,7 +93,7 @@ func (h *UserHandler) ChangeUsernamePage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h.templates.Render(w, "settings/change-username.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/change-username.html", &response.TemplateData{
 		TitleBar: "Change Username",
 	})
 }
@@ -155,7 +157,7 @@ func (h *UserHandler) AvatarPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.Render(w, "settings/avatar.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/avatar.html", &response.TemplateData{
 		TitleBar: "Avatar",
 	})
 }
@@ -216,7 +218,7 @@ func (h *UserHandler) ProfileBackgroundPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	h.templates.Render(w, "settings/profilebackground.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/profilebackground.html", &response.TemplateData{
 		TitleBar: "Profile Background",
 	})
 }
@@ -273,7 +275,7 @@ func (h *UserHandler) DiscordPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.Render(w, "settings/discord.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/discord.html", &response.TemplateData{
 		TitleBar: "Discord",
 	})
 }

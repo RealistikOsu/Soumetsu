@@ -32,7 +32,7 @@ DisableHH=true
 					class="input-field">
 			</div>
 
-			<input type="hidden" name="k" value="{{ .RequestInfo.Key }}">
+			<input type="hidden" name="k" value="{{ index .Extra "Key" }}">
 			{{ ieForm }}
 
 			<button type="submit" 

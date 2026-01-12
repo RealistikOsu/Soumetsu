@@ -98,7 +98,7 @@ DisableHH=true
 										Current Username
 									</h4>
 									<div class="flex items-center gap-3">
-										<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" 
+										<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" 
 											class="w-12 h-12 rounded-full border-2 border-dark-border">
 										<div>
 											<p class="text-white font-bold text-lg">{{ .Context.User.Username }}</p>
@@ -121,7 +121,7 @@ DisableHH=true
 										</div>
 										<div class="flex items-center gap-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
 											<span class="text-yellow-400 font-bold w-6">#2</span>
-											<img src="{{ config "APP_AVATAR_URL" }}/{{ .Context.User.ID }}" class="w-8 h-8 rounded-full">
+											<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .Context.User.ID }}" class="w-8 h-8 rounded-full">
 											<span id="leaderboard-username" class="text-white font-medium">{{ .Context.User.Username }}</span>
 										</div>
 										<div class="flex items-center gap-3 p-2 bg-dark-card rounded-lg opacity-50">

@@ -189,8 +189,9 @@ func (h *PasswordHandler) ChangePage(w http.ResponseWriter, r *http.Request) {
 	var email string
 	h.db.QueryRowContext(r.Context(), "SELECT email FROM users WHERE id = ?", reqCtx.User.ID).Scan(&email)
 
-	h.templates.Render(w, "settings/password.html", &response.TemplateData{
+	h.templates.RenderWithRequest(w, r, "settings/password.html", &response.TemplateData{
 		TitleBar: "Change Password",
+		Context:  reqCtx,
 		Extra: map[string]interface{}{
 			"email": email,
 		},
@@ -269,8 +270,11 @@ func (h *PasswordHandler) changeResp(w http.ResponseWriter, r *http.Request, use
 	var email string
 	h.db.QueryRowContext(r.Context(), "SELECT email FROM users WHERE id = ?", userID).Scan(&email)
 
-	h.templates.Render(w, "settings/password.html", &response.TemplateData{
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+
+	h.templates.RenderWithRequest(w, r, "settings/password.html", &response.TemplateData{
 		TitleBar: "Change Password",
+		Context:  reqCtx,
 		Messages: messages,
 		Extra: map[string]interface{}{
 			"email": email,
