@@ -170,8 +170,8 @@ DisableHH=true
 
 				<!-- Loaded top plays -->
 				<template v-else-if="topPlays.length > 0">
-					<a v-for="play in topPlays" :key="play.user_id + '-' + play.pp_val"
-					   :href="'/users/' + play.user_id"
+					<div v-for="play in topPlays" :key="play.user_id + '-' + play.pp_val"
+					   @click="window.location.href='/users/' + play.user_id"
 					   class="card hover:border-primary transition-all duration-300 cursor-pointer group relative overflow-hidden hover:scale-[1.02]">
 						<!-- Background gradient on hover -->
 						<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -185,7 +185,9 @@ DisableHH=true
 									class="w-10 h-10 rounded-full border-2 border-dark-border group-hover:border-primary transition-colors">
 								<div class="flex-1 min-w-0">
 									<p class="text-xs text-gray-400">Played by</p>
-									<p class="font-semibold truncate"><% play.username %></p>
+									<p class="font-semibold truncate">
+										<a :href="'/users/' + play.user_id" class="hover:underline relative z-10" @click.stop><% play.username %></a>
+									</p>
 								</div>
 							</div>
 
@@ -200,7 +202,7 @@ DisableHH=true
 								<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
 							</div>
 						</div>
-					</a>
+					</div>
 				</template>
 
 				<!-- No top plays -->

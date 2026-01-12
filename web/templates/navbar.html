@@ -50,21 +50,18 @@
 				<!-- Navigation Links -->
 				<div class="hidden md:flex items-center gap-6">
 					<a href="/leaderboard"
-						class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path " /leaderboard"
-						}}text-white font-medium{{ end }}">
+						class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/leaderboard" }}text-white font-medium{{ end }}">
 						Leaderboard
 					</a>
 					<a href="/clans/leaderboard"
-						class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "
-						/clans/leaderboard" }}text-white font-medium{{ end }}">
+						class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/clans/leaderboard" }}text-white font-medium{{ end }}">
 						Clan
 					</a>
 
 					<!-- Beatmaps Dropdown -->
 					<div class="relative group">
 						<button
-							class="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1 {{ if or (eq .Path "
-							/beatmaps") (eq .Path "/beatmaps/rank-request" ) }}text-white font-medium{{ end }}">
+							class="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1 {{ if or (eq .Path "/beatmaps") (eq .Path "/beatmaps/rank-request" ) }}text-white font-medium{{ end }}">
 							Beatmaps
 							<i class="fas fa-chevron-down text-xs"></i>
 						</button>
@@ -72,15 +69,13 @@
 							class="absolute left-0 mt-2 w-48 bg-dark-card border border-dark-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2 z-50">
 							<div class="py-2">
 								<a href="/beatmaps"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "
-									/beatmaps" }}text-white bg-dark-border/30{{ end }}">
+									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "/beatmaps" }}text-white bg-dark-border/30{{ end }}">
 									<i class="fas fa-list w-4"></i>
 									Beatmap Listing
 								</a>
 								{{ if .Context.User.ID }}
 								<a href="/beatmaps/rank-request"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "
-									/beatmaps/rank-request" }}text-white bg-dark-border/30{{ end }}">
+									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "/beatmaps/rank-request" }}text-white bg-dark-border/30{{ end }}">
 									<i class="fas fa-star w-4"></i>
 									Request Ranking
 								</a>
@@ -92,8 +87,7 @@
 					<!-- About Dropdown -->
 					<div class="relative group">
 						<button
-							class="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1 {{ if or (eq .Path "
-							/about") (eq .Path "/doc" ) (eq .Path "/team" ) }}text-white font-medium{{ end }}">
+							class="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1 {{ if or (eq .Path "/about") (eq .Path "/doc" ) (eq .Path "/team" ) }}text-white font-medium{{ end }}">
 							About
 							<i class="fas fa-chevron-down text-xs"></i>
 						</button>
@@ -101,20 +95,17 @@
 							class="absolute left-0 mt-2 w-48 bg-dark-card border border-dark-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2 z-50">
 							<div class="py-2">
 								<a href="/about"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "
-									/about" }}text-white bg-dark-border/30{{ end }}">
+									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "/about" }}text-white bg-dark-border/30{{ end }}">
 									<i class="fas fa-info-circle w-4"></i>
 									About RealistikOsu
 								</a>
 								<a href="/doc"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "
-									/doc" }}text-white bg-dark-border/30{{ end }}">
+									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "/doc" }}text-white bg-dark-border/30{{ end }}">
 									<i class="fas fa-book w-4"></i>
 									Documentation
 								</a>
 								<a href="/team"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "
-									/team" }}text-white bg-dark-border/30{{ end }}">
+									class="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-border/50 transition-colors {{ if eq .Path "/team" }}text-white bg-dark-border/30{{ end }}">
 									<i class="fas fa-users w-4"></i>
 									Team
 								</a>
@@ -125,8 +116,7 @@
 					{{ $isSupporter := has .Context.User.Privileges 4 }}
 					{{ if not $isSupporter }}
 					<a href="/donate"
-						class="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 {{ if eq .Path "
-						/donate" }}ring-2 ring-pink-400 ring-offset-2 ring-offset-dark-bg{{ end }}">
+						class="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 {{ if eq .Path "/donate" }}ring-2 ring-pink-400 ring-offset-2 ring-offset-dark-bg{{ end }}">
 						<i class="fas fa-heart mr-1.5"></i>
 						Support Us
 						<span class="absolute -top-1 -right-1 flex h-3 w-3">
@@ -136,8 +126,7 @@
 						</span>
 					</a>
 					{{ else }}
-					<a href="/donate" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "
-						/donate" }}text-white font-medium{{ end }}">
+					<a href="/donate" class="text-gray-400 hover:text-white transition-colors text-sm {{ if eq .Path "/donate" }}text-white font-medium{{ end }}">
 						Support
 					</a>
 					{{ end }}
@@ -181,10 +170,7 @@
 							<div class="text-xs" id="navbar-user-role">
 								{{ $role := getUserRole .Context.User.Privileges }}
 								{{ if $role }}
-								<span class="{{ if eq $role " Admin" }}text-red-400{{ else if eq $role "Moderator"
-									}}text-purple-400{{ else if eq $role "BAT" }}text-blue-400{{ else if eq
-									$role "Supporter" }}text-yellow-400{{ else }}text-gray-400{{ end }}">{{ $role
-									}}</span>
+								<span class="{{ if eq $role " Admin" }}text-red-400{{ else if eq $role "Moderator" }}text-purple-400{{ else if eq $role "BAT" }}text-blue-400{{ else if eq $role "Supporter" }}text-yellow-400{{ else }}text-gray-400{{ end }}">{{ $role }}</span>
 								{{ else }}
 								<span class="text-gray-400" id="navbar-user-rank">Loading...</span>
 								{{ end }}
@@ -314,8 +300,7 @@
 				{{ $isSupporter := has .Context.User.Privileges 4 }}
 				{{ if not $isSupporter }}
 				<a href="/donate"
-					class="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 {{ if eq .Path "
-					/donate" }}ring-2 ring-pink-400 ring-offset-2 ring-offset-dark-bg{{ end }}">
+					class="relative bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 {{ if eq .Path "/donate" }}ring-2 ring-pink-400 ring-offset-2 ring-offset-dark-bg{{ end }}">
 					<i class="fas fa-heart"></i>
 					Support Us
 					<span class="absolute -top-1 -right-1 flex h-3 w-3">
@@ -338,17 +323,16 @@
 {{ if .Context.User.ID }}
 <script>
 	(function () {
-		var userId = {{ .Context.User.ID }
-	};
-	var indicator = document.getElementById('navbar-online-indicator');
-	var rankEl = document.getElementById('navbar-user-rank');
+		var userId = {{ .Context.User.ID }};
+		var indicator = document.getElementById('navbar-online-indicator');
+		var rankEl = document.getElementById('navbar-user-rank');
 
-	// Fetch online status from Bancho API
-	if (indicator && typeof soumetsuConf !== 'undefined' && soumetsuConf.banchoAPI) {
-		fetch(soumetsuConf.banchoAPI + '/api/status/' + userId)
-			.then(function (r) { return r.json(); })
-			.then(function (data) {
-				if (data.status === 200) {
+		// Fetch online status from Bancho API
+		if (indicator && typeof soumetsuConf !== 'undefined' && soumetsuConf.banchoAPI) {
+			fetch(soumetsuConf.banchoAPI + '/api/status/' + userId)
+				.then(function (r) { return r.json(); })
+				.then(function (data) {
+					if (data.status === 200) {
 					indicator.classList.remove('bg-gray-500');
 					indicator.classList.add('bg-green-500');
 				} else {
@@ -360,12 +344,12 @@
 				indicator.classList.remove('bg-gray-500');
 				indicator.classList.add('bg-gray-600');
 			});
-	}
+		}
 
-	// Fetch rank if rank element exists (user is not staff)
-	if (rankEl && typeof soumetsuConf !== 'undefined' && soumetsuConf.baseAPI) {
-		fetch(soumetsuConf.baseAPI + '/api/v1/users/full?id=' + userId)
-			.then(function (r) { return r.json(); })
+		// Fetch rank if rank element exists (user is not staff)
+		if (rankEl && typeof soumetsuConf !== 'undefined' && soumetsuConf.baseAPI) {
+			fetch(soumetsuConf.baseAPI + '/api/v1/users/full?id=' + userId)
+				.then(function (r) { return r.json(); })
 			.then(function (data) {
 				if (data.code === 200 && data.stats) {
 					// Get favourite mode stats (default to std vanilla)
@@ -388,8 +372,8 @@
 			.catch(function () {
 				rankEl.textContent = '';
 			});
-	}
-}) ();
+		}
+	})();
 </script>
 {{ end }}
 
