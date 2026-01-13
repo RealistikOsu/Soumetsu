@@ -3,9 +3,9 @@ package app
 import (
 	"net/http"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
 	"github.com/RealistikOsu/soumetsu/internal/api/handlers"
 	apimiddleware "github.com/RealistikOsu/soumetsu/internal/api/middleware"
+	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -41,26 +41,6 @@ func (a *App) Routes() chi.Router {
 	})
 
 	r.Get("/logout", a.AuthHandler.Logout)
-
-	r.Get("/password-reset", a.PasswordHandler.ResetPage)
-	r.Post("/password-reset", a.PasswordHandler.Reset)
-	r.Get("/password-reset/continue", a.PasswordHandler.ResetContinuePage)
-	r.Post("/password-reset/continue", a.PasswordHandler.ResetContinue)
-
-	r.Post("/pwreset", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/password-reset", http.StatusTemporaryRedirect)
-	})
-	r.Get("/pwreset/continue", func(w http.ResponseWriter, r *http.Request) {
-		k := r.URL.Query().Get("k")
-		if k != "" {
-			http.Redirect(w, r, "/password-reset/continue?k="+k, http.StatusMovedPermanently)
-		} else {
-			http.Redirect(w, r, "/password-reset/continue", http.StatusMovedPermanently)
-		}
-	})
-	r.Post("/pwreset/continue", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/password-reset/continue", http.StatusTemporaryRedirect)
-	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(apimiddleware.RequireAuth)
@@ -195,7 +175,7 @@ func (a *App) loadSimplePages(r chi.Router) {
 			Template:       sp.Template,
 			TitleBar:       sp.TitleBar,
 			KyutGrill:      sp.KyutGrill,
-			MinPrivileges:  common.UserPrivileges(sp.MinPrivileges),
+			MinPrivileges:  models.UserPrivileges(sp.MinPrivileges),
 			Scripts:        parseAdditionalJS(sp.AdditionalJS),
 			HeadingOnRight: sp.HugeHeadingRight,
 		}

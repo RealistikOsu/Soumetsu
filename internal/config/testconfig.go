@@ -34,12 +34,6 @@ func NewTestConfig() *Config {
 			DB:             1, // Use DB 1 for tests to avoid conflicts
 			UseSSL:         false,
 		},
-		Mailgun: MailgunConfig{
-			Domain:    "test.mailgun.org",
-			APIKey:    "test-api-key",
-			PublicKey: "test-public-key",
-			From:      "test@example.com",
-		},
 		Discord: DiscordConfig{
 			ServerURL:       "http://localhost:8080",
 			AppClientID:     "test-client-id",

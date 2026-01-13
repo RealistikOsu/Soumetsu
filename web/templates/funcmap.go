@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
+	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/bbcode"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/doc"
 	"github.com/dustin/go-humanize"
@@ -55,23 +55,23 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 		"curryear": func() int {
 			return time.Now().Year()
 		},
-		"hasAdmin": func(privs common.UserPrivileges) bool {
-			return privs&common.AdminPrivilegeAccessRAP > 0
+		"hasAdmin": func(privs models.UserPrivileges) bool {
+			return privs&models.AdminPrivilegeAccessRAP > 0
 		},
-		"getUserRole": func(privs common.UserPrivileges) string {
-			if privs&common.AdminPrivilegeManageUsers > 0 {
+		"getUserRole": func(privs models.UserPrivileges) string {
+			if privs&models.AdminPrivilegeManageUsers > 0 {
 				return "Admin"
 			}
-			if privs&common.AdminPrivilegeAccessRAP > 0 {
+			if privs&models.AdminPrivilegeAccessRAP > 0 {
 				return "Moderator"
 			}
-			if privs&common.UserPrivilegeDonor > 0 {
+			if privs&models.UserPrivilegeDonor > 0 {
 				return "Supporter"
 			}
 			return ""
 		},
-		"isStaff": func(privs common.UserPrivileges) bool {
-			return privs&common.AdminPrivilegeAccessRAP > 0
+		"isStaff": func(privs models.UserPrivileges) bool {
+			return privs&models.AdminPrivilegeAccessRAP > 0
 		},
 		"isRAP": func(p string) bool {
 			parts := strings.Split(p, "/")
@@ -222,7 +222,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 		"has": func(priv1 interface{}, priv2 float64) bool {
 			var p1 uint64
 			switch priv1 := priv1.(type) {
-			case common.UserPrivileges:
+			case models.UserPrivileges:
 				p1 = uint64(priv1)
 			case float64:
 				p1 = uint64(priv1)
@@ -401,7 +401,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			return loader.GetFile(slug, language)
 		},
 		"privilegesToString": func(privs float64) string {
-			return common.Privileges(privs).String()
+			return models.UserPrivileges(privs).String()
 		},
 		"htmlescaper": template.HTMLEscaper,
 		"hhmm": func(seconds float64) string {

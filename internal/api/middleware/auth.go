@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
 	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/models"
@@ -79,7 +78,7 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				}
 			}
 
-			if common.UserPrivileges(userData.Privileges)&1 == 0 {
+			if models.UserPrivileges(userData.Privileges)&1 == 0 {
 				sess.Values["userid"] = nil
 				sess.Save(r, w)
 				ctx := apicontext.WithRequestContext(r.Context(), reqCtx)
@@ -98,7 +97,7 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 			reqCtx.User = models.SessionUser{
 				ID:         userID,
 				Username:   userData.Username,
-				Privileges: common.UserPrivileges(userData.Privileges),
+				Privileges: models.UserPrivileges(userData.Privileges),
 				Flags:      userData.Flags,
 				Clan:       clanID,
 				ClanOwner:  clanOwner,

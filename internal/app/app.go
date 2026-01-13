@@ -7,20 +7,18 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
-	"github.com/RealistikOsu/soumetsu/internal/adapters/mail"
+	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
 	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
 	"github.com/RealistikOsu/soumetsu/internal/adapters/redis"
 	"github.com/RealistikOsu/soumetsu/internal/api/handlers"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
+	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/doc"
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/RealistikOsu/soumetsu/internal/services/beatmap"
-	"github.com/RealistikOsu/soumetsu/internal/services/clan"
-	"github.com/RealistikOsu/soumetsu/internal/services/user"
 	"github.com/RealistikOsu/soumetsu/web/templates"
 	"github.com/boj/redistore"
 	"github.com/gorilla/sessions"
@@ -29,21 +27,14 @@ import (
 type App struct {
 	Config *config.Config
 
-	DB    *mysql.DB
-	Redis *redis.Client
-	Mail  *mail.Client
+	DB        *mysql.DB
+	Redis     *redis.Client
+	APIClient *api.Client
 
-	UserRepo              *repositories.UserRepository
-	ClanRepo              *repositories.ClanRepository
-	TokenRepo             *repositories.TokenRepository
-	StatsRepo             *repositories.StatsRepository
-	SystemRepo            *repositories.SystemRepository
-	DiscordRepo           *repositories.DiscordRepository
-	ProfileBackgroundRepo *repositories.ProfileBackgroundRepository
+	TokenRepo *repositories.TokenRepository
+	UserRepo  *repositories.UserRepository
 
 	AuthService    *auth.Service
-	UserService    *user.Service
-	ClanService    *clan.Service
 	BeatmapService *beatmap.Service
 
 	CSRF         middleware.CSRFService
@@ -55,8 +46,8 @@ type App struct {
 
 	AuthHandler     *handlers.AuthHandler
 	UserHandler     *handlers.UserHandler
-	PasswordHandler *handlers.PasswordHandler
 	ClanHandler     *handlers.ClanHandler
+	PasswordHandler *handlers.PasswordHandler
 	BeatmapHandler  *handlers.BeatmapHandler
 	PagesHandler    *handlers.PagesHandler
 	ErrorsHandler   *handlers.ErrorsHandler
@@ -107,48 +98,26 @@ func (a *App) initAdapters() error {
 	}
 	a.Redis = redisClient
 
-	a.Mail = mail.New(a.Config.Mailgun)
+	a.APIClient = api.New(a.Config.App.APIURL)
 
 	return nil
 }
 
 func (a *App) initRepositories() {
-	a.UserRepo = repositories.NewUserRepository(a.DB)
-	a.ClanRepo = repositories.NewClanRepository(a.DB)
 	a.TokenRepo = repositories.NewTokenRepository(a.DB)
-	a.StatsRepo = repositories.NewStatsRepository(a.DB)
-	a.SystemRepo = repositories.NewSystemRepository(a.DB)
-	a.DiscordRepo = repositories.NewDiscordRepository(a.DB)
-	a.ProfileBackgroundRepo = repositories.NewProfileBackgroundRepository(a.DB)
+	a.UserRepo = repositories.NewUserRepository(a.DB)
 }
 
 func (a *App) initServices() error {
 	a.AuthService = auth.NewService(
 		a.Config,
-		a.UserRepo,
+		a.APIClient,
 		a.TokenRepo,
-		a.StatsRepo,
-		a.SystemRepo,
-		a.Mail,
-		a.Redis,
-	)
-
-	a.UserService = user.NewService(
-		a.Config,
 		a.UserRepo,
-		a.ProfileBackgroundRepo,
-		a.DiscordRepo,
 		a.Redis,
 	)
 
-	a.ClanService = clan.NewService(
-		a.ClanRepo,
-		a.Redis,
-	)
-
-	a.BeatmapService = beatmap.NewService(
-		a.Config,
-	)
+	a.BeatmapService = beatmap.NewService(a.Config)
 
 	return nil
 }
@@ -208,39 +177,34 @@ func (a *App) initHandlers() {
 	a.AuthHandler = handlers.NewAuthHandler(
 		a.Config,
 		a.AuthService,
+		a.APIClient,
 		a.CSRF,
 		a.SessionStore,
 		a.ResponseEngine,
-		a.DB,
-		a.Redis,
 	)
 
 	a.UserHandler = handlers.NewUserHandler(
 		a.Config,
-		a.UserService,
+		a.APIClient,
 		a.CSRF,
 		a.SessionStore,
 		a.ResponseEngine,
-		a.DB,
-	)
-
-	a.PasswordHandler = handlers.NewPasswordHandler(
-		a.Config,
-		a.AuthService,
-		a.UserService,
-		a.CSRF,
-		a.SessionStore,
-		a.ResponseEngine,
-		a.DB,
 	)
 
 	a.ClanHandler = handlers.NewClanHandler(
 		a.Config,
-		a.ClanService,
+		a.APIClient,
 		a.CSRF,
 		a.SessionStore,
 		a.ResponseEngine,
-		a.DB,
+	)
+
+	a.PasswordHandler = handlers.NewPasswordHandler(
+		a.Config,
+		a.APIClient,
+		a.CSRF,
+		a.SessionStore,
+		a.ResponseEngine,
 	)
 
 	a.BeatmapHandler = handlers.NewBeatmapHandler(
@@ -257,7 +221,7 @@ func (a *App) initHandlers() {
 			Template:       sp.Template,
 			TitleBar:       sp.TitleBar,
 			KyutGrill:      sp.KyutGrill,
-			MinPrivileges:  common.UserPrivileges(sp.MinPrivileges),
+			MinPrivileges:  models.UserPrivileges(sp.MinPrivileges),
 			Scripts:        parseAdditionalJS(sp.AdditionalJS),
 			HeadingOnRight: sp.HugeHeadingRight,
 		})

@@ -63,7 +63,7 @@ const rankRequestApp = Soumetsu.createApp({
 			}
 
 			try {
-				const response = await fetch(this.apiBase + "/api/v1/beatmaps/rank_requests/status", {
+				const response = await fetch(this.apiBase + "/api/v2/beatmaps/rank-requests/status", {
 					credentials: 'include',
 				});
 
@@ -72,7 +72,7 @@ const rankRequestApp = Soumetsu.createApp({
 				}
 
 				const data = await response.json();
-				const payload = (data && data.data) ? data.data : data;
+				const payload = data.data !== undefined ? data.data : data;
 
 				if (!payload || typeof payload !== "object") {
 					throw new Error("Malformed response");
@@ -109,7 +109,7 @@ const rankRequestApp = Soumetsu.createApp({
 				return;
 			}
 
-			const submitUrl = this.apiBase + "/api/v1/beatmaps/rank_requests";
+			const submitUrl = this.apiBase + "/api/v2/beatmaps/rank-requests";
 
 			this.submitting = true;
 

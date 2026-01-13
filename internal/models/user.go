@@ -2,29 +2,27 @@ package models
 
 import (
 	"fmt"
-
-	"github.com/RealistikOsu/RealistikAPI/common"
 )
 
 type User struct {
-	ID              int                   `db:"id"`
-	Username        string                `db:"username"`
-	UsernameSafe    string                `db:"username_safe"`
-	Email           string                `db:"email"`
-	Password        string                `db:"password_md5"`
-	PasswordVersion int                   `db:"password_version"`
-	Privileges      common.UserPrivileges `db:"privileges"`
-	Flags           uint64                `db:"flags"`
-	Country         string                `db:"country"`
-	RegisteredOn    int64                 `db:"register_datetime"`
-	LatestActivity  int64                 `db:"latest_activity"`
-	Coins           int                   `db:"coins"`
+	ID              int            `db:"id"`
+	Username        string         `db:"username"`
+	UsernameSafe    string         `db:"username_safe"`
+	Email           string         `db:"email"`
+	Password        string         `db:"password_md5"`
+	PasswordVersion int            `db:"password_version"`
+	Privileges      UserPrivileges `db:"privileges"`
+	Flags           uint64         `db:"flags"`
+	Country         string         `db:"country"`
+	RegisteredOn    int64          `db:"register_datetime"`
+	LatestActivity  int64          `db:"latest_activity"`
+	Coins           int            `db:"coins"`
 }
 
 type SessionUser struct {
 	ID         int
 	Username   string
-	Privileges common.UserPrivileges
+	Privileges UserPrivileges
 	Flags      uint64
 	Clan       int
 	ClanOwner  int
@@ -37,42 +35,42 @@ func (u SessionUser) IsLoggedIn() bool {
 
 // IsBanned checks if the user is banned (lacks the Normal privilege)
 func (u SessionUser) IsBanned() bool {
-	return !u.HasPrivilege(common.UserPrivilegeNormal)
+	return !u.HasPrivilege(UserPrivilegeNormal)
 }
 
 // HasPrivilege checks if the user has ALL of the specified privileges
-func (u SessionUser) HasPrivilege(priv common.UserPrivileges) bool {
+func (u SessionUser) HasPrivilege(priv UserPrivileges) bool {
 	return u.Privileges&priv == priv
 }
 
 // HasAnyPrivilege checks if the user has ANY of the specified privileges
-func (u SessionUser) HasAnyPrivilege(priv common.UserPrivileges) bool {
+func (u SessionUser) HasAnyPrivilege(priv UserPrivileges) bool {
 	return u.Privileges&priv != 0
 }
 
 // IsNormal checks if the user has normal (non-banned) status
 func (u SessionUser) IsNormal() bool {
-	return u.HasPrivilege(common.UserPrivilegeNormal)
+	return u.HasPrivilege(UserPrivilegeNormal)
 }
 
 // IsPendingVerification checks if the user needs to verify their account
 func (u SessionUser) IsPendingVerification() bool {
-	return u.HasAnyPrivilege(common.UserPrivilegePendingVerification)
+	return u.HasAnyPrivilege(UserPrivilegePendingVerification)
 }
 
 // IsDonor checks if the user is a supporter/donor
 func (u SessionUser) IsDonor() bool {
-	return u.HasPrivilege(common.UserPrivilegeDonor)
+	return u.HasPrivilege(UserPrivilegeDonor)
 }
 
 // IsAdmin checks if the user has any admin privileges
 func (u SessionUser) IsAdmin() bool {
-	return u.HasAnyPrivilege(common.AdminPrivilegeAccessRAP)
+	return u.HasAnyPrivilege(AdminPrivilegeAccessRAP)
 }
 
 // CanManageUsers checks if the user can manage other users
 func (u SessionUser) CanManageUsers() bool {
-	return u.HasPrivilege(common.AdminPrivilegeManageUsers)
+	return u.HasPrivilege(AdminPrivilegeManageUsers)
 }
 
 func (u SessionUser) OnlyUserPublic() string {

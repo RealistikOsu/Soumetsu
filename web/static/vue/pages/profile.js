@@ -4,7 +4,7 @@ const profileApp = Soumetsu.createApp({
             // User data
             user: null,
             userpage: null,
-            followers: { subscount: 0, allFriended: 0 },
+            followers: { follower_count: 0, friend_count: 0 },
             discordUser: null,
             commentsInfo: null,
 
@@ -151,16 +151,26 @@ const profileApp = Soumetsu.createApp({
             this.error = null;
 
             try {
-                // Load user data - use id= for numeric, name= for username
-                const param = this.userIsNumeric ? `id=${this.userParam}` : `name=${encodeURIComponent(this.userParam)}`;
-                const userResp = await this.api(`users/full?${param}`);
-                if (userResp.code !== 200 || !userResp.id) {
+                // Resolve username to ID if needed
+                let userId = this.userParam;
+                if (!this.userIsNumeric) {
+                    const resolved = await this.api('users/resolve', { username: this.userParam });
+                    if (!resolved) {
+                        this.error = 'User not found';
+                        this.loading = false;
+                        return;
+                    }
+                    userId = resolved;
+                }
+
+                const userResp = await this.api(`users/${userId}`, { mode: this.mode, playstyle: this.relax });
+                if (!userResp || !userResp.id) {
                     this.error = 'User not found';
                     this.loading = false;
                     return;
                 }
                 this.user = userResp;
-                this.userID = userResp.id; // Store resolved user ID
+                this.userID = userResp.id;
 
                 // Update page title
                 document.title = `${this.user.username}'s profile :: RealistikOsu!`;
@@ -205,9 +215,8 @@ const profileApp = Soumetsu.createApp({
         },
 
         async api(endpoint, params = {}) {
-            // Use baseAPI from config for proper API routing
             const base = this.baseAPI || '';
-            let urlStr = `${base}/api/v1/${endpoint}`;
+            let urlStr = `${base}/api/v2/${endpoint}`;
             const searchParams = new URLSearchParams();
             Object.entries(params).forEach(([k, v]) => {
                 if (v !== undefined && v !== null && v !== '') {
@@ -215,18 +224,19 @@ const profileApp = Soumetsu.createApp({
                 }
             });
             const queryStr = searchParams.toString();
-            if (queryStr) {urlStr += `?${queryStr}`;}
+            if (queryStr) {urlStr += (urlStr.includes('?') ? '&' : '?') + queryStr;}
             const resp = await fetch(urlStr);
-            return resp.json();
+            const json = await resp.json();
+            return json.data !== undefined ? json.data : json;
         },
 
         async loadUserpage() {
             try {
-                const resp = await this.api(`users/userpage?id=${this.userID}`);
-                if (resp.userpage && window.parseBBCode) {
-                    this.userpage = window.parseBBCode(resp.userpage);
+                const resp = await this.api(`users/${this.userID}/userpage`);
+                if (resp?.content && window.parseBBCode) {
+                    this.userpage = window.parseBBCode(resp.content);
                 } else {
-                    this.userpage = resp.userpage || null;
+                    this.userpage = resp?.content || null;
                 }
             } catch (err) {
                 console.error('Error loading userpage:', err);
@@ -235,8 +245,8 @@ const profileApp = Soumetsu.createApp({
 
         async loadFollowers() {
             try {
-                const resp = await this.api(`users/followers?userid=${this.userID}`);
-                this.followers = resp;
+                const resp = await this.api(`users/${this.userID}/followers`);
+                this.followers = resp || { follower_count: 0, friend_count: 0 };
             } catch (err) {
                 console.error('Error loading followers:', err);
             }
@@ -244,11 +254,8 @@ const profileApp = Soumetsu.createApp({
 
         async loadCommentsInfo() {
             try {
-                const resp = await this.api(`users/comments/info?id=${this.userID}`);
-                this.commentsInfo = resp;
-                if (!resp.disabled) {
-                    this.loadComments();
-                }
+                this.commentsInfo = { disabled: false, total: 0 };
+                this.loadComments();
             } catch (err) {
                 console.error('Error loading comments info:', err);
             }
@@ -256,8 +263,8 @@ const profileApp = Soumetsu.createApp({
 
         async loadAchievements() {
             try {
-                const resp = await this.api('users/achievements', { id: this.userID });
-                this.achievements = resp.achievements || [];
+                const resp = await this.api(`users/${this.userID}/achievements`);
+                this.achievements = resp || [];
             } catch (err) {
                 console.error('Error loading achievements:', err);
             }
@@ -266,12 +273,12 @@ const profileApp = Soumetsu.createApp({
         async loadFriendStatus() {
             if (!this.canInteract) {return;}
             try {
-                const resp = await this.api('friends/with', { id: this.userID });
-                if (resp.mutual) {this.friendStatus = 2;}
-                else if (resp.friend) {this.friendStatus = 1;}
+                const resp = await this.api(`users/me/friends/${this.userID}`);
+                if (resp?.mutual) {this.friendStatus = 2;}
+                else if (resp?.friend) {this.friendStatus = 1;}
                 else {this.friendStatus = 0;}
             } catch (err) {
-                console.error('Error loading friend status:', err);
+                this.friendStatus = 0;
             }
         },
 
@@ -306,17 +313,17 @@ const profileApp = Soumetsu.createApp({
 
         async loadGraph() {
             try {
-                const resp = await this.api(`profile-history/${this.graphType}`, {
-                    user_id: this.userID,
-                    mode: this.mixedMode
+                const resp = await this.api(`users/${this.userID}/history/${this.graphType}`, {
+                    mode: this.mode,
+                    playstyle: this.relax
                 });
 
-                if (resp.status === 'error' || !resp.data?.captures?.length) {
+                if (!resp?.captures?.length) {
                     this.graphData = null;
                     return;
                 }
 
-                this.graphData = resp.data.captures;
+                this.graphData = resp.captures;
                 this.$nextTick(() => this.renderChart());
             } catch (err) {
                 console.error('Error loading graph:', err);
@@ -435,28 +442,20 @@ const profileApp = Soumetsu.createApp({
             scoreData.page++;
 
             const limit = type === 'best' ? 10 : 5;
-            const params = {
-                mode: this.mode,
-                p: scoreData.page,
-                l: limit,
-                rx: this.relax,
-                id: this.userID
-            };
-
-            if (this.filterFailed && type === 'recent') {
-                params.filter = 'recent';
-            }
+            const typeMap = { first: 'firsts', pinned: 'pinned', best: 'best', recent: 'recent' };
 
             try {
-                const resp = await this.api(`users/scores/${type}`, params);
+                const resp = await this.api(`users/${this.userID}/scores/${typeMap[type] || type}`, {
+                    mode: this.mode,
+                    playstyle: this.relax,
+                    page: scoreData.page,
+                    limit: limit
+                });
 
-                if (resp.scores?.length) {
-                    scoreData.data.push(...resp.scores);
-                    if (resp.scores.length < limit) {
+                if (Array.isArray(resp) && resp.length) {
+                    scoreData.data.push(...resp);
+                    if (resp.length < limit) {
                         scoreData.hasMore = false;
-                    }
-                    if (type === 'first') {
-                        scoreData.total = resp.total || 0;
                     }
                 } else {
                     scoreData.hasMore = false;
@@ -476,18 +475,16 @@ const profileApp = Soumetsu.createApp({
             scoreData.page++;
 
             try {
-                const resp = await this.api('users/most_played', {
-                    id: this.userID,
+                const resp = await this.api(`users/${this.userID}/beatmaps/most-played`, {
                     mode: this.mode,
-                    p: scoreData.page,
-                    l: 5,
-                    rx: this.relax
+                    playstyle: this.relax,
+                    page: scoreData.page,
+                    limit: 5
                 });
 
-                if (resp.beatmaps?.length) {
-                    scoreData.data.push(...resp.beatmaps);
-                    scoreData.total = resp.total || 0;
-                    if (resp.beatmaps.length < 5) {
+                if (Array.isArray(resp) && resp.length) {
+                    scoreData.data.push(...resp);
+                    if (resp.length < 5) {
                         scoreData.hasMore = false;
                     }
                 } else {
@@ -508,21 +505,11 @@ const profileApp = Soumetsu.createApp({
             this.commentPage++;
 
             try {
-                const resp = await this.api('users/comments', {
-                    id: this.userID,
-                    p: this.commentPage
-                });
+                const resp = await this.api(`users/${this.userID}/comments`, { page: this.commentPage });
 
-                if (resp.comments?.length) {
-                    // Handle both 'comment' and 'message' field names, and user_id variations
-                    const normalizedComments = resp.comments.map(c => ({
-                        ...c,
-                        comment: c.comment || c.message || '',
-                        time: c.time || c.posted_at || c.postedAt,
-                        user_id: c.user_id || c.userID || c.op || c.user?.id || 0
-                    }));
-                    this.comments.push(...normalizedComments);
-                    if (resp.comments.length < 10) {
+                if (Array.isArray(resp) && resp.length) {
+                    this.comments.push(...resp);
+                    if (resp.length < 10) {
                         this.hasMoreComments = false;
                     }
                 } else {
@@ -539,33 +526,27 @@ const profileApp = Soumetsu.createApp({
         async postComment() {
             if (!this.commentText.trim() || this.commentText.length > 380 || this.commentPosting) {return;}
 
-            const commentToPost = this.commentText.trim();
             this.commentPosting = true;
 
             try {
-                const resp = await fetch(`${this.baseAPI}/api/v1/users/comments?id=${this.userID}`, {
+                const resp = await fetch(`${this.baseAPI}/api/v2/comments`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: commentToPost
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ target_id: this.userID, content: this.commentText.trim() })
                 });
 
                 const data = await resp.json();
-                if (data.code === 200) {
-                    // Clear comment text on success
+                if (data.status === 200) {
                     this.commentText = '';
-
-                    // Reload comments
                     this.comments = [];
                     this.commentPage = 0;
                     this.hasMoreComments = true;
                     await this.loadComments();
-
-                    // Update total
                     if (this.commentsInfo) {
                         this.commentsInfo.total = (this.commentsInfo.total || 0) + 1;
                     }
                 } else {
-                    console.error('Error posting comment:', data);
                     alert('Failed to post comment. Please try again.');
                 }
             } catch (err) {
@@ -580,18 +561,18 @@ const profileApp = Soumetsu.createApp({
             if (!confirm('Are you sure you want to delete this comment?')) {return;}
 
             try {
-                const resp = await fetch(`${this.baseAPI}/api/v1/users/comments/delete?id=${id}`, {
-                    method: 'POST'
+                const resp = await fetch(`${this.baseAPI}/api/v2/comments/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
                 });
                 const data = await resp.json();
 
-                if (data.code === 200) {
+                if (data.status === 200) {
                     this.comments = this.comments.filter(c => c.id !== id);
                     if (this.commentsInfo) {
                         this.commentsInfo.total = Math.max(0, (this.commentsInfo.total || 0) - 1);
                     }
                 } else {
-                    console.error('Error deleting comment:', data);
                     alert('Failed to delete comment. Please try again.');
                 }
             } catch (err) {
@@ -637,23 +618,24 @@ const profileApp = Soumetsu.createApp({
             if (this.friendLoading || !this.canInteract) {return;}
 
             this.friendLoading = true;
-            const action = this.friendStatus > 0 ? 'del' : 'add';
+            const isAdding = this.friendStatus === 0;
 
             try {
-                const resp = await fetch(`${this.baseAPI}/api/v1/friends/${action}?user=${this.userID}`, {
-                    method: 'POST'
+                const resp = await fetch(`${this.baseAPI}/api/v2/users/me/friends/${this.userID}`, {
+                    method: isAdding ? 'POST' : 'DELETE',
+                    credentials: 'same-origin'
                 });
-                const data = await resp.json();
+                const json = await resp.json();
+                const data = json.data !== undefined ? json.data : json;
 
-                if (data.mutual) {this.friendStatus = 2;}
-                else if (data.friend) {this.friendStatus = 1;}
+                if (data?.mutual) {this.friendStatus = 2;}
+                else if (data?.friend || isAdding) {this.friendStatus = isAdding ? 1 : 0;}
                 else {this.friendStatus = 0;}
 
-                // Update follower count
-                if (action === 'add') {
-                    this.followers.allFriended++;
+                if (isAdding) {
+                    this.followers.follower_count++;
                 } else {
-                    this.followers.allFriended--;
+                    this.followers.follower_count--;
                 }
             } catch (err) {
                 console.error('Error toggling friend:', err);
@@ -704,12 +686,7 @@ const profileApp = Soumetsu.createApp({
         // Pin functionality
         async openPinModal(score) {
             this.pinModalScore = score;
-            try {
-                const resp = await this.api(`users/scores/pinned/info?id=${score.id}`);
-                this.pinnedInfo = resp.code === 200 ? resp.pinned : null;
-            } catch {
-                this.pinnedInfo = null;
-            }
+            this.pinnedInfo = score.pinned || null;
             this.showPinModal = true;
         },
 
@@ -717,14 +694,13 @@ const profileApp = Soumetsu.createApp({
             if (!this.pinModalScore) {return;}
 
             const isPinned = !!this.pinnedInfo;
-            const endpoint = isPinned
-                ? `users/scores/pinned/delete?score_id=${this.pinModalScore.id}`
-                : `users/scores/pinned?score_id=${this.pinModalScore.id}&rx=${this.relax}`;
 
             try {
-                await fetch(`${this.baseAPI}/api/v1/${endpoint}`, { method: 'POST' });
+                await fetch(`${this.baseAPI}/api/v2/scores/${this.pinModalScore.id}/pin`, {
+                    method: isPinned ? 'DELETE' : 'POST',
+                    credentials: 'same-origin'
+                });
                 this.showPinModal = false;
-                // Reload pinned scores
                 this.scores.pinned = { data: [], page: 0, loading: false, hasMore: true };
                 this.loadScores('pinned');
             } catch (err) {

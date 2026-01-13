@@ -6,47 +6,37 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
+	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
-	"github.com/RealistikOsu/soumetsu/internal/services"
-	"github.com/RealistikOsu/soumetsu/internal/services/clan"
 	"github.com/gorilla/sessions"
 )
 
 type ClanHandler struct {
-	config      *config.Config
-	clanService *clan.Service
-	csrf        middleware.CSRFService
-	store       middleware.SessionStore
-	templates   *response.TemplateEngine
-	db          *mysql.DB
+	config    *config.Config
+	apiClient *api.Client
+	csrf      middleware.CSRFService
+	store     middleware.SessionStore
+	templates *response.TemplateEngine
 }
 
 func NewClanHandler(
 	cfg *config.Config,
-	clanService *clan.Service,
+	apiClient *api.Client,
 	csrf middleware.CSRFService,
 	store middleware.SessionStore,
 	templates *response.TemplateEngine,
-	db *mysql.DB,
 ) *ClanHandler {
 	return &ClanHandler{
-		config:      cfg,
-		clanService: clanService,
-		csrf:        csrf,
-		store:       store,
-		templates:   templates,
-		db:          db,
+		config:    cfg,
+		apiClient: apiClient,
+		csrf:      csrf,
+		store:     store,
+		templates: templates,
 	}
-}
-
-type ClanPageData struct {
-	ClanID    int
-	ClanParam string
 }
 
 func (h *ClanHandler) ClanPage(w http.ResponseWriter, r *http.Request) {
@@ -93,18 +83,16 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	input := clan.CreateInput{
-		Name:        r.FormValue("name"),
-		Description: r.FormValue("description"),
-		Icon:        r.FormValue("icon"),
-		Tag:         r.FormValue("tag"),
-		OwnerID:     reqCtx.User.ID,
-	}
+	token, _ := sess.Values["token"].(string)
 
-	clanID, err := h.clanService.Create(r.Context(), input)
+	clan, err := h.apiClient.CreateClan(r.Context(), token, &api.CreateClanRequest{
+		Name:        r.FormValue("name"),
+		Tag:         r.FormValue("tag"),
+		Description: r.FormValue("description"),
+	})
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.createResp(w, r, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.createResp(w, r, models.NewError(apiErr.Code))
 			return
 		}
 		h.templates.InternalError(w, r, err)
@@ -113,7 +101,7 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	h.addMessage(sess, models.NewSuccess("Clan created."))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/clans/"+strconv.FormatInt(clanID, 10), http.StatusFound)
+	http.Redirect(w, r, "/clans/"+strconv.Itoa(clan.ID), http.StatusFound)
 }
 
 func (h *ClanHandler) Leave(w http.ResponseWriter, r *http.Request) {
@@ -129,13 +117,14 @@ func (h *ClanHandler) Leave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	clanIDStr := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanIDStr)
 
-	err = h.clanService.Leave(r.Context(), reqCtx.User.ID, clanID)
+	err = h.apiClient.LeaveClan(r.Context(), token, clanID)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
@@ -162,13 +151,14 @@ func (h *ClanHandler) Disband(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	clanIDStr := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanIDStr)
 
-	err = h.clanService.Disband(r.Context(), reqCtx.User.ID, clanID)
+	err = h.apiClient.DeleteClan(r.Context(), token, clanID)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
@@ -200,12 +190,13 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	inviteCode := chi.URLParam(r, "inv")
 
-	clanID, err := h.clanService.Join(r.Context(), reqCtx.User.ID, inviteCode)
+	clan, err := h.apiClient.JoinClanByInvite(r.Context(), token, inviteCode)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
@@ -214,9 +205,9 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.addMessage(sess, models.NewSuccess("You have joined the clan."))
+	h.addMessage(sess, models.NewSuccess("You've joined the clan!"))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/clans/"+strconv.Itoa(clanID), http.StatusFound)
+	http.Redirect(w, r, "/clans/"+strconv.Itoa(clan.ID), http.StatusFound)
 }
 
 func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
@@ -239,12 +230,17 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	memberID, _ := strconv.Atoi(r.FormValue("member"))
 
-	err = h.clanService.Kick(r.Context(), reqCtx.User.ID, memberID)
+	// Need to get clan ID from user's clan membership
+	// For now this is a placeholder
+	clanID := reqCtx.User.Clan
+
+	err = h.apiClient.KickClanMember(r.Context(), token, clanID, memberID)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
@@ -291,24 +287,33 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
+	clanID := reqCtx.User.Clan
+
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	icon := r.FormValue("icon")
 	tag := r.FormValue("tag")
 
 	if name != "" || description != "" || icon != "" || tag != "" {
-		input := clan.UpdateInput{
-			Name:        name,
-			Description: description,
-			Icon:        icon,
-			Tag:         tag,
-			RequesterID: reqCtx.User.ID,
+		req := &api.UpdateClanRequest{}
+		if name != "" {
+			req.Name = &name
+		}
+		if description != "" {
+			req.Description = &description
+		}
+		if icon != "" {
+			req.Icon = &icon
+		}
+		if tag != "" {
+			req.Tag = &tag
 		}
 
-		err = h.clanService.Update(r.Context(), input)
+		err = h.apiClient.UpdateClan(r.Context(), token, clanID, req)
 		if err != nil {
-			if svcErr, ok := err.(*services.ServiceError); ok {
-				h.addMessage(sess, models.NewError(svcErr.Message))
+			if apiErr, ok := err.(*api.APIError); ok {
+				h.addMessage(sess, models.NewError(apiErr.Code))
 			} else {
 				h.addMessage(sess, models.NewError("An unexpected error occurred."))
 			}
@@ -317,10 +322,10 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		_, err = h.clanService.CreateInvite(r.Context(), reqCtx.User.ID)
+		_, err = h.apiClient.GenerateClanInvite(r.Context(), token, clanID)
 		if err != nil {
-			if svcErr, ok := err.(*services.ServiceError); ok {
-				h.addMessage(sess, models.NewError(svcErr.Message))
+			if apiErr, ok := err.(*api.APIError); ok {
+				h.addMessage(sess, models.NewError(apiErr.Code))
 			} else {
 				h.addMessage(sess, models.NewError("An unexpected error occurred."))
 			}
@@ -340,7 +345,7 @@ func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, message
 	h.templates.Render(w, "clans/create.html", &response.TemplateData{
 		TitleBar:  "Create your clan",
 		KyutGrill: "clans.jpg",
-		Scripts:   []string{"https://www.google.com/recaptcha/api.js"},
+		Scripts:   []string{"https://js.hcaptcha.com/1/api.js"},
 		Messages:  messages,
 		FormData:  NormaliseURLValues(r.PostForm),
 		Context:   reqCtx,
@@ -348,9 +353,9 @@ func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, message
 }
 
 func (h *ClanHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	RedirectToLogin(w, r, h.store) // Use shared implementation
+	RedirectToLogin(w, r, h.store)
 }
 
 func (h *ClanHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }

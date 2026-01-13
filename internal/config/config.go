@@ -14,7 +14,6 @@ type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
 	Redis    RedisConfig
-	Mailgun  MailgunConfig
 	Discord  DiscordConfig
 	Beatmap  BeatmapConfig
 	Security SecurityConfig
@@ -63,13 +62,6 @@ type RedisConfig struct {
 
 func (c RedisConfig) Addr() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
-}
-
-type MailgunConfig struct {
-	Domain    string
-	APIKey    string
-	PublicKey string
-	From      string
 }
 
 type DiscordConfig struct {
@@ -122,12 +114,6 @@ func Load() (*Config, error) {
 			Pass:           mustEnv("REDIS_PASS"),
 			DB:             mustEnvInt("REDIS_DB"),
 			UseSSL:         mustEnvBool("REDIS_USE_SSL"),
-		},
-		Mailgun: MailgunConfig{
-			Domain:    mustEnv("MAILGUN_DOMAIN"),
-			APIKey:    mustEnv("MAILGUN_API_KEY"),
-			PublicKey: mustEnv("MAILGUN_PUBLIC_KEY"),
-			From:      mustEnv("MAILGUN_FROM"),
 		},
 		Discord: DiscordConfig{
 			ServerURL:       mustEnv("DISCORD_SERVER_URL"),

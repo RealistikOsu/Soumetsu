@@ -465,7 +465,7 @@ function _api(base, endpoint, data, success, failure, post, handleAllFailures) {
 };
 
 function api(endpoint, data, success, failure, post, handleAllFailures) {
-  return _api(soumetsuConf.baseAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
+  return _api(soumetsuConf.baseAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
 function banchoAPI(endpoint, data, success, failure, post, handleAllFailures) {
