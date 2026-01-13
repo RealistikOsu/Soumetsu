@@ -10,7 +10,7 @@ const searchSettings = {
 
 let beatmapTimer;
 
-const mirror_api = "https://osu.direct/api"; // we rlly do need our own
+const mirror_api = "https://catboy.best/api";
 
 function buttons() {
     const modes = document.querySelectorAll("#mode-button");

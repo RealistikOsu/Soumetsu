@@ -21,12 +21,12 @@ const beatmapSearchApp = Soumetsu.createApp({
             beatmapTimer: null,
 
             // Constants
-            mirror_api: "https://osu.direct/api",
+            mirror_api: "https://catboy.best/api",
             sources: [
                 { name: "RealistikOsu", mirror: "https://ussr.pl/d/" },
-                { name: "Beatconnect", mirror: "https://beatconnect.io/b/" },
                 { name: "Mino", mirror: "https://catboy.best/d/" },
                 { name: "osu.direct", mirror: "https://osu.direct/d/" },
+                { name: "Beatconnect", mirror: "https://beatconnect.io/b/" },
             ],
             statusMap: {
                 "-2": "Graveyard",

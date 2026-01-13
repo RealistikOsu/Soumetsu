@@ -77,9 +77,8 @@ const profileApp = Soumetsu.createApp({
         },
         currentStats() {
             if (!this.user?.stats) {return null;}
-            const rxKey = ['vn', 'rx', 'ap'][this.relax];
-            const modeKey = ['std', 'taiko', 'ctb', 'mania'][this.mode];
-            return this.user.stats[rxKey]?.[modeKey] || null;
+            // API returns stats directly for the requested mode/playstyle
+            return this.user.stats;
         },
         mixedMode() {
             let m = this.mode;
@@ -108,12 +107,12 @@ const profileApp = Soumetsu.createApp({
             return Math.floor(this.currentStats.level);
         },
         bannerGradient() {
-            if (this.bannerColors && this.bannerColors.color1 && this.bannerColors.color2) {
+            if (this.bannerColors && this.bannerColors.colour1 && this.bannerColors.colour2) {
                 // Convert rgb to rgba with 20% opacity (0.2)
-                const color1RGBA = this.bannerColors.color1.replace('rgb', 'rgba').replace(')', ', 0.2)');
-                const color2RGBA = this.bannerColors.color2.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                const colour1RGBA = this.bannerColors.colour1.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                const colour2RGBA = this.bannerColors.colour2.replace('rgb', 'rgba').replace(')', ', 0.2)');
                 return {
-                    background: `linear-gradient(to bottom right, ${color1RGBA}, ${color2RGBA})`
+                    background: `linear-gradient(to bottom right, ${colour1RGBA}, ${colour2RGBA})`
                 };
             }
             return {}; // Fallback to default CSS gradient
@@ -649,6 +648,7 @@ const profileApp = Soumetsu.createApp({
             if (this.mode === mode) {return;}
             this.mode = mode;
             this.updateURL();
+            this.loadUserStats();
             this.loadAllScores();
             this.loadGraph();
         },
@@ -661,8 +661,20 @@ const profileApp = Soumetsu.createApp({
 
             this.relax = rx;
             this.updateURL();
+            this.loadUserStats();
             this.loadAllScores();
             this.loadGraph();
+        },
+
+        async loadUserStats() {
+            try {
+                const userResp = await this.api(`users/${this.userID}`, { mode: this.mode, playstyle: this.relax });
+                if (userResp?.stats) {
+                    this.user.stats = userResp.stats;
+                }
+            } catch (err) {
+                console.error('Error loading user stats:', err);
+            }
         },
 
         updateURL() {

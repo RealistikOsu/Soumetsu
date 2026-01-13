@@ -3,7 +3,7 @@ DisableHH=true
 */}}
 {{ define "tpl" }}
 <script>
-	window.beatmapSetId = {{ .SetID }};
+	window.beatmapSetId = {{ .Extra.SetID }};
 </script>
 
 <div id="beatmap-set-app" class="relative min-h-screen py-8">
@@ -25,7 +25,7 @@ DisableHH=true
 	<div v-else class="container mx-auto px-4">
 		<div class="card">
 			<h1 class="text-3xl font-bold mb-4">Beatmap Set</h1>
-			<p class="text-gray-400">Set ID: {{ .SetID }}</p>
+			<p class="text-gray-400">Set ID: {{ .Extra.SetID }}</p>
 		</div>
 	</div>
 </div>

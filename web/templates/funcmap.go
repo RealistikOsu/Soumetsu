@@ -440,7 +440,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			}{
 				"APP_AVATAR_URL":         {"App", "AvatarURL"},
 				"APP_BANCHO_URL":         {"App", "BanchoURL"},
-				"APP_API_URL":            {"App", "APIURL"},
+				"APP_API_URL":            {"App", "BrowserAPIURL"},
 				"BEATMAP_MIRROR_API_URL": {"Beatmap", "MirrorAPIURL"},
 				"RECAPTCHA_SITE_KEY":     {"Security", "RecaptchaSiteKey"},
 				"DISCORD_SERVER_URL":     {"Discord", "ServerURL"},

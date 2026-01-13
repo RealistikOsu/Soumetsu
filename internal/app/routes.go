@@ -115,6 +115,12 @@ func (a *App) Routes() chi.Router {
 		http.Redirect(w, r, "/u/"+user+"?rx=2", http.StatusMovedPermanently)
 	})
 
+	r.Get("/team", a.UserHandler.TeamPage)
+
+	// Load simple pages first so specific routes like /beatmaps/rank-request
+	// are registered before the wildcard /beatmaps/{id} route
+	a.loadSimplePages(r)
+
 	r.Get("/b/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		http.Redirect(w, r, "/beatmaps/"+id, http.StatusMovedPermanently)
@@ -126,12 +132,11 @@ func (a *App) Routes() chi.Router {
 	})
 	r.Get("/beatmapsets/{id}/download", a.BeatmapHandler.DownloadBeatmap)
 
-	r.Get("/team", a.UserHandler.TeamPage)
-
-	a.loadSimplePages(r)
-
 	r.Get("/rank_request", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/rank-request", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/beatmaps/rank-request", http.StatusMovedPermanently)
+	})
+	r.Get("/rank-request", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/beatmaps/rank-request", http.StatusMovedPermanently)
 	})
 	r.Get("/clanboard", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.RawQuery

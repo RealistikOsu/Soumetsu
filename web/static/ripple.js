@@ -172,9 +172,7 @@ const singlePageSnippets = {
       });
   },
 
-  "/donate" : function() {
-    // Donation page logic is now handled inline in the template
-  },
+  // "/donate" - Donation page logic is now handled inline in the template
 
   "/settings/avatar" : function() {
     $("#file")
@@ -190,76 +188,7 @@ const singlePageSnippets = {
       });
   },
 
-  "/beatmaps/rank-request" : function() {
-    function updateRankRequestPage(data) {
-      $("#queue-info").html(data.submitted + "/" + data.queue_size);
-
-      if (data.submitted_by_user == 0)
-        {$("#by-you").attr("hidden", "hidden");}
-      else
-        {$("#by-you").removeAttr("hidden");}
-
-      $("#submitted-by-user").text(data.submitted_by_user);
-      $("#max-per-user").text(data.max_per_user);
-
-      const perc = (data.submitted / data.queue_size * 100).toFixed(0);
-      $("#progressbar .progress").text(perc + "%");
-      $("#progressbar")
-        .progress({
-          percent : perc,
-        });
-      if (data.can_submit)
-        {$("#b-form .input, #b-form .button").removeClass("disabled");}
-      else
-        {$("#b-form .input, #b-form .button").addClass("disabled");}
-    }
-    setInterval(function() {
-      api("beatmaps/rank_requests/status", {}, updateRankRequestPage);
-    }, 10000);
-    const re = /^https?:\/\/osu.ppy.sh\/(s|b)\/(\d+)$/gi;
-    const re_ussr = /^https?:\/\/ussr.pl\/(s|b)\/(\d+)$/gi;
-    $("#b-form")
-      .submit(function(e) {
-        e.preventDefault();
-        const v = $("#beatmap").val().trim();
-        let reData = re.exec(v);
-        re.exec(); // apparently this is always null, idk
-        const reData2 = re_ussr.exec(v)
-        re_ussr.exec()
-        if (reData === null && reData2 === null) {
-          showMessage(
-            "error",
-            "Please provide a valid link, in the form " +
-                    "of either https://osu.ppy.sh/s/&lt;ID&gt; or https://ussr.pl/beatmaps/&lt;ID&gt;.");
-          $(this).removeClass("loading");
-          return false;
-        }
-
-        // Bruh.
-        if (reData === null)
-          {reData = reData2;}
-        const postData = {};
-        if (reData[1] == "s")
-          {postData.set_id = +reData[2];}
-        else
-          {postData.id = +reData[2];}
-        const t = $(this);
-        api("beatmaps/rank_requests", postData,
-          function(data) {
-            t.removeClass("loading");
-            showMessage("success",
-              "Beatmap rank request has been submitted.");
-            updateRankRequestPage(data);
-          },
-          function(data) {
-            t.removeClass("loading");
-            if (data.code == 406)
-              {showMessage("warning", "That beatmap is already ranked!");}
-          },
-          true);
-        return false;
-      });
-  },
+  // "/beatmaps/rank-request" is now handled by Vue component in rank_request.js
 
   "/settings/profbackground" : function() {
     $("#colorpicker")

@@ -157,11 +157,21 @@ const SoumetsuAPI = {
     },
 
     leaderboard: {
+        async get(mode = 0, playstyle = 0, sort = 'pp', page = 1, country = '') {
+            const limit = 50;
+            let data;
+            if (country && country !== '') {
+                data = await SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, playstyle, page, limit });
+            } else {
+                data = await SoumetsuAPI.get('leaderboard/', { mode, playstyle, page, limit });
+            }
+            return { users: data };
+        },
         global(mode = 0, playstyle = 0, page = 1, limit = 50) {
-            return SoumetsuAPI.get('leaderboard', { mode, playstyle, page, limit });
+            return SoumetsuAPI.get('leaderboard/', { mode, playstyle, page, limit });
         },
         country(country, mode = 0, playstyle = 0, page = 1, limit = 50) {
-            return SoumetsuAPI.get(`leaderboard/country/${country}`, { mode, playstyle, page, limit });
+            return SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, playstyle, page, limit });
         },
     },
 

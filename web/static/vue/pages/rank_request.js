@@ -19,6 +19,10 @@ const rankRequestApp = Soumetsu.createApp({
 			return (window.soumetsuConf && window.soumetsuConf.baseAPI) ? window.soumetsuConf.baseAPI : "";
 		},
 
+		apiToken() {
+			return (window.soumetsuConf && window.soumetsuConf.apiToken) ? window.soumetsuConf.apiToken : "";
+		},
+
 		apiConfigured() {
 			return this.apiBase !== "";
 		},
@@ -62,8 +66,14 @@ const rankRequestApp = Soumetsu.createApp({
 				return;
 			}
 
+			const headers = {};
+			if (this.apiToken) {
+				headers['Authorization'] = 'Bearer ' + this.apiToken;
+			}
+
 			try {
 				const response = await fetch(this.apiBase + "/api/v2/beatmaps/rank-requests/status", {
+					headers: headers,
 					credentials: 'include',
 				});
 
@@ -87,6 +97,18 @@ const rankRequestApp = Soumetsu.createApp({
 				this.error = true;
 				this.errorMessage = error.message || "Request failed";
 			}
+		},
+
+		getErrorMessage(errorCode) {
+			const errorMessages = {
+				'beatmaps.invalid_url': 'Invalid beatmap URL. Please use a valid osu! or server beatmap link.',
+				'beatmaps.beatmap_not_found': 'Beatmap not found. Make sure the beatmap exists.',
+				'beatmaps.already_requested': 'This beatmap has already been requested.',
+				'beatmaps.already_ranked': 'This beatmap is already ranked.',
+				'beatmaps.daily_limit_reached': 'You have reached your daily limit for requesting beatmaps.',
+				'auth.unauthenticated': 'You must be logged in to submit rank requests.',
+			};
+			return errorMessages[errorCode] || null;
 		},
 
 		async submitBeatmap() {
@@ -113,18 +135,30 @@ const rankRequestApp = Soumetsu.createApp({
 
 			this.submitting = true;
 
+			const headers = {
+				'Content-Type': 'application/json',
+			};
+			if (this.apiToken) {
+				headers['Authorization'] = 'Bearer ' + this.apiToken;
+			}
+
 			try {
 				const response = await fetch(submitUrl, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers: headers,
 					credentials: 'include',
 					body: JSON.stringify({ url: url }),
 				});
 
+				const data = await response.json();
+
 				if (!response.ok) {
-					throw new Error("HTTP " + response.status);
+					const errorCode = data.data || data.error || null;
+					const friendlyMessage = this.getErrorMessage(errorCode);
+					if (friendlyMessage) {
+						throw new Error(friendlyMessage);
+					}
+					throw new Error("Request failed (HTTP " + response.status + ")");
 				}
 
 				this.submitOk = true;
@@ -135,7 +169,7 @@ const rankRequestApp = Soumetsu.createApp({
 				console.error("Rank request submit error:", error);
 
 				this.submitOk = false;
-				this.submitMessage = "Could not submit: " + (error.message || "request failed");
+				this.submitMessage = error.message || "Request failed";
 			} finally {
 				this.submitting = false;
 			}

@@ -20,16 +20,17 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Port         int
-	Env          string
-	CookieSecret string
-	SoumetsuKey  string
-	BaseURL      string
-	AvatarURL    string
-	APIURL       string
-	BanchoURL    string
-	AvatarsPath  string
-	BannersPath  string
+	Port          int
+	Env           string
+	CookieSecret  string
+	SoumetsuKey   string
+	BaseURL       string
+	AvatarURL     string
+	APIURL        string
+	BrowserAPIURL string
+	BanchoURL     string
+	AvatarsPath   string
+	BannersPath   string
 }
 
 type DatabaseConfig struct {
@@ -88,16 +89,17 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Port:         mustEnvInt("SOUMETSU_PORT"),
-			Env:          mustEnv("SOUMETSU_ENV"),
-			CookieSecret: mustEnv("SOUMETSU_COOKIE_SECRET"),
-			SoumetsuKey:  mustEnv("SOUMETSU_KEY"),
-			BaseURL:      mustEnv("SOUMETSU_BASE_URL"),
-			AvatarURL:    mustEnv("SOUMETSU_AVATAR_URL"),
-			APIURL:       mustEnv("SOUMETSU_API_URL"),
-			BanchoURL:    mustEnv("SOUMETSU_BANCHO_URL"),
-			AvatarsPath:  mustEnv("SOUMETSU_INTERNAL_AVATARS_PATH"),
-			BannersPath:  mustEnv("SOUMETSU_INTERNAL_BANNERS_PATH"),
+			Port:          mustEnvInt("SOUMETSU_PORT"),
+			Env:           mustEnv("SOUMETSU_ENV"),
+			CookieSecret:  mustEnv("SOUMETSU_COOKIE_SECRET"),
+			SoumetsuKey:   mustEnv("SOUMETSU_KEY"),
+			BaseURL:       mustEnv("SOUMETSU_BASE_URL"),
+			AvatarURL:     mustEnv("SOUMETSU_AVATAR_URL"),
+			APIURL:        mustEnv("SOUMETSU_API_URL"),
+			BrowserAPIURL: optionalEnv("SOUMETSU_BROWSER_API_URL", mustEnv("SOUMETSU_API_URL")),
+			BanchoURL:     mustEnv("SOUMETSU_BANCHO_URL"),
+			AvatarsPath:   mustEnv("SOUMETSU_INTERNAL_AVATARS_PATH"),
+			BannersPath:   mustEnv("SOUMETSU_INTERNAL_BANNERS_PATH"),
 		},
 		Database: DatabaseConfig{
 			Host: mustEnv("MYSQL_HOST"),
@@ -173,6 +175,14 @@ func mustEnv(key string) string {
 	val, exists := os.LookupEnv(key)
 	if !exists {
 		panic("Missing environment variable: " + key)
+	}
+	return val
+}
+
+func optionalEnv(key string, fallback string) string {
+	val, exists := os.LookupEnv(key)
+	if !exists {
+		return fallback
 	}
 	return val
 }

@@ -243,7 +243,7 @@
 
 	// Export to window
 	window.BannerGradient = {
-		extract: extractBannerColors,
+		extract: extractBannerColours,
 		apply: applyBannerGradient,
 		init: initBannerGradient
 	};
