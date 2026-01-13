@@ -24,20 +24,20 @@ type User struct {
 }
 
 type UserStats struct {
-	UserID       int     `json:"user_id"`
-	Mode         int     `json:"mode"`
-	RankedScore  int64   `json:"ranked_score"`
-	TotalScore   int64   `json:"total_score"`
-	Playcount    int     `json:"playcount"`
-	Replays      int     `json:"replays"`
-	TotalHits    int64   `json:"total_hits"`
-	Level        float64 `json:"level"`
-	Accuracy     float64 `json:"accuracy"`
-	PP           int     `json:"pp"`
-	GlobalRank   int     `json:"global_rank"`
-	CountryRank  int     `json:"country_rank"`
-	MaxCombo     int     `json:"max_combo"`
-	Playtime     int     `json:"playtime"`
+	UserID      int     `json:"user_id"`
+	Mode        int     `json:"mode"`
+	RankedScore int64   `json:"ranked_score"`
+	TotalScore  int64   `json:"total_score"`
+	Playcount   int     `json:"playcount"`
+	Replays     int     `json:"replays"`
+	TotalHits   int64   `json:"total_hits"`
+	Level       float64 `json:"level"`
+	Accuracy    float64 `json:"accuracy"`
+	PP          int     `json:"pp"`
+	GlobalRank  int     `json:"global_rank"`
+	CountryRank int     `json:"country_rank"`
+	MaxCombo    int     `json:"max_combo"`
+	Playtime    int     `json:"playtime"`
 }
 
 type UserProfile struct {

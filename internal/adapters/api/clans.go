@@ -26,16 +26,16 @@ type ClanMember struct {
 }
 
 type ClanStats struct {
-	TotalPP         int `json:"total_pp"`
-	AveragePP       int `json:"average_pp"`
+	TotalPP          int   `json:"total_pp"`
+	AveragePP        int   `json:"average_pp"`
 	TotalRankedScore int64 `json:"total_ranked_score"`
 	TotalPlaycount   int   `json:"total_playcount"`
-	Rank            int `json:"rank"`
+	Rank             int   `json:"rank"`
 }
 
 type ClanResponse struct {
-	Clan    Clan        `json:"clan"`
-	Stats   *ClanStats  `json:"stats,omitempty"`
+	Clan    Clan         `json:"clan"`
+	Stats   *ClanStats   `json:"stats,omitempty"`
 	Members []ClanMember `json:"members,omitempty"`
 }
 

@@ -71,13 +71,13 @@ func (r *UserRepository) FindByUsernameOrEmail(ctx context.Context, identifier s
 }
 
 type UserForLogin struct {
-	ID              int                    `db:"id"`
-	Username        string                 `db:"username"`
-	Password        string                 `db:"password_md5"`
-	PasswordVersion int                    `db:"password_version"`
-	Country         string                 `db:"country"`
-	Privileges      models.UserPrivileges  `db:"privileges"`
-	Flags           uint64                 `db:"flags"`
+	ID              int                   `db:"id"`
+	Username        string                `db:"username"`
+	Password        string                `db:"password_md5"`
+	PasswordVersion int                   `db:"password_version"`
+	Country         string                `db:"country"`
+	Privileges      models.UserPrivileges `db:"privileges"`
+	Flags           uint64                `db:"flags"`
 }
 
 func (r *UserRepository) FindForLogin(ctx context.Context, identifier string) (*UserForLogin, error) {
