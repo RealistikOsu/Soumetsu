@@ -33,42 +33,36 @@ func (u SessionUser) IsLoggedIn() bool {
 	return u.ID != 0
 }
 
-// IsBanned checks if the user is banned (lacks the Normal privilege)
 func (u SessionUser) IsBanned() bool {
 	return !u.HasPrivilege(UserPrivilegeNormal)
 }
 
-// HasPrivilege checks if the user has ALL of the specified privileges
+// HasPrivilege checks if the user has ALL of the specified privileges.
 func (u SessionUser) HasPrivilege(priv UserPrivileges) bool {
 	return u.Privileges&priv == priv
 }
 
-// HasAnyPrivilege checks if the user has ANY of the specified privileges
+// HasAnyPrivilege checks if the user has ANY of the specified privileges.
 func (u SessionUser) HasAnyPrivilege(priv UserPrivileges) bool {
 	return u.Privileges&priv != 0
 }
 
-// IsNormal checks if the user has normal (non-banned) status
 func (u SessionUser) IsNormal() bool {
 	return u.HasPrivilege(UserPrivilegeNormal)
 }
 
-// IsPendingVerification checks if the user needs to verify their account
 func (u SessionUser) IsPendingVerification() bool {
 	return u.HasAnyPrivilege(UserPrivilegePendingVerification)
 }
 
-// IsDonor checks if the user is a supporter/donor
 func (u SessionUser) IsDonor() bool {
 	return u.HasPrivilege(UserPrivilegeDonor)
 }
 
-// IsAdmin checks if the user has any admin privileges
 func (u SessionUser) IsAdmin() bool {
 	return u.HasAnyPrivilege(AdminPrivilegeAccessRAP)
 }
 
-// CanManageUsers checks if the user can manage other users
 func (u SessionUser) CanManageUsers() bool {
 	return u.HasPrivilege(AdminPrivilegeManageUsers)
 }

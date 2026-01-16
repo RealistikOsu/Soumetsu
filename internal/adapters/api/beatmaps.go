@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
 )
 
@@ -35,7 +36,9 @@ func (c *Client) GetBeatmap(ctx context.Context, beatmapID int) (*Beatmap, error
 }
 
 func (c *Client) GetBeatmapByMD5(ctx context.Context, md5 string) (*Beatmap, error) {
-	path := "/api/v2/beatmaps/lookup?md5=" + md5
+	params := url.Values{}
+	params.Set("md5", md5)
+	path := "/api/v2/beatmaps/lookup?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -44,8 +47,13 @@ func (c *Client) GetBeatmapByMD5(ctx context.Context, md5 string) (*Beatmap, err
 }
 
 func (c *Client) SearchBeatmaps(ctx context.Context, query string, mode, ranked, page, limit int) ([]Beatmap, error) {
-	path := "/api/v2/beatmaps?q=" + query + "&mode=" + strconv.Itoa(mode) + "&ranked=" + strconv.Itoa(ranked) +
-		"&page=" + strconv.Itoa(page) + "&limit=" + strconv.Itoa(limit)
+	params := url.Values{}
+	params.Set("q", query)
+	params.Set("mode", strconv.Itoa(mode))
+	params.Set("ranked", strconv.Itoa(ranked))
+	params.Set("page", strconv.Itoa(page))
+	params.Set("limit", strconv.Itoa(limit))
+	path := "/api/v2/beatmaps?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -58,7 +66,11 @@ func (c *Client) SearchBeatmaps(ctx context.Context, query string, mode, ranked,
 }
 
 func (c *Client) GetPopularBeatmaps(ctx context.Context, mode, page, limit int) ([]Beatmap, error) {
-	path := "/api/v2/beatmaps/popular?mode=" + strconv.Itoa(mode) + "&page=" + strconv.Itoa(page) + "&limit=" + strconv.Itoa(limit)
+	params := url.Values{}
+	params.Set("mode", strconv.Itoa(mode))
+	params.Set("page", strconv.Itoa(page))
+	params.Set("limit", strconv.Itoa(limit))
+	path := "/api/v2/beatmaps/popular?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err

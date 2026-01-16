@@ -366,8 +366,6 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) TeamPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 
-	// Team page data would need to come from the API
-	// For now, render with empty data
 	h.templates.RenderWithRequest(w, r, "team.html", &response.TemplateData{
 		TitleBar: "Team",
 		Context:  reqCtx,

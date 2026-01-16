@@ -173,5 +173,5 @@ func (h *PagesHandler) forbidden(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PagesHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }

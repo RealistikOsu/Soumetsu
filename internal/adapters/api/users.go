@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"strconv"
 )
 
@@ -70,7 +71,9 @@ func (c *Client) GetUser(ctx context.Context, userID int, mode int, playstyle in
 }
 
 func (c *Client) GetUserByUsername(ctx context.Context, username string) (*User, error) {
-	path := "/api/v2/users/resolve?username=" + username
+	params := url.Values{}
+	params.Set("username", username)
+	path := "/api/v2/users/resolve?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -115,7 +118,11 @@ func (c *Client) UpdateUserpage(ctx context.Context, token string, content strin
 }
 
 func (c *Client) SearchUsers(ctx context.Context, query string, page, limit int) ([]User, error) {
-	path := "/api/v2/users/search?q=" + query + "&page=" + strconv.Itoa(page) + "&limit=" + strconv.Itoa(limit)
+	params := url.Values{}
+	params.Set("q", query)
+	params.Set("page", strconv.Itoa(page))
+	params.Set("limit", strconv.Itoa(limit))
+	path := "/api/v2/users/search?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -181,7 +188,6 @@ type UploadResponse struct {
 	Path string `json:"path"`
 }
 
-// UploadAvatar uploads an avatar image for the current user
 func (c *Client) UploadAvatar(ctx context.Context, token string, fileName string, fileContent io.Reader, contentType string) (*UploadResponse, error) {
 	resp, err := c.PostMultipart(ctx, "/api/v2/users/me/avatar", "file", fileName, fileContent, contentType, token)
 	if err != nil {
@@ -190,7 +196,6 @@ func (c *Client) UploadAvatar(ctx context.Context, token string, fileName string
 	return decodeResponse[UploadResponse](resp)
 }
 
-// DeleteAvatar deletes the current user's avatar
 func (c *Client) DeleteAvatar(ctx context.Context, token string) error {
 	resp, err := c.Delete(ctx, "/api/v2/users/me/avatar", token)
 	if err != nil {
@@ -200,7 +205,6 @@ func (c *Client) DeleteAvatar(ctx context.Context, token string) error {
 	return err
 }
 
-// UploadBanner uploads a banner image for the current user
 func (c *Client) UploadBanner(ctx context.Context, token string, fileName string, fileContent io.Reader, contentType string) (*UploadResponse, error) {
 	resp, err := c.PostMultipart(ctx, "/api/v2/users/me/banner", "file", fileName, fileContent, contentType, token)
 	if err != nil {
@@ -209,7 +213,6 @@ func (c *Client) UploadBanner(ctx context.Context, token string, fileName string
 	return decodeResponse[UploadResponse](resp)
 }
 
-// DeleteBanner deletes the current user's banner
 func (c *Client) DeleteBanner(ctx context.Context, token string) error {
 	resp, err := c.Delete(ctx, "/api/v2/users/me/banner", token)
 	if err != nil {

@@ -282,8 +282,7 @@ const profileApp = Soumetsu.createApp({
         },
 
         async loadDiscordInfo() {
-            // This would need a backend endpoint to check discord linking
-            // For now, we skip this
+            // TODO: Implement when backend endpoint is available
         },
 
         async loadOnlineStatus() {

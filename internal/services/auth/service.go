@@ -17,10 +17,12 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/services"
 )
 
-func generateRandomToken() string {
+func generateRandomToken() (string, error) {
 	b := make([]byte, 32)
-	rand.Read(b)
-	return hex.EncodeToString(b)
+	if _, err := rand.Read(b); err != nil {
+		return "", fmt.Errorf("failed to generate random token: %w", err)
+	}
+	return hex.EncodeToString(b), nil
 }
 
 type Service struct {
@@ -163,7 +165,10 @@ func (s *Service) SetIdentityCookie(ctx context.Context, userID int) (string, er
 	}
 
 	// Generate new token if none exists
-	newToken := generateRandomToken()
+	newToken, err := generateRandomToken()
+	if err != nil {
+		return "", err
+	}
 	if err := s.tokenRepo.CreateIdentityToken(ctx, userID, newToken); err != nil {
 		return "", err
 	}
@@ -203,13 +208,17 @@ func (s *Service) LogIP(ctx context.Context, userID int, ip string) error {
 func (s *Service) SetCountry(ctx context.Context, userID int, ip string) error {
 	resp, err := http.Get(s.config.Security.IPLookupURL + "/" + ip + "/country")
 	if err != nil {
-		return err
+		return fmt.Errorf("IP lookup request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("IP lookup returned status %d", resp.StatusCode)
+	}
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read IP lookup response: %w", err)
 	}
 
 	country := strings.TrimSpace(string(data))

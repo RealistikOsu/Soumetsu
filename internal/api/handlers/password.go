@@ -144,9 +144,9 @@ func (h *PasswordHandler) changeResp(w http.ResponseWriter, r *http.Request, ses
 }
 
 func (h *PasswordHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	RedirectToLogin(w, r, h.store) // Use shared implementation
+	RedirectToLogin(w, r, h.store)
 }
 
 func (h *PasswordHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }

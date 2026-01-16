@@ -232,9 +232,6 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 
 	token, _ := sess.Values["token"].(string)
 	memberID, _ := strconv.Atoi(r.FormValue("member"))
-
-	// Need to get clan ID from user's clan membership
-	// For now this is a placeholder
 	clanID := reqCtx.User.Clan
 
 	err = h.apiClient.KickClanMember(r.Context(), token, clanID, memberID)

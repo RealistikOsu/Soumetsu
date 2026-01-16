@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
@@ -108,8 +111,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	h.setIdentityCookie(w, r, result.UserID)
 
 	clientIP := apicontext.ClientIP(r)
-	h.authService.LogIP(r.Context(), result.UserID, clientIP)
-	go h.authService.SetCountry(r.Context(), result.UserID, clientIP)
+	if err := h.authService.LogIP(r.Context(), result.UserID, clientIP); err != nil {
+		slog.Error("failed to log IP", "error", err, "user_id", result.UserID, "ip", clientIP)
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := h.authService.SetCountry(ctx, result.UserID, clientIP); err != nil {
+			slog.Error("failed to set country", "error", err, "user_id", result.UserID, "ip", clientIP)
+		}
+	}()
 
 	sess.Values["userid"] = result.UserID
 	sess.Values["token"] = result.Token
@@ -234,8 +245,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	h.setIdentityCookie(w, r, userID)
 
 	clientIP := apicontext.ClientIP(r)
-	h.authService.LogIP(r.Context(), userID, clientIP)
-	go h.authService.SetCountry(r.Context(), userID, clientIP)
+	if err := h.authService.LogIP(r.Context(), userID, clientIP); err != nil {
+		slog.Error("failed to log IP", "error", err, "user_id", userID, "ip", clientIP)
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := h.authService.SetCountry(ctx, userID, clientIP); err != nil {
+			slog.Error("failed to set country", "error", err, "user_id", userID, "ip", clientIP)
+		}
+	}()
 
 	h.addMessage(sess, models.NewSuccess("You have been successfully registered on RealistikOsu! You now need to verify your account."))
 	sess.Save(r, w)
