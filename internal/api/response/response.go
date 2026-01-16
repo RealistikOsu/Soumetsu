@@ -319,6 +319,11 @@ func (e *TemplateEngine) RenderWithRequest(w http.ResponseWriter, r *http.Reques
 		data.Extra["_request"] = r
 	}
 
+	// Set Context from request if not already set
+	if data.Context == nil && r != nil {
+		data.Context = apicontext.GetRequestContextFromRequest(r)
+	}
+
 	return e.Render(w, name, data)
 }
 

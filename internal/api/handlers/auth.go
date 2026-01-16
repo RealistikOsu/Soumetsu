@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
-	"github.com/RealistikOsu/soumetsu/internal/adapters/redis"
+	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
@@ -21,30 +23,27 @@ import (
 type AuthHandler struct {
 	config      *config.Config
 	authService *auth.Service
+	apiClient   *api.Client
 	csrf        middleware.CSRFService
 	store       middleware.SessionStore
 	templates   *response.TemplateEngine
-	db          *mysql.DB
-	redis       *redis.Client
 }
 
 func NewAuthHandler(
 	cfg *config.Config,
 	authService *auth.Service,
+	apiClient *api.Client,
 	csrf middleware.CSRFService,
 	store middleware.SessionStore,
 	templates *response.TemplateEngine,
-	db *mysql.DB,
-	redis *redis.Client,
 ) *AuthHandler {
 	return &AuthHandler{
 		config:      cfg,
 		authService: authService,
+		apiClient:   apiClient,
 		csrf:        csrf,
 		store:       store,
 		templates:   templates,
-		db:          db,
-		redis:       redis,
 	}
 }
 
@@ -109,24 +108,23 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.setIdentityCookie(w, r, result.User.ID)
+	h.setIdentityCookie(w, r, result.UserID)
 
 	clientIP := apicontext.ClientIP(r)
-	token, err := h.authService.CheckOrGenerateToken(r.Context(), "", result.User.ID, clientIP)
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
+	if err := h.authService.LogIP(r.Context(), result.UserID, clientIP); err != nil {
+		slog.Error("failed to log IP", "error", err, "user_id", result.UserID, "ip", clientIP)
 	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := h.authService.SetCountry(ctx, result.UserID, clientIP); err != nil {
+			slog.Error("failed to set country", "error", err, "user_id", result.UserID, "ip", clientIP)
+		}
+	}()
 
-	h.authService.LogIP(r.Context(), result.User.ID, clientIP)
-
-	go h.authService.SetCountry(r.Context(), result.User.ID, clientIP)
-
-	sess.Values["userid"] = result.User.ID
-	// Use SHA-256 instead of MD5 for session validation (more secure)
-	sess.Values["pw"] = crypto.HashSessionToken(result.User.Password)
+	sess.Values["userid"] = result.UserID
+	sess.Values["token"] = result.Token
 	sess.Values["logout"] = crypto.GenerateLogoutKey()
-	sess.Values["token"] = token
 
 	redir := r.FormValue("redir")
 	if len(redir) > 0 && redir[0] != '/' {
@@ -136,7 +134,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		redir = "/"
 	}
 
-	h.addMessage(sess, models.NewSuccess("Welcome back "+result.User.Username+"! You have been logged into RealistikOsu!"))
+	h.addMessage(sess, models.NewSuccess("Welcome back "+result.Username+"! You have been logged into RealistikOsu!"))
 	sess.Save(r, w)
 	http.Redirect(w, r, redir, http.StatusFound)
 }
@@ -164,6 +162,11 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 			Messages: []models.Message{models.NewWarning("Your session has expired. Please try redoing what you were trying to do.")},
 		})
 		return
+	}
+
+	token, _ := sess.Values["token"].(string)
+	if token != "" {
+		h.authService.Logout(r.Context(), token)
 	}
 
 	for key := range sess.Values {
@@ -226,6 +229,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Username: strings.TrimSpace(r.FormValue("username")),
 		Email:    r.FormValue("email"),
 		Password: r.FormValue("password"),
+		Captcha:  r.FormValue("h-captcha-response"),
 	}
 
 	userID, err := h.authService.Register(r.Context(), input)
@@ -238,16 +242,23 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.setIdentityCookie(w, r, int(userID))
+	h.setIdentityCookie(w, r, userID)
 
 	clientIP := apicontext.ClientIP(r)
-	h.authService.LogIP(r.Context(), int(userID), clientIP)
-
-	go h.authService.SetCountry(r.Context(), int(userID), clientIP)
+	if err := h.authService.LogIP(r.Context(), userID, clientIP); err != nil {
+		slog.Error("failed to log IP", "error", err, "user_id", userID, "ip", clientIP)
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := h.authService.SetCountry(ctx, userID, clientIP); err != nil {
+			slog.Error("failed to set country", "error", err, "user_id", userID, "ip", clientIP)
+		}
+	}()
 
 	h.addMessage(sess, models.NewSuccess("You have been successfully registered on RealistikOsu! You now need to verify your account."))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/register/verify?u="+strconv.FormatInt(userID, 10), http.StatusFound)
+	http.Redirect(w, r, "/register/verify?u="+strconv.Itoa(userID), http.StatusFound)
 }
 
 func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) {
@@ -266,9 +277,16 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var privileges uint64
-	h.db.QueryRowContext(r.Context(), "SELECT privileges FROM users WHERE id = ?", userID).Scan(&privileges)
-	if privileges&(1<<20) == 0 {
+	user, err := h.apiClient.GetUser(r.Context(), userID, 0, 0)
+	if err != nil || user == nil {
+		sess, _ := h.store.Get(r, "session")
+		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	if user.User.Privileges&(1<<20) == 0 {
 		sess, _ := h.store.Get(r, "session")
 		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
 		sess.Save(r, w)
@@ -299,15 +317,22 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var privileges uint64
-	h.db.QueryRowContext(r.Context(), "SELECT privileges FROM users WHERE id = ?", userID).Scan(&privileges)
-	if privileges&(1<<20) > 0 { // UserPrivilegePendingVerification
+	user, err := h.apiClient.GetUser(r.Context(), userID, 0, 0)
+	if err != nil || user == nil {
+		sess, _ := h.store.Get(r, "session")
+		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	if user.User.Privileges&(1<<20) > 0 {
 		http.Redirect(w, r, "/register/verify?u="+r.URL.Query().Get("u"), http.StatusFound)
 		return
 	}
 
 	title := "Welcome!"
-	if privileges&1 == 0 {
+	if user.User.Privileges&1 == 0 {
 		title = "Welcome back!"
 	}
 
@@ -339,7 +364,7 @@ func (h *AuthHandler) registerResp(w http.ResponseWriter, r *http.Request, messa
 }
 
 func (h *AuthHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }
 
 func (h *AuthHandler) getIdentityCookie(r *http.Request) string {
@@ -359,7 +384,7 @@ func (h *AuthHandler) setIdentityCookie(w http.ResponseWriter, r *http.Request, 
 		Name:     "y",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 365, // 1 year
+		MaxAge:   60 * 60 * 24 * 365,
 		HttpOnly: true,
 	})
 }

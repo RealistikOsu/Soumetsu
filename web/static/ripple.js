@@ -16,85 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// this object contains tiny snippets that were deemed too small to be worth
-// their own file.
+// Page-specific snippets for routes that need small JS handlers
 const singlePageSnippets = {
-  "/2fa_gateway" : function() {
-    $('#telegram-code')
-      .on('input', function() {
-        if ($(this).val().length >= 6) {
-          $.get("/2fa_gateway/verify", {
-            token : $(this).val().trim().substr(0, 8),
-          },
-          function(resp) {
-            switch (resp) {
-            case "0":
-              $("#telegram-code").closest(".field").addClass("success");
-              redir = redir ? redir : "/";
-              window.location.href = redir;
-              break;
-            case "1":
-              $("#telegram-code").closest(".field").addClass("error");
-              break;
-            }
-          });
-        } else {
-          $("#telegram-code").closest(".field").removeClass("error");
-        }
-      });
-  },
-
-  // "/leaderboard" - Now handled by Vue app in leaderboards.js
-
-  "/friends" : function() {
-    $(".smalltext.button")
-      .click(function() {
-        const t = $(this);
-        const delAdd = t.data("deleted") === "1" ? "add" : "del";
-        console.log(delAdd);
-        t.addClass("disabled");
-        api("friends/" + delAdd, {user : +t.data("userid")}, function(data) {
-          t.removeClass("disabled");
-          t.data("deleted", data.friend ? "0" : "1");
-          t.removeClass("green red blue");
-          t.addClass(data.friend ? (data.mutual ? "red" : "green") : "blue");
-          t.find(".icon")
-            .removeClass("minus plus heart")
-            .addClass(data.friend ? (data.mutual ? "heart" : "minus")
-              : "plus");
-          t.find("span").text(data.friend
-            ? (data.mutual ? T("Mutual") : T("Remove"))
-            : t("Add"));
-        }, true);
-      });
-  },
-
-  "/team" : function() {
-    $("#everyone").click(function() { $(".ui.modal").modal("show"); });
-  },
-
-  "/register/verify" : function() {
-    const qu = query("u");
-    setInterval(function() {
-      $.getJSON(soumetsuConf.banchoAPI + "/api/v1/verifiedStatus?u=" + qu,
-        function(data) {
-          if (data.result >= 0) {
-            window.location.href = "/register/welcome?u=" + qu;
-          }
-        })
-    }, 5000)
-  },
-
   "/settings" : function() {
+    // Custom badge icon preview
     $("input[name='custom_badge.icon']")
       .on("input", function() {
         $("#badge-icon")
-          .attr("class", "circular big icon " + escapeHTML($(this).val()));
+          .attr("class", "fas fa-" + escapeHTML($(this).val()) + " text-4xl text-primary mb-2");
       });
+    // Custom badge name preview
     $("input[name='custom_badge.name']")
       .on("input", function() {
         $("#badge-name").html(escapeHTML($(this).val()));
       });
+    // Toggle custom badge fields
     $("input[name='custom_badge.show']")
       .change(function() {
         if ($(this).is(":checked"))
@@ -102,17 +38,11 @@ const singlePageSnippets = {
         else
           {$("#custom-badge-fields").slideUp();}
       });
-    const isDark = $("#dark-site").is(":checked");
+
+    // Form submission to API
     $("form")
       .submit(function(e) {
         e.preventDefault();
-
-        const darkSetting = $("#dark-site").is(":checked")
-        if (darkSetting != isDark) {
-          let cflags = document.cookie.replace(/(?:(?:^|.*;\s*)cflags\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-          cflags = darkSetting ? +cflags | 1 : +cflags & ~1;
-          document.cookie = "cflags=" + cflags + ";path=/;max-age=31536000";
-        }
 
         const obj = formToObject($(this));
         let ps = 0;
@@ -127,168 +57,10 @@ const singlePageSnippets = {
         obj.play_style = ps;
         const f = $(this);
         api("users/self/settings", obj, function(data) {
-          if (darkSetting != isDark) {
-            window.location.reload();
-            return;
-          }
           showMessage("success", "Your new settings have been saved.");
           f.removeClass("loading");
         }, true);
         return false;
-      });
-  },
-
-  "/settings/userpage" : function() {
-    let lastTimeout = null;
-    $("textarea[name='data']")
-      .on('input', function() {
-        if (lastTimeout !== null) {
-          clearTimeout(lastTimeout);
-        }
-        const v = $(this).val();
-        lastTimeout = setTimeout(function() {
-          $("#userpage-content").addClass("loading");
-          $.post(
-            "/settings/userpage/parse",
-            $("textarea[name='data']").val(), function(data) {
-              const e =
-                      $("#userpage-content").removeClass("loading").html(data);
-              if (typeof twemoji !== "undefined") {
-                twemoji.parse(e[0]);
-              }
-            }, "text");
-        }, 800);
-      });
-    $("form")
-      .submit(function(e) {
-        e.preventDefault();
-        const obj = formToObject($(this));
-        const f = $(this);
-        api("users/self/userpage", obj, function(data) {
-          showMessage("success", "Your userpage has been saved.");
-          f.removeClass("loading");
-        }, true);
-        return false;
-      });
-  },
-
-  "/donate" : function() {
-    // Donation page logic is now handled inline in the template
-  },
-
-  "/settings/avatar" : function() {
-    $("#file")
-      .change(function(e) {
-        const f = e.target.files;
-        if (f.length < 1) {
-          return;
-        }
-        const u = window.URL.createObjectURL(f[0]);
-        const i = $("#avatar-img")[0];
-        i.src = u;
-        i.onload = function() { window.URL.revokeObjectURL(this.src); };
-      });
-  },
-
-  "/beatmaps/rank-request" : function() {
-    function updateRankRequestPage(data) {
-      $("#queue-info").html(data.submitted + "/" + data.queue_size);
-
-      if (data.submitted_by_user == 0)
-        {$("#by-you").attr("hidden", "hidden");}
-      else
-        {$("#by-you").removeAttr("hidden");}
-
-      $("#submitted-by-user").text(data.submitted_by_user);
-      $("#max-per-user").text(data.max_per_user);
-
-      const perc = (data.submitted / data.queue_size * 100).toFixed(0);
-      $("#progressbar .progress").text(perc + "%");
-      $("#progressbar")
-        .progress({
-          percent : perc,
-        });
-      if (data.can_submit)
-        {$("#b-form .input, #b-form .button").removeClass("disabled");}
-      else
-        {$("#b-form .input, #b-form .button").addClass("disabled");}
-    }
-    setInterval(function() {
-      api("beatmaps/rank_requests/status", {}, updateRankRequestPage);
-    }, 10000);
-    const re = /^https?:\/\/osu.ppy.sh\/(s|b)\/(\d+)$/gi;
-    const re_ussr = /^https?:\/\/ussr.pl\/(s|b)\/(\d+)$/gi;
-    $("#b-form")
-      .submit(function(e) {
-        e.preventDefault();
-        const v = $("#beatmap").val().trim();
-        let reData = re.exec(v);
-        re.exec(); // apparently this is always null, idk
-        const reData2 = re_ussr.exec(v)
-        re_ussr.exec()
-        if (reData === null && reData2 === null) {
-          showMessage(
-            "error",
-            "Please provide a valid link, in the form " +
-                    "of either https://osu.ppy.sh/s/&lt;ID&gt; or https://ussr.pl/beatmaps/&lt;ID&gt;.");
-          $(this).removeClass("loading");
-          return false;
-        }
-
-        // Bruh.
-        if (reData === null)
-          {reData = reData2;}
-        const postData = {};
-        if (reData[1] == "s")
-          {postData.set_id = +reData[2];}
-        else
-          {postData.id = +reData[2];}
-        const t = $(this);
-        api("beatmaps/rank_requests", postData,
-          function(data) {
-            t.removeClass("loading");
-            showMessage("success",
-              "Beatmap rank request has been submitted.");
-            updateRankRequestPage(data);
-          },
-          function(data) {
-            t.removeClass("loading");
-            if (data.code == 406)
-              {showMessage("warning", "That beatmap is already ranked!");}
-          },
-          true);
-        return false;
-      });
-  },
-
-  "/settings/profbackground" : function() {
-    $("#colorpicker")
-      .minicolors({
-        inline : true,
-      });
-    $("#background-type")
-      .change(function() {
-        $("[data-type]:not([hidden])").attr("hidden", "hidden");
-        $("[data-type=" + $(this).val() + "]").removeAttr("hidden");
-      });
-    $("#file")
-      .change(function(e) {
-        const f = e.target.files;
-        if (f.length < 1) {
-          return;
-        }
-        const u = window.URL.createObjectURL(f[0]);
-        const i = document.createElement("img");
-        i.src = u;
-        i.onload = function() { window.URL.revokeObjectURL(this.src); };
-        $("#image-background").empty().append(i);
-      });
-  },
-
-  "/dev/tokens" : function() {
-    $("#privileges-number")
-      .on("input", function() {
-        $("#privileges-text").text(privilegesToString($(this).val()));
       });
   }
 };
@@ -465,21 +237,7 @@ function _api(base, endpoint, data, success, failure, post, handleAllFailures) {
 };
 
 function api(endpoint, data, success, failure, post, handleAllFailures) {
-  return _api(soumetsuConf.baseAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
-}
-
-function banchoAPI(endpoint, data, success, failure, post, handleAllFailures) {
-  // By default, ignore all bancho api failures (do not display messages on the website)
-  if (typeof failure === "undefined") {
-    handleAllFailures = true;
-    failure = function(data) {
-      /*
-      console.warn("Silently failing.");
-      console.warn(data);
-      */
-    };
-  }
-  return _api(soumetsuConf.banchoAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
+  return _api(soumetsuConf.baseAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
 function regularAPI(endpoint, data, success, failure, post, handleAllFailures) {
@@ -515,35 +273,6 @@ const entityMap = {
 function escapeHTML(str) {
   return String(str).replace(/[&<>"'\/]/g,
     function(s) { return entityMap[s]; });
-}
-
-function setupSimplepag(callback) {
-  const el = $(".simplepag");
-  el.find(".left.floated .item").click(function() {
-    if ($(this).hasClass("disabled"))
-      {return false;}
-    page--;
-    callback();
-  });
-  el.find(".right.floated .item").click(function() {
-    if ($(this).hasClass("disabled"))
-      {return false;}
-    page++;
-    callback();
-  });
-}
-function disableSimplepagButtons(right) {
-  const el = $(".simplepag");
-
-  if (page <= 1)
-    {el.find(".left.floated .item").addClass("disabled");}
-  else
-    {el.find(".left.floated .item").removeClass("disabled");}
-
-  if (right)
-    {el.find(".right.floated .item").addClass("disabled");}
-  else
-    {el.find(".right.floated .item").removeClass("disabled");}
 }
 
 window.URL = window.URL || window.webkitURL;
@@ -704,21 +433,6 @@ function T(s, settings) {
       settings.count !== 1)
     {s = keyPlurals[s];}
   return s;
-}
-
-const apiPrivileges = [
-  "ReadConfidential", "Write", "ManageBadges", "BetaKeys", "ManageSettings",
-  "ViewUserAdvanced", "ManageUser", "ManageRoles", "ManageAPIKeys", "Blog",
-  "APIMeta", "Beatmap", "Bancho"
-];
-
-function privilegesToString(privs) {
-  const privList = [];
-  apiPrivileges.forEach(function(value, index) {
-    if ((privs & (1 << (index + 1))) != 0)
-      {privList.push(value);}
-  });
-  return privList.join(", ");
 }
 
 function isLoggedIn() {

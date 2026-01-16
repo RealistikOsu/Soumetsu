@@ -134,7 +134,7 @@ const beatmapApp = Soumetsu.createApp({
                     sortField
                 );
 
-                this.scores = resp.scores || [];
+                this.scores = resp || [];
             } catch (err) {
                 console.error('Error loading scores:', err);
             }

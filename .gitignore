@@ -3,7 +3,6 @@ soumetsu
 team.json
 static/profbackgrounds/*
 !static/profbackgrounds/.keep
-semantic/gulpfile.tmp.*.js
 /_
 static/oauth-apps/*
 !static/oauth-apps/.keep
@@ -11,3 +10,13 @@ static/oauth-apps/*
 .env
 Gopkg.lock
 Gopkg.toml
+
+# Build outputs (regenerated via npm run build / npm run tailwind:build)
+web/static/dist.min.js
+web/static/css/output.css
+
+# Test coverage
+coverage/
+
+# macOS
+.DS_Store

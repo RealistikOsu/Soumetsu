@@ -14,7 +14,6 @@ type BaseHandler struct {
 	Store middleware.SessionStore
 }
 
-// NewBaseHandler creates a new BaseHandler
 func NewBaseHandler(store middleware.SessionStore) *BaseHandler {
 	return &BaseHandler{Store: store}
 }

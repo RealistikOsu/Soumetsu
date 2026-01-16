@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
-
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
@@ -19,7 +17,7 @@ type PageConfig struct {
 	Template       string
 	TitleBar       string
 	KyutGrill      string
-	MinPrivileges  common.UserPrivileges
+	MinPrivileges  models.UserPrivileges
 	Scripts        []string
 	HeadingOnRight bool
 }
@@ -63,7 +61,7 @@ func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scripts []string, headingOnRight bool, minPrivileges common.UserPrivileges) http.HandlerFunc {
+func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scripts []string, headingOnRight bool, minPrivileges models.UserPrivileges) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqCtx := apicontext.GetRequestContextFromRequest(r)
 
@@ -175,5 +173,5 @@ func (h *PagesHandler) forbidden(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PagesHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }

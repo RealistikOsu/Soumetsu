@@ -14,23 +14,23 @@ type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
 	Redis    RedisConfig
-	Mailgun  MailgunConfig
 	Discord  DiscordConfig
 	Beatmap  BeatmapConfig
 	Security SecurityConfig
 }
 
 type AppConfig struct {
-	Port         int
-	Env          string
-	CookieSecret string
-	SoumetsuKey  string
-	BaseURL      string
-	AvatarURL    string
-	APIURL       string
-	BanchoURL    string
-	AvatarsPath  string
-	BannersPath  string
+	Port          int
+	Env           string
+	CookieSecret  string
+	SoumetsuKey   string
+	BaseURL       string
+	AvatarURL     string
+	APIURL        string
+	BrowserAPIURL string
+	BanchoURL     string
+	AvatarsPath   string
+	BannersPath   string
 }
 
 type DatabaseConfig struct {
@@ -65,13 +65,6 @@ func (c RedisConfig) Addr() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 
-type MailgunConfig struct {
-	Domain    string
-	APIKey    string
-	PublicKey string
-	From      string
-}
-
 type DiscordConfig struct {
 	ServerURL       string
 	AppClientID     string
@@ -96,16 +89,17 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Port:         mustEnvInt("SOUMETSU_PORT"),
-			Env:          mustEnv("SOUMETSU_ENV"),
-			CookieSecret: mustEnv("SOUMETSU_COOKIE_SECRET"),
-			SoumetsuKey:  mustEnv("SOUMETSU_KEY"),
-			BaseURL:      mustEnv("SOUMETSU_BASE_URL"),
-			AvatarURL:    mustEnv("SOUMETSU_AVATAR_URL"),
-			APIURL:       mustEnv("SOUMETSU_API_URL"),
-			BanchoURL:    mustEnv("SOUMETSU_BANCHO_URL"),
-			AvatarsPath:  mustEnv("SOUMETSU_INTERNAL_AVATARS_PATH"),
-			BannersPath:  mustEnv("SOUMETSU_INTERNAL_BANNERS_PATH"),
+			Port:          mustEnvInt("SOUMETSU_PORT"),
+			Env:           mustEnv("SOUMETSU_ENV"),
+			CookieSecret:  mustEnv("SOUMETSU_COOKIE_SECRET"),
+			SoumetsuKey:   mustEnv("SOUMETSU_KEY"),
+			BaseURL:       mustEnv("SOUMETSU_BASE_URL"),
+			AvatarURL:     mustEnv("SOUMETSU_AVATAR_URL"),
+			APIURL:        mustEnv("SOUMETSU_API_URL"),
+			BrowserAPIURL: optionalEnv("SOUMETSU_BROWSER_API_URL", mustEnv("SOUMETSU_API_URL")),
+			BanchoURL:     mustEnv("SOUMETSU_BANCHO_URL"),
+			AvatarsPath:   mustEnv("SOUMETSU_INTERNAL_AVATARS_PATH"),
+			BannersPath:   mustEnv("SOUMETSU_INTERNAL_BANNERS_PATH"),
 		},
 		Database: DatabaseConfig{
 			Host: mustEnv("MYSQL_HOST"),
@@ -122,12 +116,6 @@ func Load() (*Config, error) {
 			Pass:           mustEnv("REDIS_PASS"),
 			DB:             mustEnvInt("REDIS_DB"),
 			UseSSL:         mustEnvBool("REDIS_USE_SSL"),
-		},
-		Mailgun: MailgunConfig{
-			Domain:    mustEnv("MAILGUN_DOMAIN"),
-			APIKey:    mustEnv("MAILGUN_API_KEY"),
-			PublicKey: mustEnv("MAILGUN_PUBLIC_KEY"),
-			From:      mustEnv("MAILGUN_FROM"),
 		},
 		Discord: DiscordConfig{
 			ServerURL:       mustEnv("DISCORD_SERVER_URL"),
@@ -187,6 +175,14 @@ func mustEnv(key string) string {
 	val, exists := os.LookupEnv(key)
 	if !exists {
 		panic("Missing environment variable: " + key)
+	}
+	return val
+}
+
+func optionalEnv(key string, fallback string) string {
+	val, exists := os.LookupEnv(key)
+	if !exists {
+		return fallback
 	}
 	return val
 }

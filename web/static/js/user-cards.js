@@ -127,19 +127,11 @@
         if (cache[id] && (Date.now() - cache[id].time < 60000)) {return cache[id].data;}
 
         try {
-            const [infoResp, statusResp] = await Promise.all([
-                fetch(`${API_URL}/api/v1/users/full?id=${id}`).then(r => r.json()),
-                BANCHO_URL ? fetch(`${BANCHO_URL}/api/status/${id}`).then(r => r.json().catch(() => null)) : Promise.resolve(null)
-            ]);
+            const resp = await fetch(`${API_URL}/api/v2/users/${id}/card`);
+            const json = await resp.json();
+            if (json.status !== 200 || !json.data) {throw new Error("User not found");}
 
-            // Adjust check for external API response code
-            if (infoResp.code !== 200) {throw new Error("User not found");}
-
-            const data = {
-                ...infoResp,
-                online: statusResp && statusResp.status === 200
-            };
-
+            const data = json.data;
             cache[id] = { time: Date.now(), data };
             return data;
         } catch (e) {
@@ -151,12 +143,10 @@
     function updateCard(data) {
         if (!data) {return;}
 
-        // Content
         els.usernameLink.textContent = data.username;
         els.usernameLink.href = `/users/${data.id}`;
         els.avatar.src = `${AVATAR_URL}/${data.id}`;
 
-        // Flag
         if (data.country) {
             els.flag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
             els.flag.style.display = 'block';
@@ -165,22 +155,15 @@
             els.flag.style.display = 'none';
         }
 
-        // Rank Logic
-        const modes = ['std', 'taiko', 'ctb', 'mania'];
-        const mode = modes[data.favourite_mode || 0];
-        const stats = data.stats && data.stats.vn && data.stats.vn[mode];
-
-        // Global Rank
-        if (stats && stats.global_leaderboard_rank > 0) {
-            els.rank.textContent = '#' + stats.global_leaderboard_rank.toLocaleString();
+        if (data.global_rank > 0) {
+            els.rank.textContent = '#' + data.global_rank.toLocaleString();
             els.rankBadge.style.display = 'flex';
         } else {
             els.rankBadge.style.display = 'none';
         }
 
-        // Country Rank
-        if (stats && stats.country_leaderboard_rank > 0) {
-            els.countryRank.textContent = '#' + stats.country_leaderboard_rank.toLocaleString();
+        if (data.country_rank > 0) {
+            els.countryRank.textContent = '#' + data.country_rank.toLocaleString();
             if (data.country) {
                 els.rankFlag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
             }
@@ -189,8 +172,7 @@
             els.countryRankBadge.style.display = 'none';
         }
 
-        // Status
-        if (data.online) {
+        if (data.is_online) {
             els.statusDot.className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]';
             els.statusText.textContent = 'Online';
             els.statusText.className = 'text-xs text-green-400 font-medium';
@@ -200,59 +182,36 @@
             els.statusText.className = 'text-xs text-slate-400 font-medium';
         }
 
-        // Badges
         els.badges.innerHTML = getRoleBadges(data.privileges || 0);
 
-        // Banner
-        if (data.background && data.background.type === 1) {
-            els.banner.style.backgroundImage = `url('/static/profbackgrounds/${data.background.value}')`;
-            els.banner.style.backgroundColor = 'transparent';
-            els.banner.classList.remove('banner-gradient-transition');
-        } else if (data.background && data.background.type === 2) {
-            els.banner.style.backgroundImage = 'none';
-            els.banner.style.backgroundColor = data.background.value;
-            els.banner.classList.remove('banner-gradient-transition');
-        } else {
-            // Default - use gradient extracted from avatar
-            // Set fallback gradient first
-            els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
-            els.banner.style.backgroundColor = '#0f172a';
+        // Banner - use gradient from avatar (card endpoint doesn't include background)
+        els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
+        els.banner.style.backgroundColor = '#0f172a';
 
-            // Extract colours from avatar and apply gradient
-            if (window.BannerGradient && els.avatar) {
-                // Ensure avatar has crossorigin attribute for colour extraction
-                if (!els.avatar.crossOrigin) {
-                    els.avatar.crossOrigin = 'anonymous';
-                }
+        if (window.BannerGradient && els.avatar) {
+            if (!els.avatar.crossOrigin) {els.avatar.crossOrigin = 'anonymous';}
+            els.banner.classList.add('banner-gradient-transition');
 
-                // Add transition class for smooth gradient changes
-                els.banner.classList.add('banner-gradient-transition');
+            function applyGradient() {
+                setTimeout(function() {
+                    if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
+                        window.BannerGradient.extract(els.avatar, function(colours) {
+                            if (colours && colours.colour1 && colours.colour2 && els.banner) {
+                                window.BannerGradient.apply(els.banner, colours);
+                            }
+                        });
+                    }
+                }, 50);
+            }
 
-                // Extract and apply gradient
-                function applyGradient() {
-                    // Use a small delay to ensure avatar is fully rendered
-                    setTimeout(function() {
-                        if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
-                            window.BannerGradient.extract(els.avatar, function(colours) {
-                                if (colours && colours.colour1 && colours.colour2 && els.banner) {
-                                    window.BannerGradient.apply(els.banner, colours);
-                                }
-                            });
-                        }
-                    }, 50);
-                }
-
-                // Try to apply immediately if avatar is already loaded
-                if (els.avatar.complete && els.avatar.naturalWidth > 0) {
+            if (els.avatar.complete && els.avatar.naturalWidth > 0) {
+                applyGradient();
+            } else {
+                const loadHandler = function() {
                     applyGradient();
-                } else {
-                    // Wait for avatar to load
-                    const loadHandler = function() {
-                        applyGradient();
-                        els.avatar.removeEventListener('load', loadHandler);
-                    };
-                    els.avatar.addEventListener('load', loadHandler);
-                }
+                    els.avatar.removeEventListener('load', loadHandler);
+                };
+                els.avatar.addEventListener('load', loadHandler);
             }
         }
     }

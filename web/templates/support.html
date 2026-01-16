@@ -459,14 +459,14 @@ DisableHH=true
 				}
 
 				// Load current user's data on page load
-				fetch(apiUrl + '/api/v1/users/lookup?name=' + encodeURIComponent(defaultUsername))
+				fetch(apiUrl + '/api/v2/users/search?q=' + encodeURIComponent(defaultUsername) + '&limit=8')
 					.then(function(res) { return res.json(); })
-					.then(function(data) {
-						if (data.code === 200 && data.users && data.users.length > 0) {
-							// Find exact match
-							var user = data.users.find(function(u) {
+					.then(function(json) {
+						var data = json.data !== undefined ? json.data : json;
+						if (Array.isArray(data) && data.length > 0) {
+							var user = data.find(function(u) {
 								return u.username.toLowerCase() === defaultUsername.toLowerCase();
-							}) || data.users[0];
+							}) || data[0];
 							updateUserCard(user);
 						}
 					})
@@ -492,16 +492,17 @@ DisableHH=true
 						searchList.classList.add('hidden');
 						searchEmpty.classList.add('hidden');
 
-						fetch(apiUrl + '/api/v1/users/lookup?name=' + encodeURIComponent(query))
+						fetch(apiUrl + '/api/v2/users/search?q=' + encodeURIComponent(query) + '&limit=8')
 							.then(function(res) { return res.json(); })
-							.then(function(data) {
+							.then(function(json) {
 								searchLoading.classList.add('hidden');
+								var data = json.data !== undefined ? json.data : json;
 
-								if (data.code === 200 && data.users && data.users.length > 0) {
+								if (Array.isArray(data) && data.length > 0) {
 									searchList.innerHTML = '';
 									searchList.classList.remove('hidden');
 
-									data.users.slice(0, 8).forEach(function(user) {
+									data.forEach(function(user) {
 										searchList.appendChild(renderUserResult(user));
 									});
 								} else {

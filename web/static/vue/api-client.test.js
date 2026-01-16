@@ -67,7 +67,7 @@ describe('SoumetsuAPI', () => {
             });
 
             const get = async (endpoint, params = {}) => {
-                const url = new URL(`http://localhost:2018/api/v1/${endpoint}`);
+                const url = new URL(`http://localhost:2018/api/v2/${endpoint}`);
                 Object.entries(params).forEach(([key, value]) => {
                     if (value !== undefined && value !== null && value !== '') {
                         url.searchParams.set(key, value);
@@ -93,7 +93,7 @@ describe('SoumetsuAPI', () => {
             });
 
             const get = async (endpoint, params = {}) => {
-                const url = new URL(`http://localhost:2018/api/v1/${endpoint}`);
+                const url = new URL(`http://localhost:2018/api/v2/${endpoint}`);
                 Object.entries(params).forEach(([key, value]) => {
                     if (value !== undefined && value !== null && value !== '') {
                         url.searchParams.set(key, value);
@@ -136,7 +136,7 @@ describe('SoumetsuAPI', () => {
                     headers['X-CSRF-Token'] = csrfToken;
                 }
 
-                const response = await fetch(`http://localhost:2018/api/v1/${endpoint}`, {
+                const response = await fetch(`http://localhost:2018/api/v2/${endpoint}`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(data),
@@ -167,7 +167,7 @@ describe('SoumetsuAPI', () => {
             });
 
             const post = async (endpoint, data = {}) => {
-                const response = await fetch(`http://localhost:2018/api/v1/${endpoint}`, {
+                const response = await fetch(`http://localhost:2018/api/v2/${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data),
@@ -193,7 +193,7 @@ describe('SoumetsuAPI', () => {
 
             const get = async endpoint => {
                 try {
-                    const response = await fetch(`http://localhost:2018/api/v1/${endpoint}`);
+                    const response = await fetch(`http://localhost:2018/api/v2/${endpoint}`);
                     return response.json();
                 } catch (error) {
                     console.error(`API request failed: ${endpoint}`, error);
@@ -215,7 +215,7 @@ describe('Leaderboard API', () => {
         global.fetch = mockFetch;
 
         const getLeaderboard = async (mode = 0, rx = 0, sort = 'pp', page = 1, country = '') => {
-            const url = new URL('http://localhost:2018/api/v1/leaderboard');
+            const url = new URL('http://localhost:2018/api/v2/leaderboard');
             url.searchParams.set('mode', mode);
             url.searchParams.set('rx', rx);
             url.searchParams.set('sort', sort);
@@ -247,7 +247,7 @@ describe('Clan API', () => {
         global.fetch = mockFetch;
 
         const getClan = async id => {
-            const url = new URL('http://localhost:2018/api/v1/clans');
+            const url = new URL('http://localhost:2018/api/v2/clans');
             url.searchParams.set('id', id);
             const response = await fetch(url);
             return response.json();

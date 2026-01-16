@@ -14,6 +14,7 @@ type RateLimiter struct {
 	rate     int           // tokens per second
 	capacity int           // max tokens in bucket
 	cleanup  time.Duration // cleanup interval for expired buckets
+	done     chan struct{} // channel to signal shutdown
 }
 
 type tokenBucket struct {
@@ -27,6 +28,7 @@ func NewRateLimiter(rate, capacity int) *RateLimiter {
 		rate:     rate,
 		capacity: capacity,
 		cleanup:  5 * time.Minute,
+		done:     make(chan struct{}),
 	}
 
 	go rl.cleanupLoop()
@@ -36,16 +38,27 @@ func NewRateLimiter(rate, capacity int) *RateLimiter {
 
 func (rl *RateLimiter) cleanupLoop() {
 	ticker := time.NewTicker(rl.cleanup)
-	for range ticker.C {
-		rl.mu.Lock()
-		cutoff := time.Now().Add(-rl.cleanup)
-		for ip, bucket := range rl.buckets {
-			if bucket.lastUpdate.Before(cutoff) {
-				delete(rl.buckets, ip)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			rl.mu.Lock()
+			cutoff := time.Now().Add(-rl.cleanup)
+			for ip, bucket := range rl.buckets {
+				if bucket.lastUpdate.Before(cutoff) {
+					delete(rl.buckets, ip)
+				}
 			}
+			rl.mu.Unlock()
+		case <-rl.done:
+			return
 		}
-		rl.mu.Unlock()
 	}
+}
+
+// Stop gracefully shuts down the rate limiter's cleanup goroutine
+func (rl *RateLimiter) Stop() {
+	close(rl.done)
 }
 
 func (rl *RateLimiter) Allow(ip string) bool {

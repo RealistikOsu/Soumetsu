@@ -6,41 +6,36 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
+	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
-	"github.com/RealistikOsu/soumetsu/internal/services"
-	"github.com/RealistikOsu/soumetsu/internal/services/user"
 	"github.com/gorilla/sessions"
 )
 
 type UserHandler struct {
-	config      *config.Config
-	userService *user.Service
-	csrf        middleware.CSRFService
-	store       middleware.SessionStore
-	templates   *response.TemplateEngine
-	db          *mysql.DB
+	config    *config.Config
+	apiClient *api.Client
+	csrf      middleware.CSRFService
+	store     middleware.SessionStore
+	templates *response.TemplateEngine
 }
 
 func NewUserHandler(
 	cfg *config.Config,
-	userService *user.Service,
+	apiClient *api.Client,
 	csrf middleware.CSRFService,
 	store middleware.SessionStore,
 	templates *response.TemplateEngine,
-	db *mysql.DB,
 ) *UserHandler {
 	return &UserHandler{
-		config:      cfg,
-		userService: userService,
-		csrf:        csrf,
-		store:       store,
-		templates:   templates,
-		db:          db,
+		config:    cfg,
+		apiClient: apiClient,
+		csrf:      csrf,
+		store:     store,
+		templates: templates,
 	}
 }
 
@@ -119,15 +114,13 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	newUsername := r.FormValue("newuser")
 
-	err = h.userService.ChangeUsername(r.Context(), user.ChangeUsernameInput{
-		UserID:      reqCtx.User.ID,
-		NewUsername: newUsername,
-	})
+	err = h.apiClient.ChangeUsername(r.Context(), token, newUsername)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
@@ -166,8 +159,8 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		h.addMessage(sess, models.NewError("File too large or invalid."))
+	if err := r.ParseMultipartForm(5 << 20); err != nil { // 5MB max
+		h.addMessage(sess, models.NewError("File too large. Maximum size is 5MB."))
 		sess.Save(r, w)
 		http.Redirect(w, r, "/settings/avatar", http.StatusFound)
 		return
@@ -175,17 +168,19 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
-		h.addMessage(sess, models.NewError("Please select a file."))
+		h.addMessage(sess, models.NewError("Please select an image to upload."))
 		sess.Save(r, w)
 		http.Redirect(w, r, "/settings/avatar", http.StatusFound)
 		return
 	}
 	defer file.Close()
 
-	err = h.userService.UploadAvatar(r.Context(), reqCtx.User.ID, file, header.Filename)
+	token, _ := sess.Values["token"].(string)
+
+	_, err = h.apiClient.UploadAvatar(r.Context(), token, header.Filename, file, header.Header.Get("Content-Type"))
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
 			h.addMessage(sess, models.NewError("Failed to upload avatar."))
 		}
@@ -224,34 +219,39 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		h.addMessage(sess, models.NewError("Invalid form data."))
+	if err := r.ParseMultipartForm(5 << 20); err != nil { // 5MB max
+		h.addMessage(sess, models.NewError("File too large. Maximum size is 5MB."))
 		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/profilebackground", http.StatusFound)
+		http.Redirect(w, r, "/settings/profile-banner", http.StatusFound)
 		return
 	}
 
-	bgType := chi.URLParam(r, "type")
-	value := r.FormValue("value")
-	if value == "" {
-		value = r.FormValue("bg")
-	}
-
-	err = h.userService.SetProfileBackground(r.Context(), reqCtx.User.ID, bgType, value)
+	file, header, err := r.FormFile("banner")
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		h.addMessage(sess, models.NewError("Please select an image to upload."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/profile-banner", http.StatusFound)
+		return
+	}
+	defer file.Close()
+
+	token, _ := sess.Values["token"].(string)
+
+	_, err = h.apiClient.UploadBanner(r.Context(), token, header.Filename, file, header.Header.Get("Content-Type"))
+	if err != nil {
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
-			h.addMessage(sess, models.NewError("Failed to set background."))
+			h.addMessage(sess, models.NewError("Failed to upload banner."))
 		}
 		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/profilebackground", http.StatusFound)
+		http.Redirect(w, r, "/settings/profile-banner", http.StatusFound)
 		return
 	}
 
 	h.addMessage(sess, models.NewSuccess("Profile background updated!"))
 	sess.Save(r, w)
-	http.Redirect(w, r, "/settings/profilebackground", http.StatusFound)
+	http.Redirect(w, r, "/settings/profile-banner", http.StatusFound)
 }
 
 func (h *UserHandler) DiscordPage(w http.ResponseWriter, r *http.Request) {
@@ -279,12 +279,14 @@ func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userService.UnlinkDiscord(r.Context(), reqCtx.User.ID)
+	token, _ := sess.Values["token"].(string)
+
+	err = h.apiClient.UnlinkDiscord(r.Context(), token)
 	if err != nil {
-		if svcErr, ok := err.(*services.ServiceError); ok {
-			h.addMessage(sess, models.NewError(svcErr.Message))
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
 		} else {
-			h.addMessage(sess, models.NewError("Failed to unlink Discord."))
+			h.addMessage(sess, models.NewError("An unexpected error occurred."))
 		}
 		sess.Save(r, w)
 		http.Redirect(w, r, "/settings/discord", http.StatusFound)
@@ -303,10 +305,10 @@ func (h *UserHandler) UserpageSettingsPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	content, err := h.userService.GetUserpage(r.Context(), reqCtx.User.ID)
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
+	userpage, err := h.apiClient.GetUserpage(r.Context(), reqCtx.User.ID)
+	content := ""
+	if err == nil && userpage != nil {
+		content = userpage.Content
 	}
 
 	h.templates.RenderWithRequest(w, r, "settings/user_page.html", &response.TemplateData{
@@ -345,8 +347,10 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, _ := sess.Values["token"].(string)
 	content := r.FormValue("data")
-	err = h.userService.UpdateUserpage(r.Context(), reqCtx.User.ID, content)
+
+	err = h.apiClient.UpdateUserpage(r.Context(), token, content)
 	if err != nil {
 		h.addMessage(sess, models.NewError("Failed to update userpage."))
 		sess.Save(r, w)
@@ -362,35 +366,19 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) TeamPage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 
-	// IDs: 2 (Dev), 1018 (Admin), 1020 (CM), 30 (GMT), 5 (BAT), 1017 (Social), 1002 (Supporter)
-	badgeIDs := []int{2, 1018, 1020, 30, 5, 1017, 1002}
-	teamData := make(map[int]interface{})
-
-	for _, id := range badgeIDs {
-		members, err := h.userService.GetBadgeMembers(r.Context(), id)
-		if err != nil {
-			members = []models.User{}
-		}
-
-		teamData[id] = map[string]interface{}{
-			"members": members,
-			"Conf":    h.config,
-		}
-	}
-
 	h.templates.RenderWithRequest(w, r, "team.html", &response.TemplateData{
 		TitleBar: "Team",
 		Context:  reqCtx,
 		Extra: map[string]interface{}{
-			"TeamData": teamData,
+			"TeamData": make(map[int]interface{}),
 		},
 	})
 }
 
 func (h *UserHandler) redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	RedirectToLogin(w, r, h.store) // Use shared implementation
+	RedirectToLogin(w, r, h.store)
 }
 
 func (h *UserHandler) addMessage(sess *sessions.Session, msg models.Message) {
-	AddMessage(sess, msg) // Use shared implementation
+	AddMessage(sess, msg)
 }

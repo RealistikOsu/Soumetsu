@@ -348,25 +348,14 @@
 
 		// Fetch rank if rank element exists (user is not staff)
 		if (rankEl && typeof soumetsuConf !== 'undefined' && soumetsuConf.baseAPI) {
-			fetch(soumetsuConf.baseAPI + '/api/v1/users/full?id=' + userId)
+			fetch(soumetsuConf.baseAPI + '/api/v2/users/' + userId + '/card')
 				.then(function (r) { return r.json(); })
-			.then(function (data) {
-				if (data.code === 200 && data.stats) {
-					// Get favourite mode stats (default to std vanilla)
-					var favMode = data.favourite_mode || 0;
-					var stats = data.stats.vn;
-					if (stats) {
-						var modeStats = stats[['std', 'taiko', 'ctb', 'mania'][favMode]];
-						if (modeStats && modeStats.global_leaderboard_rank) {
-							rankEl.textContent = '#' + modeStats.global_leaderboard_rank.toLocaleString();
-						} else {
-							rankEl.textContent = 'Unranked';
-						}
-					} else {
-						rankEl.textContent = 'Unranked';
-					}
+			.then(function (json) {
+				var data = json.data !== undefined ? json.data : json;
+				if (data && data.global_rank > 0) {
+					rankEl.textContent = '#' + data.global_rank.toLocaleString();
 				} else {
-					rankEl.textContent = '';
+					rankEl.textContent = 'Unranked';
 				}
 			})
 			.catch(function () {
@@ -571,12 +560,13 @@
 				if (searchNoResults) searchNoResults.classList.add('hidden');
 				if (searchError) searchError.classList.add('hidden');
 
-				fetch(apiUrl + '/api/v1/users/lookup?name=' + encodeURIComponent(query))
+				fetch(apiUrl + '/api/v2/users/search?q=' + encodeURIComponent(query) + '&limit=8')
 					.then(function (r) { return r.json(); })
-					.then(function (data) {
+					.then(function (json) {
 						if (searchLoading) searchLoading.classList.add('hidden');
-						if (data.code === 200 && data.users) {
-							renderResults(data.users.slice(0, 8));
+						var data = json.data !== undefined ? json.data : json;
+						if (Array.isArray(data) && data.length > 0) {
+							renderResults(data);
 						} else {
 							renderResults([]);
 						}

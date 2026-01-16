@@ -84,15 +84,15 @@ DisableHH=true
 							<div v-if="currentStats"
 								class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
 								<i
-									:class="'fas fa-globe ' + (currentStats.global_leaderboard_rank === 1 ? 'text-yellow-400' : currentStats.global_leaderboard_rank === 2 ? 'text-gray-300' : currentStats.global_leaderboard_rank === 3 ? 'text-orange-600' : 'text-gray-400')"></i>
-								<span class="font-semibold">#{{ v "currentStats.global_leaderboard_rank || '-'" }}</span>
+									:class="'fas fa-globe ' + (currentStats.global_rank === 1 ? 'text-yellow-400' : currentStats.global_rank === 2 ? 'text-gray-300' : currentStats.global_rank === 3 ? 'text-orange-600' : 'text-gray-400')"></i>
+								<span class="font-semibold">#{{ v "currentStats.global_rank || '-'" }}</span>
 							</div>
 							<!-- Country Rank -->
 							<div v-if="currentStats && user.country"
 								class="flex items-center gap-2 text-white bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm">
 								<img :src="'/static/images/new-flags/flag-' + user.country.toLowerCase() + '.svg'"
 									class="w-5 h-4 rounded">
-								<span class="font-semibold">#{{ v "currentStats.country_leaderboard_rank || '-'" }}</span>
+								<span class="font-semibold">#{{ v "currentStats.country_rank || '-'" }}</span>
 							</div>
 						</div>
 					</div>
@@ -337,8 +337,8 @@ DisableHH=true
 							<div class="score-card-overlay-compact"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -361,7 +361,7 @@ DisableHH=true
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										{{ v "timeAgo(score.time)" }}
+										{{ v "timeAgo(score.submitted_at)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
@@ -403,8 +403,8 @@ DisableHH=true
 							<div class="score-card-overlay-compact"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -427,7 +427,7 @@ DisableHH=true
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										{{ v "timeAgo(score.time)" }}
+										{{ v "timeAgo(score.submitted_at)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
@@ -529,8 +529,8 @@ DisableHH=true
 								:class="score.completed < 2 ? 'score-card-overlay-failed' : ''"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -553,7 +553,7 @@ DisableHH=true
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										{{ v "timeAgo(score.time)" }}
+										{{ v "timeAgo(score.submitted_at)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
@@ -599,8 +599,8 @@ DisableHH=true
 									<i class="fas fa-trophy text-yellow-400 text-sm"></i>
 								</div>
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -623,7 +623,7 @@ DisableHH=true
 										</span>
 									</div>
 									<p class="text-gray-400 text-xs">
-										{{ v "timeAgo(score.time)" }}
+										{{ v "timeAgo(score.submitted_at)" }}
 									</p>
 								</div>
 								<div class="flex-shrink-0 text-right flex flex-col justify-center gap-1">
@@ -723,25 +723,25 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-4">
 						<div v-for="comment in comments" :key="comment.id" class="flex gap-4 group">
-							<a :href="'/users/' + comment.user_id" class="flex-shrink-0">
-								<img :src="avatarURL + '/' + comment.user_id"
+							<a :href="'/users/' + comment.author_id" class="flex-shrink-0">
+								<img :src="avatarURL + '/' + comment.author_id"
 									class="w-12 h-12 rounded-full border-2 border-dark-border object-cover hover:border-primary transition-colors"
-									@error="handleAvatarError($event, comment.user_id)" loading="lazy">
+									@error="handleAvatarError($event, comment.author_id)" loading="lazy">
 							</a>
 							<div
 								class="flex-1 bg-dark-bg rounded-lg p-4 border border-dark-border hover:border-dark-border/80 transition-colors">
 								<div class="flex items-start justify-between mb-2">
 									<div class="flex items-center gap-2">
-										<a :href="'/users/' + comment.user_id"
+										<a :href="'/users/' + comment.author_id"
 											class="font-semibold text-white hover:text-primary transition-colors">
-											{{ v "comment.username" }}
+											{{ v "comment.author_username" }}
 										</a>
 										<span class="text-xs text-gray-500">•</span>
 										<span class="text-xs text-gray-500">
-											{{ v "timeAgo(comment.time)" }}
+											{{ v "timeAgo(comment.created_at)" }}
 										</span>
 									</div>
-									<button v-if="currentUserID === comment.user_id || hasAdmin"
+									<button v-if="currentUserID === comment.author_id || hasAdmin"
 										@click="deleteComment(comment.id)"
 										class="text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/10"
 										title="Delete comment">
@@ -802,8 +802,8 @@ DisableHH=true
 					<!-- Rank Badge and Key Stats -->
 					<div class="flex items-center gap-6 mb-6">
 						<div
-							:class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss).toLowerCase().replace('+', 'h')">
-							[[ getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_miss) ]]
+							:class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses).toLowerCase().replace('+', 'h')">
+							[[ getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses) ]]
 						</div>
 						<div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
@@ -854,7 +854,7 @@ DisableHH=true
 						<div class="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10">
 							<div class="text-white/60 text-sm font-medium mb-2">Achieved</div>
 							<div class="text-white font-semibold">
-								{{ v "timeAgo(selectedScore.time)" }}
+								{{ v "timeAgo(selectedScore.submitted_at)" }}
 							</div>
 						</div>
 					</div>
@@ -883,7 +883,7 @@ DisableHH=true
 							</div>
 							<div class="text-center">
 								<div class="text-red-400 font-bold text-xl mb-1">
-									{{ v "selectedScore.count_miss" }}
+									{{ v "selectedScore.count_misses" }}
 								</div>
 								<div class="text-white/60 text-xs">Misses</div>
 							</div>

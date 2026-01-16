@@ -3,7 +3,7 @@ DisableHH=true
 */}}
 {{ define "tpl" }}
 <script>
-	window.beatmapId = {{ .BeatmapID }};
+	window.beatmapId = {{ .Extra.BeatmapID }};
 </script>
 
 <div id="beatmap-app" class="relative min-h-screen py-8">
@@ -183,8 +183,8 @@ DisableHH=true
 							</a>
 						</td>
 						<td class="py-3 px-4 text-center">
-							<span class="score-rank" :class="getRankClass(getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss))">
-								{{ v "getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_miss)" }}
+							<span class="score-rank" :class="getRankClass(getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses))">
+								{{ v "getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses)" }}
 							</span>
 						</td>
 						<td class="py-3 px-4 text-right text-white">{{ v "addCommas(score.score)" }}</td>
@@ -192,7 +192,7 @@ DisableHH=true
 						<td class="py-3 px-4 text-right text-white">{{ v "addCommas(score.max_combo)" }}x</td>
 						<td class="py-3 px-4 text-right text-primary font-semibold">{{ v "score.pp.toFixed(0)" }}pp</td>
 						<td class="py-3 px-4 text-center text-gray-300">{{ v "getScoreMods(score.mods).join('') || 'NM'" }}</td>
-						<td class="py-3 px-4 text-right text-gray-400">{{ v "timeSince(score.time)" }}</td>
+						<td class="py-3 px-4 text-right text-gray-400">{{ v "timeSince(score.submitted_at)" }}</td>
 						<td class="py-3 px-4 text-center">
 							<a :href="'/web/replays/' + score.id" class="text-primary hover:text-primary-dark">
 								<i class="fas fa-download"></i>

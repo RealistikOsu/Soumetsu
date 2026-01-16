@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/RealistikOsu/RealistikAPI/common"
 	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
 	"github.com/RealistikOsu/soumetsu/internal/models"
 )
@@ -77,7 +76,7 @@ type UserForLogin struct {
 	Password        string                `db:"password_md5"`
 	PasswordVersion int                   `db:"password_version"`
 	Country         string                `db:"country"`
-	Privileges      common.UserPrivileges `db:"privileges"`
+	Privileges      models.UserPrivileges `db:"privileges"`
 	Flags           uint64                `db:"flags"`
 }
 
@@ -103,7 +102,7 @@ func (r *UserRepository) FindForLogin(ctx context.Context, identifier string) (*
 	return &user, nil
 }
 
-func (r *UserRepository) Create(ctx context.Context, username, email, password, apiKey string, privileges common.UserPrivileges, registerTime int64) (int64, error) {
+func (r *UserRepository) Create(ctx context.Context, username, email, password, apiKey string, privileges models.UserPrivileges, registerTime int64) (int64, error) {
 	result, err := r.db.ExecContext(ctx, `
 		INSERT INTO users(username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version, api_key)
 		VALUES (?, ?, ?, '', ?, ?, ?, 2, ?)`,
@@ -145,13 +144,13 @@ func (r *UserRepository) ClearFlags(ctx context.Context, id int, flags uint64) e
 	return err
 }
 
-func (r *UserRepository) GetPrivileges(ctx context.Context, id int) (common.UserPrivileges, error) {
+func (r *UserRepository) GetPrivileges(ctx context.Context, id int) (models.UserPrivileges, error) {
 	var priv int64
 	err := r.db.QueryRowContext(ctx, "SELECT privileges FROM users WHERE id = ?", id).Scan(&priv)
 	if err != nil {
 		return 0, err
 	}
-	return common.UserPrivileges(priv), nil
+	return models.UserPrivileges(priv), nil
 }
 
 func (r *UserRepository) UsernameExists(ctx context.Context, username string) (bool, error) {

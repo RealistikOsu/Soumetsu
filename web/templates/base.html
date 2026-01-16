@@ -20,6 +20,7 @@
 			baseAPI:   "{{ config "APP_API_URL" .Conf }}",
 			cheesegullAPI: "{{ config "BEATMAP_MIRROR_API_URL" .Conf }}",
 			language:  "en",
+			apiToken:  "{{ if .Context }}{{ .Context.Token }}{{ end }}",
 		};
 		var currentUserID = {{ if .Context }}{{ .Context.User.ID }}{{ else }}0{{ end }};
 	</script>
