@@ -78,8 +78,8 @@ func (c *Client) GetClanMembers(ctx context.Context, clanID int, page, limit int
 	return *result, nil
 }
 
-func (c *Client) GetClanStats(ctx context.Context, clanID int, mode, playstyle int) (*ClanStats, error) {
-	path := fmt.Sprintf("/api/v2/clans/%d/stats?mode=%d&playstyle=%d", clanID, mode, playstyle)
+func (c *Client) GetClanStats(ctx context.Context, clanID int, mode, customMode int) (*ClanStats, error) {
+	path := fmt.Sprintf("/api/v2/clans/%d/stats?mode=%d&custom_mode=%d", clanID, mode, customMode)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -188,8 +188,8 @@ func (c *Client) GenerateClanInvite(ctx context.Context, token string, clanID in
 	return decodeResponse[ClanInviteResponse](resp)
 }
 
-func (c *Client) GetClanLeaderboard(ctx context.Context, mode, playstyle, page, limit int) ([]ClanResponse, error) {
-	path := fmt.Sprintf("/api/v2/clans/leaderboard?mode=%d&playstyle=%d&page=%d&limit=%d", mode, playstyle, page, limit)
+func (c *Client) GetClanLeaderboard(ctx context.Context, mode, customMode, page, limit int) ([]ClanResponse, error) {
+	path := fmt.Sprintf("/api/v2/clans/leaderboard?mode=%d&custom_mode=%d&page=%d&limit=%d", mode, customMode, page, limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err

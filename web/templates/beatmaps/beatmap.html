@@ -118,17 +118,17 @@ DisableHH=true
 			</div>
 		</div>
 
-		<!-- Relax Mode Filters -->
+		<!-- CustomMode Filters -->
 		<div class="flex flex-wrap gap-2 mb-4">
 			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="relax === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setRelax(0)">Vanilla</button>
+				:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				@click="setCustomMode(0)">Vanilla</button>
 			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="relax === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setRelax(1)">Relax</button>
+				:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				@click="setCustomMode(1)">Relax</button>
 			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="relax === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setRelax(2)">Autopilot</button>
+				:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				@click="setCustomMode(2)">Autopilot</button>
 		</div>
 
 		<!-- Mode Filters (only for std maps) -->

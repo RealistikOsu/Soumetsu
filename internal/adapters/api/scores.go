@@ -25,7 +25,7 @@ type Score struct {
 	Grade       string  `json:"grade"`
 	Time        string  `json:"time"`
 	Mode        int     `json:"mode"`
-	Playstyle   int     `json:"playstyle"`
+	CustomMode  int     `json:"custom_mode"`
 	Pinned      bool    `json:"pinned"`
 }
 
@@ -36,9 +36,9 @@ type ScoreWithBeatmap struct {
 	BeatmapsetID int    `json:"beatmapset_id"`
 }
 
-func (c *Client) GetUserBestScores(ctx context.Context, userID int, mode, playstyle, page, limit int) ([]ScoreWithBeatmap, error) {
-	path := fmt.Sprintf("/api/v2/users/%d/scores/best?mode=%d&playstyle=%d&page=%d&limit=%d",
-		userID, mode, playstyle, page, limit)
+func (c *Client) GetUserBestScores(ctx context.Context, userID int, mode, customMode, page, limit int) ([]ScoreWithBeatmap, error) {
+	path := fmt.Sprintf("/api/v2/users/%d/scores/best?mode=%d&custom_mode=%d&page=%d&limit=%d",
+		userID, mode, customMode, page, limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -50,9 +50,9 @@ func (c *Client) GetUserBestScores(ctx context.Context, userID int, mode, playst
 	return *result, nil
 }
 
-func (c *Client) GetUserRecentScores(ctx context.Context, userID int, mode, playstyle, page, limit int) ([]ScoreWithBeatmap, error) {
-	path := fmt.Sprintf("/api/v2/users/%d/scores/recent?mode=%d&playstyle=%d&page=%d&limit=%d",
-		userID, mode, playstyle, page, limit)
+func (c *Client) GetUserRecentScores(ctx context.Context, userID int, mode, customMode, page, limit int) ([]ScoreWithBeatmap, error) {
+	path := fmt.Sprintf("/api/v2/users/%d/scores/recent?mode=%d&custom_mode=%d&page=%d&limit=%d",
+		userID, mode, customMode, page, limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -64,9 +64,9 @@ func (c *Client) GetUserRecentScores(ctx context.Context, userID int, mode, play
 	return *result, nil
 }
 
-func (c *Client) GetUserFirstPlaceScores(ctx context.Context, userID int, mode, playstyle, page, limit int) ([]ScoreWithBeatmap, error) {
-	path := fmt.Sprintf("/api/v2/users/%d/scores/firsts?mode=%d&playstyle=%d&page=%d&limit=%d",
-		userID, mode, playstyle, page, limit)
+func (c *Client) GetUserFirstPlaceScores(ctx context.Context, userID int, mode, customMode, page, limit int) ([]ScoreWithBeatmap, error) {
+	path := fmt.Sprintf("/api/v2/users/%d/scores/firsts?mode=%d&custom_mode=%d&page=%d&limit=%d",
+		userID, mode, customMode, page, limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -78,8 +78,8 @@ func (c *Client) GetUserFirstPlaceScores(ctx context.Context, userID int, mode, 
 	return *result, nil
 }
 
-func (c *Client) GetUserPinnedScores(ctx context.Context, userID int, mode, playstyle int) ([]ScoreWithBeatmap, error) {
-	path := fmt.Sprintf("/api/v2/users/%d/scores/pinned?mode=%d&playstyle=%d", userID, mode, playstyle)
+func (c *Client) GetUserPinnedScores(ctx context.Context, userID int, mode, customMode int) ([]ScoreWithBeatmap, error) {
+	path := fmt.Sprintf("/api/v2/users/%d/scores/pinned?mode=%d&custom_mode=%d", userID, mode, customMode)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -120,9 +120,9 @@ func (c *Client) UnpinScore(ctx context.Context, token string, scoreID int64) er
 	return err
 }
 
-func (c *Client) GetBeatmapScores(ctx context.Context, beatmapID int, mode, playstyle, page, limit int) ([]Score, error) {
-	path := fmt.Sprintf("/api/v2/beatmaps/%d/scores?mode=%d&playstyle=%d&page=%d&limit=%d",
-		beatmapID, mode, playstyle, page, limit)
+func (c *Client) GetBeatmapScores(ctx context.Context, beatmapID int, mode, customMode, page, limit int) ([]Score, error) {
+	path := fmt.Sprintf("/api/v2/beatmaps/%d/scores?mode=%d&custom_mode=%d&page=%d&limit=%d",
+		beatmapID, mode, customMode, page, limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
@@ -134,8 +134,8 @@ func (c *Client) GetBeatmapScores(ctx context.Context, beatmapID int, mode, play
 	return *result, nil
 }
 
-func (c *Client) GetTopPlays(ctx context.Context, mode, playstyle, page, limit int) ([]ScoreWithBeatmap, error) {
-	path := "/api/v2/scores/top?mode=" + strconv.Itoa(mode) + "&playstyle=" + strconv.Itoa(playstyle) +
+func (c *Client) GetTopPlays(ctx context.Context, mode, customMode, page, limit int) ([]ScoreWithBeatmap, error) {
+	path := "/api/v2/scores/top?mode=" + strconv.Itoa(mode) + "&custom_mode=" + strconv.Itoa(customMode) +
 		"&page=" + strconv.Itoa(page) + "&limit=" + strconv.Itoa(limit)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {

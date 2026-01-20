@@ -108,36 +108,36 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<div class="flex gap-2">
 					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'std' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="loadClanboardData('std', relax, 1)">
+						@click.prevent="loadClanboardData('std', customMode, 1)">
 						Standard
 					</button>
 					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'taiko' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(relax != 'ap') loadClanboardData('taiko', relax, 1)">
+						@click.prevent="if(customMode != 'ap') loadClanboardData('taiko', customMode, 1)">
 						Taiko
 					</button>
 					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'fruits' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(relax != 'ap') loadClanboardData('fruits', relax, 1)">
+						@click.prevent="if(customMode != 'ap') loadClanboardData('fruits', customMode, 1)">
 						Catch
 					</button>
 					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'mania' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(relax != 'ap' && relax != 'rx') loadClanboardData('mania', relax, 1)">
+						@click.prevent="if(customMode != 'ap' && customMode != 'rx') loadClanboardData('mania', customMode, 1)">
 						Mania
 					</button>
 				</div>
 
-				<!-- Relax Selector -->
+				<!-- CustomMode Selector -->
 				<div class="flex gap-2">
 					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="relax === 'vn' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						:class="customMode === 'vn' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 						@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
 					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="relax === 'rx' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						:class="customMode === 'rx' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 						@click.prevent="if(mode != 'mania') loadClanboardData(mode, 'rx', 1)">Relax</a>
 					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="relax === 'ap' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+						:class="customMode === 'ap' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 						@click.prevent="if(mode != 'mania' && mode != 'fruits' && mode != 'taiko') loadClanboardData(mode, 'ap', 1)">Autopilot</a>
 				</div>
 			</div>
@@ -148,7 +148,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			<button class="btn-secondary"
 				:disabled="page <= 1"
 				:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
-				@click.prevent="if(page > 1) loadClanboardData(mode, relax, page - 1)">
+				@click.prevent="if(page > 1) loadClanboardData(mode, customMode, page - 1)">
 				<i class="fas fa-chevron-left mr-2"></i>
 				Previous
 			</button>
@@ -156,7 +156,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			<button class="btn-secondary"
 				:disabled="data.length < 50"
 				:class="{ 'opacity-50 cursor-not-allowed': data.length < 50 }"
-				@click.prevent="if(data.length >= 50) loadClanboardData(mode, relax, page + 1)">
+				@click.prevent="if(data.length >= 50) loadClanboardData(mode, customMode, page + 1)">
 				Next
 				<i class="fas fa-chevron-right ml-2"></i>
 			</button>

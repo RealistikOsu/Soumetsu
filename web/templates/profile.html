@@ -178,14 +178,14 @@ DisableHH=true
 							</div>
 						</div>
 
-						<!-- Mode/Relax Tabs -->
+						<!-- Mode/CustomMode Tabs -->
 						<div class="grid grid-cols-3 gap-2 mb-4">
-							<button @click="setRelax(0)"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">Vanilla</button>
-							<button @click="setRelax(1)" :disabled="mode === 3"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode === 3 ? ' opacity-50 cursor-not-allowed' : '')">Relax</button>
-							<button @click="setRelax(2)" :disabled="mode !== 0"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (relax === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode !== 0 ? ' opacity-50 cursor-not-allowed' : '')">Autopilot</button>
+							<button @click="setCustomMode(0)"
+								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">Vanilla</button>
+							<button @click="setCustomMode(1)" :disabled="mode === 3"
+								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode === 3 ? ' opacity-50 cursor-not-allowed' : '')">Relax</button>
+							<button @click="setCustomMode(2)" :disabled="mode !== 0"
+								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode !== 0 ? ' opacity-50 cursor-not-allowed' : '')">Autopilot</button>
 						</div>
 
 						<div class="grid grid-cols-4 gap-2 mb-4">

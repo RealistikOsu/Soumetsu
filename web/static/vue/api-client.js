@@ -87,10 +87,10 @@ const SoumetsuAPI = {
         getSet(id) {
             return fetch(`${SoumetsuAPI.cheesegullURL()}/s/${id}`).then(r => r.json());
         },
-        getScores(beatmapId, mode = 0, playstyle = 0, page = 1, limit = 50) {
+        getScores(beatmapId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
             return SoumetsuAPI.get(`beatmaps/${beatmapId}/scores`, {
                 mode,
-                playstyle,
+                custom_mode,
                 page,
                 limit,
             });
@@ -104,8 +104,8 @@ const SoumetsuAPI = {
         getMembers(id) {
             return SoumetsuAPI.get(`clans/${id}/members`);
         },
-        getStats(id, mode = 0, playstyle = 0) {
-            return SoumetsuAPI.get(`clans/${id}/stats`, { mode, playstyle });
+        getStats(id, mode = 0, custom_mode = 0) {
+            return SoumetsuAPI.get(`clans/${id}/stats`, { mode, custom_mode });
         },
         list(page = 1, limit = 50, sort = 'pp') {
             return SoumetsuAPI.get('clans', { page, limit, sort });
@@ -113,8 +113,8 @@ const SoumetsuAPI = {
     },
 
     users: {
-        get(id, mode = 0, playstyle = 0) {
-            return SoumetsuAPI.get(`users/${id}`, { mode, playstyle });
+        get(id, mode = 0, custom_mode = 0) {
+            return SoumetsuAPI.get(`users/${id}`, { mode, custom_mode });
         },
         card(id) {
             return SoumetsuAPI.get(`users/${id}/card`);
@@ -125,21 +125,21 @@ const SoumetsuAPI = {
         resolve(username) {
             return SoumetsuAPI.get('users/resolve', { username });
         },
-        me(mode = 0, playstyle = 0) {
-            return SoumetsuAPI.get('users/me', { mode, playstyle });
+        me(mode = 0, custom_mode = 0) {
+            return SoumetsuAPI.get('users/me', { mode, custom_mode });
         },
         scores: {
-            best(userId, mode = 0, playstyle = 0, page = 1, limit = 50) {
-                return SoumetsuAPI.get(`users/${userId}/scores/best`, { mode, playstyle, page, limit });
+            best(userId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
+                return SoumetsuAPI.get(`users/${userId}/scores/best`, { mode, custom_mode, page, limit });
             },
-            recent(userId, mode = 0, playstyle = 0, page = 1, limit = 50) {
-                return SoumetsuAPI.get(`users/${userId}/scores/recent`, { mode, playstyle, page, limit });
+            recent(userId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
+                return SoumetsuAPI.get(`users/${userId}/scores/recent`, { mode, custom_mode, page, limit });
             },
-            firsts(userId, mode = 0, playstyle = 0, page = 1, limit = 50) {
-                return SoumetsuAPI.get(`users/${userId}/scores/firsts`, { mode, playstyle, page, limit });
+            firsts(userId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
+                return SoumetsuAPI.get(`users/${userId}/scores/firsts`, { mode, custom_mode, page, limit });
             },
-            pinned(userId, mode = 0, playstyle = 0) {
-                return SoumetsuAPI.get(`users/${userId}/scores/pinned`, { mode, playstyle });
+            pinned(userId, mode = 0, custom_mode = 0) {
+                return SoumetsuAPI.get(`users/${userId}/scores/pinned`, { mode, custom_mode });
             },
         },
     },
@@ -157,21 +157,21 @@ const SoumetsuAPI = {
     },
 
     leaderboard: {
-        async get(mode = 0, playstyle = 0, sort = 'pp', page = 1, country = '') {
+        async get(mode = 0, custom_mode = 0, sort = 'pp', page = 1, country = '') {
             const limit = 50;
             let data;
             if (country && country !== '') {
-                data = await SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, playstyle, page, limit });
+                data = await SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, custom_mode, page, limit });
             } else {
-                data = await SoumetsuAPI.get('leaderboard/', { mode, playstyle, page, limit });
+                data = await SoumetsuAPI.get('leaderboard/', { mode, custom_mode, page, limit });
             }
             return { users: data };
         },
-        global(mode = 0, playstyle = 0, page = 1, limit = 50) {
-            return SoumetsuAPI.get('leaderboard/', { mode, playstyle, page, limit });
+        global(mode = 0, custom_mode = 0, page = 1, limit = 50) {
+            return SoumetsuAPI.get('leaderboard/', { mode, custom_mode, page, limit });
         },
-        country(country, mode = 0, playstyle = 0, page = 1, limit = 50) {
-            return SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, playstyle, page, limit });
+        country(country, mode = 0, custom_mode = 0, page = 1, limit = 50) {
+            return SoumetsuAPI.get(`leaderboard/country/${country}/`, { mode, custom_mode, page, limit });
         },
     },
 

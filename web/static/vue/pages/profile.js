@@ -12,7 +12,7 @@ const profileApp = Soumetsu.createApp({
             loading: true,
             error: null,
             mode: 0,
-            relax: 0,
+            customMode: 0,
 
             // Graph
             graphType: 'rank',
@@ -77,13 +77,13 @@ const profileApp = Soumetsu.createApp({
         },
         currentStats() {
             if (!this.user?.stats) {return null;}
-            // API returns stats directly for the requested mode/playstyle
+            // API returns stats directly for the requested mode/custom_mode
             return this.user.stats;
         },
         mixedMode() {
             let m = this.mode;
-            if (this.relax === 1) {m += 4;}
-            else if (this.relax === 2) {m += 7;}
+            if (this.customMode === 1) {m += 4;}
+            else if (this.customMode === 2) {m += 7;}
             return m;
         },
         displayedAchievements() {
@@ -135,7 +135,7 @@ const profileApp = Soumetsu.createApp({
         // Parse URL params
         const params = new URLSearchParams(window.location.search);
         this.mode = parseInt(params.get('mode')) || 0;
-        this.relax = parseInt(params.get('rx')) || 0;
+        this.customMode = parseInt(params.get('cm')) || 0;
 
         // Ensure getBadgeIconClass is available
         if (typeof this.getBadgeIconClass !== 'function') {
@@ -162,7 +162,7 @@ const profileApp = Soumetsu.createApp({
                     userId = resolved;
                 }
 
-                const userResp = await this.api(`users/${userId}`, { mode: this.mode, playstyle: this.relax });
+                const userResp = await this.api(`users/${userId}`, { mode: this.mode, custom_mode: this.customMode });
                 if (!userResp || !userResp.id) {
                     this.error = 'User not found';
                     this.loading = false;
@@ -313,7 +313,7 @@ const profileApp = Soumetsu.createApp({
             try {
                 const resp = await this.api(`users/${this.userID}/history/${this.graphType}`, {
                     mode: this.mode,
-                    playstyle: this.relax
+                    custom_mode: this.customMode
                 });
 
                 if (!resp?.captures?.length) {
@@ -445,7 +445,7 @@ const profileApp = Soumetsu.createApp({
             try {
                 const resp = await this.api(`users/${this.userID}/scores/${typeMap[type] || type}`, {
                     mode: this.mode,
-                    playstyle: this.relax,
+                    custom_mode: this.customMode,
                     page: scoreData.page,
                     limit: limit
                 });
@@ -475,7 +475,7 @@ const profileApp = Soumetsu.createApp({
             try {
                 const resp = await this.api(`users/${this.userID}/beatmaps/most-played`, {
                     mode: this.mode,
-                    playstyle: this.relax,
+                    custom_mode: this.customMode,
                     page: scoreData.page,
                     limit: 5
                 });
@@ -642,7 +642,7 @@ const profileApp = Soumetsu.createApp({
             this.friendLoading = false;
         },
 
-        // Mode/Relax switching
+        // Mode/CustomMode switching
         setMode(mode) {
             if (this.mode === mode) {return;}
             this.mode = mode;
@@ -652,13 +652,13 @@ const profileApp = Soumetsu.createApp({
             this.loadGraph();
         },
 
-        setRelax(rx) {
-            if (this.relax === rx) {return;}
+        setCustomMode(rx) {
+            if (this.customMode === rx) {return;}
             // Check availability
             if (rx === 1 && this.mode === 3) {return;} // No relax for mania
             if (rx === 2 && this.mode !== 0) {return;} // Autopilot only for std
 
-            this.relax = rx;
+            this.customMode = rx;
             this.updateURL();
             this.loadUserStats();
             this.loadAllScores();
@@ -667,7 +667,7 @@ const profileApp = Soumetsu.createApp({
 
         async loadUserStats() {
             try {
-                const userResp = await this.api(`users/${this.userID}`, { mode: this.mode, playstyle: this.relax });
+                const userResp = await this.api(`users/${this.userID}`, { mode: this.mode, custom_mode: this.customMode });
                 if (userResp?.stats) {
                     this.user.stats = userResp.stats;
                 }
@@ -679,7 +679,7 @@ const profileApp = Soumetsu.createApp({
         updateURL() {
             const url = new URL(window.location.href);
             url.searchParams.set('mode', this.mode);
-            url.searchParams.set('rx', this.relax);
+            url.searchParams.set('cm', this.customMode);
             window.history.replaceState({}, '', url);
         },
 
@@ -917,7 +917,7 @@ const profileApp = Soumetsu.createApp({
             return this.getBadgeIconClass(icon);
         },
 
-        isRelaxAvailable(rx) {
+        isCustomModeAvailable(rx) {
             if (rx === 1) {return this.mode !== 3;} // No relax for mania
             if (rx === 2) {return this.mode === 0;} // Autopilot only for std
             return true;

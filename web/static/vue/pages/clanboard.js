@@ -3,8 +3,8 @@ const clanboardApp = Soumetsu.createApp({
         return {
             data: [],
             mode: window.mode || 'std',
-            relax: window.relax || 'vn',
-            relaxInt: 0,
+            customMode: window.customMode || 'vn',
+            customModeInt: 0,
             modeInt: 0,
             load: true,
             page: window.page || 1,
@@ -15,12 +15,12 @@ const clanboardApp = Soumetsu.createApp({
     created() {
         this.loadClanboardData(
             window.mode || 'std',
-            window.relax || 'vn',
+            window.customMode || 'vn',
             window.page || 1
         )
     },
     methods: {
-        async loadClanboardData(mode, relax, page) {
+        async loadClanboardData(mode, customMode, page) {
             if (window.event) {
                 window.event.preventDefault();
             }
@@ -28,8 +28,8 @@ const clanboardApp = Soumetsu.createApp({
 
             if (mode)
                 {this.mode = mode;}
-            if (relax)
-                {this.relax = relax;}
+            if (customMode)
+                {this.customMode = customMode;}
 
             switch (mode) {
                 case 'taiko':
@@ -45,26 +45,26 @@ const clanboardApp = Soumetsu.createApp({
                     this.modeInt = 0;
             }
 
-            switch (relax) {
+            switch (customMode) {
                 case 'rx':
-                    this.relaxInt = 1;
+                    this.customModeInt = 1;
                     break;
                 case 'ap':
-                    this.relaxInt = 2;
+                    this.customModeInt = 2;
                     break;
                 default:
-                    this.relaxInt = 0;
+                    this.customModeInt = 0;
             }
 
             this.page = page;
             if (this.page <= 0 || this.page == null)
                 {this.page = 1;}
-            window.history.replaceState('', document.title, `/clans/leaderboard?mode=${this.mode}&rx=${this.relax}&p=${this.page}`);
+            window.history.replaceState('', document.title, `/clans/leaderboard?mode=${this.mode}&cm=${this.customMode}&p=${this.page}`);
 
             try {
                 const response = await SoumetsuAPI.get('clans/stats/all', {
                     m: this.modeInt,
-                    rx: this.relaxInt,
+                    cm: this.customModeInt,
                     p: this.page,
                 });
                 this.data = response.clans || [];

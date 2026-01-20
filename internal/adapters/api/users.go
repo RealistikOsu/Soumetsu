@@ -61,8 +61,8 @@ type UpdateUserpageRequest struct {
 	Content string `json:"content"`
 }
 
-func (c *Client) GetUser(ctx context.Context, userID int, mode int, playstyle int) (*UserProfile, error) {
-	path := fmt.Sprintf("/api/v2/users/%d?mode=%d&playstyle=%d", userID, mode, playstyle)
+func (c *Client) GetUser(ctx context.Context, userID int, mode int, customMode int) (*UserProfile, error) {
+	path := fmt.Sprintf("/api/v2/users/%d?mode=%d&custom_mode=%d", userID, mode, customMode)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err

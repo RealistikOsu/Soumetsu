@@ -48,27 +48,27 @@ DisableHH=true
 			</div>
 		</div>
 
-		<!-- Mode/Relax Tabs -->
+		<!-- Mode/CustomMode Tabs -->
 		<div class="grid grid-cols-3 gap-2 mb-4">
 			<button
 				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="relax === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isRelaxDisabled(0)"
-				@click="setRelax(0)">
+				:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				:disabled="isCustomModeDisabled(0)"
+				@click="setCustomMode(0)">
 				Vanilla
 			</button>
 			<button
 				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="relax === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isRelaxDisabled(1)"
-				@click="setRelax(1)">
+				:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				:disabled="isCustomModeDisabled(1)"
+				@click="setCustomMode(1)">
 				Relax
 			</button>
 			<button
 				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="relax === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isRelaxDisabled(2)"
-				@click="setRelax(2)">
+				:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+				:disabled="isCustomModeDisabled(2)"
+				@click="setCustomMode(2)">
 				Autopilot
 			</button>
 		</div>

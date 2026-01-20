@@ -15,9 +15,9 @@ const beatmapApp = Soumetsu.createApp({
             error: null,
             showDiffDropdown: false,
 
-            // Mode/Relax selection
+            // Mode/CustomMode selection
             mode: 0,
-            relax: 0,
+            customMode: 0,
 
             // Audio
             isPlaying: false,
@@ -62,7 +62,7 @@ const beatmapApp = Soumetsu.createApp({
         // Parse URL params
         const params = new URLSearchParams(window.location.search);
         this.mode = parseInt(params.get('mode')) || 0;
-        this.relax = parseInt(params.get('rx')) || 0;
+        this.customMode = parseInt(params.get('cm')) || 0;
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
@@ -123,12 +123,12 @@ const beatmapApp = Soumetsu.createApp({
 
             try {
                 // Use score sort for vanilla, pp sort for relax/autopilot
-                const sortField = this.relax === 0 ? 'score,desc' : 'pp,desc';
+                const sortField = this.customMode === 0 ? 'score,desc' : 'pp,desc';
 
                 const resp = await SoumetsuAPI.beatmaps.getScores(
                     this.selectedDiff.BeatmapID,
                     this.mode,
-                    this.relax,
+                    this.customMode,
                     1,
                     50,
                     sortField
@@ -150,9 +150,9 @@ const beatmapApp = Soumetsu.createApp({
             this.loadScores();
         },
 
-        setRelax(rx) {
-            if (this.relax === rx) {return;}
-            this.relax = rx;
+        setCustomMode(cm) {
+            if (this.customMode === cm) {return;}
+            this.customMode = cm;
             this.updateURL();
             this.loadScores();
         },
@@ -168,7 +168,7 @@ const beatmapApp = Soumetsu.createApp({
             const url = new URL(window.location.href);
             url.pathname = `/beatmaps/${this.selectedDiff.BeatmapID}`;
             url.searchParams.set('mode', this.mode);
-            url.searchParams.set('rx', this.relax);
+            url.searchParams.set('cm', this.customMode);
             window.history.replaceState({}, '', url);
         },
 

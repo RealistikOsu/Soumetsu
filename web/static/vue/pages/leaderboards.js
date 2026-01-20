@@ -3,8 +3,8 @@ const leaderboardApp = Soumetsu.createApp({
         return {
             data: [],
             mode: window.mode || 'std',
-            relax: window.relax || 'vn',
-            relaxInt: 0,
+            customMode: window.customMode || 'vn',
+            customModeInt: 0,
             modeInt: 0,
             sort: window.sort || 'pp',
             load: true,
@@ -20,19 +20,19 @@ const leaderboardApp = Soumetsu.createApp({
         this.loadLeaderboardData(
             window.sort || 'pp',
             window.mode || 'std',
-            window.relax || 'vn',
+            window.customMode || 'vn',
             window.page || 1,
             window.country || ''
         )
     },
     methods: {
-        async loadLeaderboardData(sort, mode, relax, page, country) {
+        async loadLeaderboardData(sort, mode, customMode, page, country) {
             if (window.event) {
                 window.event.preventDefault();
             }
             this.load = true;
             this.mode = mode;
-            this.relax = relax;
+            this.customMode = customMode;
             switch (mode) {
                 case 'taiko':
                     this.modeInt = 1;
@@ -47,15 +47,15 @@ const leaderboardApp = Soumetsu.createApp({
                     this.modeInt = 0;
             }
 
-            switch (relax) {
+            switch (customMode) {
                 case 'rx':
-                    this.relaxInt = 1;
+                    this.customModeInt = 1;
                     break;
                 case 'ap':
-                    this.relaxInt = 2;
+                    this.customModeInt = 2;
                     break;
                 default:
-                    this.relaxInt = 0;
+                    this.customModeInt = 0;
             }
 
             this.sort = sort;
@@ -66,12 +66,12 @@ const leaderboardApp = Soumetsu.createApp({
                 {this.country = country.toUpperCase()}
             if (this.page <= 0 || this.page == null)
                 {this.page = 1;}
-            window.history.replaceState('', document.title, `/leaderboard?m=${this.mode}&rx=${this.relax}&sort=${this.sort}&p=${this.page}&c=${this.country}`);
+            window.history.replaceState('', document.title, `/leaderboard?m=${this.mode}&cm=${this.customMode}&sort=${this.sort}&p=${this.page}&c=${this.country}`);
 
             try {
                 const response = await SoumetsuAPI.leaderboard.get(
                     this.modeInt,
-                    this.relaxInt,
+                    this.customModeInt,
                     this.sort,
                     this.page,
                     this.country

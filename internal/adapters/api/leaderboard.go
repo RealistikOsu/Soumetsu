@@ -33,10 +33,10 @@ type OldestFirstResponse struct {
 	Time      string `json:"time"`
 }
 
-func (c *Client) GetGlobalLeaderboard(ctx context.Context, mode, playstyle, page, limit int) ([]LeaderboardEntry, error) {
+func (c *Client) GetGlobalLeaderboard(ctx context.Context, mode, customMode, page, limit int) ([]LeaderboardEntry, error) {
 	params := url.Values{}
 	params.Set("mode", strconv.Itoa(mode))
-	params.Set("playstyle", strconv.Itoa(playstyle))
+	params.Set("custom_mode", strconv.Itoa(customMode))
 	params.Set("page", strconv.Itoa(page))
 	params.Set("limit", strconv.Itoa(limit))
 	path := "/api/v2/leaderboard?" + params.Encode()
@@ -51,10 +51,10 @@ func (c *Client) GetGlobalLeaderboard(ctx context.Context, mode, playstyle, page
 	return *result, nil
 }
 
-func (c *Client) GetCountryLeaderboard(ctx context.Context, country string, mode, playstyle, page, limit int) ([]LeaderboardEntry, error) {
+func (c *Client) GetCountryLeaderboard(ctx context.Context, country string, mode, customMode, page, limit int) ([]LeaderboardEntry, error) {
 	params := url.Values{}
 	params.Set("mode", strconv.Itoa(mode))
-	params.Set("playstyle", strconv.Itoa(playstyle))
+	params.Set("custom_mode", strconv.Itoa(customMode))
 	params.Set("page", strconv.Itoa(page))
 	params.Set("limit", strconv.Itoa(limit))
 	path := "/api/v2/leaderboard/country/" + url.PathEscape(country) + "?" + params.Encode()
@@ -69,11 +69,11 @@ func (c *Client) GetCountryLeaderboard(ctx context.Context, country string, mode
 	return *result, nil
 }
 
-func (c *Client) GetRankForPP(ctx context.Context, pp int, mode, playstyle int) (*RankResponse, error) {
+func (c *Client) GetRankForPP(ctx context.Context, pp int, mode, customMode int) (*RankResponse, error) {
 	params := url.Values{}
 	params.Set("pp", strconv.Itoa(pp))
 	params.Set("mode", strconv.Itoa(mode))
-	params.Set("playstyle", strconv.Itoa(playstyle))
+	params.Set("custom_mode", strconv.Itoa(customMode))
 	path := "/api/v2/leaderboard/rank?" + params.Encode()
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
@@ -82,10 +82,10 @@ func (c *Client) GetRankForPP(ctx context.Context, pp int, mode, playstyle int) 
 	return decodeResponse[RankResponse](resp)
 }
 
-func (c *Client) GetOldestFirsts(ctx context.Context, mode, playstyle, page, limit int) ([]OldestFirstResponse, error) {
+func (c *Client) GetOldestFirsts(ctx context.Context, mode, customMode, page, limit int) ([]OldestFirstResponse, error) {
 	params := url.Values{}
 	params.Set("mode", strconv.Itoa(mode))
-	params.Set("playstyle", strconv.Itoa(playstyle))
+	params.Set("custom_mode", strconv.Itoa(customMode))
 	params.Set("page", strconv.Itoa(page))
 	params.Set("limit", strconv.Itoa(limit))
 	path := "/api/v2/leaderboard/firsts/oldest?" + params.Encode()

@@ -12,9 +12,9 @@ const clanApp = Soumetsu.createApp({
             error: null,
             statsLoading: false,
 
-            // Mode/Relax selection
+            // Mode/CustomMode selection
             mode: 0,
-            relax: 0,
+            customMode: 0,
 
             // User clan status
             userClanInfo: null, // { clan: id, perms: int }
@@ -51,7 +51,7 @@ const clanApp = Soumetsu.createApp({
         // Parse URL params
         const params = new URLSearchParams(window.location.search);
         this.mode = parseInt(params.get('mode')) || 0;
-        this.relax = parseInt(params.get('rx')) || 0;
+        this.customMode = parseInt(params.get('cm')) || 0;
 
         await this.loadClanData();
     },
@@ -121,7 +121,7 @@ const clanApp = Soumetsu.createApp({
             this.statsLoading = true;
 
             try {
-                const resp = await SoumetsuAPI.clans.getStats(this.clanId, this.mode, this.relax);
+                const resp = await SoumetsuAPI.clans.getStats(this.clanId, this.mode, this.customMode);
                 this.stats = resp;
             } catch (err) {
                 console.error('Error loading stats:', err);
@@ -152,9 +152,9 @@ const clanApp = Soumetsu.createApp({
             this.loadStats();
         },
 
-        setRelax(rx) {
-            if (this.relax === rx) {return;}
-            this.relax = rx;
+        setCustomMode(rx) {
+            if (this.customMode === rx) {return;}
+            this.customMode = rx;
             this.updateURL();
             this.loadStats();
         },
@@ -162,20 +162,20 @@ const clanApp = Soumetsu.createApp({
         updateURL() {
             const url = new URL(window.location.href);
             url.searchParams.set('mode', this.mode);
-            url.searchParams.set('rx', this.relax);
+            url.searchParams.set('cm', this.customMode);
             window.history.replaceState({}, '', url);
         },
 
         // Mode compatibility checks
-        isRelaxDisabled(rx) {
+        isCustomModeDisabled(rx) {
             if (rx === 1 && this.mode === 3) {return true;} // No relax for mania
             if (rx === 2 && this.mode !== 0) {return true;} // Autopilot only for std
             return false;
         },
 
         isModeDisabled(m) {
-            if (this.relax === 1 && m === 3) {return true;} // No mania for relax
-            if (this.relax === 2 && m !== 0) {return true;} // Autopilot only for std
+            if (this.customMode === 1 && m === 3) {return true;} // No mania for relax
+            if (this.customMode === 2 && m !== 0) {return true;} // Autopilot only for std
             return false;
         },
 
