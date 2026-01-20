@@ -114,13 +114,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := h.authService.LogIP(r.Context(), result.UserID, clientIP); err != nil {
 		slog.Error("failed to log IP", "error", err, "user_id", result.UserID, "ip", clientIP)
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		if err := h.authService.SetCountry(ctx, result.UserID, clientIP); err != nil {
-			slog.Error("failed to set country", "error", err, "user_id", result.UserID, "ip", clientIP)
-		}
-	}()
+	h.setCountryInBackground(result.UserID, clientIP)
 
 	sess.Values["userid"] = result.UserID
 	sess.Values["token"] = result.Token
@@ -248,13 +242,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if err := h.authService.LogIP(r.Context(), userID, clientIP); err != nil {
 		slog.Error("failed to log IP", "error", err, "user_id", userID, "ip", clientIP)
 	}
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		if err := h.authService.SetCountry(ctx, userID, clientIP); err != nil {
-			slog.Error("failed to set country", "error", err, "user_id", userID, "ip", clientIP)
-		}
-	}()
+	h.setCountryInBackground(userID, clientIP)
 
 	h.addMessage(sess, models.NewSuccess("You have been successfully registered on RealistikOsu! You now need to verify your account."))
 	sess.Save(r, w)
@@ -286,7 +274,7 @@ func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if user.User.Privileges&(1<<20) == 0 {
+	if user.User.Privileges&int(models.UserPrivilegePendingVerification) == 0 {
 		sess, _ := h.store.Get(r, "session")
 		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
 		sess.Save(r, w)
@@ -326,13 +314,13 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.User.Privileges&(1<<20) > 0 {
+	if user.User.Privileges&int(models.UserPrivilegePendingVerification) > 0 {
 		http.Redirect(w, r, "/register/verify?u="+r.URL.Query().Get("u"), http.StatusFound)
 		return
 	}
 
 	title := "Welcome!"
-	if user.User.Privileges&1 == 0 {
+	if user.User.Privileges&int(models.UserPrivilegePublic) == 0 {
 		title = "Welcome back!"
 	}
 
@@ -407,4 +395,17 @@ func (h *AuthHandler) validateIdentityCookie(r *http.Request) (int, bool) {
 	}
 
 	return userID, true
+}
+
+// setCountryInBackground sets the user's country based on their IP address.
+// This runs as a background task with its own timeout, independent of the HTTP request,
+// because the operation is non-critical and should complete even if the client disconnects.
+func (h *AuthHandler) setCountryInBackground(userID int, clientIP string) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := h.authService.SetCountry(ctx, userID, clientIP); err != nil {
+			slog.Error("failed to set country", "error", err, "user_id", userID, "ip", clientIP)
+		}
+	}()
 }
