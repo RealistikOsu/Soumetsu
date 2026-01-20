@@ -1,0 +1,136 @@
+---
+description:
+alwaysApply: true
+---
+
+Use these standards for Go code, focusing on maintainability, best practices, readability, and software organisation.
+
+## Best Practices
+
+### Dependencies & Imports
+
+- Dependencies flow one-way, from leaves to root, without cycles.
+- Group imports in standard order: standard library, external packages, internal packages (separated by blank lines).
+- Import packages, not individual symbols; use the package name as qualifier (e.g., `fmt.Println`).
+- Avoid dot imports (`. "package"`) except in test files where readability benefits.
+- Avoid blank imports (`_ "package"`) except for side effects (e.g., database drivers, image decoders).
+- Do not leave unused imports; use `goimports` or your IDE to manage them.
+- Avoid aliasing imports unless resolving name conflicts.
+
+### Code Organisation
+
+- Avoid premature abstraction. Things will often look the same early on, but diverge over time.
+- Keep `init()` functions minimal or avoid them entirely; prefer explicit initialisation.
+- Prefer composition over embedding; use embedding only when promoting methods makes semantic sense.
+- Export only what is necessary; keep the public API surface small.
+- Place exported functions and types before unexported ones in each file.
+- Prefer named constants and `iota` enums over magic values.
+- Prefer well-maintained, widely used libraries over custom solutions (e.g., `golang.org/x/sync/errgroup` for concurrent error handling).
+- Use `defer` for resource cleanup; it pairs naturally with acquisition.
+- Use `fmt.Sprintf` for string formatting; avoid manual concatenation for complex strings.
+- Extract constants at package level using `const` blocks with `UPPER_SNAKE_CASE` or `camelCase` (Go convention is camelCase, but either is acceptable if consistent).
+- Avoid explanatory comments. Decompose unclear logic into smaller parts with clear, self-descriptive names.
+- Write doc comments for all exported symbols; start with the symbol name (e.g., `// UserService handles user operations.`).
+
+### Package Design
+
+- Design packages around what they provide, not what they contain (e.g., `http`, not `utils`).
+- Avoid packages named `common`, `util`, `shared`, `lib`, `misc`, or `helpers`.
+- Keep package names short, lowercase, and singular (e.g., `user`, not `users`).
+- Avoid stutter in naming (e.g., `user.User` is fine, but `user.UserService` should be `user.Service`).
+- Accept interfaces, return structs (concrete types).
+- Define interfaces where they are used, not where they are implemented.
+- Keep interfaces small; prefer single-method interfaces where possible.
+
+### Concurrency
+
+- Use a single concurrency model consistently; prefer goroutines with channels or `sync` primitives.
+- Always ensure goroutines can terminate; avoid goroutine leaks.
+- Use `context.Context` for cancellation, deadlines, and request-scoped values.
+- Pass `context.Context` as the first parameter, named `ctx`.
+- Prefer `errgroup.Group` over manual `sync.WaitGroup` with error handling.
+- Use `sync.Once` for one-time initialisation rather than `init()` or manual flags.
+- Protect shared state with `sync.Mutex` or `sync.RWMutex`; prefer channel-based designs where natural.
+- Never copy a `sync.Mutex` or `sync.WaitGroup` after first use.
+- Close channels from the sender side only; never close a channel from the receiver.
+- Use buffered channels deliberately; unbuffered channels are often clearer for synchronisation.
+
+### Function Design
+
+- Keep functions small, focused, and single-responsibility.
+- Prefer pure functions; when needed, isolate side effects in a clear, well-placed function.
+- Name functions descriptively with verb+noun (e.g., `GetUserData()`, `ValidateInput()`, `CalculateCircleArea()`).
+- Functions named `Get*` or `Fetch*`: retrieve by identifier; may return `(T, error)` or `(T, bool)`.
+- Functions named `List*` or `Find*`: always return a slice.
+- Functions named `Must*`: panic on error; use only in package initialisation or tests.
+- Functions named `New*`: constructors that return a pointer to a new instance.
+- Use British English in names where there is a difference.
+- Return early to reduce nesting; handle errors immediately.
+- Prefer multiple return values over output parameters.
+- Limit functions to 3-4 parameters; use a struct for configuration if more are needed.
+- Use variadic parameters (`...T`) for optional, homogeneous arguments (e.g., functional options).
+
+### Error Handling
+
+- Always handle errors; never ignore them with `_` unless explicitly justified with a comment.
+- Return errors as the last return value.
+- Use `errors.New()` for simple static errors; use `fmt.Errorf()` with `%w` for wrapping.
+- Wrap errors with context using `fmt.Errorf("operation failed: %w", err)`.
+- Check errors with `errors.Is()` and `errors.As()`; avoid string comparison.
+- Define sentinel errors at package level (e.g., `var ErrNotFound = errors.New("not found")`).
+- Prefer returning errors over panicking; reserve `panic` for truly unrecoverable situations.
+- Use custom error types when callers need to extract information from errors.
+- Log errors at the top level; avoid logging and returning the same error (choose one).
+
+### Type Safety & Design
+
+- Use strong types; avoid `interface{}` or `any` unless absolutely necessary.
+- Prefer concrete types in function signatures; use interfaces for flexibility only when needed.
+- Use generics (`[T any]`) for type-safe, reusable code; avoid overusing them.
+- Prefer structs with named fields over tuples or maps for structured data.
+- Use pointer receivers for methods that mutate or when the struct is large; use value receivers otherwise.
+- Be consistent with receiver types within a type's method set.
+- Use type aliases (`type X = Y`) sparingly; prefer type definitions (`type X Y`) for distinct types.
+- Validate data at boundaries (API handlers, external input); trust internal data.
+- Use `time.Time` for timestamps; avoid Unix timestamps except at serialisation boundaries.
+- Use `time.Duration` for durations; avoid raw integers representing time.
+
+### Testing
+
+- Place tests in the same package for white-box testing, or `_test` package for black-box testing.
+- Use table-driven tests for functions with multiple input/output combinations.
+- Name test cases descriptively (e.g., `"empty input returns error"`).
+- Use `t.Helper()` in test helper functions to improve error reporting.
+- Use `t.Parallel()` for independent tests to speed up test runs.
+- Prefer `testify/assert` or `testify/require` for clearer assertions, or use standard library with clear failure messages.
+- Use `t.Cleanup()` for test resource cleanup instead of `defer` when appropriate.
+- Mock external dependencies using interfaces; avoid mocking internal implementation details.
+- Use `go test -race` to detect race conditions.
+
+### Logging & Observability
+
+- Use structured logging (e.g., `slog`, `zap`, `zerolog`) over `fmt.Print` or `log.Print`.
+- Log with key-value pairs, not interpolated strings (e.g., `slog.Info("user created", "userID", id)` over `log.Printf("user %s created", id)`).
+- Include context in log messages: request IDs, user IDs, operation names.
+- Use appropriate log levels: `Debug` for development, `Info` for normal operation, `Warn` for recoverable issues, `Error` for failures.
+- Do not log sensitive data (passwords, tokens, PII).
+
+### Performance
+
+- Preallocate slices with `make([]T, 0, capacity)` when the size is known or estimable.
+- Use `strings.Builder` for building strings in loops; avoid repeated concatenation.
+- Prefer `sync.Pool` for frequently allocated, short-lived objects.
+- Avoid unnecessary allocations; reuse buffers where appropriate.
+- Use pointers to avoid copying large structs, but prefer values for small structs.
+- Profile before optimising; use `pprof` and benchmarks to identify bottlenecks.
+
+## Goals
+
+Ensure the code follows Go best practices and is:
+
+- **Maintainable**: Easy to understand, modify, and extend
+- **Readable**: Clear naming, minimal nesting, and idiomatic structure
+- **Type-safe**: Strong types with minimal use of `any`
+- **Well-organised**: Clean package boundaries and dependency flow
+- **Robust**: Proper error handling, no ignored errors, and graceful degradation
+- **Concurrent-safe**: Correct use of goroutines, channels, and synchronisation primitives
