@@ -52,11 +52,8 @@ const homepageApp = Soumetsu.createApp({
             this.loading = false;
         },
 
-        // Helper: Add commas to numbers
-        addCommas(num) {
-            if (num === undefined || num === null) {return '0';}
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        },
+        // Delegate to shared helpers
+        addCommas: SoumetsuHelpers.addCommas,
     },
 });
 

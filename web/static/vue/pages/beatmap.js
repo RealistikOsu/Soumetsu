@@ -195,27 +195,15 @@ const beatmapApp = Soumetsu.createApp({
             this.isPlaying = false;
         },
 
-        // Helper: Format time in mm:ss
+        // Helper: Format time in mm:ss (beatmap-specific, keep local)
         timeFormat(seconds) {
-            if (!seconds) {return '0:00';}
+            if (!seconds) { return '0:00'; }
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         },
 
-        // Helper: Add commas to numbers
-        addCommas(num) {
-            if (num === undefined || num === null) {return '0';}
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        },
-
-        // Helper: Format accuracy
-        formatAccuracy(acc) {
-            if (acc === undefined || acc === null) {return '0.00';}
-            return parseFloat(acc).toFixed(2);
-        },
-
-        // Helper: Time since (relative)
+        // Helper: Time since (short format for beatmap page)
         timeSince(dateStr) {
             const date = new Date(dateStr);
             const seconds = Math.floor((new Date() - date) / 1000);
@@ -237,111 +225,20 @@ const beatmapApp = Soumetsu.createApp({
             return 'now';
         },
 
-        // Helper: Get score mods as array
+        // Helper: Get score mods as array (uses extended mods for mania)
         getScoreMods(n) {
-            const modsObj = {
-                "NF": 1, "EZ": 2, "TD": 4, "HD": 8, "HR": 16,
-                "SD": 32, "DT": 64, "RX": 128, "HT": 256,
-                "NC": 512, "FL": 1024, "AU": 2048, "AP": 8192,
-                "PF": 16384, "SO": 4096, "K4": 32768, "K5": 65536,
-                "K6": 131072, "K7": 262144, "K8": 524288, "FI": 1048576,
-                "RN": 2097152, "LM": 4194304, "K9": 16777216, "K1": 33554432,
-                "K3": 67108864, "K2": 134217728, "S2": 536870912, "MR": 1073741824
-            };
-
-            const mods = { ...modsObj };
-            const playmods = [];
-
-            // NC includes DT
-            if (n & mods.NC) {
-                playmods.push("NC");
-                mods.NC = 0;
-                mods.DT = 0;
-            } else if (n & mods.DT) {
-                playmods.push("DT");
-                mods.NC = 0;
-                mods.DT = 0;
-            }
-
-            // PF includes SD
-            if (n & mods.PF) {
-                playmods.push("PF");
-                mods.PF = 0;
-                mods.SD = 0;
-            } else if (n & mods.SD) {
-                playmods.push("SD");
-                mods.PF = 0;
-                mods.SD = 0;
-            }
-
-            for (const [mod, value] of Object.entries(mods)) {
-                if (value !== 0 && (n & value)) {
-                    playmods.push(mod);
-                }
-            }
-
-            return playmods;
+            return SoumetsuGameHelpers.getScoreModsArray(n, true);
         },
 
-        // Helper: Get rank letter from score
-        getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
-            const total = c300 + c100 + c50 + cmiss;
-            const hdfl = (mods & 1049608) > 0; // HD | FL | FI
+        // Delegate to shared helpers
+        addCommas: SoumetsuHelpers.addCommas,
+        formatAccuracy: SoumetsuHelpers.formatAccuracy,
+        escapeHTML: SoumetsuHelpers.escapeHTML,
 
-            const ss = hdfl ? "SS+" : "SS";
-            const s = hdfl ? "S+" : "S";
-
-            switch (gameMode) {
-                case 0:
-                case 1: {
-                    const ratio300 = c300 / total;
-                    const ratio50 = c50 / total;
-
-                    if (ratio300 === 1) {return ss;}
-                    if (ratio300 > 0.9 && ratio50 <= 0.01 && cmiss === 0) {return s;}
-                    if ((ratio300 > 0.8 && cmiss === 0) || ratio300 > 0.9) {return "A";}
-                    if ((ratio300 > 0.7 && cmiss === 0) || ratio300 > 0.8) {return "B";}
-                    if (ratio300 > 0.6) {return "C";}
-                    return "D";
-                }
-                case 2: {
-                    if (acc === 100) {return ss;}
-                    if (acc > 98) {return s;}
-                    if (acc > 94) {return "A";}
-                    if (acc > 90) {return "B";}
-                    if (acc > 85) {return "C";}
-                    return "D";
-                }
-                case 3: {
-                    if (acc === 100) {return ss;}
-                    if (acc > 95) {return s;}
-                    if (acc > 90) {return "A";}
-                    if (acc > 80) {return "B";}
-                    if (acc > 70) {return "C";}
-                    return "D";
-                }
-                default:
-                    return "D";
-            }
-        },
-
-        // Helper: Get rank CSS class
-        getRankClass(rank) {
-            return `rank-${rank.toLowerCase().replace('+', 'h')}`;
-        },
-
-        // Mode name
-        modeName(m) {
-            return ['Standard', 'Taiko', 'Catch', 'Mania'][m] || 'Unknown';
-        },
-
-        // Escape HTML
-        escapeHTML(str) {
-            if (!str) {return '';}
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        },
+        // Delegate to shared game helpers
+        getRank: SoumetsuGameHelpers.getRank,
+        getRankClass: SoumetsuGameHelpers.getRankClass,
+        modeName: SoumetsuGameHelpers.getModeName,
     },
 });
 

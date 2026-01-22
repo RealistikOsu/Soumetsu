@@ -166,38 +166,19 @@ const clanApp = Soumetsu.createApp({
             window.history.replaceState({}, '', url);
         },
 
-        // Mode compatibility checks
+        // Mode compatibility checks - delegate to shared helpers
         isCustomModeDisabled(rx) {
-            if (rx === 1 && this.mode === 3) {return true;} // No relax for mania
-            if (rx === 2 && this.mode !== 0) {return true;} // Autopilot only for std
-            return false;
+            return SoumetsuGameHelpers.isCustomModeDisabled(rx, this.mode);
         },
 
         isModeDisabled(m) {
-            if (this.customMode === 1 && m === 3) {return true;} // No mania for relax
-            if (this.customMode === 2 && m !== 0) {return true;} // Autopilot only for std
-            return false;
+            return SoumetsuGameHelpers.isModeDisabled(m, this.customMode);
         },
 
-        // Helper: Add commas to numbers
-        addCommas(num) {
-            if (num === undefined || num === null) {return '0';}
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        },
-
-        // Helper: Format accuracy
-        formatAccuracy(acc) {
-            if (acc === undefined || acc === null) {return '0.00';}
-            return parseFloat(acc).toFixed(2);
-        },
-
-        // Helper: Escape HTML
-        escapeHTML(str) {
-            if (!str) {return '';}
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        },
+        // Delegate to shared helpers
+        addCommas: SoumetsuHelpers.addCommas,
+        formatAccuracy: SoumetsuHelpers.formatAccuracy,
+        escapeHTML: SoumetsuHelpers.escapeHTML,
     },
 });
 
