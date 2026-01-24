@@ -43,11 +43,7 @@ func (h *PasswordHandler) ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	token, _ := sess.Values["token"].(string)
 
@@ -73,11 +69,7 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.changeResp(w, r, sess, models.NewError("Invalid form data."))
@@ -103,7 +95,7 @@ func (h *PasswordHandler) Change(w http.ResponseWriter, r *http.Request) {
 		newEmailPtr = &email
 	}
 
-	err = h.apiClient.ChangePassword(r.Context(), token, &api.ChangePasswordRequest{
+	err := h.apiClient.ChangePassword(r.Context(), token, &api.ChangePasswordRequest{
 		CurrentPassword: currentPassword,
 		NewPassword:     newPasswordPtr,
 		NewEmail:        newEmailPtr,

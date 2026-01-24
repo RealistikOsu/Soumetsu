@@ -94,11 +94,7 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.addMessage(sess, models.NewError("Invalid form data."))
@@ -117,7 +113,7 @@ func (h *UserHandler) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	token, _ := sess.Values["token"].(string)
 	newUsername := r.FormValue("newuser")
 
-	err = h.apiClient.ChangeUsername(r.Context(), token, newUsername)
+	err := h.apiClient.ChangeUsername(r.Context(), token, newUsername)
 	if err != nil {
 		if apiErr, ok := err.(*api.APIError); ok {
 			h.addMessage(sess, models.NewError(apiErr.Code))
@@ -153,11 +149,7 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseMultipartForm(5 << 20); err != nil { // 5MB max
 		h.addMessage(sess, models.NewError("File too large. Maximum size is 5MB."))
@@ -213,11 +205,7 @@ func (h *UserHandler) SetProfileBackground(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseMultipartForm(5 << 20); err != nil { // 5MB max
 		h.addMessage(sess, models.NewError("File too large. Maximum size is 5MB."))
@@ -273,15 +261,11 @@ func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	token, _ := sess.Values["token"].(string)
 
-	err = h.apiClient.UnlinkDiscord(r.Context(), token)
+	err := h.apiClient.UnlinkDiscord(r.Context(), token)
 	if err != nil {
 		if apiErr, ok := err.(*api.APIError); ok {
 			h.addMessage(sess, models.NewError(apiErr.Code))
@@ -327,11 +311,7 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.addMessage(sess, models.NewError("Invalid form data."))
@@ -350,7 +330,7 @@ func (h *UserHandler) UpdateUserpage(w http.ResponseWriter, r *http.Request) {
 	token, _ := sess.Values["token"].(string)
 	content := r.FormValue("data")
 
-	err = h.apiClient.UpdateUserpage(r.Context(), token, content)
+	err := h.apiClient.UpdateUserpage(r.Context(), token, content)
 	if err != nil {
 		h.addMessage(sess, models.NewError("Failed to update userpage."))
 		sess.Save(r, w)

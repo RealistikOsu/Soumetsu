@@ -1,3 +1,17 @@
+# Asset build stage - compile CSS and JS
+FROM node:20-alpine AS assets
+
+WORKDIR /build
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY gulpfile.js tailwind.config.js ./
+COPY web/static/ ./web/static/
+COPY web/templates/ ./web/templates/
+
+RUN npx gulp build
+
 # Build stage - compile the Go binary
 FROM golang:1.21-alpine AS builder
 
@@ -19,38 +33,29 @@ COPY web/templates/*.go ./web/templates/
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o soumetsu ./cmd/soumetsu
 
 # Final stage - minimal runtime image
+# Layers ordered from least to most frequently changing
 FROM alpine:3.19
 
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apk add --no-cache tzdata bash
+# Install runtime dependencies (never changes)
+RUN adduser -D -g '' appuser && \
+    apk add --no-cache tzdata bash
 
-# Create non-root user for security
-RUN adduser -D -g '' appuser
+# Copy the built binary (changes with Go code - infrequent)
+COPY --chown=appuser:appuser --from=builder /build/soumetsu ./soumetsu
 
-# Copy the built binary from builder (rarely changes after initial build)
-COPY --from=builder /build/soumetsu ./soumetsu
+# Copy support files (rarely change)
+COPY --chown=appuser:appuser scripts/ ./scripts/
+COPY --chown=appuser:appuser data/ ./data/
+COPY --chown=appuser:appuser website-docs/ ./website-docs/
 
-# Copy scripts (rarely change)
-COPY scripts/ ./scripts/
+# Copy templates (occasional changes)
+COPY --chown=appuser:appuser web/templates/ ./web/templates/
 
-# Copy data files (occasionally change)
-COPY data/ ./data/
+# Copy static assets last (most frequent changes)
+COPY --chown=appuser:appuser --from=assets /build/web/static/ ./web/static/
 
-# Copy website docs (occasionally change)
-COPY website-docs/ ./website-docs/
-
-# Copy static assets (change more frequently)
-COPY web/static/ ./web/static/
-
-# Copy templates last (change most frequently)
-COPY web/templates/ ./web/templates/
-
-# Set ownership
-RUN chown -R appuser:appuser /app
-
-# Switch to non-root user
 USER appuser
 
 CMD ["/app/scripts/start.sh"]

@@ -15,7 +15,6 @@ soumetsu
 
 # Node.js (if using for frontend tooling)
 node_modules
-package-lock.json
 
 # Environment and secrets
 .env
@@ -34,8 +33,6 @@ Makefile
 *.md
 .prettierrc
 postcss.config.js
-tailwind.config.js
-gulpfile.js
 
 # Legacy/unused directories
 hanayo
