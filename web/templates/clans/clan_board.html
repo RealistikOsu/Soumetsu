@@ -6,7 +6,7 @@ DisableHH=true
 AdditionalJS=/static/vue/pages/clanboard.js
 */}}
 {{ define "tpl" }}
-<div id="clanboard-app" class="relative min-h-screen py-8">
+<div id="app" class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -103,42 +103,42 @@ AdditionalJS=/static/vue/pages/clanboard.js
 
 		<!-- Filters -->
 		<div class="card mb-6">
-			<div class="flex flex-wrap items-center gap-4">
+			<div class="flex items-center gap-4">
 				<!-- Mode Selector -->
-				<div class="flex gap-2">
-					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+				<div class="flex-1 flex gap-2">
+					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'std' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 						@click.prevent="loadClanboardData('std', customMode, 1)">
 						Standard
 					</button>
-					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'taiko' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(customMode != 'ap') loadClanboardData('taiko', customMode, 1)">
+						@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
 						Taiko
 					</button>
-					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'fruits' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(customMode != 'ap') loadClanboardData('fruits', customMode, 1)">
+						@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
 						Catch
 					</button>
-					<button class="px-4 py-2 rounded-lg border transition-colors text-sm"
+					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="mode === 'mania' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(customMode != 'ap' && customMode != 'rx') loadClanboardData('mania', customMode, 1)">
+						@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
 						Mania
 					</button>
 				</div>
 
 				<!-- CustomMode Selector -->
-				<div class="flex gap-2">
-					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+				<div class="flex-1 flex gap-2">
+					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="customMode === 'vn' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
 						@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
-					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="customMode === 'rx' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(mode != 'mania') loadClanboardData(mode, 'rx', 1)">Relax</a>
-					<a href="#" class="px-4 py-2 rounded-lg border transition-colors text-sm"
+						@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">Relax</a>
+					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
 						:class="customMode === 'ap' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="if(mode != 'mania' && mode != 'fruits' && mode != 'taiko') loadClanboardData(mode, 'ap', 1)">Autopilot</a>
+						@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">Autopilot</a>
 				</div>
 			</div>
 		</div>
@@ -148,7 +148,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			<button class="btn-secondary"
 				:disabled="page <= 1"
 				:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
-				@click.prevent="if(page > 1) loadClanboardData(mode, customMode, page - 1)">
+				@click.prevent="page > 1 && loadClanboardData(mode, customMode, page - 1)">
 				<i class="fas fa-chevron-left mr-2"></i>
 				Previous
 			</button>
@@ -156,7 +156,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			<button class="btn-secondary"
 				:disabled="data.length < 50"
 				:class="{ 'opacity-50 cursor-not-allowed': data.length < 50 }"
-				@click.prevent="if(data.length >= 50) loadClanboardData(mode, customMode, page + 1)">
+				@click.prevent="data.length >= 50 && loadClanboardData(mode, customMode, page + 1)">
 				Next
 				<i class="fas fa-chevron-right ml-2"></i>
 			</button>

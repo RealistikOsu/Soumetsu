@@ -7,7 +7,7 @@ DisableHH=true
 	window.clanParam = "{{ .Extra.ClanParam }}";
 </script>
 
-<div id="clan-app" class="relative min-h-screen py-8">
+<div id="clan-app" class="relative min-h-screen">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -16,14 +16,14 @@ DisableHH=true
 	</div>
 
 	<!-- Loading State -->
-	<div v-if="loading" class="container mx-auto px-4">
+	<div v-if="loading" class="container mx-auto px-4 py-8">
 		<div class="card flex items-center justify-center py-16">
 			<i class="fas fa-spinner fa-spin text-primary text-4xl"></i>
 		</div>
 	</div>
 
 	<!-- Error State -->
-	<div v-else-if="error" class="container mx-auto px-4">
+	<div v-else-if="error" class="container mx-auto px-4 py-8">
 		<div class="card text-center py-16">
 			<i class="fas fa-users text-gray-500 text-5xl mb-4"></i>
 			<h2 class="text-2xl font-bold text-white mb-2">Clan Not Found</h2>
@@ -32,183 +32,395 @@ DisableHH=true
 	</div>
 
 	<!-- Clan Content -->
-	<div v-else class="container mx-auto px-4">
-		<!-- Clan Header -->
-		<div class="card mb-6">
-			<div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-				<img v-if="clan.icon" :src="clan.icon" alt="Clan Icon" class="w-24 h-24 rounded-lg border-2 border-dark-border">
-				<div v-else class="w-24 h-24 rounded-lg border-2 border-dark-border bg-dark-bg flex items-center justify-center">
-					<i class="fas fa-users text-4xl text-gray-500"></i>
+	<div v-else>
+		<!-- Hero Section -->
+		<div class="relative h-64 md:h-72 lg:h-80 -mt-16 pt-16 pb-6 flex flex-col items-center justify-center text-center px-4 overflow-visible">
+			<div class="absolute -top-16 inset-x-0 bottom-0 bg-gradient-to-b from-primary/10 via-purple-900/20 to-transparent"></div>
+			<div class="relative z-10 flex flex-col items-center gap-3">
+				<!-- Clan Icon -->
+				<img v-if="clan.icon" :src="clan.icon" alt="Clan Icon"
+					class="w-20 h-20 rounded-2xl border-4 border-white/10 shadow-2xl object-cover">
+				<div v-else class="w-20 h-20 rounded-2xl border-4 border-white/10 shadow-2xl bg-dark-card flex items-center justify-center">
+					<i class="fas fa-users text-3xl text-gray-500"></i>
 				</div>
-				<div class="flex-1">
-					<div class="text-gray-400 mb-1">{{ v "'[' + clan.tag + ']'" }}</div>
-					<h1 class="text-4xl font-display font-bold mb-2">{{ v "clan.name" }}</h1>
-					<p class="text-gray-300">{{ v "clan.description" }}</p>
+
+				<!-- Tag -->
+				<span class="text-primary text-sm font-semibold tracking-wider uppercase">{{ v "'[' + clan.tag + ']'" }}</span>
+
+				<!-- Name -->
+				<h1 class="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white">{{ v "clan.name" }}</h1>
+
+				<!-- Description -->
+				<p v-if="clan.description" class="text-gray-400 text-sm max-w-lg">{{ v "clan.description" }}</p>
+
+				<!-- Owner Badge -->
+				<div v-if="owner" class="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/10">
+					<img :src="avatarURL + '/' + owner.id" :alt="owner.username"
+						class="w-6 h-6 rounded-full object-cover">
+					<i class="fas fa-crown text-yellow-400 text-xs"></i>
+					<a :href="'/users/' + owner.id" class="text-white text-sm hover:text-primary transition-colors">{{ v "owner.username" }}</a>
+				</div>
+
+				<!-- Actions -->
+				<div class="mt-1 mb-4">
+					<div v-if="currentUserID > 0">
+						<form v-if="canDisband" method="post" :action="'/clans/' + clanId + '/leave'">
+							{{ ieForm .Context }}
+							<button type="submit" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-red-300 transition-colors">
+								<i class="fas fa-trash-alt text-xs"></i>
+								<span>Disband Clan</span>
+							</button>
+						</form>
+						<form v-else-if="canLeave" method="post" :action="'/clans/' + clanId + '/leave'">
+							{{ ieForm .Context }}
+							<button type="submit" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-red-300 transition-colors">
+								<i class="fas fa-sign-out-alt text-xs"></i>
+								<span>Leave Clan</span>
+							</button>
+						</form>
+						<div v-else-if="userClanInfo && !isCurrentUserInThisClan"
+							class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm bg-orange-900/20 border-orange-500/50 text-orange-300">
+							<i class="fas fa-info-circle text-xs"></i>
+							<span>Already joined a clan</span>
+						</div>
+					</div>
+					<div v-else>
+						<a href="/login"
+							class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm bg-blue-900/20 border-blue-500/50 text-blue-300 hover:bg-blue-900/30 transition-colors">
+							<i class="fas fa-sign-in-alt text-xs"></i>
+							<span>Login to join a clan</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Mode/CustomMode Tabs -->
-		<div class="grid grid-cols-3 gap-2 mb-4">
-			<button
-				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isCustomModeDisabled(0)"
-				@click="setCustomMode(0)">
-				Vanilla
-			</button>
-			<button
-				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isCustomModeDisabled(1)"
-				@click="setCustomMode(1)">
-				Relax
-			</button>
-			<button
-				class="px-4 py-2 rounded-lg border text-center transition-colors"
-				:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isCustomModeDisabled(2)"
-				@click="setCustomMode(2)">
-				Autopilot
-			</button>
-		</div>
-
-		<div class="grid grid-cols-4 gap-2 mb-6">
-			<button v-for="(name, m) in modeNames" :key="m"
-				class="px-3 py-2 rounded-lg border text-center text-sm transition-colors"
-				:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				:disabled="isModeDisabled(m)"
-				@click="setMode(m)">
-				{{ v "name" }}
-			</button>
-		</div>
-
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-			<!-- Clan Statistics -->
+		<!-- Scoreboard Strip -->
+		<div class="container mx-auto px-4 py-6 space-y-6">
 			<div class="card">
-				<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
-					<i class="fas fa-chart-line text-primary"></i>
-					<h3 class="text-xl font-display font-bold">Clan Statistics</h3>
+				<!-- Desktop: inline flex -->
+				<div class="hidden lg:flex items-center gap-4">
+					<!-- Custom mode buttons -->
+					<div class="flex items-center gap-2 pr-4 border-r border-dark-border">
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
+							:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(0)"
+							@click="setCustomMode(0)">
+							Vanilla
+						</button>
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
+							:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(1)"
+							@click="setCustomMode(1)">
+							Relax
+						</button>
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
+							:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(2)"
+							@click="setCustomMode(2)">
+							Autopilot
+						</button>
+					</div>
+					<!-- Game mode buttons -->
+					<div class="flex items-center gap-2">
+						<button v-for="(name, m) in modeNames" :key="m"
+							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
+							:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isModeDisabled(m)"
+							@click="setMode(m)">
+							{{ v "name" }}
+						</button>
+					</div>
+					<!-- Stats (right-aligned) -->
+					<div v-if="statsLoading" class="ml-auto flex items-center gap-2 text-primary">
+						<i class="fas fa-spinner fa-spin"></i>
+					</div>
+					<div v-else-if="stats" class="ml-auto flex items-center">
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-primary font-bold text-sm">{{ v "addCommas(stats.total_pp || 0)" }}</div>
+							<div class="text-xs text-gray-500">PP</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">#{{ v "addCommas(stats.rank || 0)" }}</div>
+							<div class="text-xs text-gray-500">Rank</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_ranked_score || 0)" }}</div>
+							<div class="text-xs text-gray-500">RS</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_total_score || 0)" }}</div>
+							<div class="text-xs text-gray-500">TS</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_playcount || 0)" }}</div>
+							<div class="text-xs text-gray-500">PC</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_replays_watched || 0)" }}</div>
+							<div class="text-xs text-gray-500">RP</div>
+						</div>
+						<div class="text-center px-3 border-l border-dark-border">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_hits || 0)" }}</div>
+							<div class="text-xs text-gray-500">Hits</div>
+						</div>
+					</div>
+					<div v-else class="ml-auto text-gray-500 text-sm">No stats</div>
 				</div>
 
-				<!-- Loading Stats -->
-				<div v-if="statsLoading" class="flex items-center justify-center py-8">
+				<!-- Mobile: stacked -->
+				<div class="lg:hidden space-y-4">
+					<!-- Mode buttons -->
+					<div class="grid grid-cols-3 gap-2">
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
+							:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(0)"
+							@click="setCustomMode(0)">
+							Vanilla
+						</button>
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
+							:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(1)"
+							@click="setCustomMode(1)">
+							Relax
+						</button>
+						<button
+							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
+							:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isCustomModeDisabled(2)"
+							@click="setCustomMode(2)">
+							Autopilot
+						</button>
+					</div>
+					<div class="grid grid-cols-4 gap-2">
+						<button v-for="(name, m) in modeNames" :key="m"
+							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
+							:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							:disabled="isModeDisabled(m)"
+							@click="setMode(m)">
+							{{ v "name" }}
+						</button>
+					</div>
+					<!-- Stats grid -->
+					<div v-if="statsLoading" class="flex items-center justify-center py-4">
+						<i class="fas fa-spinner fa-spin text-primary text-xl"></i>
+					</div>
+					<div v-else-if="stats" class="grid grid-cols-4 gap-3">
+						<div class="text-center">
+							<div class="text-primary font-bold text-sm">{{ v "addCommas(stats.total_pp || 0)" }}</div>
+							<div class="text-xs text-gray-500">PP</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">#{{ v "addCommas(stats.rank || 0)" }}</div>
+							<div class="text-xs text-gray-500">Rank</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_ranked_score || 0)" }}</div>
+							<div class="text-xs text-gray-500">RS</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_total_score || 0)" }}</div>
+							<div class="text-xs text-gray-500">TS</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_playcount || 0)" }}</div>
+							<div class="text-xs text-gray-500">PC</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_replays_watched || 0)" }}</div>
+							<div class="text-xs text-gray-500">RP</div>
+						</div>
+						<div class="text-center">
+							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_hits || 0)" }}</div>
+							<div class="text-xs text-gray-500">Hits</div>
+						</div>
+					</div>
+					<div v-else class="text-center text-gray-500 text-sm py-2">No stats available</div>
+				</div>
+			</div>
+
+			<!-- Top Plays Section -->
+			<div class="card">
+				<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+					<i class="fas fa-trophy text-primary"></i>
+					<h3 class="text-xl font-display font-bold text-white">Top Plays</h3>
+				</div>
+
+				<!-- Loading -->
+				<div v-if="topPlaysLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+					<div v-for="i in 4" :key="i" class="card animate-pulse">
+						<div class="h-4 bg-dark-border rounded w-3/4 mb-3"></div>
+						<div class="h-8 bg-dark-border rounded w-1/2 mb-2"></div>
+						<div class="h-3 bg-dark-border rounded w-full"></div>
+					</div>
+				</div>
+
+				<!-- Empty State -->
+				<div v-else-if="topPlays.length === 0" class="text-center py-8 text-gray-400">
+					<i class="fas fa-music text-gray-500 text-3xl mb-3"></i>
+					<p>No scores found for this mode</p>
+				</div>
+
+				<!-- Score Cards -->
+				<div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+					<a v-for="score in topPlays" :key="score.id"
+					   :href="'/users/' + score.player_id"
+					   class="card hover:border-primary transition-all duration-300 cursor-pointer group relative overflow-hidden hover:scale-[1.02]">
+						<!-- Hover gradient overlay -->
+						<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 to-purple-500/10 pointer-events-none"></div>
+						<!-- Player info -->
+						<div class="relative z-10">
+							<div class="flex items-center gap-2 mb-3">
+								<img :src="avatarURL + '/' + score.player_id" :alt="score.username"
+									class="w-10 h-10 rounded-full border-2 border-dark-border group-hover:border-primary transition-colors object-cover">
+								<div class="min-w-0">
+									<div class="text-xs text-gray-400">Played by</div>
+									<div class="text-sm font-semibold text-white truncate">{{ v "score.username" }}</div>
+								</div>
+							</div>
+							<!-- PP Value -->
+							<div class="flex items-baseline justify-between mb-1">
+								<span class="text-2xl font-bold text-primary">{{ v "Math.round(score.pp)" }}<span class="text-sm text-gray-400 ml-1">pp</span></span>
+								<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all text-sm"></i>
+							</div>
+							<!-- Song name -->
+							<div class="text-xs text-gray-400 truncate" :title="score.beatmap.song_name">{{ v "score.beatmap.song_name" }}</div>
+						</div>
+					</a>
+				</div>
+			</div>
+
+			<!-- Member Leaderboard Section -->
+			<div class="card">
+				<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+					<i class="fas fa-ranking-star text-primary"></i>
+					<h3 class="text-xl font-display font-bold text-white">Leaderboard</h3>
+				</div>
+
+				<!-- Loading -->
+				<div v-if="leaderboardLoading" class="flex items-center justify-center py-8">
 					<i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
 				</div>
 
-				<!-- Stats Table -->
-				<table v-else-if="stats" class="w-full">
-					<tbody>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">Global Rank</td>
-							<td class="py-2 text-right text-white font-semibold">#{{ v "addCommas(stats.rank || 0)" }}</td>
-						</tr>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">PP</td>
-							<td class="py-2 text-right text-primary font-semibold">{{ v "addCommas(stats.chosen_mode?.pp || 0)" }}pp</td>
-						</tr>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">Ranked Score</td>
-							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.ranked_score || 0)" }}</td>
-						</tr>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">Total Score</td>
-							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.total_score || 0)" }}</td>
-						</tr>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">Total Playcount</td>
-							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.playcount || 0)" }}</td>
-						</tr>
-						<tr class="border-b border-dark-border/50">
-							<td class="py-2 text-gray-400">Total Replays Watched</td>
-							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.replays_watched || 0)" }}</td>
-						</tr>
-						<tr>
-							<td class="py-2 text-gray-400">Total Hits</td>
-							<td class="py-2 text-right text-white">{{ v "addCommas(stats.chosen_mode?.total_hits || 0)" }}</td>
-						</tr>
-					</tbody>
-				</table>
+				<!-- Empty State -->
+				<div v-else-if="memberLeaderboard.length === 0" class="text-center py-8 text-gray-400">
+					<i class="fas fa-chart-bar text-gray-500 text-3xl mb-3"></i>
+					<p>No data available for this mode</p>
+				</div>
 
-				<div v-else class="text-center py-8 text-gray-400">
-					No stats available
+				<!-- Leaderboard Table -->
+				<div v-else class="overflow-x-auto">
+					<table class="w-full">
+						<thead>
+							<tr class="text-xs text-gray-500 uppercase border-b border-dark-border">
+								<th class="text-left py-3 px-2 w-12">#</th>
+								<th class="text-left py-3 px-2">Player</th>
+								<th class="text-right py-3 px-2">PP</th>
+								<th class="text-right py-3 px-2 hidden md:table-cell">Accuracy</th>
+								<th class="text-right py-3 px-2 hidden lg:table-cell">Playcount</th>
+								<th class="text-right py-3 px-2 hidden xl:table-cell">Level</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(entry, index) in memberLeaderboard" :key="entry.id"
+								class="border-b border-dark-border/50 hover:bg-primary/5 transition-all cursor-pointer"
+								:class="index < 3 ? 'bg-dark-bg/30' : ''"
+								@click="goToUser(entry.id)">
+								<!-- Rank -->
+								<td class="py-3 px-2 w-12">
+									<span v-if="index === 0" class="text-yellow-400"><i class="fas fa-crown"></i></span>
+									<span v-else-if="index === 1" class="text-gray-300"><i class="fas fa-medal"></i></span>
+									<span v-else-if="index === 2" class="text-orange-400"><i class="fas fa-award"></i></span>
+									<span v-else class="text-gray-500">{{ v "index + 1" }}</span>
+								</td>
+								<!-- Player -->
+								<td class="py-3 px-2">
+									<div class="flex items-center gap-3">
+										<img :src="avatarURL + '/' + entry.id" :alt="entry.username"
+											class="w-10 h-10 rounded-full border-2 border-dark-border object-cover">
+										<div class="min-w-0">
+											<div class="font-semibold text-white truncate">{{ v "entry.username" }}</div>
+											<div class="flex items-center gap-1 text-xs text-gray-400">
+												<img :src="'/static/images/new-flags/flag-' + entry.country.toLowerCase() + '.svg'" class="w-3 h-2">
+												<span>{{ v "entry.country.toUpperCase()" }}</span>
+											</div>
+										</div>
+									</div>
+								</td>
+								<!-- PP -->
+								<td class="py-3 px-2 text-right">
+									<span class="text-primary font-bold text-lg">{{ v "addCommas(entry.pp)" }}</span>
+									<span class="text-xs text-gray-400 ml-1">pp</span>
+								</td>
+								<!-- Accuracy -->
+								<td class="py-3 px-2 text-right hidden md:table-cell">
+									<span class="text-gray-300 font-medium">{{ v "formatAccuracy(entry.accuracy)" }}%</span>
+								</td>
+								<!-- Playcount -->
+								<td class="py-3 px-2 text-right hidden lg:table-cell">
+									<span class="text-gray-400">{{ v "addCommas(entry.playcount)" }}</span>
+								</td>
+								<!-- Level -->
+								<td class="py-3 px-2 text-right hidden xl:table-cell">
+									<span class="px-2 py-1 bg-dark-bg rounded text-gray-400 text-sm">Lv.{{ v "Math.floor(entry.level)" }}</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 
-			<!-- Clan Actions & Owner -->
-			<div class="space-y-6">
-				<!-- Clan Actions -->
-				<div v-if="currentUserID > 0">
-					<!-- User is owner of this clan -->
-					<form v-if="canDisband" method="post" :action="'/clans/' + clanId + '/leave'">
-						{{ ieForm .Context }}
-						<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
-							Disband Clan
-						</button>
-					</form>
-
-					<!-- User is member (not owner) of this clan -->
-					<form v-else-if="canLeave" method="post" :action="'/clans/' + clanId + '/leave'">
-						{{ ieForm .Context }}
-						<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
-							Leave Clan
-						</button>
-					</form>
-
-					<!-- User is in a different clan -->
-					<div v-else-if="userClanInfo && !isCurrentUserInThisClan" class="card bg-orange-900/20 border-orange-500/50 text-center">
-						<p class="text-orange-300">Already joined a clan</p>
-					</div>
+			<!-- Members Section -->
+			<div class="card">
+				<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+					<i class="fas fa-users text-primary"></i>
+					<h3 class="text-xl font-display font-bold text-white">Members</h3>
 				</div>
 
-				<!-- Not logged in -->
-				<div v-else class="card bg-blue-900/20 border-blue-500/50 text-center">
-					<a href="/login" class="text-blue-300 hover:text-blue-200">Please login to join a clan</a>
+				<div v-if="members.length === 0" class="text-center py-8 text-gray-400">
+					No members yet
 				</div>
 
-				<!-- Clan Owner -->
-				<div class="card">
-					<h3 class="text-xl font-display font-bold mb-2">Clan Owner</h3>
-					<p class="text-gray-400 text-sm mb-4">The leader of the clan.</p>
-
-					<div v-if="owner" class="flex items-center gap-3">
-						<img :src="avatarURL + '/' + owner.id" :alt="owner.username" class="w-12 h-12 rounded-full border-2 border-dark-border">
-						<div>
-							<a :href="'/users/' + owner.id" class="text-white hover:text-primary font-semibold">
-								{{ v "owner.username" }}
-							</a>
-							<div class="flex items-center gap-1 text-sm text-gray-400">
-								<img :src="'/static/images/new-flags/flag-' + owner.country.toLowerCase() + '.svg'" class="w-4 h-3">
-								<span>{{ v "owner.country.toUpperCase()" }}</span>
+				<div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+					<a v-for="member in members" :key="member.id"
+					   :href="'/users/' + member.id"
+					   class="group card p-0 overflow-hidden transition-all hover:border-primary/50"
+					   :class="owner && member.id === owner.id ? 'ring-1 ring-yellow-500/30' : ''">
+						<!-- Banner -->
+						<div class="relative h-20 overflow-hidden">
+							<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 banner-gradient-transition"
+								:style="memberBannerGradient(member.id)"></div>
+							<div class="absolute inset-0 bg-gradient-to-t from-dark-card to-transparent"></div>
+							<!-- Crown badge for owner -->
+							<div v-if="owner && member.id === owner.id"
+								class="absolute top-2 right-2 flex items-center gap-1 text-white bg-yellow-500/80 px-2 py-0.5 rounded text-xs backdrop-blur-sm">
+								<i class="fas fa-crown text-[10px]"></i>
+								<span class="font-semibold">Owner</span>
 							</div>
 						</div>
-					</div>
-					<div v-else class="text-gray-400">Loading...</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Members -->
-		<div class="card">
-			<h3 class="text-2xl font-display font-bold mb-6">Members</h3>
-
-			<div v-if="members.length === 0" class="text-center py-8 text-gray-400">
-				No members yet
-			</div>
-
-			<div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-				<a v-for="member in members" :key="member.id"
-				   :href="'/users/' + member.id"
-				   class="flex items-center gap-3 p-3 rounded-lg bg-dark-bg/50 hover:bg-dark-bg transition-colors">
-					<img :src="avatarURL + '/' + member.id" :alt="member.username" class="w-10 h-10 rounded-full border border-dark-border">
-					<div class="flex-1 min-w-0">
-						<p class="text-white font-semibold truncate">{{ v "member.username" }}</p>
-						<div class="flex items-center gap-1 text-xs text-gray-400">
-							<img :src="'/static/images/new-flags/flag-' + member.country.toLowerCase() + '.svg'" class="w-3 h-2">
-							<span>{{ v "member.country.toUpperCase()" }}</span>
+						<!-- Info -->
+						<div class="p-4 -mt-8 relative z-10">
+							<div class="mb-3">
+								<img :src="avatarURL + '/' + member.id" :alt="member.username"
+									class="w-14 h-14 rounded-full border-3 border-dark-card object-cover shadow-lg group-hover:border-primary/30 transition-colors"
+									crossorigin="anonymous"
+									@load="extractMemberBannerColors($event, member.id)">
+							</div>
+							<div class="bg-dark-bg rounded-lg p-3">
+								<h4 class="text-base font-display font-bold text-white truncate group-hover:text-primary transition-colors">{{ v "member.username" }}</h4>
+								<div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+									<img :src="'/static/images/new-flags/flag-' + member.country.toLowerCase() + '.svg'" class="w-3 h-2">
+									<span>{{ v "member.country.toUpperCase()" }}</span>
+								</div>
+							</div>
 						</div>
-					</div>
-				</a>
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>

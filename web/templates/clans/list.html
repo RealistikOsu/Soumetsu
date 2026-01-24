@@ -196,25 +196,25 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<!-- Game Mode Selection -->
 				<div>
 					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</p>
-					<div class="flex flex-wrap gap-2">
+					<div class="flex gap-2">
 						<a :href="'/clans/leaderboard?mode=std&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
 							@click.prevent="loadClanboardData('std', customMode, 1)">
 							<i class="fas fa-circle mr-2 text-xs"></i>osu!standard
 						</a>
 						<a :href="'/clans/leaderboard?mode=taiko&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="if(customMode != 'ap') loadClanboardData('taiko', customMode, 1)">
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+							@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
 							<i class="fas fa-drum mr-2 text-xs"></i>osu!taiko
 						</a>
 						<a :href="'/clans/leaderboard?mode=fruits&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="if(customMode != 'ap') loadClanboardData('fruits', customMode, 1)">
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+							@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
 							<i class="fas fa-apple-alt mr-2 text-xs"></i>osu!catch
 						</a>
 						<a :href="'/clans/leaderboard?mode=mania&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((customMode == 'ap' || relax == 'rx') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="if(customMode != 'ap' && customMode != 'rx') loadClanboardData('mania', customMode, 1)">
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((customMode == 'ap' || customMode == 'rx') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+							@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
 							<i class="fas fa-keyboard mr-2 text-xs"></i>osu!mania
 						</a>
 					</div>
@@ -223,16 +223,16 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<!-- Play Type Selection -->
 				<div>
 					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Play Type</p>
-					<div class="flex flex-wrap gap-2">
+					<div class="flex gap-2">
 						<a :href="'/clans/leaderboard?mode='+mode+'&cm=vn&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'vn' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'vn' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
 						<a :href="'/clans/leaderboard?mode='+mode+'&cm=rx&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'rx' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="if(mode != 'mania') loadClanboardData(mode, 'rx', 1)">Relax</a>
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'rx' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+							@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">Relax</a>
 						<a :href="'/clans/leaderboard?mode='+mode+'&cm=ap&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'ap' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="if(mode != 'mania' && mode != 'fruits' && mode != 'taiko') loadClanboardData(mode, 'ap', 1)">Autopilot</a>
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'ap' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+							@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">Autopilot</a>
 					</div>
 				</div>
 			</div>
@@ -243,7 +243,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			<div class="flex items-center gap-2">
 				<a :href="'/clans/leaderboard?mode='+mode+'&cm='+customMode+'&p='+(page-1)"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-purple-500 hover:text-purple-400')"
-					@click.prevent="if(page > 1) loadClanboardData(mode, customMode, page - 1)">
+					@click.prevent="page > 1 && loadClanboardData(mode, customMode, page - 1)">
 					<i class="fas fa-chevron-left"></i> Previous
 				</a>
 				<span class="px-4 py-2 bg-purple-500/10 rounded-lg border border-purple-500/30 text-sm">
@@ -251,7 +251,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				</span>
 				<a :href="'/clans/leaderboard?mode='+mode+'&cm='+customMode+'&p='+(page+1)"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-purple-500 hover:text-purple-400')"
-					@click.prevent="if(data.length >= 50) loadClanboardData(mode, customMode, page + 1)">
+					@click.prevent="data.length >= 50 && loadClanboardData(mode, customMode, page + 1)">
 					Next <i class="fas fa-chevron-right"></i>
 				</a>
 			</div>
@@ -263,7 +263,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 		<!-- Leaderboard Table -->
 		<div class="card p-0 overflow-hidden">
 			<!-- Loading State -->
-			<div v-if="load" class="py-16 text-center">
+			<div v-if="loading" class="py-16 text-center">
 				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
 					<i class="fas fa-spinner fa-spin text-purple-400 text-2xl"></i>
 				</div>
@@ -284,7 +284,7 @@ AdditionalJS=/static/vue/pages/clanboard.js
 				<tbody>
 					<tr v-for="(clan, index) in data" :key="clan.id"
 						:class="'border-b border-dark-border/50 hover:bg-purple-500/5 transition-all cursor-pointer ' + ((page - 1) * 50 + index < 3 && page === 1 ? 'bg-dark-bg/30' : '')"
-						@click="window.location.href='/clans/' + clan.id">
+						@click="navigateTo('/clans/' + clan.id)">
 						<td class="py-4 px-4">
 							<div class="flex items-center gap-2">
 								<span v-if="(page - 1) * 50 + index === 0 && page === 1" class="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">

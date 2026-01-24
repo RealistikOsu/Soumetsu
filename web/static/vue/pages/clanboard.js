@@ -6,7 +6,7 @@ const clanboardApp = Soumetsu.createApp({
             customMode: window.customMode || 'vn',
             customModeInt: 0,
             modeInt: 0,
-            load: true,
+            loading: true,
             page: window.page || 1,
         }
     },
@@ -24,7 +24,7 @@ const clanboardApp = Soumetsu.createApp({
             if (window.event) {
                 window.event.preventDefault();
             }
-            this.load = true;
+            this.loading = true;
 
             if (mode) { this.mode = mode; }
             if (customMode) { this.customMode = customMode; }
@@ -38,20 +38,24 @@ const clanboardApp = Soumetsu.createApp({
             window.history.replaceState('', document.title, `/clans/leaderboard?mode=${this.mode}&cm=${this.customMode}&p=${this.page}`);
 
             try {
-                const response = await SoumetsuAPI.get('clans/stats/all', {
-                    m: this.modeInt,
-                    cm: this.customModeInt,
-                    p: this.page,
+                const response = await SoumetsuAPI.get('clans/leaderboard', {
+                    mode: this.modeInt,
+                    custom_mode: this.customModeInt,
+                    page: this.page,
+                    limit: 50,
                 });
-                this.data = response.clans || [];
+                this.data = response || [];
             } catch (error) {
                 console.error('Clanboard error:', error);
                 this.data = [];
             }
-            this.load = false;
+            this.loading = false;
         },
 
-        // Delegate to shared helpers
+        navigateTo(url) {
+            window.location.href = url;
+        },
+        formatNumber: SoumetsuHelpers.addCommas,
         addCommas: SoumetsuHelpers.addCommas,
         convertIntToLabel: SoumetsuHelpers.humanizeLabel,
         addOne: SoumetsuHelpers.addOne,

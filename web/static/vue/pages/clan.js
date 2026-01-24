@@ -12,6 +12,14 @@ const clanApp = Soumetsu.createApp({
             error: null,
             statsLoading: false,
 
+            // Top plays
+            topPlays: [],
+            topPlaysLoading: false,
+
+            // Member leaderboard
+            memberLeaderboard: [],
+            leaderboardLoading: false,
+
             // Mode/CustomMode selection
             mode: 0,
             customMode: 0,
@@ -26,6 +34,9 @@ const clanApp = Soumetsu.createApp({
             clanParam: window.clanParam || '',
             currentUserID: window.currentUserID || 0,
             avatarURL: window.soumetsuConf?.avatars || '',
+
+            // Banner gradient colors extracted from member avatars
+            memberBannerColors: {},
         };
     },
 
@@ -62,34 +73,32 @@ const clanApp = Soumetsu.createApp({
             this.error = null;
 
             try {
-                // Load clan info - try by ID first, then by name
-                let clanResp;
+                // Load clan info by ID
+                let clan;
                 if (this.clanId > 0) {
-                    clanResp = await SoumetsuAPI.clans.get(this.clanId);
-                } else if (this.clanParam) {
-                    // API might support name lookup - try with the param
-                    clanResp = await SoumetsuAPI.get('clans', { name: this.clanParam });
+                    clan = await SoumetsuAPI.clans.get(this.clanId);
                 }
 
-                if (!clanResp?.clans?.length) {
+                if (!clan || !clan.id) {
                     this.error = 'Clan not found';
                     this.loading = false;
                     return;
                 }
 
-                this.clan = clanResp.clans[0];
-                this.clanId = this.clan.id; // Update with resolved ID
+                this.clan = clan;
+                this.clanId = this.clan.id;
 
                 // Update page title
                 document.title = `${this.clan.name}'s Clan Page :: RealistikOsu!`;
 
-                // Load members, owner, and stats in parallel
+                // Load members and mode-specific data in parallel
                 await Promise.all([
                     this.loadMembers(),
-                    this.loadOwner(),
-                    this.loadStats(),
-                    this.checkUserClanStatus(),
+                    this.loadModeData(),
                 ]);
+
+                // Check user clan status after members are loaded
+                this.checkUserClanStatus();
 
             } catch (err) {
                 console.error('Error loading clan:', err);
@@ -101,19 +110,12 @@ const clanApp = Soumetsu.createApp({
 
         async loadMembers() {
             try {
-                const resp = await SoumetsuAPI.clans.getMembers(this.clanId, 1);
-                this.members = resp.members || [];
+                const members = await SoumetsuAPI.clans.getMembers(this.clanId);
+                this.members = (members || []).map(m => ({ ...m, id: m.user_id }));
+                // Find owner from members list
+                this.owner = this.members.find(m => m.is_owner) || null;
             } catch (err) {
                 console.error('Error loading members:', err);
-            }
-        },
-
-        async loadOwner() {
-            try {
-                const resp = await SoumetsuAPI.clans.getMembers(this.clanId, 8);
-                this.owner = resp.members?.[0] || null;
-            } catch (err) {
-                console.error('Error loading owner:', err);
             }
         },
 
@@ -130,18 +132,51 @@ const clanApp = Soumetsu.createApp({
             this.statsLoading = false;
         },
 
+        async loadModeData() {
+            await Promise.all([
+                this.loadStats(),
+                this.loadTopPlays(),
+                this.loadMemberLeaderboard(),
+            ]);
+        },
+
+        async loadTopPlays() {
+            this.topPlaysLoading = true;
+
+            try {
+                const data = await SoumetsuAPI.clans.getTopScores(this.clanId, this.mode, this.customMode, 4);
+                this.topPlays = data || [];
+            } catch (err) {
+                console.error('Error loading top plays:', err);
+                this.topPlays = [];
+            }
+
+            this.topPlaysLoading = false;
+        },
+
+        async loadMemberLeaderboard() {
+            this.leaderboardLoading = true;
+
+            try {
+                const data = await SoumetsuAPI.clans.getMemberLeaderboard(this.clanId, this.mode, this.customMode);
+                this.memberLeaderboard = data || [];
+            } catch (err) {
+                console.error('Error loading member leaderboard:', err);
+                this.memberLeaderboard = [];
+            }
+
+            this.leaderboardLoading = false;
+        },
+
         async checkUserClanStatus() {
             if (this.currentUserID <= 0) {return;}
 
-            try {
-                const resp = await SoumetsuAPI.clans.isInClan(this.currentUserID);
-                if (resp.clan?.clan) {
-                    this.userClanInfo = resp.clan;
-                    this.isCurrentUserInThisClan = resp.clan.clan === this.clanId;
-                    this.isCurrentUserOwner = resp.clan.perms === 8 && this.isCurrentUserInThisClan;
-                }
-            } catch (err) {
-                console.error('Error checking clan status:', err);
+            // Check from loaded members list
+            const currentMember = this.members.find(m => m.user_id === this.currentUserID);
+            if (currentMember) {
+                this.userClanInfo = { clan: this.clanId };
+                this.isCurrentUserInThisClan = true;
+                this.isCurrentUserOwner = currentMember.is_owner;
             }
         },
 
@@ -149,14 +184,14 @@ const clanApp = Soumetsu.createApp({
             if (this.mode === m) {return;}
             this.mode = m;
             this.updateURL();
-            this.loadStats();
+            this.loadModeData();
         },
 
         setCustomMode(rx) {
             if (this.customMode === rx) {return;}
             this.customMode = rx;
             this.updateURL();
-            this.loadStats();
+            this.loadModeData();
         },
 
         updateURL() {
@@ -173,6 +208,30 @@ const clanApp = Soumetsu.createApp({
 
         isModeDisabled(m) {
             return SoumetsuGameHelpers.isModeDisabled(m, this.customMode);
+        },
+
+        extractMemberBannerColors(event, memberId) {
+            const img = event.target;
+            if (!window.BannerGradient) {return;}
+            window.BannerGradient.extract(img, (colors) => {
+                if (colors && colors.colour1 && colors.colour2) {
+                    this.memberBannerColors[memberId] = colors;
+                }
+            });
+        },
+
+        memberBannerGradient(memberId) {
+            const colors = this.memberBannerColors[memberId];
+            if (colors && colors.colour1 && colors.colour2) {
+                const c1 = colors.colour1.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                const c2 = colors.colour2.replace('rgb', 'rgba').replace(')', ', 0.2)');
+                return { background: `linear-gradient(to bottom right, ${c1}, ${c2})` };
+            }
+            return {};
+        },
+
+        goToUser(id) {
+            window.location.href = '/users/' + id;
         },
 
         // Delegate to shared helpers

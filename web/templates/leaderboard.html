@@ -194,24 +194,24 @@ DisableHH=true
 				<!-- Mode Selection -->
 				<div>
 					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</p>
-					<div class="flex flex-wrap gap-2">
+					<div class="flex gap-2">
 						<a :href="'/leaderboard?m=std&sort='+sort+'&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click="loadLeaderboardData(sort, 'std', customMode, 1, '')">
 							<i class="fas fa-circle-1 mr-2 text-xs"></i>osu!std
 						</a>
 						<a :href="'/leaderboard?m=taiko&sort='+sort+'&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click="loadLeaderboardData(sort, 'taiko', customMode, 1, '')">
 							<i class="fas fa-drum mr-2 text-xs"></i>osu!taiko
 						</a>
 						<a :href="'/leaderboard?m=fruits&sort='+sort+'&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click="loadLeaderboardData(sort, 'fruits', customMode, 1, '')">
 							<i class="fas fa-apple-alt mr-2 text-xs"></i>osu!catch
 						</a>
 						<a :href="'/leaderboard?m=mania&sort='+sort+'&cm='+customMode+'&p=1'"
-							:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
+							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
 							@click="loadLeaderboardData(sort, 'mania', customMode, 1, '')">
 							<i class="fas fa-keyboard mr-2 text-xs"></i>osu!mania
 						</a>
@@ -219,32 +219,32 @@ DisableHH=true
 				</div>
 
 				<!-- Type & Sort Selection -->
-				<div class="flex flex-wrap gap-6">
-					<div>
+				<div class="flex gap-4">
+					<div class="flex-1">
 						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Play Type</p>
-						<div class="flex flex-wrap gap-2">
+						<div class="flex gap-2">
 							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm=vn&p=1'"
-								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'vn' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
+								:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'vn' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
 								@click="loadLeaderboardData(sort, mode, 'vn', 1, '')">Vanilla</a>
 							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm=rx&p=1'"
-								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'rx' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+								:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'rx' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
 								@click="mode != 'mania' && loadLeaderboardData(sort, mode, 'rx', 1, '')">Relax</a>
 							<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm=ap&p=1'"
-								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'ap' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
+								:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'ap' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
 								@click="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadLeaderboardData(sort, mode, 'ap', 1, '')">Autopilot</a>
 						</div>
 					</div>
 
-					<div>
+					<div class="flex-1">
 						<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Sort By</p>
-						<div class="flex flex-wrap gap-2">
+						<div class="flex gap-2">
 							<a :href="'/leaderboard?m='+mode+'&sort=pp&cm='+customMode+'&p=1'"
-								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'pp' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
+								:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'pp' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
 								@click="loadLeaderboardData('pp', mode, customMode, 1, '')">
 								<i class="fas fa-chart-line mr-2"></i>PP
 							</a>
 							<a :href="'/leaderboard?m='+mode+'&sort=score&cm='+customMode+'&p=1'"
-								:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'score' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
+								:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (sort == 'score' ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-green-500 hover:text-white')"
 								@click="loadLeaderboardData('score', mode, customMode, 1, '')">
 								<i class="fas fa-star mr-2"></i>Score
 							</a>
