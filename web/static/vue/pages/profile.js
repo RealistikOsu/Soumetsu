@@ -66,6 +66,15 @@ const profileApp = Soumetsu.createApp({
 
             // Banner colors
             bannerColors: null, // { color1: 'rgb(...)', color2: 'rgb(...)' }
+
+            // Lazy loading state
+            lazyLoaded: {
+                achievements: false,
+                comments: false,
+                firstPlaces: false,
+                mostPlayed: false
+            },
+            sectionObserver: null
         }
     },
     computed: {
@@ -144,7 +153,61 @@ const profileApp = Soumetsu.createApp({
 
         await this.loadUserData();
     },
+    mounted() {
+        // Set up IntersectionObserver for lazy loading
+        this.setupLazyLoading();
+    },
+    beforeUnmount() {
+        // Clean up observer
+        if (this.sectionObserver) {
+            this.sectionObserver.disconnect();
+        }
+    },
     methods: {
+        setupLazyLoading() {
+            const options = {
+                root: null,
+                rootMargin: '100px', // Load slightly before visible
+                threshold: 0.1
+            };
+
+            this.sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+
+                    const section = entry.target.dataset.lazySection;
+                    if (!section || this.lazyLoaded[section]) return;
+
+                    this.lazyLoaded[section] = true;
+
+                    switch (section) {
+                        case 'achievements':
+                            this.loadAchievements();
+                            break;
+                        case 'comments':
+                            this.loadComments();
+                            break;
+                        case 'firstPlaces':
+                            this.loadScores('first');
+                            break;
+                        case 'mostPlayed':
+                            this.loadMostPlayed();
+                            break;
+                    }
+
+                    // Stop observing once loaded
+                    this.sectionObserver.unobserve(entry.target);
+                });
+            }, options);
+
+            // Observe sections after DOM is ready
+            this.$nextTick(() => {
+                const sections = this.$el.querySelectorAll('[data-lazy-section]');
+                sections.forEach(section => {
+                    this.sectionObserver.observe(section);
+                });
+            });
+        },
         async loadUserData() {
             this.loading = true;
             this.error = null;
@@ -185,12 +248,10 @@ const profileApp = Soumetsu.createApp({
                     this.mode = this.user.favourite_mode || 0;
                 }
 
-                // Load additional data in parallel
+                // Load priority data in parallel (visible immediately)
                 await Promise.all([
                     this.loadUserpage(),
                     this.loadFollowers(),
-                    this.loadCommentsInfo(),
-                    this.loadAchievements(),
                     this.loadFriendStatus(),
                     this.loadDiscordInfo()
                 ]);
@@ -201,9 +262,23 @@ const profileApp = Soumetsu.createApp({
                 // Load online status
                 this.loadOnlineStatus();
 
-                // Load scores and graph after basic data
-                this.loadAllScores();
+                // Load priority scores (best, recent, pinned) and graph
+                // First places, most played, achievements, and comments are lazy-loaded
+                this.loadPriorityScores();
                 this.loadGraph();
+
+                // Re-observe lazy sections after user data is loaded
+                this.$nextTick(() => {
+                    if (this.sectionObserver) {
+                        const sections = this.$el.querySelectorAll('[data-lazy-section]');
+                        sections.forEach(section => {
+                            const sectionName = section.dataset.lazySection;
+                            if (!this.lazyLoaded[sectionName]) {
+                                this.sectionObserver.observe(section);
+                            }
+                        });
+                    }
+                });
 
             } catch (err) {
                 console.error('Error loading user data:', err);
@@ -419,17 +494,43 @@ const profileApp = Soumetsu.createApp({
 
         // Scores
         loadAllScores() {
+            // Reset all scores and lazy loading state
+            this.resetScoreState();
+
+            // Load all scores (used when mode changes)
+            this.loadScores('pinned');
+            this.loadScores('best');
+            this.loadScores('recent');
+            this.loadScores('first');
+            this.loadMostPlayed();
+
+            // Reset lazy loading state for sections that need to reload
+            this.lazyLoaded.firstPlaces = true; // Already loading
+            this.lazyLoaded.mostPlayed = true; // Already loading
+        },
+
+        loadPriorityScores() {
+            // Reset score state
+            this.resetScoreState();
+
+            // Only load priority scores (pinned, best, recent) - visible first
+            this.loadScores('pinned');
+            this.loadScores('best');
+            this.loadScores('recent');
+
+            // First places and most played are lazy-loaded via IntersectionObserver
+        },
+
+        resetScoreState() {
             this.scores.pinned = { data: [], page: 0, loading: false, hasMore: true };
             this.scores.best = { data: [], page: 0, loading: false, hasMore: true };
             this.scores.recent = { data: [], page: 0, loading: false, hasMore: true };
             this.scores.first = { data: [], page: 0, loading: false, hasMore: true, total: 0 };
             this.scores.mostPlayed = { data: [], page: 0, loading: false, hasMore: true, total: 0 };
 
-            this.loadScores('pinned');
-            this.loadScores('best');
-            this.loadScores('recent');
-            this.loadScores('first');
-            this.loadMostPlayed();
+            // Reset lazy loading for score sections
+            this.lazyLoaded.firstPlaces = false;
+            this.lazyLoaded.mostPlayed = false;
         },
 
         async loadScores(type) {
@@ -719,136 +820,25 @@ const profileApp = Soumetsu.createApp({
             }
         },
 
-        // Helpers
-        addCommas(num) {
-            if (num === undefined || num === null) {return '0';}
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        },
+        // Delegate to shared helpers
+        addCommas: SoumetsuHelpers.addCommas,
+        humanize: SoumetsuHelpers.humanize,
+        formatAccuracy: SoumetsuHelpers.formatAccuracy,
+        timeAgo: SoumetsuHelpers.timeAgo,
+        formatDate: SoumetsuHelpers.formatDate,
+        getCountryName: SoumetsuHelpers.getCountryName,
+        escapeHTML: SoumetsuHelpers.escapeHTML,
 
-        humanize(num) {
-            if (num === undefined || num === null) {return '0';}
-            if (num >= 1e12) {return (num / 1e12).toFixed(2) + 'T';}
-            if (num >= 1e9) {return (num / 1e9).toFixed(2) + 'B';}
-            if (num >= 1e6) {return (num / 1e6).toFixed(2) + 'M';}
-            if (num >= 1e3) {return (num / 1e3).toFixed(2) + 'K';}
-            return num.toString();
-        },
-
-        formatAccuracy(acc) {
-            if (acc === undefined || acc === null) {return '0.00';}
-            return parseFloat(acc).toFixed(2);
-        },
-
-        timeAgo(dateStr) {
-            const date = new Date(dateStr);
-            const seconds = Math.floor((Date.now() - date) / 1000);
-
-            const intervals = [
-                { label: 'year', seconds: 31536000 },
-                { label: 'month', seconds: 2592000 },
-                { label: 'day', seconds: 86400 },
-                { label: 'hour', seconds: 3600 },
-                { label: 'minute', seconds: 60 }
-            ];
-
-            for (const { label, seconds: s } of intervals) {
-                const count = Math.floor(seconds / s);
-                if (count >= 1) {
-                    return `${count} ${label}${count > 1 ? 's' : ''} ago`;
-                }
-            }
-            return 'just now';
-        },
-
-        formatDate(timestamp) {
-            if (!timestamp) {return 'Unknown';}
-
-            let date;
-            // Handle Unix timestamp (seconds)
-            if (typeof timestamp === 'number') {
-                date = new Date(timestamp * 1000);
-            }
-            // Handle ISO string or other string formats
-            else if (typeof timestamp === 'string') {
-                date = new Date(timestamp);
-            }
-            else {
-                return 'Unknown';
-            }
-
-            // Check if date is valid
-            if (isNaN(date.getTime())) {return 'Unknown';}
-
-            return new Intl.DateTimeFormat('en-gb', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            }).format(date);
-        },
-
+        // Delegate to shared game helpers
         getRank(mode, mods, acc, c300, c100, c50, cmiss) {
-            const total = c300 + c100 + c50 + cmiss;
-            const hdfl = (mods & 1049608) > 0;
-            const ss = hdfl ? 'SS+' : 'SS';
-            const s = hdfl ? 'S+' : 'S';
-
-            if (mode === 0 || mode === 1) {
-                const r300 = c300 / total;
-                const r50 = c50 / total;
-                if (r300 === 1) {return ss;}
-                if (r300 > 0.9 && r50 <= 0.01 && cmiss === 0) {return s;}
-                if ((r300 > 0.8 && cmiss === 0) || r300 > 0.9) {return 'A';}
-                if ((r300 > 0.7 && cmiss === 0) || r300 > 0.8) {return 'B';}
-                if (r300 > 0.6) {return 'C';}
-                return 'D';
-            }
-
-            if (mode === 2 || mode === 3) {
-                if (acc === 100) {return ss;}
-                if (acc > (mode === 2 ? 98 : 95)) {return s;}
-                if (acc > (mode === 2 ? 94 : 90)) {return 'A';}
-                if (acc > (mode === 2 ? 90 : 80)) {return 'B';}
-                if (acc > (mode === 2 ? 85 : 70)) {return 'C';}
-                return 'D';
-            }
-
-            return 'D';
+            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss);
         },
-
         getScoreMods(mods) {
-            if (!mods) {return 'None';}
-            const modNames = [];
-            const modMap = {
-                1: 'NF', 2: 'EZ', 4: 'TD', 8: 'HD', 16: 'HR', 32: 'SD',
-                64: 'DT', 128: 'RX', 256: 'HT', 512: 'NC', 1024: 'FL',
-                2048: 'AU', 4096: 'SO', 8192: 'AP', 16384: 'PF'
-            };
-            for (const [bit, name] of Object.entries(modMap)) {
-                if (mods & parseInt(bit)) {modNames.push(name);}
-            }
-            return modNames.length ? modNames.join('') : 'None';
+            return SoumetsuGameHelpers.getScoreMods(mods);
         },
 
         ppOrScore(pp, score, ranked) {
-            if (pp && pp > 0) {
-                return `${this.addCommas(Math.round(pp))}pp`;
-            }
-            return this.addCommas(score);
-        },
-
-        getCountryName(code) {
-            try {
-                return new Intl.DisplayNames(['en'], { type: 'region' }).of(code.toUpperCase());
-            } catch {
-                return code;
-            }
-        },
-
-        escapeHTML(str) {
-            if (!str) {return '';}
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+            return SoumetsuHelpers.ppOrScore(pp, score, ranked);
         },
 
         getBadgeIconClass(icon) {
@@ -918,9 +908,7 @@ const profileApp = Soumetsu.createApp({
         },
 
         isCustomModeAvailable(rx) {
-            if (rx === 1) {return this.mode !== 3;} // No relax for mania
-            if (rx === 2) {return this.mode === 0;} // Autopilot only for std
-            return true;
+            return !SoumetsuGameHelpers.isCustomModeDisabled(rx, this.mode);
         }
     }
 });

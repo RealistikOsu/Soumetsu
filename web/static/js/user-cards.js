@@ -146,6 +146,7 @@
         els.usernameLink.textContent = data.username;
         els.usernameLink.href = `/users/${data.id}`;
         els.avatar.src = `${AVATAR_URL}/${data.id}`;
+        els.avatar.className = 'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-800 object-cover shadow-lg shrink-0';
 
         if (data.country) {
             els.flag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
@@ -250,16 +251,19 @@
         if (cached) {
             updateCard(cached);
         } else {
-            // Loading state
-            els.usernameLink.textContent = 'Loading...';
-            els.usernameLink.removeAttribute('href'); // Remove href while loading
-            els.avatar.src = `${AVATAR_URL}/${id}`;
+            // Skeleton loading state
+            els.usernameLink.textContent = '';
+            els.usernameLink.removeAttribute('href');
+            els.usernameLink.innerHTML = '<div class="h-5 w-24 rounded bg-slate-700 animate-pulse"></div>';
+            els.avatar.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            els.avatar.className = 'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-700 animate-pulse object-cover shadow-lg shrink-0';
             els.flag.style.display = 'none';
-            els.statusText.textContent = 'Fetching...';
-            els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-500 animate-pulse';
+            els.statusText.textContent = '';
+            els.statusText.innerHTML = '<div class="h-3 w-14 rounded bg-slate-700 animate-pulse"></div>';
+            els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-600 animate-pulse';
             els.banner.style.backgroundImage = 'none';
             els.banner.style.backgroundColor = '#1e293b';
-            els.badges.innerHTML = '';
+            els.badges.innerHTML = '<div class="w-6 h-6 rounded-full bg-slate-700 animate-pulse"></div>';
             els.rankBadge.style.display = 'none';
             els.countryRankBadge.style.display = 'none';
         }

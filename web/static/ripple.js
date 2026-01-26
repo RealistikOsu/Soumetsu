@@ -107,15 +107,16 @@ $(document)
       });
 
     // Color navbar avatar (if we're logged in) based on our bancho status
-    // (propritize bancho over irc)
-    if (isLoggedIn()) {
-      regularAPI('status/' + currentUserID, {}, function(resp) {
-        let onlineClass = "offline";
-        if (resp.code === 200) {
-          onlineClass = "online";
-        }
-        $("#avatar").addClass(onlineClass);
-      })
+    if (isLoggedIn() && soumetsuConf.banchoAPI) {
+      fetch(soumetsuConf.banchoAPI + '/api/status/' + currentUserID)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var onlineClass = data.status === 200 ? "online" : "offline";
+          $("#avatar").addClass(onlineClass);
+        })
+        .catch(function() {
+          $("#avatar").addClass("offline");
+        });
     }
   });
 
@@ -240,14 +241,6 @@ function api(endpoint, data, success, failure, post, handleAllFailures) {
   return _api(soumetsuConf.baseAPI + "/api/v2/", endpoint, data, success, failure, post, handleAllFailures);
 }
 
-function regularAPI(endpoint, data, success, failure, post, handleAllFailures) {
-  // Silently fail by default for status checks
-  if (typeof failure === "undefined") {
-    handleAllFailures = true;
-    failure = function(data) {};
-  }
-  return _api(soumetsuConf.banchoAPI + "/api/v1/", endpoint, data, success, failure, post, handleAllFailures);
-}
 
 const modes = {
   0 : "osu! standard",

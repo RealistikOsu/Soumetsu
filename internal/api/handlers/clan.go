@@ -72,11 +72,7 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.createResp(w, r, models.NewError("Invalid form data."))
@@ -111,17 +107,13 @@ func (h *ClanHandler) Leave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	token, _ := sess.Values["token"].(string)
 	clanIDStr := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanIDStr)
 
-	err = h.apiClient.LeaveClan(r.Context(), token, clanID)
+	err := h.apiClient.LeaveClan(r.Context(), token, clanID)
 	if err != nil {
 		if apiErr, ok := err.(*api.APIError); ok {
 			h.addMessage(sess, models.NewError(apiErr.Code))
@@ -145,17 +137,13 @@ func (h *ClanHandler) Disband(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	token, _ := sess.Values["token"].(string)
 	clanIDStr := chi.URLParam(r, "id")
 	clanID, _ := strconv.Atoi(clanIDStr)
 
-	err = h.apiClient.DeleteClan(r.Context(), token, clanID)
+	err := h.apiClient.DeleteClan(r.Context(), token, clanID)
 	if err != nil {
 		if apiErr, ok := err.(*api.APIError); ok {
 			h.addMessage(sess, models.NewError(apiErr.Code))
@@ -184,11 +172,7 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	token, _ := sess.Values["token"].(string)
 	inviteCode := chi.URLParam(r, "inv")
@@ -217,11 +201,7 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.addMessage(sess, models.NewError("Invalid form data."))
@@ -234,7 +214,7 @@ func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
 	memberID, _ := strconv.Atoi(r.FormValue("member"))
 	clanID := reqCtx.User.Clan
 
-	err = h.apiClient.KickClanMember(r.Context(), token, clanID, memberID)
+	err := h.apiClient.KickClanMember(r.Context(), token, clanID, memberID)
 	if err != nil {
 		if apiErr, ok := err.(*api.APIError); ok {
 			h.addMessage(sess, models.NewError(apiErr.Code))
@@ -271,11 +251,7 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	if err := r.ParseForm(); err != nil {
 		h.addMessage(sess, models.NewError("Invalid form data."))
@@ -307,7 +283,7 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 			req.Tag = &tag
 		}
 
-		err = h.apiClient.UpdateClan(r.Context(), token, clanID, req)
+		err := h.apiClient.UpdateClan(r.Context(), token, clanID, req)
 		if err != nil {
 			if apiErr, ok := err.(*api.APIError); ok {
 				h.addMessage(sess, models.NewError(apiErr.Code))
@@ -319,7 +295,7 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		_, err = h.apiClient.GenerateClanInvite(r.Context(), token, clanID)
+		_, err := h.apiClient.GenerateClanInvite(r.Context(), token, clanID)
 		if err != nil {
 			if apiErr, ok := err.(*api.APIError); ok {
 				h.addMessage(sess, models.NewError(apiErr.Code))

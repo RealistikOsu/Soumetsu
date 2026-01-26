@@ -6,7 +6,7 @@ const clanboardApp = Soumetsu.createApp({
             customMode: window.customMode || 'vn',
             customModeInt: 0,
             modeInt: 0,
-            load: true,
+            loading: true,
             page: window.page || 1,
         }
     },
@@ -24,93 +24,43 @@ const clanboardApp = Soumetsu.createApp({
             if (window.event) {
                 window.event.preventDefault();
             }
-            this.load = true;
+            this.loading = true;
 
-            if (mode)
-                {this.mode = mode;}
-            if (customMode)
-                {this.customMode = customMode;}
+            if (mode) { this.mode = mode; }
+            if (customMode) { this.customMode = customMode; }
 
-            switch (mode) {
-                case 'taiko':
-                    this.modeInt = 1;
-                    break
-                case 'fruits':
-                    this.modeInt = 2;
-                    break
-                case 'mania':
-                    this.modeInt = 3;
-                    break
-                default:
-                    this.modeInt = 0;
-            }
-
-            switch (customMode) {
-                case 'rx':
-                    this.customModeInt = 1;
-                    break;
-                case 'ap':
-                    this.customModeInt = 2;
-                    break;
-                default:
-                    this.customModeInt = 0;
-            }
+            // Use shared game helpers for mode conversion
+            this.modeInt = SoumetsuGameHelpers.getModeIndex(mode);
+            this.customModeInt = SoumetsuGameHelpers.getCustomModeIndex(customMode);
 
             this.page = page;
-            if (this.page <= 0 || this.page == null)
-                {this.page = 1;}
+            if (this.page <= 0 || this.page == null) { this.page = 1; }
             window.history.replaceState('', document.title, `/clans/leaderboard?mode=${this.mode}&cm=${this.customMode}&p=${this.page}`);
 
             try {
-                const response = await SoumetsuAPI.get('clans/stats/all', {
-                    m: this.modeInt,
-                    cm: this.customModeInt,
-                    p: this.page,
+                const response = await SoumetsuAPI.get('clans/leaderboard', {
+                    mode: this.modeInt,
+                    custom_mode: this.customModeInt,
+                    page: this.page,
+                    limit: 50,
                 });
-                this.data = response.clans || [];
+                this.data = response || [];
             } catch (error) {
                 console.error('Clanboard error:', error);
                 this.data = [];
             }
-            this.load = false;
+            this.loading = false;
         },
-        addCommas(integer) {
-            integer += "", x = integer.split("."), x1 = x[0], x2 = x.length > 1 ? "." + x[1] : "";
-            for (let t = /(\d+)(\d{3})/; t.test(x1);) {x1 = x1.replace(t, "$1,$2");}
-            return x1 + x2;
+
+        navigateTo(url) {
+            window.location.href = url;
         },
-        convertIntToLabel(number) {
-            // Nine Zeroes for Trillion
-            return Math.abs(Number(number)) >= 1.0e+12
-
-                ? (Math.abs(Number(number)) / 1.0e+12).toFixed(2) + " trillion"
-                // Nine Zeroes for Billion
-                : Math.abs(Number(number)) >= 1.0e+9
-
-                    ? (Math.abs(Number(number)) / 1.0e+9).toFixed(2) + " billion"
-                    // Six Zeroes for Millions
-                    : Math.abs(Number(number)) >= 1.0e+6
-
-                        ? (Math.abs(Number(number)) / 1.0e+6).toFixed(2) + " million"
-                        // Three Zeroes for Thousand
-                        : Math.abs(Number(number)) >= 1.0e+3
-
-                            ? (Math.abs(Number(number)) / 1.0e+3).toFixed(2) + " thousand"
-
-                            : Math.abs(Number(number));
-        },
-        addOne(page) {
-            return (parseInt(page) + parseInt(1));
-        },
-        mobileCheck() {
-            if (window.innerWidth < 768) {
-                return true;
-            }
-            return false;
-        },
-        safeValue(val, def) {
-            return val !== undefined && val !== null ? val : def;
-        }
+        formatNumber: SoumetsuHelpers.addCommas,
+        addCommas: SoumetsuHelpers.addCommas,
+        convertIntToLabel: SoumetsuHelpers.humanizeLabel,
+        addOne: SoumetsuHelpers.addOne,
+        mobileCheck: SoumetsuHelpers.isMobile,
+        safeValue: SoumetsuHelpers.safeValue
     }
 });
 

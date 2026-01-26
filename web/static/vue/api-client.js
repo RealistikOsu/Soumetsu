@@ -107,6 +107,12 @@ const SoumetsuAPI = {
         getStats(id, mode = 0, custom_mode = 0) {
             return SoumetsuAPI.get(`clans/${id}/stats`, { mode, custom_mode });
         },
+        getTopScores(id, mode = 0, custom_mode = 0, limit = 4) {
+            return SoumetsuAPI.get(`clans/${id}/scores/top`, { mode, custom_mode, limit });
+        },
+        getMemberLeaderboard(id, mode = 0, custom_mode = 0) {
+            return SoumetsuAPI.get(`clans/${id}/members/leaderboard`, { mode, custom_mode });
+        },
         list(page = 1, limit = 50, sort = 'pp') {
             return SoumetsuAPI.get('clans', { page, limit, sort });
         },
@@ -187,6 +193,26 @@ const SoumetsuAPI = {
         },
     },
 
+    statistics: {
+        async homepage() {
+            try {
+                const topScores = await SoumetsuAPI.get('scores/top', { limit: 8 });
+                const mapped = (topScores || []).map(s => ({
+                    ...s,
+                    pp_val: s.pp,
+                }));
+                return {
+                    data: {
+                        top_scores: mapped,
+                        online_history: [],
+                    },
+                };
+            } catch {
+                return { data: { top_scores: [], online_history: [] } };
+            }
+        },
+    },
+
     comments: {
         get(userId) {
             return SoumetsuAPI.get(`users/${userId}/comments`);
@@ -202,9 +228,9 @@ const SoumetsuAPI = {
     async checkOnline(userId) {
         if (!this.banchoURL()) return false;
         try {
-            const resp = await fetch(`${this.banchoURL()}/api/v1/isOnline?u=${userId}`);
+            const resp = await fetch(`${this.banchoURL()}/api/status/${userId}`);
             const data = await resp.json();
-            return data.status === 200 && data.result === true;
+            return data.status === 200;
         } catch {
             return false;
         }

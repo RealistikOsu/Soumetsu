@@ -16,6 +16,7 @@ DisableHH=true
 <script src="/static/vue/vue.js"></script>
 <script src="/static/vue/soumetsu-app.js"></script>
 <script src="/static/vue/api-client.js"></script>
+<script src="/static/vue/components/score-card.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/static/js/bbcode.js"></script>
 
@@ -389,7 +390,24 @@ DisableHH=true
 						<i class="fas fa-angles-up text-primary"></i>
 						<h3 class="text-xl font-display font-bold text-white">Best Scores</h3>
 					</div>
-					<div v-if="scores.best.data.length === 0 && !scores.best.loading" class="py-8 text-center">
+					<!-- Skeleton Loader -->
+					<div v-if="scores.best.loading && scores.best.data.length === 0" class="space-y-2">
+						<div v-for="i in 5" :key="i" class="score-card-compact rounded-lg border border-dark-border bg-dark-card animate-pulse">
+							<div class="p-3 flex items-center gap-3">
+								<div class="w-10 h-10 rounded-lg bg-dark-border"></div>
+								<div class="flex-1 min-w-0 space-y-2">
+									<div class="h-4 bg-dark-border rounded w-3/4"></div>
+									<div class="h-3 bg-dark-border rounded w-1/2"></div>
+									<div class="h-3 bg-dark-border rounded w-1/4"></div>
+								</div>
+								<div class="flex-shrink-0 text-right space-y-2">
+									<div class="h-5 bg-dark-border rounded w-16"></div>
+									<div class="h-3 bg-dark-border rounded w-12"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-else-if="scores.best.data.length === 0 && !scores.best.loading" class="py-8 text-center">
 						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
 						<p class="text-gray-400">No scores have been found</p>
 					</div>
@@ -456,15 +474,26 @@ DisableHH=true
 					</div>
 				</div>
 
-				<!-- Most Played -->
-				<div class="card">
+				<!-- Most Played (Lazy Loaded) -->
+				<div class="card" data-lazy-section="mostPlayed">
 					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 						<i class="fas fa-play text-primary"></i>
 						<h3 class="text-xl font-display font-bold text-white">Most Played Beatmaps <span
 								v-if="scores.mostPlayed.total" class="text-gray-400">({{ v "scores.mostPlayed.total" }}
 									)</span></h3>
 					</div>
-					<div v-if="scores.mostPlayed.data.length === 0 && !scores.mostPlayed.loading"
+					<!-- Skeleton Loader -->
+					<div v-if="scores.mostPlayed.loading && scores.mostPlayed.data.length === 0" class="space-y-2">
+						<div v-for="i in 3" :key="i" class="most-played-card rounded-lg border border-dark-border bg-dark-card animate-pulse">
+							<div class="p-4 flex items-center gap-4">
+								<div class="flex-1 min-w-0 space-y-2">
+									<div class="h-4 bg-dark-border rounded w-2/3"></div>
+								</div>
+								<div class="h-5 bg-dark-border rounded w-16"></div>
+							</div>
+						</div>
+					</div>
+					<div v-else-if="scores.mostPlayed.data.length === 0 && !scores.mostPlayed.loading"
 						class="py-8 text-center">
 						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
 						<p class="text-gray-400">No beatmaps found</p>
@@ -513,7 +542,24 @@ DisableHH=true
 							Hide failed
 						</label>
 					</div>
-					<div v-if="scores.recent.data.length === 0 && !scores.recent.loading" class="py-8 text-center">
+					<!-- Skeleton Loader -->
+					<div v-if="scores.recent.loading && scores.recent.data.length === 0" class="space-y-2">
+						<div v-for="i in 3" :key="i" class="score-card-compact rounded-lg border border-dark-border bg-dark-card animate-pulse">
+							<div class="p-3 flex items-center gap-3">
+								<div class="w-10 h-10 rounded-lg bg-dark-border"></div>
+								<div class="flex-1 min-w-0 space-y-2">
+									<div class="h-4 bg-dark-border rounded w-3/4"></div>
+									<div class="h-3 bg-dark-border rounded w-1/2"></div>
+									<div class="h-3 bg-dark-border rounded w-1/4"></div>
+								</div>
+								<div class="flex-shrink-0 text-right space-y-2">
+									<div class="h-5 bg-dark-border rounded w-16"></div>
+									<div class="h-3 bg-dark-border rounded w-12"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-else-if="scores.recent.data.length === 0 && !scores.recent.loading" class="py-8 text-center">
 						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
 						<p class="text-gray-400">No scores have been found</p>
 					</div>
@@ -575,14 +621,31 @@ DisableHH=true
 					</div>
 				</div>
 
-				<!-- First Place Scores -->
-				<div class="card">
+				<!-- First Place Scores (Lazy Loaded) -->
+				<div class="card" data-lazy-section="firstPlaces">
 					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 						<i class="fas fa-trophy text-yellow-400"></i>
 						<h3 class="text-xl font-display font-bold text-white">First Places <span
 								v-if="scores.first.total" class="text-gray-400">({{ v "scores.first.total" }})</span></h3>
 					</div>
-					<div v-if="scores.first.data.length === 0 && !scores.first.loading" class="py-8 text-center">
+					<!-- Skeleton Loader -->
+					<div v-if="scores.first.loading && scores.first.data.length === 0" class="space-y-2">
+						<div v-for="i in 3" :key="i" class="score-card-compact rounded-lg border border-dark-border bg-dark-card animate-pulse">
+							<div class="p-3 flex items-center gap-3">
+								<div class="w-10 h-10 rounded-lg bg-dark-border"></div>
+								<div class="flex-1 min-w-0 space-y-2">
+									<div class="h-4 bg-dark-border rounded w-3/4"></div>
+									<div class="h-3 bg-dark-border rounded w-1/2"></div>
+									<div class="h-3 bg-dark-border rounded w-1/4"></div>
+								</div>
+								<div class="flex-shrink-0 text-right space-y-2">
+									<div class="h-5 bg-dark-border rounded w-16"></div>
+									<div class="h-3 bg-dark-border rounded w-12"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div v-else-if="scores.first.data.length === 0 && !scores.first.loading" class="py-8 text-center">
 						<i class="fas fa-inbox text-gray-500 text-4xl mb-4"></i>
 						<p class="text-gray-400">No first place scores</p>
 					</div>
@@ -645,13 +708,19 @@ DisableHH=true
 					</div>
 				</div>
 
-				<!-- Achievements -->
-				<div class="card">
+				<!-- Achievements (Lazy Loaded) -->
+				<div class="card" data-lazy-section="achievements">
 					<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 						<i class="fas fa-gamepad text-primary"></i>
 						<h3 class="text-xl font-display font-bold text-white">Achievements</h3>
 					</div>
-					<div v-if="achievements.length === 0" class="py-8 text-center">
+					<!-- Skeleton Loader -->
+					<div v-if="!lazyLoaded.achievements" class="grid grid-cols-4 md:grid-cols-8 gap-4 mb-4">
+						<div v-for="i in 8" :key="i" class="animate-pulse">
+							<div class="w-12 h-12 mx-auto rounded-full bg-dark-border"></div>
+						</div>
+					</div>
+					<div v-else-if="achievements.length === 0" class="py-8 text-center">
 						<p class="text-gray-400">Nothing here. Yet.</p>
 					</div>
 					<div v-else class="grid grid-cols-4 md:grid-cols-8 gap-4 mb-4">
@@ -668,59 +737,72 @@ DisableHH=true
 			</div>
 		</div>
 
-		<!-- Comments Section -->
-		<div v-if="commentsInfo" class="mt-6">
+		<!-- Comments Section (Lazy Loaded) -->
+		<div class="mt-6" data-lazy-section="comments">
 			<div class="card">
 				<div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
 					<i class="fas fa-comment text-primary"></i>
 					<h3 class="text-xl font-display font-bold text-white">
-						Comments ({{ v "commentsInfo.disabled ? 0 : (commentsInfo.total || 0)" }})
+						Comments <span v-if="commentsInfo">({{ v "commentsInfo.disabled ? 0 : (commentsInfo.total || 0)" }})</span>
 					</h3>
 				</div>
 
-				<div v-if="commentsInfo.disabled"
-					class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center">
-					<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
-					<p class="text-gray-400">This user has disabled comments!</p>
+				<!-- Skeleton Loader -->
+				<div v-if="!lazyLoaded.comments" class="space-y-4">
+					<div v-for="i in 3" :key="i" class="flex gap-4 animate-pulse">
+						<div class="w-12 h-12 rounded-full bg-dark-border flex-shrink-0"></div>
+						<div class="flex-1 bg-dark-bg rounded-lg p-4 border border-dark-border">
+							<div class="h-4 bg-dark-border rounded w-1/4 mb-2"></div>
+							<div class="h-3 bg-dark-border rounded w-full mb-1"></div>
+							<div class="h-3 bg-dark-border rounded w-2/3"></div>
+						</div>
+					</div>
 				</div>
 
-				<template v-else>
-					<!-- Comment Form -->
-					<div v-if="currentUserID" class="mb-6">
-						<div class="flex gap-4">
-							<img :src="avatarURL + '/' + currentUserID"
-								class="w-12 h-12 rounded-full border-2 border-dark-border flex-shrink-0 object-cover"
-								@error="handleAvatarError($event, currentUserID)" loading="lazy">
-							<div class="flex-1">
-								<textarea v-model="commentText" placeholder="Write a comment..." maxlength="380"
-									class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-									rows="3" @keydown.ctrl.enter="postComment"
-									@keydown.meta.enter="postComment"></textarea>
-								<div class="flex items-center justify-between mt-2">
-									<span class="text-xs text-gray-400">
-										{{ v "commentText.length" }}/380
-									</span>
-									<button @click="postComment"
-										:disabled="!commentText.trim() || commentText.length > 380 || commentPosting"
-										:class="'btn-primary ' + (commentPosting ? 'opacity-50 cursor-not-allowed' : '')">
-										<span v-if="commentPosting"><i class="fas fa-spinner fa-spin mr-2"></i></span>
-										Comment
-									</button>
+				<template v-else-if="commentsInfo">
+					<div v-if="commentsInfo.disabled"
+						class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center">
+						<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
+						<p class="text-gray-400">This user has disabled comments!</p>
+					</div>
+
+					<template v-else>
+						<!-- Comment Form -->
+						<div v-if="currentUserID" class="mb-6">
+							<div class="flex gap-4">
+								<img :src="avatarURL + '/' + currentUserID"
+									class="w-12 h-12 rounded-full border-2 border-dark-border flex-shrink-0 object-cover"
+									@error="handleAvatarError($event, currentUserID)" loading="lazy">
+								<div class="flex-1">
+									<textarea v-model="commentText" placeholder="Write a comment..." maxlength="380"
+										class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+										rows="3" @keydown.ctrl.enter="postComment"
+										@keydown.meta.enter="postComment"></textarea>
+									<div class="flex items-center justify-between mt-2">
+										<span class="text-xs text-gray-400">
+											{{ v "commentText.length" }}/380
+										</span>
+										<button @click="postComment"
+											:disabled="!commentText.trim() || commentText.length > 380 || commentPosting"
+											:class="'btn-primary ' + (commentPosting ? 'opacity-50 cursor-not-allowed' : '')">
+											<span v-if="commentPosting"><i class="fas fa-spinner fa-spin mr-2"></i></span>
+											Comment
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-					<div v-else class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center mb-6">
-						<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
-						<p class="text-gray-400 mb-4">Please login to submit a comment!</p>
-						<a href="/login" class="btn-primary inline-block">Log In</a>
-					</div>
+						<div v-else class="bg-dark-bg rounded-lg p-6 border border-dark-border text-center mb-6">
+							<i class="fas fa-lock text-gray-500 text-3xl mb-3"></i>
+							<p class="text-gray-400 mb-4">Please login to submit a comment!</p>
+							<a href="/login" class="btn-primary inline-block">Log In</a>
+						</div>
 
-					<!-- Comments List -->
-					<div v-if="comments.length === 0 && !commentLoading" class="py-8 text-center">
-						<i class="fas fa-comment-slash text-gray-500 text-4xl mb-4"></i>
-						<p class="text-gray-400">No comments yet. Be the first to comment!</p>
-					</div>
+						<!-- Comments List -->
+						<div v-if="comments.length === 0 && !commentLoading" class="py-8 text-center">
+							<i class="fas fa-comment-slash text-gray-500 text-4xl mb-4"></i>
+							<p class="text-gray-400">No comments yet. Be the first to comment!</p>
+						</div>
 					<div v-else class="space-y-4">
 						<div v-for="comment in comments" :key="comment.id" class="flex gap-4 group">
 							<a :href="'/users/' + comment.author_id" class="flex-shrink-0">
@@ -761,6 +843,7 @@ DisableHH=true
 							Load more
 						</button>
 					</div>
+					</template>
 				</template>
 			</div>
 		</div>
@@ -1159,239 +1242,6 @@ DisableHH=true
 	transform: translateX(-50%) translateY(-4px);
 	pointer-events: auto;
 }
-	.rank-badge-compact {
-		@apply w-10 h-10 flex items-center justify-center rounded-lg font-bold text-base;
-		background: rgba(30, 41, 59, 0.9);
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		backdrop-filter: blur(4px);
-	}
-
-	.rank-ss,
-	.rank-ssh {
-		background: linear-gradient(135deg, rgba(234, 179, 8, 0.9), rgba(202, 138, 4, 0.9));
-		color: white;
-		border-color: rgba(234, 179, 8, 0.5);
-	}
-
-	.rank-s,
-	.rank-sh {
-		background: linear-gradient(135deg, rgba(250, 204, 21, 0.9), rgba(234, 179, 8, 0.9));
-		color: white;
-		border-color: rgba(250, 204, 21, 0.5);
-	}
-
-	.rank-a {
-		background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
-		color: white;
-		border-color: rgba(34, 197, 94, 0.5);
-	}
-
-	.rank-b {
-		background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
-		color: white;
-		border-color: rgba(59, 130, 246, 0.5);
-	}
-
-	.rank-c {
-		background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(147, 51, 234, 0.9));
-		color: white;
-		border-color: rgba(168, 85, 247, 0.5);
-	}
-
-	.rank-d {
-		background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
-		color: white;
-		border-color: rgba(239, 68, 68, 0.5);
-	}
-
-	.score-card-compact {
-		min-height: 80px;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.most-played-card {
-		min-height: 60px;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.score-card-bg {
-		position: absolute;
-		inset: 0;
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		filter: blur(6px) brightness(0.35);
-		transform: scale(1.05);
-		z-index: 0;
-		will-change: transform;
-	}
-
-	.score-card-overlay-compact {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(to right,
-				rgba(15, 23, 42, 0.88) 0%,
-				rgba(15, 23, 42, 0.78) 40%,
-				rgba(15, 23, 42, 0.68) 60%,
-				rgba(15, 23, 42, 0.55) 100%);
-		transition: opacity 0.2s ease;
-		z-index: 1;
-		backdrop-filter: none;
-	}
-
-	.score-card-overlay-compact.score-card-overlay-failed {
-		background: linear-gradient(to right,
-				rgba(107, 32, 31, 0.92) 0%,
-				rgba(107, 32, 31, 0.85) 40%,
-				rgba(107, 32, 31, 0.75) 60%,
-				rgba(107, 32, 31, 0.65) 100%) !important;
-	}
-
-	.score-card-overlay-compact.score-card-overlay-first {
-		background: linear-gradient(to right,
-				rgba(15, 23, 42, 0.90) 0%,
-				rgba(15, 23, 42, 0.80) 40%,
-				rgba(15, 23, 42, 0.70) 60%,
-				rgba(15, 23, 42, 0.58) 100%);
-	}
-
-	.group:hover .score-card-overlay-compact {
-		opacity: 0.85;
-	}
-
-	.score-card-compact .relative,
-	.most-played-card .relative {
-		z-index: 2;
-		position: relative;
-		isolation: isolate;
-		transform: translateZ(0);
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	}
-
-	.score-modal-bg {
-		position: absolute;
-		inset: 0;
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		filter: blur(12px) brightness(0.3);
-		transform: scale(1.1);
-		z-index: 0;
-	}
-
-	.score-modal-overlay {
-		background: linear-gradient(to bottom,
-				rgba(15, 23, 42, 0.95) 0%,
-				rgba(15, 23, 42, 0.92) 50%,
-				rgba(15, 23, 42, 0.95) 100%);
-		z-index: 1;
-	}
-
-	.rank-badge-modal {
-		@apply w-20 h-20 flex items-center justify-center rounded-xl font-bold text-3xl shadow-xl;
-		backdrop-filter: blur(8px);
-		border: 2px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.rank-badge-modal.rank-ss,
-	.rank-badge-modal.rank-ssh {
-		background: linear-gradient(135deg, rgba(234, 179, 8, 0.95), rgba(202, 138, 4, 0.95));
-		color: white;
-		border-color: rgba(234, 179, 8, 0.6);
-		box-shadow: 0 8px 24px rgba(234, 179, 8, 0.4);
-	}
-
-	.rank-badge-modal.rank-s,
-	.rank-badge-modal.rank-sh {
-		background: linear-gradient(135deg, rgba(250, 204, 21, 0.95), rgba(234, 179, 8, 0.95));
-		color: white;
-		border-color: rgba(250, 204, 21, 0.6);
-		box-shadow: 0 8px 24px rgba(250, 204, 21, 0.4);
-	}
-
-	.rank-badge-modal.rank-a {
-		background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95));
-		color: white;
-		border-color: rgba(34, 197, 94, 0.6);
-		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
-	}
-
-	.rank-badge-modal.rank-b {
-		background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
-		color: white;
-		border-color: rgba(59, 130, 246, 0.6);
-		box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-	}
-
-	.rank-badge-modal.rank-c {
-		background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(147, 51, 234, 0.95));
-		color: white;
-		border-color: rgba(168, 85, 247, 0.6);
-		box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
-	}
-
-	.rank-badge-modal.rank-d {
-		background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
-		color: white;
-		border-color: rgba(239, 68, 68, 0.6);
-		box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
-	}
-
-	/* Badge icon styling */
-	.badge-icon {
-		font-style: normal !important;
-		display: inline-block !important;
-		font-family: "Font Awesome 6 Free" !important;
-		font-weight: 900 !important;
-	}
-
-	/* Badge tooltip styling */
-	.badge-tooltip-container {
-		position: relative;
-	}
-
-	.badge-tooltip {
-		position: absolute;
-		bottom: 100%;
-		left: 50%;
-		transform: translateX(-50%) translateY(-8px);
-		background: rgba(15, 23, 42, 0.95);
-		color: white;
-		padding: 6px 12px;
-		border-radius: 6px;
-		font-size: 0.75rem;
-		font-weight: 500;
-		white-space: nowrap;
-		border: 1px solid rgba(51, 65, 85, 0.8);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-		backdrop-filter: blur(8px);
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 0.2s ease, transform 0.2s ease;
-		z-index: 50;
-		margin-bottom: 4px;
-	}
-
-	.badge-tooltip::after {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		border: 5px solid transparent;
-		border-top-color: rgba(15, 23, 42, 0.95);
-	}
-
-	.badge-tooltip-container:hover .badge-tooltip {
-		opacity: 1;
-		transform: translateX(-50%) translateY(-4px);
-		pointer-events: auto;
-	}
 </style>
 
 <script src="/static/vue/pages/profile.js"></script>

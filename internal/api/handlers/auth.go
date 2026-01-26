@@ -82,11 +82,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	result, err := h.authService.Login(r.Context(), auth.LoginInput{
 		Username: username,
@@ -143,11 +139,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	logoutKey, _ := sess.Values["logout"].(string)
 	if logoutKey != r.URL.Query().Get("k") {
@@ -213,11 +205,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.store.Get(r, "session")
-	if err != nil {
-		h.templates.InternalError(w, r, err)
-		return
-	}
+	sess, _ := h.store.Get(r, "session")
 
 	input := auth.RegisterInput{
 		Username: strings.TrimSpace(r.FormValue("username")),
