@@ -269,27 +269,27 @@ const profileApp = Soumetsu.createApp({
                 this.loadPriorityScores();
                 this.loadGraph();
 
-                // Re-observe lazy sections after user data is loaded
-                this.$nextTick(() => {
-                    if (this.sectionObserver) {
-                        const container = document.getElementById('profile-app');
-                        if (!container) return;
-                        const sections = container.querySelectorAll('[data-lazy-section]');
-                        sections.forEach(section => {
-                            const sectionName = section.dataset.lazySection;
-                            if (!this.lazyLoaded[sectionName]) {
-                                this.sectionObserver.observe(section);
-                            }
-                        });
-                    }
-                });
-
             } catch (err) {
                 console.error('Error loading user data:', err);
                 this.error = 'Failed to load profile';
             }
 
             this.loading = false;
+
+            // Re-observe lazy sections AFTER loading is set to false and DOM updates
+            this.$nextTick(() => {
+                if (this.sectionObserver) {
+                    const container = document.getElementById('profile-app');
+                    if (!container) return;
+                    const sections = container.querySelectorAll('[data-lazy-section]');
+                    sections.forEach(section => {
+                        const sectionName = section.dataset.lazySection;
+                        if (!this.lazyLoaded[sectionName]) {
+                            this.sectionObserver.observe(section);
+                        }
+                    });
+                }
+            });
         },
 
         async api(endpoint, params = {}) {
