@@ -70,8 +70,32 @@ func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sess, _ := h.store.Get(r, "session")
+	token, _ := sess.Values["token"].(string)
+
+	var settingsMap map[string]interface{}
+	settings, err := h.apiClient.GetSettings(r.Context(), token)
+	if err == nil && settings != nil {
+		settingsMap = map[string]interface{}{
+			"email":          settings.Email,
+			"username_aka":   settings.UsernameAka,
+			"favourite_mode": settings.FavouriteMode,
+			"play_style":     settings.PlayStyle,
+			"custom_badge": map[string]interface{}{
+				"show": settings.CustomBadge.Show,
+				"icon": settings.CustomBadge.Icon,
+				"name": settings.CustomBadge.Name,
+			},
+			"disabled_comments": settings.DisabledComments,
+		}
+	}
+
 	h.templates.RenderWithRequest(w, r, "settings/profile.html", &response.TemplateData{
 		TitleBar: "Settings",
+		Context:  reqCtx,
+		Extra: map[string]interface{}{
+			"Settings": settingsMap,
+		},
 	})
 }
 

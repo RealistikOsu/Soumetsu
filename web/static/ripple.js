@@ -56,10 +56,23 @@ const singlePageSnippets = {
           });
         obj.play_style = ps;
         const f = $(this);
-        api("users/self/settings", obj, function(data) {
+        fetch(soumetsuConf.baseAPI + "/api/v2/users/me/settings", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(obj),
+        })
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
           showMessage("success", "Your new settings have been saved.");
           f.removeClass("loading");
-        }, true);
+        })
+        .catch(function() {
+          showMessage("error", "An error occurred while saving settings.");
+          f.removeClass("loading");
+        });
         return false;
       });
   }

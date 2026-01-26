@@ -53,6 +53,24 @@ type UpdateSettingsRequest struct {
 	CustomBadge   *string `json:"custom_badge,omitempty"`
 }
 
+type CustomBadge struct {
+	Show           bool   `json:"show"`
+	Icon           string `json:"icon"`
+	Name           string `json:"name"`
+	CanCustomBadge bool   `json:"can_custom_badge"`
+}
+
+type SettingsResponse struct {
+	UsernameAka      string      `json:"username_aka"`
+	FavouriteMode    int         `json:"favourite_mode"`
+	PreferRelax      int         `json:"prefer_relax"`
+	PlayStyle        int         `json:"play_style"`
+	ShowCountry      bool        `json:"show_country"`
+	Email            string      `json:"email"`
+	CustomBadge      CustomBadge `json:"custom_badge"`
+	DisabledComments bool        `json:"disabled_comments"`
+}
+
 type UserpageResponse struct {
 	Content string `json:"content"`
 }
@@ -87,6 +105,14 @@ func (c *Client) GetMe(ctx context.Context, token string) (*UserProfile, error) 
 		return nil, err
 	}
 	return decodeResponse[UserProfile](resp)
+}
+
+func (c *Client) GetSettings(ctx context.Context, token string) (*SettingsResponse, error) {
+	resp, err := c.Get(ctx, "/api/v2/users/me/settings", token)
+	if err != nil {
+		return nil, err
+	}
+	return decodeResponse[SettingsResponse](resp)
 }
 
 func (c *Client) UpdateSettings(ctx context.Context, token string, req *UpdateSettingsRequest) error {
