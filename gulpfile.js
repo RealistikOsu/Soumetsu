@@ -25,7 +25,6 @@ function minifyJs() {
             'web/static/licenseheader.js',
             'node_modules/jquery/dist/jquery.min.js',
             'node_modules/timeago/jquery.timeago.js',
-            'web/static/key_plural.js',
             'web/static/soumetsu.js',
         ])
         .pipe(plumber())

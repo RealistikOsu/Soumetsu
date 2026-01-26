@@ -191,7 +191,7 @@ function showMessage(type, message) {
       <i class="${icon} ${iconColor} mt-1"></i>
       <div class="flex-grow">
         <div class="font-semibold ${headerColor} mb-1">${header}</div>
-        <p class="text-sm text-gray-300">${T(message)}</p>
+        <p class="text-sm text-gray-300">${message}</p>
       </div>
       <button class="close-btn text-gray-400 hover:text-white transition-colors">
         <i class="fas fa-times"></i>
@@ -315,7 +315,7 @@ function getScoreMods(m, noplus) {
 	if (r.length > 0) {
 		return (noplus ? "" : "+ ") + r.join(", ");
 	}
-		return (noplus ? T('None') : '');
+		return (noplus ? 'None' : '');
 
 }
 
@@ -430,15 +430,6 @@ function modifyObjectDynamically(obj, inds, set) {
     obj[inds[0]] = modifyObjectDynamically(obj[inds[0]], inds.slice(1), set);
   }
   return obj;
-}
-
-// T is a stub translation function that returns the string as-is (localisation removed)
-function T(s, settings) {
-  if (typeof settings !== "undefined" &&
-      typeof settings.count !== "undefined" &&
-      settings.count !== 1)
-    {s = keyPlurals[s];}
-  return s;
 }
 
 function isLoggedIn() {

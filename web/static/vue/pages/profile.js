@@ -202,7 +202,9 @@ const profileApp = Soumetsu.createApp({
 
             // Observe sections after DOM is ready
             this.$nextTick(() => {
-                const sections = this.$el.querySelectorAll('[data-lazy-section]');
+                const container = document.getElementById('profile-app');
+                if (!container) return;
+                const sections = container.querySelectorAll('[data-lazy-section]');
                 sections.forEach(section => {
                     this.sectionObserver.observe(section);
                 });
@@ -270,7 +272,9 @@ const profileApp = Soumetsu.createApp({
                 // Re-observe lazy sections after user data is loaded
                 this.$nextTick(() => {
                     if (this.sectionObserver) {
-                        const sections = this.$el.querySelectorAll('[data-lazy-section]');
+                        const container = document.getElementById('profile-app');
+                        if (!container) return;
+                        const sections = container.querySelectorAll('[data-lazy-section]');
                         sections.forEach(section => {
                             const sectionName = section.dataset.lazySection;
                             if (!this.lazyLoaded[sectionName]) {

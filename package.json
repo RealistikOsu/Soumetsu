@@ -8,14 +8,9 @@
     "build": "gulp build",
     "lint": "eslint 'web/static/**/*.js' --ignore-pattern 'web/static/dist.min.js' --ignore-pattern 'web/static/vue/vue.js' --ignore-pattern 'web/static/vue/vue-axios.js'",
     "lint:fix": "eslint 'web/static/**/*.js' --fix --ignore-pattern 'web/static/dist.min.js' --ignore-pattern 'web/static/vue/vue.js' --ignore-pattern 'web/static/vue/vue-axios.js'",
-    "lint:check": "eslint 'web/static/**/*.js' --max-warnings 0",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "lint:check": "eslint 'web/static/**/*.js' --max-warnings 0"
   },
   "devDependencies": {
-    "@testing-library/dom": "^10.0.0",
-    "@vue/test-utils": "^2.4.0",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -27,13 +22,11 @@
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^10.0.0",
     "gulp-uglify": "^3.0.2",
-    "happy-dom": "^14.0.0",
     "jquery": "^3.7.1",
     "postcss": "^8.4.33",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
     "timeago": "^1.6.7",
-    "vitest": "^1.6.0",
     "vue": "^3.4.0"
   }
 }

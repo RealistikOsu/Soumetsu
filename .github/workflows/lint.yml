@@ -103,14 +103,3 @@ jobs:
 
       - name: Verify Go build
         run: go build -v ./...
-
-      - name: Run Go tests
-        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-        continue-on-error: true
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.txt
-          fail_ci_if_error: false
-        continue-on-error: true

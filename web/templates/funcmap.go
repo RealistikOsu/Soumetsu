@@ -508,9 +508,6 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			}
 			return result
 		},
-		"T": func(key string) string {
-			return key
-		},
 		"country": func(countryCode string, showName bool) template.HTML {
 			if countryCode == "" {
 				return template.HTML("")
