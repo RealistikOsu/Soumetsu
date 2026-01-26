@@ -6,7 +6,7 @@ DisableHH=true
 {{ define "tpl" }}
 {{ $global := .Context }}
 {{ $ := $ }}
-{{ $ief := ieForm }}
+{{ $ief := ieForm .Context }}
 {{ $donorInfo := .Get "users/self/donor_info" }}
 
 <div class="min-h-screen py-8">
