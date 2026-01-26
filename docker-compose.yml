@@ -16,7 +16,6 @@ services:
       # Changes to these files don't require container rebuild
       - ./web/templates:/app/web/templates:ro
       - ./web/static:/app/web/static:ro
-      - ./data:/app/data:ro
     restart: unless-stopped
 
   # Development variant with all source mounted (for debugging)
@@ -34,7 +33,6 @@ services:
       - .env
     volumes:
       - ./web:/app/web:ro
-      - ./data:/app/data:ro
     profiles:
       - dev
     restart: unless-stopped

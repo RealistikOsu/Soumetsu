@@ -47,7 +47,6 @@ COPY --chown=appuser:appuser --from=builder /build/soumetsu ./soumetsu
 
 # Copy support files (rarely change)
 COPY --chown=appuser:appuser scripts/ ./scripts/
-COPY --chown=appuser:appuser data/ ./data/
 
 # Copy templates (occasional changes)
 COPY --chown=appuser:appuser web/templates/ ./web/templates/

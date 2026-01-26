@@ -8,13 +8,13 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#3B82F6', // Blue for primary buttons
+          DEFAULT: '#3B82F6',
           dark: '#2563EB',
         },
         dark: {
-          bg: '#0F172A', // Dark background
-          card: '#1E293B', // Card background
-          border: '#334155', // Border colour
+          bg: '#0F172A',
+          card: '#1E293B',
+          border: '#334155',
         },
       },
       fontFamily: {
