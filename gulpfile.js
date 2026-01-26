@@ -26,7 +26,7 @@ function minifyJs() {
             'node_modules/jquery/dist/jquery.min.js',
             'node_modules/timeago/jquery.timeago.js',
             'web/static/key_plural.js',
-            'web/static/ripple.js',
+            'web/static/soumetsu.js',
         ])
         .pipe(plumber())
         .pipe(concat('dist.min.js'))

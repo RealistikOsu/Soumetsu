@@ -139,13 +139,6 @@ func (h *PagesHandler) ClansListPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *PagesHandler) DocPage(w http.ResponseWriter, r *http.Request) {
-	h.templates.Render(w, "doc.html", &response.TemplateData{
-		TitleBar: "Documentation",
-		Path:     r.URL.Path,
-	})
-}
-
 func (h *PagesHandler) EmptyPage(titleBar string, messages ...models.Message) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h.templates.Render(w, "errors/error_empty.html", &response.TemplateData{

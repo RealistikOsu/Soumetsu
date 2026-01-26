@@ -20,7 +20,6 @@ node_modules
 .env
 .env.*
 *.local
-hanayo.conf
 team.json
 
 # Documentation and metadata
@@ -35,7 +34,6 @@ Makefile
 postcss.config.js
 
 # Legacy/unused directories
-hanayo
 FrontendPriv
 frontend
 

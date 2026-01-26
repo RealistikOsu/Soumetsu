@@ -159,6 +159,11 @@ DISCORD_APP_CLIENT_ID=your-client-id
 DISCORD_APP_CLIENT_SECRET=your-client-secret
 ```
 
+#### External Links
+```bash
+GITHUB_ORG_URL=https://github.com/RealistikOsu
+```
+
 #### reCAPTCHA
 ```bash
 RECAPTCHA_SITE_KEY=your-site-key
@@ -238,8 +243,7 @@ soumetsu/
 │   ├── static/          # Static assets (CSS, JS, images)
 │   └── templates/       # HTML templates
 ├── data/                # Data files (YAML, JSON)
-├── scripts/             # Build and utility scripts
-└── website-docs/        # Documentation content
+└── scripts/             # Build and utility scripts
 ```
 
 ### Available Scripts

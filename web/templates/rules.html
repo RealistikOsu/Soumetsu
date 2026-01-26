@@ -1,0 +1,303 @@
+{{/*###
+Handler=/rules
+KyutGrill=homepage2.jpg
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+{{ $global := .Context }}
+
+<div class="min-h-screen py-8">
+	<div class="container mx-auto px-4 max-w-6xl">
+		<!-- Header -->
+		<div class="flex items-center gap-4 mb-8">
+			<div class="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
+				<i class="fas fa-gavel text-white text-2xl"></i>
+			</div>
+			<div>
+				<h1 class="text-4xl font-display font-bold text-white">Server Rules</h1>
+				<p class="text-gray-400">Guidelines for a fair and enjoyable experience</p>
+			</div>
+		</div>
+
+		<!-- Introduction Card -->
+		<div class="card mb-8 overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-orange-500/10 pointer-events-none"></div>
+			<div class="relative text-center py-8">
+				<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+					Play Fair, Play Together
+				</h2>
+				<p class="text-gray-400 max-w-2xl mx-auto">
+					These rules exist to ensure everyone has a fair and enjoyable experience on RealistikOsu. By playing here, you agree to follow these guidelines.
+				</p>
+			</div>
+		</div>
+
+		<!-- General Rules Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-shield-alt text-red-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">General Rules</h2>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-ban text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No Cheating Software</h3>
+							<p class="text-sm text-gray-400">The use of any external modifications that alter the behaviour of the client (such as cheating software, custom clients) is strictly prohibited.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-tablet-alt text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No Tablet Driver Exploits</h3>
+							<p class="text-sm text-gray-400">Exploiting any tablet driver "features" (e.g., anti-chatter) is strictly prohibited and will result in a 3rd strike punishment.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-user-slash text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No Multiaccounting</h3>
+							<p class="text-sm text-gray-400">Creating alternate accounts is prohibited and will result in banning of the multiaccount and restriction of your main account.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-mask text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No Impersonation</h3>
+							<p class="text-sm text-gray-400">Impersonating other players will result in your name being changed.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-share-alt text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No Account Sharing</h3>
+							<p class="text-sm text-gray-400">Sharing accounts is prohibited and will result in the restriction of both parties involved.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-image text-red-400 text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No NSFW Content</h3>
+							<p class="text-sm text-gray-400">Including any kind of NSFW content within your avatar or banner will result in an instant ban.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+				<div class="flex items-start gap-3">
+					<i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+					<p class="text-sm text-gray-300">
+						We reserve the right to apply and alter these rules as we see fit.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Liveplay Requirements Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-video text-blue-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">Liveplay Requirements</h2>
+			</div>
+
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/10 pointer-events-none"></div>
+				<div class="relative">
+					<p class="text-gray-300 mb-6">
+						If the staff team believes you to be suspicious, you may be requested to produce a liveplay. A liveplay is a way of confirming your skill is legitimate and verifying the absence of cheats.
+					</p>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">You <strong class="text-white">MUST</strong> be logged into RealistikOsu</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Start your PC on the recording/stream</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Both hands and monitor must be visible</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Play at least 3 maps (topplays or near your skill)</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Entire GUI must be visible (key overlay, hit error bar, score)</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Show Task Manager after opening osu! and at the end</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">Everything must be in a single recording (no edits)</span>
+						</div>
+						<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-xl">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<span class="text-sm text-gray-300">You must use <a href="https://ussr.pl/patcher" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">our patcher</a></span>
+						</div>
+					</div>
+
+					<div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+						<div class="flex items-start gap-3">
+							<i class="fas fa-info-circle text-yellow-400 mt-1"></i>
+							<p class="text-sm text-gray-300">
+								<strong class="text-white">Note:</strong> Failure to meet even a single of these requirements will result in your liveplay being automatically invalidated.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Punishment System Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-balance-scale text-yellow-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">Punishment System</h2>
+			</div>
+
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<!-- Cheating Punishments -->
+				<div class="card overflow-hidden relative group hover:border-red-500/50 transition-all duration-300">
+					<div class="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-transparent pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-4">
+							<div class="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
+								<i class="fas fa-skull-crossbones text-red-400"></i>
+							</div>
+							<h3 class="text-xl font-semibold text-white">Cheating</h3>
+						</div>
+						<p class="text-sm text-gray-400 mb-4">Cheating uses a 3 strike system:</p>
+						<div class="space-y-3">
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-red-500/30 rounded-full flex items-center justify-center text-xs font-bold text-red-300 flex-shrink-0">1</span>
+								<span class="text-sm text-gray-300">1 month restriction + wipe of cheated gamemodes</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-red-500/50 rounded-full flex items-center justify-center text-xs font-bold text-red-200 flex-shrink-0">2</span>
+								<span class="text-sm text-gray-300">3 month restriction + full account wipe</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-red-500/70 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">3</span>
+								<span class="text-sm text-gray-300">Permanent but appealable ban</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Multiaccounting Punishments -->
+				<div class="card overflow-hidden relative group hover:border-purple-500/50 transition-all duration-300">
+					<div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-4">
+							<div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+								<i class="fas fa-users text-purple-400"></i>
+							</div>
+							<h3 class="text-xl font-semibold text-white">Multiaccounting</h3>
+						</div>
+						<p class="text-sm text-gray-400 mb-4">Every multiaccount is permanently banned. Main account:</p>
+						<div class="space-y-3">
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-purple-500/30 rounded-full flex items-center justify-center text-xs font-bold text-purple-300 flex-shrink-0">1</span>
+								<span class="text-sm text-gray-300">15 day restriction</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-purple-500/50 rounded-full flex items-center justify-center text-xs font-bold text-purple-200 flex-shrink-0">2</span>
+								<span class="text-sm text-gray-300">1-1.5 month restriction</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<span class="w-6 h-6 bg-purple-500/70 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">3</span>
+								<span class="text-sm text-gray-300">Permanent but appealable restriction</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Toxicity Punishments -->
+				<div class="card overflow-hidden relative group hover:border-orange-500/50 transition-all duration-300">
+					<div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-4">
+							<div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
+								<i class="fas fa-comment-slash text-orange-400"></i>
+							</div>
+							<h3 class="text-xl font-semibold text-white">In-game Toxicity</h3>
+						</div>
+						<p class="text-sm text-gray-400 mb-4">Toxic behavior results in silences:</p>
+						<div class="space-y-3">
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<i class="fas fa-volume-mute text-orange-400 mt-0.5"></i>
+								<span class="text-sm text-gray-300">In-game silence (and Discord mute if applicable)</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<i class="fas fa-clock text-orange-400 mt-0.5"></i>
+								<span class="text-sm text-gray-300">Silence times increase exponentially</span>
+							</div>
+							<div class="flex items-start gap-3 p-3 bg-dark-bg/50 rounded-lg">
+								<i class="fas fa-hourglass-start text-orange-400 mt-0.5"></i>
+								<span class="text-sm text-gray-300">Starting duration: 1 hour</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Final Note -->
+		<div class="card text-center py-8">
+			<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+				<i class="fas fa-handshake text-primary text-2xl"></i>
+			</div>
+			<h2 class="text-2xl font-display font-bold text-white mb-3">Questions?</h2>
+			<p class="text-gray-400 mb-6 max-w-xl mx-auto">
+				If you have any questions about the rules or need to appeal a punishment, feel free to reach out to our staff team on Discord.
+			</p>
+			<a href="{{ config "DISCORD_SERVER_URL" .Conf }}" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-2">
+				<i class="fab fa-discord"></i>
+				Join our Discord
+			</a>
+		</div>
+	</div>
+</div>
+{{ end }}

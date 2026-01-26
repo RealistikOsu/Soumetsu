@@ -16,7 +16,6 @@ import (
 
 	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/bbcode"
-	"github.com/RealistikOsu/soumetsu/internal/pkg/doc"
 	"github.com/dustin/go-humanize"
 	"github.com/russross/blackfriday"
 	"zxq.co/ripple/playstyle"
@@ -385,21 +384,6 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 		"version": func() string {
 			return version
 		},
-		"documentationFiles": func(loader *doc.Loader, lang string) []doc.LanguageDoc {
-			if loader == nil {
-				return nil
-			}
-			return loader.GetDocs(lang)
-		},
-		"documentationData": func(loader *doc.Loader, slug string, language string) doc.File {
-			if loader == nil {
-				return doc.File{}
-			}
-			if i, err := strconv.Atoi(slug); err == nil {
-				slug = loader.SlugFromOldID(i)
-			}
-			return loader.GetFile(slug, language)
-		},
 		"privilegesToString": func(privs float64) string {
 			return models.UserPrivileges(privs).String()
 		},
@@ -444,6 +428,7 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 				"BEATMAP_MIRROR_API_URL": {"Beatmap", "MirrorAPIURL"},
 				"RECAPTCHA_SITE_KEY":     {"Security", "RecaptchaSiteKey"},
 				"DISCORD_SERVER_URL":     {"Discord", "ServerURL"},
+				"GITHUB_ORG_URL":         {"Links", "GitHubOrgURL"},
 			}
 
 			mapping, ok := keyMap[key]

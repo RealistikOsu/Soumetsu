@@ -174,7 +174,7 @@
 					<i class="fas fa-ban text-red-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-red-300 mb-1">You have been restricted!</div>
-						<p class="text-sm text-gray-300">{{"Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href='https://discord.gg/8ySdzhyMtt' class='text-blue-400 hover:underline'>Discord Server</a>." | html}}</p>
+						<p class="text-sm text-gray-300">Your account is currently in restricted mode. You will not be able to do certain actions, and your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken putting you in restricted mode, or a month has passed since you first saw this, then you can send an appeal on the <a href="{{ config "DISCORD_SERVER_URL" .Conf }}" class="text-blue-400 hover:underline">Discord Server</a>.</p>
 					</div>
 				</div>
 			{{ end }}
@@ -184,7 +184,7 @@
 					<i class="fas fa-asterisk text-red-400 mt-1"></i>
 					<div>
 						<div class="font-semibold text-red-300 mb-1">You have been frozen!</div>
-						<p class="text-sm text-gray-300">Your account has been frozen due to suspicion from the staff team! You have 5 days to provide a valid liveplay or else your account will be automatically restricted! You may provide a liveplay to the RealistikOsu staff team via the <a href="https://discord.gg/8ySdzhyMtt" class="text-blue-400 hover:underline">RealistikOsu Discord Server</a>.</p>
+						<p class="text-sm text-gray-300">Your account has been frozen due to suspicion from the staff team! You have 5 days to provide a valid liveplay or else your account will be automatically restricted! You may provide a liveplay to the RealistikOsu staff team via the <a href="{{ config "DISCORD_SERVER_URL" .Conf }}" class="text-blue-400 hover:underline">RealistikOsu Discord Server</a>.</p>
 					</div>
 				</div>
 			{{ end }}
@@ -248,7 +248,7 @@
 
 				<!-- Links -->
 				<div class="flex items-center gap-6">
-					<a href="https://github.com/RealistikOsu" class="text-gray-400 hover:text-white transition-colors text-sm">
+					<a href="{{ config "GITHUB_ORG_URL" .Conf }}" class="text-gray-400 hover:text-white transition-colors text-sm">
 						GitHub
 					</a>
 					<a href="{{ config "DISCORD_SERVER_URL" .Conf }}" class="text-gray-400 hover:text-white transition-colors text-sm">

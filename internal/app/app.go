@@ -15,7 +15,6 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
-	"github.com/RealistikOsu/soumetsu/internal/pkg/doc"
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/RealistikOsu/soumetsu/internal/services/beatmap"
@@ -51,8 +50,6 @@ type App struct {
 	BeatmapHandler  *handlers.BeatmapHandler
 	PagesHandler    *handlers.PagesHandler
 	ErrorsHandler   *handlers.ErrorsHandler
-
-	DocLoader *doc.Loader
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -79,8 +76,6 @@ func New(cfg *config.Config) (*App, error) {
 	}
 
 	app.initHandlers()
-
-	app.initDocLoader()
 
 	return app, nil
 }
@@ -235,19 +230,6 @@ func (a *App) initHandlers() {
 	)
 
 	a.ErrorsHandler = handlers.NewErrorsHandler(a.ResponseEngine)
-}
-
-func (a *App) initDocLoader() {
-	docsDir := "website-docs"
-	if _, err := os.Stat(docsDir); os.IsNotExist(err) {
-		wd, _ := os.Getwd()
-		docsDir = filepath.Join(wd, "website-docs")
-	}
-
-	a.DocLoader = doc.NewLoader(docsDir)
-	if err := a.DocLoader.Load(); err != nil {
-		slog.Warn("Failed to load documentation", "error", err)
-	}
 }
 
 type sessionStoreWrapper struct {

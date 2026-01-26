@@ -17,6 +17,7 @@ type Config struct {
 	Discord  DiscordConfig
 	Beatmap  BeatmapConfig
 	Security SecurityConfig
+	Links    LinksConfig
 }
 
 type AppConfig struct {
@@ -84,6 +85,10 @@ type SecurityConfig struct {
 	PayPalEmail        string
 }
 
+type LinksConfig struct {
+	GitHubOrgURL string
+}
+
 func Load() (*Config, error) {
 	loadEnvFile()
 
@@ -132,6 +137,9 @@ func Load() (*Config, error) {
 			RecaptchaSecretKey: mustEnv("RECAPTCHA_SECRET_KEY"),
 			IPLookupURL:        mustEnv("IP_LOOKUP_URL"),
 			PayPalEmail:        mustEnv("PAYPAL_EMAIL_ADDRESS"),
+		},
+		Links: LinksConfig{
+			GitHubOrgURL: optionalEnv("GITHUB_ORG_URL", "https://github.com/RealistikOsu"),
 		},
 	}
 

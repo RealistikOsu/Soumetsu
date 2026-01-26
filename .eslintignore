@@ -5,7 +5,7 @@ web/static/css/output.css
 # Vendor libraries (not our code)
 web/static/vue/vue.js
 web/static/vue/vue-axios.js
-web/static/js/ripple.js
+web/static/soumetsu.js
 
 # Node modules
 node_modules/
@@ -15,9 +15,6 @@ node_modules/
 
 # Data files
 data/
-
-# Documentation
-website-docs/
 
 # Build artifacts
 *.min.js
