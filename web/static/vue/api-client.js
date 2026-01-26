@@ -196,10 +196,11 @@ const SoumetsuAPI = {
     statistics: {
         async homepage() {
             try {
-                const topScores = await SoumetsuAPI.get('scores/top', { limit: 8 });
+                const topScores = await SoumetsuAPI.get('scores/top/mixed');
                 const mapped = (topScores || []).map(s => ({
                     ...s,
                     pp_val: s.pp,
+                    mode: s.play_mode,
                 }));
                 return {
                     data: {

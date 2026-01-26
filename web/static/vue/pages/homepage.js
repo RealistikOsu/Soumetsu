@@ -30,6 +30,12 @@ const homepageApp = Soumetsu.createApp({
     },
 
     methods: {
+        getModeBadge(play) {
+            const cm = ['Vanilla', 'Relax', 'Autopilot'][play.custom_mode] || 'Vanilla';
+            const mode = ['Standard', 'Taiko', 'Catch', 'Mania'][play.mode] || 'Standard';
+            return `${cm} ${mode}`;
+        },
+
         async loadHomepageData() {
             this.loading = true;
 
