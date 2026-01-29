@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/gob"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/RealistikOsu/soumetsu/internal/app"
 	"github.com/RealistikOsu/soumetsu/internal/config"
@@ -44,10 +48,41 @@ func main() {
 	router := application.Routes()
 
 	addr := fmt.Sprintf(":%d", cfg.App.Port)
-	slog.Info("Starting HTTP server", "address", addr)
+	server := &http.Server{
+		Addr:    addr,
+		Handler: router,
+	}
 
-	if err := http.ListenAndServe(addr, router); err != nil {
-		slog.Error("Failed to start server", "error", err)
+	shutdownComplete := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
+		sig := <-sigint
+
+		slog.Info("Received shutdown signal", "signal", sig)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		slog.Info("Shutting down HTTP server...")
+		if err := server.Shutdown(ctx); err != nil {
+			slog.Error("HTTP server shutdown error", "error", err)
+		}
+
+		slog.Info("Closing application resources...")
+		if err := application.Close(); err != nil {
+			slog.Error("Application close error", "error", err)
+		}
+
+		close(shutdownComplete)
+	}()
+
+	slog.Info("Starting HTTP server", "address", addr)
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		slog.Error("HTTP server error", "error", err)
 		panic(err)
 	}
+
+	<-shutdownComplete
+	slog.Info("Shutdown complete")
 }

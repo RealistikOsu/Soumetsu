@@ -205,6 +205,10 @@ func (s *Service) LogIP(ctx context.Context, userID int, ip string) error {
 	return s.tokenRepo.LogIP(ctx, userID, ip)
 }
 
+func (s *Service) UpdateLatestActivity(ctx context.Context, userID int, timestamp int64) error {
+	return s.userRepo.UpdateLatestActivity(ctx, userID, timestamp)
+}
+
 func (s *Service) SetCountry(ctx context.Context, userID int, ip string) error {
 	resp, err := http.Get(s.config.Security.IPLookupURL + "/" + ip + "/country")
 	if err != nil {

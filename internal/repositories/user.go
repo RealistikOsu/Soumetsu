@@ -128,6 +128,11 @@ func (r *UserRepository) UpdateCountry(ctx context.Context, id int, country stri
 	return err
 }
 
+func (r *UserRepository) UpdateLatestActivity(ctx context.Context, id int, timestamp int64) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET latest_activity = ? WHERE id = ?", timestamp, id)
+	return err
+}
+
 func (r *UserRepository) UpdateEmail(ctx context.Context, id int, email string) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE users SET email = ? WHERE id = ?", email, id)
 	return err

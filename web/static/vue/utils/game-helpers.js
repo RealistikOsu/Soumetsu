@@ -42,9 +42,12 @@ const SoumetsuGameHelpers = {
      * @param {number} c100 - Count 100
      * @param {number} c50 - Count 50
      * @param {number} cmiss - Count miss
-     * @returns {string} Rank grade (SS, SS+, S, S+, A, B, C, D)
+     * @param {number} completed - Completed status (3 = passed, anything else = failed)
+     * @returns {string} Rank grade (SS, SS+, S, S+, A, B, C, D, F)
      */
-    getRank(mode, mods, acc, c300, c100, c50, cmiss) {
+    getRank(mode, mods, acc, c300, c100, c50, cmiss, completed = 3) {
+        if (completed !== 3) { return 'F'; }
+
         const total = c300 + c100 + c50 + cmiss;
         if (total === 0) { return 'D'; }
 

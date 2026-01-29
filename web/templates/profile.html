@@ -156,7 +156,7 @@ DisableHH=true
 
 							<div class="border-t border-dark-border pt-3 space-y-2 text-sm text-gray-300">
 								<div>Join Date: <b>
-										{{ v "formatDate(user.registered_on)" }}
+										{{ v "formatDate(user.registered_at)" }}
 									</b></div>
 								<div>Last Seen: <b>
 										{{ v "formatDate(user.latest_activity)" }}
@@ -182,18 +182,35 @@ DisableHH=true
 						<!-- Mode/CustomMode Tabs -->
 						<div class="grid grid-cols-3 gap-2 mb-4">
 							<button @click="setCustomMode(0)"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">Vanilla</button>
+								:class="'px-4 py-2.5 rounded-xl border-2 text-center font-medium transition-all duration-300 text-sm ' + (customMode === 0 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50')">
+								<i class="fas fa-gamepad mr-2"></i>Vanilla
+							</button>
 							<button @click="setCustomMode(1)" :disabled="mode === 3"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode === 3 ? ' opacity-50 cursor-not-allowed' : '')">Relax</button>
+								:class="'px-4 py-2.5 rounded-xl border-2 text-center font-medium transition-all duration-300 text-sm ' + (customMode === 1 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + (mode === 3 ? ' opacity-50 cursor-not-allowed' : '')">
+								<i class="fas fa-hand-paper mr-2"></i>Relax
+							</button>
 							<button @click="setCustomMode(2)" :disabled="mode !== 0"
-								:class="'px-4 py-2 rounded-lg border text-center transition-colors text-sm ' + (customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary') + (mode !== 0 ? ' opacity-50 cursor-not-allowed' : '')">Autopilot</button>
+								:class="'px-4 py-2.5 rounded-xl border-2 text-center font-medium transition-all duration-300 text-sm ' + (customMode === 2 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + (mode !== 0 ? ' opacity-50 cursor-not-allowed' : '')">
+								<i class="fas fa-robot mr-2"></i>Autopilot
+							</button>
 						</div>
 
 						<div class="grid grid-cols-4 gap-2 mb-4">
-							<button v-for="(modeName, modeIdx) in ['std', 'taiko', 'ctb', 'mania']" :key="modeIdx"
-								@click="setMode(modeIdx)"
-								:class="'px-3 py-2 rounded-lg border text-center text-sm transition-colors ' + (mode === modeIdx ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary')">
-								{{ v "modeName" }}
+							<button @click="setMode(0)"
+								:class="'px-3 py-2.5 rounded-xl border-2 text-center text-sm font-medium transition-all duration-300 ' + (mode === 0 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50')">
+								<i class="fas fa-circle mr-1"></i>std
+							</button>
+							<button @click="setMode(1)"
+								:class="'px-3 py-2.5 rounded-xl border-2 text-center text-sm font-medium transition-all duration-300 ' + (mode === 1 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50')">
+								<i class="fas fa-drum mr-1"></i>taiko
+							</button>
+							<button @click="setMode(2)"
+								:class="'px-3 py-2.5 rounded-xl border-2 text-center text-sm font-medium transition-all duration-300 ' + (mode === 2 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50')">
+								<i class="fas fa-apple-alt mr-1"></i>ctb
+							</button>
+							<button @click="setMode(3)"
+								:class="'px-3 py-2.5 rounded-xl border-2 text-center text-sm font-medium transition-all duration-300 ' + (mode === 3 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50')">
+								<i class="fas fa-keyboard mr-1"></i>mania
 							</button>
 						</div>
 
@@ -338,8 +355,8 @@ DisableHH=true
 							<div class="score-card-overlay-compact"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -421,8 +438,8 @@ DisableHH=true
 							<div class="score-card-overlay-compact"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -575,8 +592,8 @@ DisableHH=true
 								:class="score.completed < 2 ? 'score-card-overlay-failed' : ''"></div>
 							<div class="relative p-3 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -651,19 +668,16 @@ DisableHH=true
 					</div>
 					<div v-else class="space-y-2">
 						<div v-for="score in scores.first.data" :key="score.id"
-							class="score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border border-yellow-500/30 hover:border-yellow-500/50 transition-all duration-200"
+							class="score-card-first group relative rounded-lg overflow-hidden cursor-pointer transition-all duration-200"
 							@click="viewScore(score)">
 							<div class="score-card-bg"
 								:style="'background-image: url(https://assets.ppy.sh/beatmaps/' + score.beatmap.beatmapset_id + '/covers/cover.jpg)'">
 							</div>
 							<div class="score-card-overlay-compact score-card-overlay-first"></div>
-							<div class="relative p-3 flex items-center gap-3">
-								<div class="absolute top-2 right-2">
-									<i class="fas fa-trophy text-yellow-400 text-sm"></i>
-								</div>
+							<div class="relative p-3 pl-5 flex items-center gap-3">
 								<div
-									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses).toLowerCase().replace('+', 'h')">
-									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses) ]]
+									:class="'rank-badge-compact flex-shrink-0 rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed).toLowerCase().replace('+', 'h')">
+									[[ getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed) ]]
 								</div>
 								<div class="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
 									<p class="text-white font-medium text-sm truncate leading-tight">
@@ -885,8 +899,8 @@ DisableHH=true
 					<!-- Rank Badge and Key Stats -->
 					<div class="flex items-center gap-6 mb-6">
 						<div
-							:class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses).toLowerCase().replace('+', 'h')">
-							[[ getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses) ]]
+							:class="'rank-badge-modal flex-shrink-0 rank-' + getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses, selectedScore.completed).toLowerCase().replace('+', 'h')">
+							[[ getRank(mode, selectedScore.mods, selectedScore.accuracy, selectedScore.count_300, selectedScore.count_100, selectedScore.count_50, selectedScore.count_misses, selectedScore.completed) ]]
 						</div>
 						<div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
 							<div class="bg-white/5 rounded-lg p-3 backdrop-blur-sm border border-white/10">
@@ -1015,43 +1029,6 @@ DisableHH=true
 	transition: background 0.8s ease-in-out;
 }
 
-.rank-badge-compact {
-	@apply w-10 h-10 flex items-center justify-center rounded-lg font-bold text-base;
-	background: rgba(30, 41, 59, 0.9);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	backdrop-filter: blur(4px);
-}
-.rank-ss, .rank-ssh {
-	background: linear-gradient(135deg, rgba(234, 179, 8, 0.9), rgba(202, 138, 4, 0.9));
-	color: white;
-	border-color: rgba(234, 179, 8, 0.5);
-}
-.rank-s, .rank-sh {
-	background: linear-gradient(135deg, rgba(250, 204, 21, 0.9), rgba(234, 179, 8, 0.9));
-	color: white;
-	border-color: rgba(250, 204, 21, 0.5);
-}
-.rank-a {
-	background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
-	color: white;
-	border-color: rgba(34, 197, 94, 0.5);
-}
-.rank-b {
-	background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
-	color: white;
-	border-color: rgba(59, 130, 246, 0.5);
-}
-.rank-c {
-	background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(147, 51, 234, 0.9));
-	color: white;
-	border-color: rgba(168, 85, 247, 0.5);
-}
-.rank-d {
-	background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
-	color: white;
-	border-color: rgba(239, 68, 68, 0.5);
-}
-
 .score-card-compact {
 	min-height: 80px;
 	position: relative;
@@ -1103,6 +1080,27 @@ DisableHH=true
 	) !important;
 }
 
+.score-card-first {
+	min-height: 80px;
+	position: relative;
+	overflow: hidden;
+	border: 1px solid rgba(234, 179, 8, 0.25);
+	box-shadow: 0 0 12px rgba(234, 179, 8, 0.1), inset 0 0 20px rgba(234, 179, 8, 0.03);
+}
+.score-card-first::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 3px;
+	background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+	z-index: 10;
+}
+.score-card-first:hover {
+	border-color: rgba(234, 179, 8, 0.4);
+	box-shadow: 0 0 20px rgba(234, 179, 8, 0.15), inset 0 0 30px rgba(234, 179, 8, 0.05);
+}
 .score-card-overlay-compact.score-card-overlay-first {
 	background: linear-gradient(
 		to right,
@@ -1118,6 +1116,7 @@ DisableHH=true
 }
 
 .score-card-compact .relative,
+.score-card-first .relative,
 .most-played-card .relative {
 	z-index: 2;
 	position: relative;
@@ -1146,50 +1145,6 @@ DisableHH=true
 		rgba(15, 23, 42, 0.95) 100%
 	);
 	z-index: 1;
-}
-
-.rank-badge-modal {
-	@apply w-20 h-20 flex items-center justify-center rounded-xl font-bold text-3xl shadow-xl;
-	backdrop-filter: blur(8px);
-	border: 2px solid rgba(255, 255, 255, 0.2);
-}
-.rank-badge-modal.rank-ss,
-.rank-badge-modal.rank-ssh {
-	background: linear-gradient(135deg, rgba(234, 179, 8, 0.95), rgba(202, 138, 4, 0.95));
-	color: white;
-	border-color: rgba(234, 179, 8, 0.6);
-	box-shadow: 0 8px 24px rgba(234, 179, 8, 0.4);
-}
-.rank-badge-modal.rank-s,
-.rank-badge-modal.rank-sh {
-	background: linear-gradient(135deg, rgba(250, 204, 21, 0.95), rgba(234, 179, 8, 0.95));
-	color: white;
-	border-color: rgba(250, 204, 21, 0.6);
-	box-shadow: 0 8px 24px rgba(250, 204, 21, 0.4);
-}
-.rank-badge-modal.rank-a {
-	background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95));
-	color: white;
-	border-color: rgba(34, 197, 94, 0.6);
-	box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
-}
-.rank-badge-modal.rank-b {
-	background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
-	color: white;
-	border-color: rgba(59, 130, 246, 0.6);
-	box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-}
-.rank-badge-modal.rank-c {
-	background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(147, 51, 234, 0.95));
-	color: white;
-	border-color: rgba(168, 85, 247, 0.6);
-	box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
-}
-.rank-badge-modal.rank-d {
-	background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
-	color: white;
-	border-color: rgba(239, 68, 68, 0.6);
-	box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
 }
 
 /* Badge icon styling */

@@ -187,52 +187,67 @@ AdditionalJS=/static/vue/pages/clanboard.js
 
 		<!-- Filters Card -->
 		<div class="card mb-6">
-			<div class="flex items-center gap-2 mb-4">
-				<i class="fas fa-filter text-purple-400"></i>
-				<h3 class="font-semibold text-white">Filters</h3>
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-filter text-primary"></i>
+				</div>
+				<h3 class="text-xl font-display font-bold text-white">Filters</h3>
 			</div>
 
 			<div class="space-y-4">
-				<!-- Game Mode Selection -->
+				<!-- Play Type Selection -->
 				<div>
-					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Game Mode</p>
-					<div class="flex gap-2">
-						<a :href="'/clans/leaderboard?mode=std&cm='+customMode+'&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'std' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white')"
-							@click.prevent="loadClanboardData('std', customMode, 1)">
-							<i class="fas fa-circle mr-2 text-xs"></i>osu!standard
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Play Type</p>
+					<div class="grid grid-cols-3 gap-2">
+						<a :href="'/clans/leaderboard?mode='+mode+'&cm=vn&p=1'"
+							class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="customMode == 'vn' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
+							@click.prevent="loadClanboardData(mode, 'vn', 1)">
+							<i class="fas fa-gamepad mr-2"></i>Vanilla
 						</a>
-						<a :href="'/clans/leaderboard?mode=taiko&cm='+customMode+'&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'taiko' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
-							<i class="fas fa-drum mr-2 text-xs"></i>osu!taiko
+						<a :href="'/clans/leaderboard?mode='+mode+'&cm=rx&p=1'"
+							class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="(customMode == 'rx' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed' : '')"
+							@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">
+							<i class="fas fa-hand-paper mr-2"></i>Relax
 						</a>
-						<a :href="'/clans/leaderboard?mode=fruits&cm='+customMode+'&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'fruits' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
-							<i class="fas fa-apple-alt mr-2 text-xs"></i>osu!catch
-						</a>
-						<a :href="'/clans/leaderboard?mode=mania&cm='+customMode+'&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (mode == 'mania' ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-600/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-purple-500 hover:text-white') + ((customMode == 'ap' || customMode == 'rx') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
-							<i class="fas fa-keyboard mr-2 text-xs"></i>osu!mania
+						<a :href="'/clans/leaderboard?mode='+mode+'&cm=ap&p=1'"
+							class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="(customMode == 'ap' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed' : '')"
+							@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">
+							<i class="fas fa-robot mr-2"></i>Autopilot
 						</a>
 					</div>
 				</div>
 
-				<!-- Play Type Selection -->
+				<!-- Game Mode Selection -->
 				<div>
-					<p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Play Type</p>
-					<div class="flex gap-2">
-						<a :href="'/clans/leaderboard?mode='+mode+'&cm=vn&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'vn' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white')"
-							@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
-						<a :href="'/clans/leaderboard?mode='+mode+'&cm=rx&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'rx' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">Relax</a>
-						<a :href="'/clans/leaderboard?mode='+mode+'&cm=ap&p=1'"
-							:class="'flex-1 text-center px-4 py-2 rounded-lg border transition-all text-sm font-medium ' + (customMode == 'ap' ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25' : 'bg-dark-bg border-dark-border text-gray-300 hover:border-primary hover:text-white') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed pointer-events-none' : '')"
-							@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">Autopilot</a>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Game Mode</p>
+					<div class="grid grid-cols-4 gap-2">
+						<a :href="'/clans/leaderboard?mode=std&cm='+customMode+'&p=1'"
+							class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="mode == 'std' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							@click.prevent="loadClanboardData('std', customMode, 1)">
+							<i class="fas fa-circle mr-2"></i>Standard
+						</a>
+						<a :href="'/clans/leaderboard?mode=taiko&cm='+customMode+'&p=1'"
+							class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode == 'taiko' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed' : '')"
+							@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
+							<i class="fas fa-drum mr-2"></i>Taiko
+						</a>
+						<a :href="'/clans/leaderboard?mode=fruits&cm='+customMode+'&p=1'"
+							class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode == 'fruits' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed' : '')"
+							@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
+							<i class="fas fa-apple-alt mr-2"></i>Catch
+						</a>
+						<a :href="'/clans/leaderboard?mode=mania&cm='+customMode+'&p=1'"
+							class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode == 'mania' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + ((customMode == 'ap' || customMode == 'rx') ? ' opacity-50 cursor-not-allowed' : '')"
+							@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
+							<i class="fas fa-keyboard mr-2"></i>Mania
+						</a>
 					</div>
 				</div>
 			</div>

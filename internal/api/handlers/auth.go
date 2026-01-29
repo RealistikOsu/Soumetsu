@@ -110,7 +110,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := h.authService.LogIP(r.Context(), result.UserID, clientIP); err != nil {
 		slog.Error("failed to log IP", "error", err, "user_id", result.UserID, "ip", clientIP)
 	}
-	h.setCountryInBackground(result.UserID, clientIP)
+	if err := h.authService.UpdateLatestActivity(r.Context(), result.UserID, time.Now().Unix()); err != nil {
+		slog.Error("failed to update latest activity", "error", err, "user_id", result.UserID)
+	}
 
 	sess.Values["userid"] = result.UserID
 	sess.Values["token"] = result.Token

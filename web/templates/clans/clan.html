@@ -103,35 +103,56 @@ DisableHH=true
 					<!-- Custom mode buttons -->
 					<div class="flex items-center gap-2 pr-4 border-r border-dark-border">
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
-							:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="customMode === 0 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(0)"
 							@click="setCustomMode(0)">
-							Vanilla
+							<i class="fas fa-gamepad mr-2"></i>Vanilla
 						</button>
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
-							:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="customMode === 1 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(1)"
 							@click="setCustomMode(1)">
-							Relax
+							<i class="fas fa-hand-paper mr-2"></i>Relax
 						</button>
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
-							:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="customMode === 2 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(2)"
 							@click="setCustomMode(2)">
-							Autopilot
+							<i class="fas fa-robot mr-2"></i>Autopilot
 						</button>
 					</div>
 					<!-- Game mode buttons -->
 					<div class="flex items-center gap-2">
-						<button v-for="(name, m) in modeNames" :key="m"
-							class="px-3 py-1.5 rounded-lg border text-xs transition-colors"
-							:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-							:disabled="isModeDisabled(m)"
-							@click="setMode(m)">
-							{{ v "name" }}
+						<button
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="mode === 0 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(0)"
+							@click="setMode(0)">
+							<i class="fas fa-circle mr-2"></i>Standard
+						</button>
+						<button
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="mode === 1 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(1)"
+							@click="setMode(1)">
+							<i class="fas fa-drum mr-2"></i>Taiko
+						</button>
+						<button
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="mode === 2 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(2)"
+							@click="setMode(2)">
+							<i class="fas fa-apple-alt mr-2"></i>Catch
+						</button>
+						<button
+							class="px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-300"
+							:class="mode === 3 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(3)"
+							@click="setMode(3)">
+							<i class="fas fa-keyboard mr-2"></i>Mania
 						</button>
 					</div>
 					<!-- Stats (right-aligned) -->
@@ -173,37 +194,59 @@ DisableHH=true
 
 				<!-- Mobile: stacked -->
 				<div class="lg:hidden space-y-4">
-					<!-- Mode buttons -->
+					<!-- Custom mode buttons -->
 					<div class="grid grid-cols-3 gap-2">
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
-							:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-3 py-2.5 rounded-xl border-2 text-sm font-medium text-center transition-all duration-300"
+							:class="customMode === 0 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(0)"
 							@click="setCustomMode(0)">
-							Vanilla
+							<i class="fas fa-gamepad mr-1"></i>Vanilla
 						</button>
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
-							:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-3 py-2.5 rounded-xl border-2 text-sm font-medium text-center transition-all duration-300"
+							:class="customMode === 1 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(1)"
 							@click="setCustomMode(1)">
-							Relax
+							<i class="fas fa-hand-paper mr-1"></i>Relax
 						</button>
 						<button
-							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
-							:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
+							class="px-3 py-2.5 rounded-xl border-2 text-sm font-medium text-center transition-all duration-300"
+							:class="customMode === 2 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
 							:disabled="isCustomModeDisabled(2)"
 							@click="setCustomMode(2)">
-							Autopilot
+							<i class="fas fa-robot mr-1"></i>Autopilot
 						</button>
 					</div>
+					<!-- Game mode buttons -->
 					<div class="grid grid-cols-4 gap-2">
-						<button v-for="(name, m) in modeNames" :key="m"
-							class="px-3 py-1.5 rounded-lg border text-xs text-center transition-colors"
-							:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-							:disabled="isModeDisabled(m)"
-							@click="setMode(m)">
-							{{ v "name" }}
+						<button
+							class="px-2 py-2.5 rounded-xl border-2 text-xs font-medium text-center transition-all duration-300"
+							:class="mode === 0 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(0)"
+							@click="setMode(0)">
+							<i class="fas fa-circle mr-1"></i>Std
+						</button>
+						<button
+							class="px-2 py-2.5 rounded-xl border-2 text-xs font-medium text-center transition-all duration-300"
+							:class="mode === 1 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(1)"
+							@click="setMode(1)">
+							<i class="fas fa-drum mr-1"></i>Taiko
+						</button>
+						<button
+							class="px-2 py-2.5 rounded-xl border-2 text-xs font-medium text-center transition-all duration-300"
+							:class="mode === 2 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(2)"
+							@click="setMode(2)">
+							<i class="fas fa-apple-alt mr-1"></i>Catch
+						</button>
+						<button
+							class="px-2 py-2.5 rounded-xl border-2 text-xs font-medium text-center transition-all duration-300"
+							:class="mode === 3 ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							:disabled="isModeDisabled(3)"
+							@click="setMode(3)">
+							<i class="fas fa-keyboard mr-1"></i>Mania
 						</button>
 					</div>
 					<!-- Stats grid -->

@@ -77,7 +77,8 @@ const ScoreCardComponent = {
                 this.score.count_300,
                 this.score.count_100,
                 this.score.count_50,
-                this.score.count_misses
+                this.score.count_misses,
+                this.score.completed
             );
         },
         rankClass() {
@@ -87,8 +88,8 @@ const ScoreCardComponent = {
     },
     methods: {
         // Delegate to shared game helpers
-        getRank(mode, mods, acc, c300, c100, c50, cmiss) {
-            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss);
+        getRank(mode, mods, acc, c300, c100, c50, cmiss, completed) {
+            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss, completed);
         },
         getScoreMods(mods) {
             return SoumetsuGameHelpers.getScoreMods(mods);

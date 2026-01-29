@@ -21,6 +21,7 @@ func (a *App) Routes() chi.Router {
 	r.Use(a.ErrorsHandler.Recoverer)
 	r.Use(sessionsMiddleware(a.SessionStore))
 	r.Use(apimiddleware.SessionInitializer(a.SessionStore, a.DB))
+	r.Use(apimiddleware.ActivityTracker(a.SessionStore, a.DB))
 	r.Use(a.RateLimiter.Middleware())
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))

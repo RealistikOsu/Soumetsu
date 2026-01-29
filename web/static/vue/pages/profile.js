@@ -834,8 +834,8 @@ const profileApp = Soumetsu.createApp({
         escapeHTML: SoumetsuHelpers.escapeHTML,
 
         // Delegate to shared game helpers
-        getRank(mode, mods, acc, c300, c100, c50, cmiss) {
-            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss);
+        getRank(mode, mods, acc, c300, c100, c50, cmiss, completed) {
+            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss, completed);
         },
         getScoreMods(mods) {
             return SoumetsuGameHelpers.getScoreMods(mods);

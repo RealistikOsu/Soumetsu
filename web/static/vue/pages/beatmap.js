@@ -116,7 +116,7 @@ const beatmapApp = Soumetsu.createApp({
         },
 
         async loadScores() {
-            if (this.scoresLoading) {return;}
+            if (this.scoresLoading) { return; }
 
             this.scoresLoading = true;
             this.scores = [];
@@ -134,9 +134,15 @@ const beatmapApp = Soumetsu.createApp({
                     sortField
                 );
 
-                this.scores = resp || [];
+                // Ensure we have an array and filter out invalid scores
+                if (Array.isArray(resp)) {
+                    this.scores = resp.filter(s => s && s.player);
+                } else {
+                    this.scores = [];
+                }
             } catch (err) {
                 console.error('Error loading scores:', err);
+                this.scores = [];
             }
 
             this.scoresLoading = false;
@@ -204,8 +210,9 @@ const beatmapApp = Soumetsu.createApp({
         },
 
         // Helper: Time since (short format for beatmap page)
-        timeSince(dateStr) {
-            const date = new Date(dateStr);
+        timeSince(timestamp) {
+            // Handle Unix timestamp (seconds) or date string
+            const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : new Date(timestamp);
             const seconds = Math.floor((new Date() - date) / 1000);
 
             const intervals = [
@@ -228,6 +235,17 @@ const beatmapApp = Soumetsu.createApp({
         // Helper: Get score mods as array (uses extended mods for mania)
         getScoreMods(n) {
             return SoumetsuGameHelpers.getScoreModsArray(n, true);
+        },
+
+        // Helper: Get difficulty colour class based on star rating
+        getDifficultyColor(stars) {
+            if (stars < 2) { return 'text-green-400'; }
+            if (stars < 2.7) { return 'text-sky-400'; }
+            if (stars < 4) { return 'text-yellow-400'; }
+            if (stars < 5.3) { return 'text-pink-400'; }
+            if (stars < 6.5) { return 'text-fuchsia-400'; }
+            if (stars < 8) { return 'text-violet-400'; }
+            return 'text-gray-300';
         },
 
         // Delegate to shared helpers

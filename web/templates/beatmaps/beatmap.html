@@ -9,24 +9,29 @@ DisableHH=true
 <div id="beatmap-app" class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
-		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-			style="background-image: url('/static/headers/beatmaps.jpg');"></div>
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+			:style="'background-image: url(' + (coverUrl || '/static/headers/beatmaps.jpg') + ')'"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
 
 	<!-- Loading State -->
 	<div v-if="loading" class="container mx-auto px-4">
 		<div class="card flex items-center justify-center py-16">
-			<i class="fas fa-spinner fa-spin text-primary text-4xl"></i>
+			<i class="fas fa-spinner fa-spin text-pink-400 text-4xl"></i>
 		</div>
 	</div>
 
 	<!-- Error State -->
 	<div v-else-if="error" class="container mx-auto px-4">
-		<div class="card text-center py-16">
-			<i class="fas fa-music text-gray-500 text-5xl mb-4"></i>
-			<h2 class="text-2xl font-bold text-white mb-2">Beatmap Not Found</h2>
-			<p class="text-gray-400">{{ v "error" }}</p>
+		<div class="card text-center py-16 overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-fuchsia-500/10 pointer-events-none"></div>
+			<div class="relative">
+				<div class="w-20 h-20 bg-gradient-to-br from-pink-500/20 to-fuchsia-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+					<i class="fas fa-music text-gray-500 text-4xl"></i>
+				</div>
+				<h2 class="text-2xl font-bold text-white mb-2">Beatmap Not Found</h2>
+				<p class="text-gray-400">{{ v "error" }}</p>
+			</div>
 		</div>
 	</div>
 
@@ -35,7 +40,7 @@ DisableHH=true
 		<!-- OG Meta (for sharing) -->
 		<head v-if="beatmapSet">
 			<meta property="og:type" content="website" />
-			<meta name="theme-color" content="#548ACA">
+			<meta name="theme-color" content="#EC4899">
 			<meta property="og:title" :content="beatmapSet.Artist + ' - ' + beatmapSet.Title + ' [' + selectedDiff.DiffName + ']'" />
 			<meta property="og:image" :content="thumbUrl" />
 		</head>
@@ -44,163 +49,291 @@ DisableHH=true
 		<audio ref="audio" :src="audioUrl" preload="auto"
 			@playing="onAudioPlay" @pause="onAudioPause" @ended="onAudioEnded"></audio>
 
-		<!-- Difficulty Selector -->
-		<div class="mb-6 diff-dropdown-container">
-			<div class="relative inline-block">
-				<button class="btn-secondary flex items-center gap-2" @click="showDiffDropdown = !showDiffDropdown">
-					<img :src="'/static/images/mode-' + selectedDiff.Mode + '.png'" class="w-5 h-5">
-					<span>{{ v "selectedDiff.DiffName" }} {{ v "selectedDiff.DifficultyRating.toFixed(2)" }}</span>
-					<i class="fas fa-chevron-down"></i>
-				</button>
-				<div v-show="showDiffDropdown" class="absolute top-full mt-2 bg-dark-card border border-dark-border rounded-lg shadow-lg z-10 min-w-[300px]">
-					<a v-for="diff in sortedDifficulties" :key="diff.BeatmapID"
-					   @click="selectDifficulty(diff)"
-					   class="block px-4 py-3 hover:bg-dark-bg transition-colors cursor-pointer"
-					   :class="{ 'bg-primary/20': diff.BeatmapID === selectedDiff.BeatmapID }">
-						<div class="flex items-center gap-3">
-							<img :src="'/static/images/mode-' + diff.Mode + '.png'" class="w-5 h-5">
-							<span class="flex-1">{{ v "diff.DiffName" }}</span>
-							<span class="text-gray-400">{{ v "diff.DifficultyRating.toFixed(2)" }}</span>
+		<!-- Header Section -->
+		<div class="flex items-start gap-4 mb-8">
+			<div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-lg shadow-pink-500/20 flex-shrink-0">
+				<i class="fas fa-music text-white text-2xl"></i>
+			</div>
+			<div class="flex-1 min-w-0">
+				<h1 class="text-3xl md:text-4xl font-display font-bold text-white truncate">{{ v "beatmapSet.Title" }}</h1>
+				<p class="text-lg text-gray-400 truncate">by {{ v "beatmapSet.Artist" }}</p>
+				<p class="text-sm text-gray-500 mt-1">Mapped by <span class="text-pink-400">{{ v "beatmapSet.Creator" }}</span></p>
+			</div>
+			<!-- Difficulty Dropdown -->
+			<div class="diff-dropdown-container flex-shrink-0">
+				<div class="relative">
+					<button class="flex items-center gap-3 px-4 py-3 bg-dark-card border border-dark-border rounded-xl hover:border-pink-500/50 transition-colors" @click="showDiffDropdown = !showDiffDropdown">
+						<img :src="'/static/images/mode-' + selectedDiff.Mode + '.png'" class="w-5 h-5">
+						<div class="text-left">
+							<div class="text-white font-medium text-sm">{{ v "selectedDiff.DiffName" }}</div>
+							<div class="text-xs" :class="getDifficultyColor(selectedDiff.DifficultyRating)">{{ v "selectedDiff.DifficultyRating.toFixed(2)" }}★</div>
 						</div>
-					</a>
+						<i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+					</button>
+					<div v-show="showDiffDropdown" class="absolute right-0 top-full mt-2 bg-dark-card border border-dark-border rounded-xl shadow-xl z-10 min-w-[280px] overflow-hidden">
+						<a v-for="diff in sortedDifficulties" :key="diff.BeatmapID"
+						   @click="selectDifficulty(diff)"
+						   class="block px-4 py-3 hover:bg-dark-bg transition-colors cursor-pointer border-b border-dark-border/50 last:border-0"
+						   :class="{ 'bg-pink-500/10': diff.BeatmapID === selectedDiff.BeatmapID }">
+							<div class="flex items-center gap-3">
+								<img :src="'/static/images/mode-' + diff.Mode + '.png'" class="w-5 h-5">
+								<span class="flex-1 text-white">{{ v "diff.DiffName" }}</span>
+								<span :class="getDifficultyColor(diff.DifficultyRating)">{{ v "diff.DifficultyRating.toFixed(2)" }}★</span>
+							</div>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Beatmap Info Card -->
-		<div class="card mb-6">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-				<div>
-					<h4 class="text-sm text-gray-400 mb-1">Artist</h4>
-					<p class="font-semibold">{{ v "beatmapSet.Artist" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Title</h4>
-					<p class="font-semibold">{{ v "beatmapSet.Title" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Creator</h4>
-					<p class="font-semibold">{{ v "beatmapSet.Creator" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Source</h4>
-					<p class="font-semibold">{{ v "beatmapSet.Source || '-'" }}</p>
+		<!-- Hero Card with Stats -->
+		<div class="card mb-8 overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-fuchsia-500/10 pointer-events-none"></div>
+			<div class="relative">
+				<!-- Star Rating Display -->
+				<div class="text-center mb-6">
+					<div class="inline-flex items-center gap-2 px-6 py-3 bg-dark-bg/50 rounded-2xl">
+						<i class="fas fa-star" :class="getDifficultyColor(selectedDiff.DifficultyRating)"></i>
+						<span class="text-3xl font-bold" :class="getDifficultyColor(selectedDiff.DifficultyRating)">{{ v "selectedDiff.DifficultyRating.toFixed(2)" }}</span>
+						<span class="text-gray-400">Star Rating</span>
+					</div>
 				</div>
-				<div>
-					<h4 class="text-sm text-gray-400 mb-1">Circle Size</h4>
-					<p class="font-semibold">{{ v "selectedDiff.CS" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">HP Drain</h4>
-					<p class="font-semibold">{{ v "selectedDiff.HP" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Overall Difficulty</h4>
-					<p class="font-semibold">{{ v "selectedDiff.OD" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Passes/Plays</h4>
-					<p class="font-semibold">{{ v "addCommas(selectedDiff.Passcount || 0)" }} / {{ v "addCommas(selectedDiff.Playcount || 0)" }}</p>
+
+				<!-- Stats Row -->
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+					<div class="text-center p-4 bg-dark-bg/30 rounded-xl">
+						<div class="text-2xl font-bold text-pink-400 mb-1">{{ v "timeFormat(selectedDiff.TotalLength)" }}</div>
+						<div class="text-sm text-gray-400">Length</div>
+						<div class="text-xs text-gray-500">{{ v "timeFormat(selectedDiff.HitLength)" }} drain</div>
+					</div>
+					<div class="text-center p-4 bg-dark-bg/30 rounded-xl">
+						<div class="text-2xl font-bold text-fuchsia-400 mb-1">{{ v "selectedDiff.BPM" }}</div>
+						<div class="text-sm text-gray-400">BPM</div>
+					</div>
+					<div class="text-center p-4 bg-dark-bg/30 rounded-xl">
+						<div class="text-2xl font-bold text-violet-400 mb-1">{{ v "addCommas(selectedDiff.MaxCombo || 0)" }}x</div>
+						<div class="text-sm text-gray-400">Max Combo</div>
+					</div>
+					<div class="text-center p-4 bg-dark-bg/30 rounded-xl">
+						<div class="text-2xl font-bold text-purple-400 mb-1">{{ v "addCommas(selectedDiff.Passcount || 0)" }}</div>
+						<div class="text-sm text-gray-400">Passes</div>
+						<div class="text-xs text-gray-500">{{ v "addCommas(selectedDiff.Playcount || 0)" }} plays</div>
+					</div>
 				</div>
-				<div>
-					<h4 class="text-sm text-gray-400 mb-1">Approach Rate</h4>
-					<p class="font-semibold">{{ v "selectedDiff.AR" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Star Difficulty</h4>
-					<p class="font-semibold">{{ v "selectedDiff.DifficultyRating.toFixed(2)" }}</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">Length</h4>
-					<p class="font-semibold">{{ v "timeFormat(selectedDiff.TotalLength)" }} ({{ v "timeFormat(selectedDiff.HitLength)" }} drain)</p>
-					<h4 class="text-sm text-gray-400 mb-1 mt-3">BPM</h4>
-					<p class="font-semibold">{{ v "selectedDiff.BPM" }}</p>
+
+				<!-- Action Buttons -->
+				<div class="flex flex-wrap gap-3 justify-center">
+					<a :href="'osu://dl/' + beatmapSet.SetID" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white font-medium rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 transition-all duration-300 hover:-translate-y-0.5">
+						<i class="fas fa-download"></i>
+						osu!direct
+					</a>
+					<a :href="'/d/' + beatmapSet.SetID" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300 hover:-translate-y-0.5">
+						<i class="fas fa-cloud-download-alt"></i>
+						Download
+					</a>
+					<button class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-500 to-purple-500 text-white font-medium rounded-xl shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 transition-all duration-300 hover:-translate-y-0.5" @click="toggleAudio">
+						<i class="fas" :class="isPlaying ? 'fa-pause' : 'fa-play'"></i>
+						{{ v "isPlaying ? 'Pause' : 'Preview'" }}
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Beatmap Attributes Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-pink-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-sliders-h text-pink-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">Map Details</h2>
+			</div>
+
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<!-- Circle Size -->
+				<div class="card group hover:border-pink-500/50 transition-all duration-300">
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 bg-pink-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-pink-500/30 transition-colors">
+							<i class="fas fa-circle text-pink-400"></i>
+						</div>
+						<div>
+							<div class="text-2xl font-bold text-white">{{ v "selectedDiff.CS" }}</div>
+							<div class="text-sm text-gray-400">Circle Size</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- HP Drain -->
+				<div class="card group hover:border-fuchsia-500/50 transition-all duration-300">
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 bg-fuchsia-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-fuchsia-500/30 transition-colors">
+							<i class="fas fa-heart text-fuchsia-400"></i>
+						</div>
+						<div>
+							<div class="text-2xl font-bold text-white">{{ v "selectedDiff.HP" }}</div>
+							<div class="text-sm text-gray-400">HP Drain</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Overall Difficulty -->
+				<div class="card group hover:border-violet-500/50 transition-all duration-300">
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 bg-violet-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/30 transition-colors">
+							<i class="fas fa-crosshairs text-violet-400"></i>
+						</div>
+						<div>
+							<div class="text-2xl font-bold text-white">{{ v "selectedDiff.OD" }}</div>
+							<div class="text-sm text-gray-400">Accuracy</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Approach Rate -->
+				<div class="card group hover:border-purple-500/50 transition-all duration-300">
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
+							<i class="fas fa-tachometer-alt text-purple-400"></i>
+						</div>
+						<div>
+							<div class="text-2xl font-bold text-white">{{ v "selectedDiff.AR" }}</div>
+							<div class="text-sm text-gray-400">Approach Rate</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<div class="flex flex-wrap gap-3 justify-center pt-6 border-t border-dark-border">
-				<a :href="'osu://dl/' + beatmapSet.SetID" class="btn-secondary bg-pink-600/20 border-pink-500/50 hover:bg-pink-600/30">
-					<i class="fas fa-download mr-2"></i>
-					osu!direct
-				</a>
-				<a :href="'/d/' + beatmapSet.SetID" class="btn-secondary bg-green-600/20 border-green-500/50 hover:bg-green-600/30">
-					<i class="fas fa-download mr-2"></i>
-					Download
-				</a>
-				<button class="btn-secondary bg-purple-600/20 border-purple-500/50 hover:bg-purple-600/30" @click="toggleAudio">
-					<i class="fas mr-2" :class="isPlaying ? 'fa-pause' : 'fa-play'"></i>
-					{{ v "isPlaying ? 'Pause' : 'Play'" }}
+			<!-- Source Info -->
+			<div v-if="beatmapSet.Source" class="mt-4 p-4 bg-dark-card border border-dark-border rounded-xl">
+				<div class="flex items-center gap-3">
+					<i class="fas fa-compact-disc text-gray-400"></i>
+					<div>
+						<span class="text-sm text-gray-400">Source:</span>
+						<span class="text-white ml-2">{{ v "beatmapSet.Source" }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Leaderboards Section -->
+		<div class="mb-8">
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-fuchsia-500/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-trophy text-fuchsia-400"></i>
+				</div>
+				<h2 class="text-2xl font-display font-bold text-white">Leaderboards</h2>
+			</div>
+
+			<!-- CustomMode Filters -->
+			<div class="grid grid-cols-3 gap-2 mb-4">
+				<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300"
+					:class="customMode === 0 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
+					@click="setCustomMode(0)">
+					<i class="fas fa-gamepad mr-2"></i>Vanilla
+				</button>
+				<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300"
+					:class="customMode === 1 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
+					@click="setCustomMode(1)">
+					<i class="fas fa-hand-paper mr-2"></i>Relax
+				</button>
+				<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300"
+					:class="customMode === 2 ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
+					@click="setCustomMode(2)">
+					<i class="fas fa-robot mr-2"></i>Autopilot
 				</button>
 			</div>
-		</div>
 
-		<!-- CustomMode Filters -->
-		<div class="flex flex-wrap gap-2 mb-4">
-			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="customMode === 0 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setCustomMode(0)">Vanilla</button>
-			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="customMode === 1 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setCustomMode(1)">Relax</button>
-			<button class="px-4 py-2 rounded-lg border transition-colors"
-				:class="customMode === 2 ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setCustomMode(2)">Autopilot</button>
-		</div>
-
-		<!-- Mode Filters (only for std maps) -->
-		<div v-if="showModeMenu" class="grid grid-cols-4 gap-2 mb-6">
-			<button v-for="(name, m) in ['Standard', 'Taiko', 'Catch', 'Mania']" :key="m"
-				class="px-3 py-2 rounded-lg border text-center text-sm transition-colors"
-				:class="mode === m ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-				@click="setMode(m)">
-				{{ v "name" }}
-			</button>
+			<!-- Mode Filters (only for std maps) -->
+			<div v-if="showModeMenu" class="grid grid-cols-4 gap-2 mb-6">
+				<button v-for="(mode_data, m) in [{name: 'Standard', icon: 'fa-circle'}, {name: 'Taiko', icon: 'fa-drum'}, {name: 'Catch', icon: 'fa-apple-alt'}, {name: 'Mania', icon: 'fa-keyboard'}]" :key="m"
+					class="px-4 py-2.5 rounded-xl border-2 text-center text-sm font-medium transition-all duration-300"
+					:class="mode === m ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+					@click="setMode(m)">
+					<i class="fas mr-2" :class="mode_data.icon"></i>{{ v "mode_data.name" }}
+				</button>
+			</div>
 		</div>
 
 		<!-- Leaderboard Table -->
-		<div class="card overflow-x-auto">
-			<table class="w-full">
-				<thead>
-					<tr class="border-b border-dark-border">
-						<th class="text-left py-3 px-4 text-gray-400 font-medium">Rank</th>
-						<th class="text-left py-3 px-4 text-gray-400 font-medium w-30"></th>
-						<th class="text-center py-3 px-4 text-gray-400 font-medium">Grade</th>
-						<th class="text-right py-3 px-4 text-gray-400 font-medium">Score</th>
-						<th class="text-right py-3 px-4 text-gray-400 font-medium">Accuracy</th>
-						<th class="text-right py-3 px-4 text-gray-400 font-medium">Combo ({{ v "selectedDiff.MaxCombo" }})</th>
-						<th class="text-right py-3 px-4 text-gray-400 font-medium">PP</th>
-						<th class="text-center py-3 px-4 text-gray-400 font-medium">Mods</th>
-						<th class="text-right py-3 px-4 text-gray-400 font-medium">Time</th>
-						<th class="text-center py-3 px-4 text-gray-400 font-medium">Replay</th>
-					</tr>
-				</thead>
-				<tbody>
-					<!-- Loading scores -->
-					<tr v-if="scoresLoading">
-						<td colspan="10" class="py-8 text-center text-gray-400">
-							<i class="fas fa-spinner fa-spin mr-2"></i> Loading scores...
-						</td>
-					</tr>
+		<div class="card overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 via-transparent to-pink-500/5 pointer-events-none"></div>
+			<div class="relative overflow-x-auto">
+				<table class="w-full">
+					<thead>
+						<tr class="border-b border-dark-border">
+							<th class="text-left py-4 px-4 text-gray-400 font-medium">#</th>
+							<th class="text-center py-4 px-4 text-gray-400 font-medium">Grade</th>
+							<th class="text-left py-4 px-4 text-gray-400 font-medium">Player</th>
+							<th class="text-right py-4 px-4 text-gray-400 font-medium">Score</th>
+							<th class="text-right py-4 px-4 text-gray-400 font-medium">Accuracy</th>
+							<th class="text-right py-4 px-4 text-gray-400 font-medium">Combo</th>
+							<th class="text-right py-4 px-4 text-gray-400 font-medium">PP</th>
+							<th class="text-center py-4 px-4 text-gray-400 font-medium">Mods</th>
+							<th class="text-right py-4 px-4 text-gray-400 font-medium">Time</th>
+							<th class="text-center py-4 px-4 text-gray-400 font-medium"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Loading scores -->
+						<tr v-if="scoresLoading">
+							<td colspan="10" class="py-12 text-center text-gray-400">
+								<i class="fas fa-spinner fa-spin text-pink-400 text-2xl mb-2"></i>
+								<div>Loading scores...</div>
+							</td>
+						</tr>
 
-					<!-- No scores -->
-					<tr v-else-if="scores.length === 0">
-						<td colspan="10" class="py-8 text-center text-gray-400">
-							No scores yet. Be the first!
-						</td>
-					</tr>
+						<!-- No scores -->
+						<tr v-else-if="!scoresLoading && scores.length === 0">
+							<td colspan="10" class="py-12 text-center">
+								<div class="w-16 h-16 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+									<i class="fas fa-medal text-pink-400 text-2xl"></i>
+								</div>
+								<div class="text-gray-400">No scores yet. Be the first!</div>
+							</td>
+						</tr>
 
-					<!-- Score rows -->
-					<tr v-for="(score, index) in scores" :key="score.id" class="border-b border-dark-border/50 hover:bg-dark-bg/50">
-						<td class="py-3 px-4 text-gray-300">#{{ v "index + 1" }}</td>
-						<td class="py-3 px-4">
-							<a :href="'/users/' + score.user.id" class="flex items-center gap-2 text-white hover:text-primary">
-								<img :src="'/static/images/new-flags/flag-' + score.user.country.toLowerCase() + '.svg'" class="w-5 h-4">
-								{{ v "score.user.username" }}
-							</a>
-						</td>
-						<td class="py-3 px-4 text-center">
-							<span class="score-rank" :class="getRankClass(getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses))">
-								{{ v "getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses)" }}
-							</span>
-						</td>
-						<td class="py-3 px-4 text-right text-white">{{ v "addCommas(score.score)" }}</td>
-						<td class="py-3 px-4 text-right text-white">{{ v "formatAccuracy(score.accuracy)" }}%</td>
-						<td class="py-3 px-4 text-right text-white">{{ v "addCommas(score.max_combo)" }}x</td>
-						<td class="py-3 px-4 text-right text-primary font-semibold">{{ v "score.pp.toFixed(0)" }}pp</td>
-						<td class="py-3 px-4 text-center text-gray-300">{{ v "getScoreMods(score.mods).join('') || 'NM'" }}</td>
-						<td class="py-3 px-4 text-right text-gray-400">{{ v "timeSince(score.submitted_at)" }}</td>
-						<td class="py-3 px-4 text-center">
-							<a :href="'/web/replays/' + score.id" class="text-primary hover:text-primary-dark">
-								<i class="fas fa-download"></i>
-							</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+						<!-- Score rows -->
+						<template v-else v-for="(score, index) in scores" :key="score.id">
+							<tr v-if="score && score.player"
+								class="border-b border-dark-border/50 hover:bg-pink-500/5 transition-colors group"
+								:class="{ 'bg-gradient-to-r from-yellow-500/10 via-transparent to-transparent': index === 0 }">
+								<td class="py-3 px-4">
+									<span class="font-bold" :class="index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-orange-400' : 'text-gray-400'">#{{ v "index + 1" }}</span>
+								</td>
+								<td class="py-3 px-4">
+									<div
+										:class="'rank-badge-compact rank-' + getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed).toLowerCase().replace('+', 'h')">
+										{{ v "getRank(mode, score.mods, score.accuracy, score.count_300, score.count_100, score.count_50, score.count_misses, score.completed)" }}
+									</div>
+								</td>
+								<td class="py-3 px-4">
+									<a :href="'/users/' + score.player.player_id" class="flex items-center gap-3 text-white hover:text-pink-400 transition-colors">
+										<img :src="'/static/images/new-flags/flag-' + (score.player.country || 'xx').toLowerCase() + '.svg'" class="w-6 h-4 rounded-sm shadow">
+										<span class="font-medium">{{ v "score.player.username || 'Unknown'" }}</span>
+									</a>
+								</td>
+								<td class="py-3 px-4 text-right text-white font-medium">{{ v "addCommas(score.score)" }}</td>
+								<td class="py-3 px-4 text-right text-white">{{ v "formatAccuracy(score.accuracy)" }}%</td>
+								<td class="py-3 px-4 text-right">
+									<span class="text-white">{{ v "addCommas(score.max_combo)" }}x</span>
+									<span class="text-gray-500">/{{ v "selectedDiff.MaxCombo" }}</span>
+								</td>
+								<td class="py-3 px-4 text-right">
+									<span class="text-pink-400 font-bold">{{ v "score.pp.toFixed(0)" }}<span class="text-pink-400/60 text-sm">pp</span></span>
+								</td>
+								<td class="py-3 px-4 text-center">
+									<span class="text-sm px-2 py-1 bg-dark-bg/50 rounded text-gray-300">{{ v "getScoreMods(score.mods).join('') || 'NM'" }}</span>
+								</td>
+								<td class="py-3 px-4 text-right text-gray-400 text-sm">{{ v "timeSince(score.submitted_at)" }}</td>
+								<td class="py-3 px-4 text-center">
+									<a :href="'/web/replays/' + score.id" class="inline-flex items-center justify-center w-8 h-8 bg-pink-500/20 rounded-lg text-pink-400 hover:bg-pink-500/30 hover:text-pink-300 transition-colors">
+										<i class="fas fa-download"></i>
+									</a>
+								</td>
+							</tr>
+						</template>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>

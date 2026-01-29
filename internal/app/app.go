@@ -240,6 +240,29 @@ func (w *sessionStoreWrapper) Get(r *http.Request, name string) (*sessions.Sessi
 	return w.store.Get(r, name)
 }
 
+func (a *App) Close() error {
+	var errs []error
+
+	if a.Redis != nil {
+		if err := a.Redis.Close(); err != nil {
+			slog.Error("Failed to close Redis connection", "error", err)
+			errs = append(errs, err)
+		}
+	}
+
+	if a.DB != nil {
+		if err := a.DB.Close(); err != nil {
+			slog.Error("Failed to close database connection", "error", err)
+			errs = append(errs, err)
+		}
+	}
+
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	return nil
+}
+
 func parseAdditionalJS(js string) []string {
 	if js == "" {
 		return nil

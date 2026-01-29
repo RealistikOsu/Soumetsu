@@ -4,6 +4,11 @@ module.exports = {
     "./web/templates/**/*.html",
     "./web/static/**/*.js",
   ],
+  safelist: [
+    // Rank badge classes (dynamically generated via JS)
+    'rank-ss', 'rank-ssh', 'rank-s', 'rank-sh',
+    'rank-a', 'rank-b', 'rank-c', 'rank-d', 'rank-f',
+  ],
   theme: {
     extend: {
       colors: {

@@ -7,6 +7,24 @@ const SoumetsuAPI = {
         return window.soumetsuConf?.cheesegullAPI || '';
     },
 
+    // Fetch with timeout helper
+    async fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const response = await fetch(url, { ...options, signal: controller.signal });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (err) {
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                throw new Error('Request timed out');
+            }
+            throw err;
+        }
+    },
+
     avatarURL() {
         return window.soumetsuConf?.avatars || '';
     },
@@ -82,10 +100,10 @@ const SoumetsuAPI = {
 
     beatmaps: {
         get(id) {
-            return fetch(`${SoumetsuAPI.cheesegullURL()}/b/${id}`).then(r => r.json());
+            return SoumetsuAPI.fetchWithTimeout(`${SoumetsuAPI.cheesegullURL()}/b/${id}`).then(r => r.json());
         },
         getSet(id) {
-            return fetch(`${SoumetsuAPI.cheesegullURL()}/s/${id}`).then(r => r.json());
+            return SoumetsuAPI.fetchWithTimeout(`${SoumetsuAPI.cheesegullURL()}/s/${id}`).then(r => r.json());
         },
         getScores(beatmapId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
             return SoumetsuAPI.get(`beatmaps/${beatmapId}/scores`, {

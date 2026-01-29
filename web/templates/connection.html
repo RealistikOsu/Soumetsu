@@ -15,7 +15,7 @@ DisableHH=true
 			<div class="absolute inset-0 bg-gradient-to-b from-dark-bg/70 via-dark-bg/95 to-dark-bg"></div>
 		</div>
 
-		<div class="container mx-auto px-4 max-w-6xl">
+		<div class="container mx-auto px-4">
 			<!-- Header -->
 			<div class="flex items-start gap-4 mb-8">
 				<div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
@@ -39,7 +39,7 @@ DisableHH=true
 							<h2 class="text-2xl md:text-3xl font-display font-bold text-white mb-3">You’re one step away.</h2>
 							<p class="text-gray-300 leading-relaxed">
 								You’re one step away from starting your journey on RealistikOsu — joining a community of
-								<span class="text-primary font-semibold">%s</span>
+								<span class="text-primary font-semibold">{{ $registered }}</span>
 								dedicated players and competing on the leaderboards.
 								<br><br>
 								Once you connect, your profile becomes visible and you can start setting scores, joining clans, and playing to your heart’s content.
@@ -102,6 +102,33 @@ DisableHH=true
 					<span class="font-medium">Connection Methods</span>
 				</div>
 				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+
+			<div class="card mt-8 overflow-hidden relative group hover:border-purple-500/50 transition-all duration-300">
+				<div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-violet-500/10 pointer-events-none"></div>
+
+				<div class="relative p-8 md:p-10">
+					<div class="flex flex-col md:flex-row md:items-center gap-6">
+						<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
+							<i class="fas fa-magic text-white text-2xl"></i>
+						</div>
+						<div class="flex-1">
+							<div class="flex items-center gap-3 mb-2">
+								<h2 class="text-2xl font-display font-bold text-white">The Patcher Method</h2>
+								<span class="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-xs text-purple-300 font-medium">
+									<i class="fas fa-star mr-1"></i>Recommended for Relax
+								</span>
+							</div>
+							<p class="text-gray-400 leading-relaxed">
+								Playing Relax? Our official patcher not only connects you to RealistikOsu but also restores ranking panels, enables miss tracking, and adds customisable features to enhance your experience.
+							</p>
+						</div>
+						<a href="/patcher" class="btn-primary inline-flex items-center gap-2 whitespace-nowrap">
+							<i class="fas fa-download"></i>
+							Get the Patcher
+						</a>
+					</div>
+				</div>
 			</div>
 
 			<!-- Method card -->
@@ -205,35 +232,6 @@ DisableHH=true
 
 				</div>
 			</div>
-
-			<!-- Patcher Alternative -->
-			<div class="card mt-8 overflow-hidden relative group hover:border-purple-500/50 transition-all duration-300">
-				<div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-violet-500/10 pointer-events-none"></div>
-
-				<div class="relative p-8 md:p-10">
-					<div class="flex flex-col md:flex-row md:items-center gap-6">
-						<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
-							<i class="fas fa-magic text-white text-2xl"></i>
-						</div>
-						<div class="flex-1">
-							<div class="flex items-center gap-3 mb-2">
-								<h2 class="text-2xl font-display font-bold text-white">The Patcher Method</h2>
-								<span class="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-xs text-purple-300 font-medium">
-									<i class="fas fa-star mr-1"></i>Recommended for Relax
-								</span>
-							</div>
-							<p class="text-gray-400 leading-relaxed">
-								Playing Relax? Our official patcher not only connects you to RealistikOsu but also restores ranking panels, enables miss tracking, and adds customisable features to enhance your experience.
-							</p>
-						</div>
-						<a href="/patcher" class="btn-primary inline-flex items-center gap-2 whitespace-nowrap">
-							<i class="fas fa-download"></i>
-							Get the Patcher
-						</a>
-					</div>
-				</div>
-			</div>
-
 		</div>
 	</div>
 {{ end }}

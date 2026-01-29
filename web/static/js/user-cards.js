@@ -33,7 +33,7 @@
 
     // HTML Structure
     const cardHTML = `
-        <div id="user-card-popover" class="fixed z-50 w-80 h-40 rounded-xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700 hidden-card" style="display: none;">
+        <div id="user-card-popover" class="fixed z-50 w-80 h-48 rounded-xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700 hidden-card" style="display: none;">
             <!-- Banner -->
             <div class="absolute inset-0 bg-cover bg-center transition-all duration-500" id="uc-banner"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
@@ -72,6 +72,13 @@
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-2 h-2 rounded-full bg-slate-500 transition-colors duration-300" id="uc-status-dot"></div>
                             <span class="text-xs text-gray-300 font-medium transition-colors duration-300" id="uc-status-text">Loading...</span>
+                            <span class="text-slate-500 text-xs">·</span>
+                            <span class="text-xs text-blue-300 font-semibold" id="uc-pp">0pp</span>
+                            <span class="text-slate-500 text-xs">·</span>
+                            <span class="text-xs text-slate-300" id="uc-accuracy">0.00%</span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="text-[10px] text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded" id="uc-mode-badge">Vanilla Standard</span>
                         </div>
                     </div>
                 </div>
@@ -94,7 +101,10 @@
         rank: document.getElementById('uc-rank'),
         countryRankBadge: document.getElementById('uc-country-rank-badge'),
         countryRank: document.getElementById('uc-country-rank'),
-        rankFlag: document.getElementById('uc-rank-flag')
+        rankFlag: document.getElementById('uc-rank-flag'),
+        pp: document.getElementById('uc-pp'),
+        accuracy: document.getElementById('uc-accuracy'),
+        modeBadge: document.getElementById('uc-mode-badge')
     };
 
     const cache = {};
@@ -185,6 +195,15 @@
 
         els.badges.innerHTML = getRoleBadges(data.privileges || 0);
 
+        // PP and accuracy
+        els.pp.textContent = `${(data.pp || 0).toLocaleString()}pp`;
+        els.accuracy.textContent = `${(data.accuracy || 0).toFixed(2)}%`;
+
+        // Mode badge
+        const customModes = ['Vanilla', 'Relax', 'Autopilot'];
+        const modes = ['Standard', 'Taiko', 'Catch', 'Mania'];
+        els.modeBadge.textContent = `${customModes[data.custom_mode || 0]} ${modes[data.mode || 0]}`;
+
         // Banner - use gradient from avatar (card endpoint doesn't include background)
         els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
         els.banner.style.backgroundColor = '#0f172a';
@@ -230,7 +249,7 @@
         // Position
         const rect = target.getBoundingClientRect();
         const cardWidth = 320;
-        const cardHeight = 160;
+        const cardHeight = 192;
         const margin = 12;
 
         let top = rect.bottom + margin;
@@ -266,6 +285,12 @@
             els.badges.innerHTML = '<div class="w-6 h-6 rounded-full bg-slate-700 animate-pulse"></div>';
             els.rankBadge.style.display = 'none';
             els.countryRankBadge.style.display = 'none';
+            els.pp.textContent = '';
+            els.pp.innerHTML = '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
+            els.accuracy.textContent = '';
+            els.accuracy.innerHTML = '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
+            els.modeBadge.textContent = '';
+            els.modeBadge.innerHTML = '<span class="inline-block h-3 w-20 rounded bg-slate-700 animate-pulse"></span>';
         }
 
         // Animate in

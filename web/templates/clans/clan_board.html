@@ -103,42 +103,66 @@ AdditionalJS=/static/vue/pages/clanboard.js
 
 		<!-- Filters -->
 		<div class="card mb-6">
-			<div class="flex items-center gap-4">
-				<!-- Mode Selector -->
-				<div class="flex-1 flex gap-2">
-					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="mode === 'std' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="loadClanboardData('std', customMode, 1)">
-						Standard
-					</button>
-					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="mode === 'taiko' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
-						Taiko
-					</button>
-					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="mode === 'fruits' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
-						Catch
-					</button>
-					<button class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="mode === 'mania' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
-						Mania
-					</button>
+			<div class="flex items-center gap-4 mb-6">
+				<div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+					<i class="fas fa-filter text-primary"></i>
+				</div>
+				<h3 class="text-xl font-display font-bold text-white">Filters</h3>
+			</div>
+
+			<div class="space-y-4">
+				<!-- Play Type (Custom Mode) Selection -->
+				<div>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Play Type</p>
+					<div class="grid grid-cols-3 gap-2">
+						<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="customMode === 'vn' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50'"
+							@click.prevent="loadClanboardData(mode, 'vn', 1)">
+							<i class="fas fa-gamepad mr-2"></i>Vanilla
+						</button>
+						<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="(customMode === 'rx' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + (mode == 'mania' ? ' opacity-50 cursor-not-allowed' : '')"
+							:disabled="mode == 'mania'"
+							@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">
+							<i class="fas fa-hand-paper mr-2"></i>Relax
+						</button>
+						<button class="px-5 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center"
+							:class="(customMode === 'ap' ? 'bg-gradient-to-r from-pink-500 to-fuchsia-500 border-transparent text-white shadow-lg shadow-pink-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-pink-500/50') + ((mode == 'mania' || mode == 'fruits' || mode == 'taiko') ? ' opacity-50 cursor-not-allowed' : '')"
+							:disabled="mode == 'mania' || mode == 'fruits' || mode == 'taiko'"
+							@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">
+							<i class="fas fa-robot mr-2"></i>Autopilot
+						</button>
+					</div>
 				</div>
 
-				<!-- CustomMode Selector -->
-				<div class="flex-1 flex gap-2">
-					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="customMode === 'vn' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="loadClanboardData(mode, 'vn', 1)">Vanilla</a>
-					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="customMode === 'rx' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="mode != 'mania' && loadClanboardData(mode, 'rx', 1)">Relax</a>
-					<a href="#" class="flex-1 text-center px-4 py-2 rounded-lg border transition-colors text-sm"
-						:class="customMode === 'ap' ? 'bg-primary border-primary text-white' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary'"
-						@click.prevent="mode != 'mania' && mode != 'fruits' && mode != 'taiko' && loadClanboardData(mode, 'ap', 1)">Autopilot</a>
+				<!-- Game Mode Selection -->
+				<div>
+					<p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Game Mode</p>
+					<div class="grid grid-cols-4 gap-2">
+						<button class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="mode === 'std' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50'"
+							@click.prevent="loadClanboardData('std', customMode, 1)">
+							<i class="fas fa-circle mr-2"></i>Standard
+						</button>
+						<button class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode === 'taiko' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed' : '')"
+							:disabled="customMode == 'ap'"
+							@click.prevent="customMode != 'ap' && loadClanboardData('taiko', customMode, 1)">
+							<i class="fas fa-drum mr-2"></i>Taiko
+						</button>
+						<button class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode === 'fruits' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + (customMode == 'ap' ? ' opacity-50 cursor-not-allowed' : '')"
+							:disabled="customMode == 'ap'"
+							@click.prevent="customMode != 'ap' && loadClanboardData('fruits', customMode, 1)">
+							<i class="fas fa-apple-alt mr-2"></i>Catch
+						</button>
+						<button class="px-4 py-2.5 rounded-xl border-2 font-medium transition-all duration-300 text-center text-sm"
+							:class="(mode === 'mania' ? 'bg-gradient-to-r from-violet-500 to-purple-500 border-transparent text-white shadow-lg shadow-violet-500/20' : 'bg-dark-card border-dark-border text-gray-300 hover:border-violet-500/50') + ((customMode == 'ap' || customMode == 'rx') ? ' opacity-50 cursor-not-allowed' : '')"
+							:disabled="customMode == 'ap' || customMode == 'rx'"
+							@click.prevent="customMode != 'ap' && customMode != 'rx' && loadClanboardData('mania', customMode, 1)">
+							<i class="fas fa-keyboard mr-2"></i>Mania
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
