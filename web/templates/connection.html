@@ -3,7 +3,7 @@ Handler=/connection
 DisableHH=true
 */}}
 {{ define "tpl" }}
-{{ $registered := or (get .Extra "registeredUsers") "0" }}
+{{ $registered := .ServerStats.RegisteredUsers }}
 
 	<div class="relative min-h-screen py-10">
 		<!-- Background -->

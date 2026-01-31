@@ -52,6 +52,11 @@ func Redirect(w http.ResponseWriter, r *http.Request, url string, code int) {
 	http.Redirect(w, r, url, code)
 }
 
+type ServerStats struct {
+	OnlineUsers     int
+	RegisteredUsers int
+}
+
 type TemplateData struct {
 	TitleBar       string
 	HeadingTitle   string
@@ -71,6 +76,7 @@ type TemplateData struct {
 	Frozen         bool                   // User frozen status (pre-fetched to avoid template queries)
 	SystemSettings map[string]interface{} // System settings (pre-fetched to avoid template queries)
 	Session        *SessionWrapper        // Session access wrapper
+	ServerStats    ServerStats            // Server statistics (online/registered users)
 }
 
 func (td *TemplateData) Get(endpoint string, args ...interface{}) interface{} {

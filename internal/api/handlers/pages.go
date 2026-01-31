@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/config"
 	"github.com/RealistikOsu/soumetsu/internal/models"
+	"github.com/RealistikOsu/soumetsu/internal/services/stats"
 	"github.com/gorilla/sessions"
 )
 
@@ -26,6 +28,7 @@ type PagesHandler struct {
 	config    *config.Config
 	store     middleware.SessionStore
 	templates *response.TemplateEngine
+	stats     *stats.Service
 	pages     []PageConfig
 }
 
@@ -33,12 +36,14 @@ func NewPagesHandler(
 	cfg *config.Config,
 	store middleware.SessionStore,
 	templates *response.TemplateEngine,
+	statsService *stats.Service,
 	pages []PageConfig,
 ) *PagesHandler {
 	return &PagesHandler{
 		config:    cfg,
 		store:     store,
 		templates: templates,
+		stats:     statsService,
 		pages:     pages,
 	}
 }
@@ -53,11 +58,18 @@ func (h *PagesHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 		sessionWrapper = response.NewSessionWrapper(nil)
 	}
 
+	var serverStats response.ServerStats
+	if stats, err := h.stats.GetServerStats(context.Background()); err == nil {
+		serverStats.OnlineUsers = stats.OnlineUsers
+		serverStats.RegisteredUsers = stats.RegisteredUsers
+	}
+
 	h.templates.Render(w, "home.html", &response.TemplateData{
-		TitleBar: "Home",
-		Path:     r.URL.Path,
-		Context:  reqCtx,
-		Session:  sessionWrapper,
+		TitleBar:    "Home",
+		Path:        r.URL.Path,
+		Context:     reqCtx,
+		Session:     sessionWrapper,
+		ServerStats: serverStats,
 	})
 }
 
@@ -77,6 +89,12 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			sessionWrapper = response.NewSessionWrapper(nil)
 		}
 
+		var serverStats response.ServerStats
+		if stats, err := h.stats.GetServerStats(context.Background()); err == nil {
+			serverStats.OnlineUsers = stats.OnlineUsers
+			serverStats.RegisteredUsers = stats.RegisteredUsers
+		}
+
 		h.templates.Render(w, templateName, &response.TemplateData{
 			TitleBar:       titleBar,
 			KyutGrill:      kyutGrill,
@@ -86,6 +104,7 @@ func (h *PagesHandler) SimplePage(templateName, titleBar, kyutGrill string, scri
 			FormData:       NormaliseURLValues(r.PostForm),
 			Context:        reqCtx,
 			Session:        sessionWrapper,
+			ServerStats:    serverStats,
 		})
 	}
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/RealistikOsu/soumetsu/internal/services/beatmap"
+	"github.com/RealistikOsu/soumetsu/internal/services/stats"
 	"github.com/RealistikOsu/soumetsu/web/templates"
 	"github.com/boj/redistore"
 	"github.com/gorilla/sessions"
@@ -35,6 +36,7 @@ type App struct {
 
 	AuthService    *auth.Service
 	BeatmapService *beatmap.Service
+	StatsService   *stats.Service
 
 	CSRF         middleware.CSRFService
 	SessionStore middleware.SessionStore
@@ -113,6 +115,7 @@ func (a *App) initServices() error {
 	)
 
 	a.BeatmapService = beatmap.NewService(a.Config)
+	a.StatsService = stats.NewService(a.Redis)
 
 	return nil
 }
@@ -226,6 +229,7 @@ func (a *App) initHandlers() {
 		a.Config,
 		a.SessionStore,
 		a.ResponseEngine,
+		a.StatsService,
 		pageConfigs,
 	)
 
