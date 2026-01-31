@@ -1,11 +1,15 @@
 {{/*###
-Include=user_group.html
 KyutGrill=team2.jpg
 DisableHH=true
 */}}
 {{ define "tpl" }}
 {{ $global := .Context }}
-<div class="relative min-h-screen py-10">
+<script src="/static/js/banner-gradient.js"></script>
+<script src="/static/vue/vue.js"></script>
+<script src="/static/vue/soumetsu-app.js"></script>
+<script src="/static/vue/api-client.js"></script>
+
+<div id="team-app" class="relative min-h-screen py-10">
 	<!-- Background -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -38,246 +42,272 @@ DisableHH=true
 			</div>
 		</div>
 
-		<!-- Developer Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-						<i class="fas fa-code text-primary text-2xl"></i>
+		<!-- Loading State -->
+		<div v-if="loading" class="space-y-8">
+			<div v-for="n in 3" :key="n" class="card overflow-hidden">
+				<div class="p-8">
+					<div class="flex items-center gap-4 mb-6">
+						<div class="w-14 h-14 rounded-2xl bg-slate-700 animate-pulse"></div>
+						<div class="flex-1">
+							<div class="h-6 w-48 bg-slate-700 rounded animate-pulse mb-2"></div>
+							<div class="h-4 w-32 bg-slate-700 rounded animate-pulse"></div>
+						</div>
 					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Developer Team</h3>
-						<p class="text-gray-400 mt-1">The technical wizards behind the scenes</p>
+					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+						<div v-for="i in 5" :key="i" class="rounded-xl overflow-hidden bg-slate-900/80 border border-slate-700">
+							<div class="h-20 bg-slate-800 animate-pulse"></div>
+							<div class="p-4 pt-0 -mt-8 flex flex-col items-center">
+								<div class="w-16 h-16 rounded-xl bg-slate-700 animate-pulse border-4 border-slate-900/50"></div>
+								<div class="mt-3 h-4 w-24 bg-slate-700 rounded animate-pulse"></div>
+								<div class="mt-2 h-3 w-32 bg-slate-700 rounded animate-pulse"></div>
+							</div>
+						</div>
 					</div>
 				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					Developers are responsible for all the server side magic. They do all the behind the scene technical things.
-					They have full power over the server as they run it. Developers have a blue name in the in-game chat.
-				</p>
-				{{ $data := index .Extra.TeamData 2 }}
-				{{ template "userGroup" $data }}
 			</div>
 		</div>
 
-		<!-- Administrator Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-pink-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-						<i class="fas fa-tasks text-red-400 text-2xl"></i>
-					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Administrator Team</h3>
-						<p class="text-gray-400 mt-1">Ensuring everything runs smoothly</p>
-					</div>
-				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					Administrators are all-mighty powerful beings that are here to ensure everything runs smoothly. This can be anything from organising events to hunting hackers. They are cool people ready to help you.
-					{{" They have power in numerous sectors such as the discord server." | html}}
-				</p>
-				{{ template "userGroup" (index .Extra.TeamData 1018) }}
-			</div>
+		<!-- Error State -->
+		<div v-else-if="error" class="card text-center py-12">
+			<i class="fas fa-exclamation-triangle text-red-400 text-5xl mb-4"></i>
+			<h2 class="text-2xl font-bold text-white mb-2">Error Loading Team</h2>
+			<p class="text-gray-400 mb-4">[[ error ]]</p>
+			<button @click="loadTeam" class="btn-primary">
+				<i class="fas fa-refresh mr-2"></i>Try Again
+			</button>
 		</div>
 
-		<!-- Community Management Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-indigo-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-						<i class="fas fa-envelope text-purple-400 text-2xl"></i>
+		<!-- Team Groups -->
+		<template v-else>
+			<div v-for="group in displayGroups" :key="group.badge_id" class="card mb-8 overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br pointer-events-none" :class="getGroupColor(group.badge_id).gradient"></div>
+				<div class="relative p-8 md:p-10">
+					<!-- Group Header -->
+					<div class="flex items-center gap-4 mb-6">
+						<div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+							 :class="getGroupColor(group.badge_id).bg">
+							<i :class="[getGroupIcon(group.badge_id), getGroupColor(group.badge_id).text]" class="text-2xl"></i>
+						</div>
+						<div class="flex-1">
+							<h3 class="text-2xl md:text-3xl font-display font-bold text-white">[[ group.name ]]</h3>
+							<p class="text-gray-400 mt-1">[[ getGroupSubtitle(group.badge_id) ]]</p>
+						</div>
 					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Community Management Team</h3>
-						<p class="text-gray-400 mt-1">Keeping the community healthy and engaged</p>
-					</div>
-				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					Community Managers deal with bans, silences, name changes and pretty much everything that has to do with the community.
-					{{" They take care of our Discord server and reply to emails sent to the support services (Discord)." | html}}
-				</p>
-				{{ template "userGroup" (index .Extra.TeamData 1020) }}
-			</div>
-		</div>
 
-		<!-- Chat Moderation Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
-						<i class="fas fa-comments text-green-400 text-2xl"></i>
-					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Chat Moderation Team</h3>
-						<p class="text-gray-400 mt-1">Maintaining order in the chat</p>
-					</div>
-				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					{{"Chat moderators manage the chat to make sure The Law&trade; (the rules) is respected." | html}}
-				</p>
-				{{ $data := index .Extra.TeamData 30 }}
-				{{ template "userGroup" $data }}
-			</div>
-		</div>
+					<!-- Group Description -->
+					<p class="text-gray-300 mb-6 leading-relaxed">[[ getGroupDescription(group.badge_id) ]]</p>
 
-		<!-- Beatmap Appreciation Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-rose-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-pink-500/20 flex items-center justify-center flex-shrink-0">
-						<i class="fas fa-play-circle text-pink-400 text-2xl"></i>
+					<!-- Empty State -->
+					<div v-if="group.members.length === 0" class="text-center py-8 text-gray-400">
+						<i class="fas fa-users text-4xl mb-3 opacity-50"></i>
+						<p>No members in this group</p>
 					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">Beatmap Appreciation Team</h3>
-						<p class="text-gray-400 mt-1">Curating the ranked beatmap pool</p>
-					</div>
-				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					BATs play beatmaps in the ranking queue and decide whether they are good enough to be ranked or not.
-					They ensure quality standards are met and help shape the competitive experience for all players.
-				</p>
-				{{ $data := index .Extra.TeamData 5 }}
-				{{ template "userGroup" $data }}
-			</div>
-		</div>
 
-		<!-- Social Media Team -->
-		<div class="card mb-8 overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-blue-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="flex items-center gap-4 mb-6">
-					<div class="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-						<i class="fab fa-twitter text-cyan-400 text-2xl"></i>
-					</div>
-					<div class="flex-1">
-						<h3 class="text-2xl md:text-3xl font-display font-bold text-white">The Social Media Team</h3>
-						<p class="text-gray-400 mt-1">Spreading the word about RealistikOsu</p>
-					</div>
-				</div>
-				<p class="text-gray-300 mb-6 leading-relaxed">
-					The Social Media Team is responsible for anything regarding RealistikOsu's presence on social medias.
-					They keep the community informed, engaged, and help grow our presence across various platforms.
-				</p>
-				{{ template "userGroup" (index .Extra.TeamData 1017) }}
-			</div>
-		</div>
+					<!-- Members Grid (Friends Card Style) -->
+					<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+						<div v-for="member in group.members" :key="member.id"
+							class="group rounded-xl overflow-hidden bg-slate-900/80 border border-slate-700 hover:border-pink-500/50 transition-all duration-300 shadow-lg hover:shadow-pink-500/10">
 
-		<!-- Section Divider -->
-		<div class="flex items-center gap-4 mb-8">
-			<div class="flex-1 h-px bg-dark-border"></div>
-			<div class="flex items-center gap-2 text-gray-400">
-				<i class="fas fa-heart"></i>
-				<span class="font-medium">Special Credits</span>
-			</div>
-			<div class="flex-1 h-px bg-dark-border"></div>
-		</div>
-
-		<!-- Special Credits -->
-		<div class="card overflow-hidden relative">
-			<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-orange-500/10 pointer-events-none"></div>
-			<div class="relative p-8 md:p-10">
-				<div class="text-center mb-8">
-					<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">Special Credits</h2>
-					<p class="text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
-						Here's a list of people who helped with RealistikOsu and made everything possible!
-						We're grateful for their contributions and support.
-					</p>
-				</div>
-
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
-						<div class="flex items-start gap-4">
-							{{ if $global.User.ID }}
-								<a href="/users/{{ $global.User.ID }}" class="flex-shrink-0">
-									<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ $global.User.ID }}"
-										alt="{{ $global.User.Username }}"
-										class="w-12 h-12 rounded-xl object-cover border-2 border-primary/50 hover:border-primary transition-colors">
-								</a>
-							{{ else }}
-								<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-									<i class="fas fa-user text-primary"></i>
+							<!-- Banner with gradient -->
+							<div class="h-20 relative transition-all duration-500" :style="getBannerStyle(member)">
+								<!-- Role Badges -->
+								<div class="absolute top-2 right-2 flex gap-1.5">
+									<div v-for="badge in getRoleBadges(member.privileges)" :key="badge.title"
+										class="w-6 h-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/10"
+										:title="badge.title">
+										<i :class="[badge.icon, badge.color]" class="text-xs"></i>
+									</div>
 								</div>
-							{{ end }}
-							<div class="flex-1">
-								<p class="font-semibold text-white mb-2">
-									{{ if $global.User.ID }}
-										<a href="/users/{{ $global.User.ID }}" class="text-primary hover:underline"><strong>You!</strong></a>
-									{{ else }}
-										<strong>You!</strong>
-									{{ end }}
-								</p>
-								<p class="text-sm text-gray-400 leading-relaxed">
-									{{ if $global.User.ID }}
-										Thanks for being part of the RealistikOsu community! Your participation makes this server great.
-									{{ else }}
-										Join our community and become part of the RealistikOsu family!
-									{{ end }}
-								</p>
-							</div>
-						</div>
-					</div>
 
-					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
-						<div class="flex items-start gap-4">
-							<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-								<i class="fas fa-code-branch text-primary"></i>
+								<!-- Rank Badge -->
+								<div v-if="member.global_rank > 0"
+									class="absolute top-2 left-2 bg-black/50 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1.5 border border-white/10">
+									<i class="fas fa-globe text-slate-400 text-xs"></i>
+									<span class="text-white font-bold text-xs">#[[ addCommas(member.global_rank) ]]</span>
+								</div>
 							</div>
-							<div class="flex-1">
-								<p class="font-semibold text-white mb-2">{{"<a href='https://ripple.moe' class='text-primary hover:underline'><strong>Ripple</strong></a>, for providing a solid base for RealistikOsu to work off!" | html}}</p>
-								<p class="text-sm text-gray-400 leading-relaxed">
-									Without Ripple's generous policy to <a href="https://github.com/osuripple" class="text-primary hover:underline">open source</a>, it is unlikely RealistikOsu would have even been started!
-								</p>
-							</div>
-						</div>
-					</div>
 
-					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
-						<div class="flex items-start gap-4">
-							<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-								<i class="fas fa-palette text-primary"></i>
+							<!-- Avatar -->
+							<div class="px-4 -mt-10 flex justify-center relative z-10">
+								<a :href="'/users/' + member.id">
+									<img :src="avatarURL + '/' + member.id"
+										@load="extractBannerColors($event, member.id)"
+										@error="handleAvatarError($event, member.id)"
+										crossorigin="anonymous"
+										class="w-16 h-16 rounded-xl border-4 border-slate-900/50 shadow-lg object-cover bg-slate-800 group-hover:border-pink-500/30 transition-colors"
+										:alt="member.username">
+								</a>
 							</div>
-							<div class="flex-1">
-								<p class="font-semibold text-white mb-2">{{"<a href='/users/2415' class='text-primary hover:underline'><strong>lyandrxw</strong></a>, for designing the new RealistikOsu logos." | html}}</p>
-							</div>
-						</div>
-					</div>
 
-					<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
-						<div class="flex items-start gap-4">
-							<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-								<i class="fas fa-heart text-primary"></i>
-							</div>
-							<div class="flex-1">
-								<p class="font-semibold text-white mb-2">{{"<a id='everyone' class='text-primary hover:underline cursor-pointer'><strong>Everyone</strong></a> who has supported RealistikOsu through their generous donations!" | html}}</p>
-								<p class="text-sm text-gray-400 leading-relaxed">
-									Your support helps keep the server running and enables us to continue improving RealistikOsu for everyone.
-								</p>
+							<!-- Info -->
+							<div class="px-4 pb-4 pt-2 text-center">
+								<!-- Username + Flag -->
+								<div class="flex items-center justify-center gap-1.5 mb-1">
+									<img :src="'/static/images/new-flags/flag-' + member.country.toLowerCase() + '.svg'"
+										class="w-5 h-3.5 rounded-sm opacity-80"
+										:alt="member.country"
+										:title="getCountryName(member.country)">
+									<a :href="'/users/' + member.id"
+										class="text-white font-semibold hover:text-pink-400 transition-colors truncate max-w-[120px]"
+										:title="member.username">
+										[[ escapeHTML(member.username) ]]
+									</a>
+								</div>
+
+								<!-- Stats -->
+								<div class="flex items-center justify-center gap-1.5 text-xs">
+									<span class="text-blue-300 font-semibold">[[ addCommas(member.pp) ]]pp</span>
+									<span class="text-slate-600">&#183;</span>
+									<span class="text-slate-300">[[ formatAccuracy(member.accuracy) ]]%</span>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+
+			<!-- Section Divider -->
+			<div class="flex items-center gap-4 mb-8">
+				<div class="flex-1 h-px bg-dark-border"></div>
+				<div class="flex items-center gap-2 text-gray-400">
+					<i class="fas fa-heart"></i>
+					<span class="font-medium">Special Credits</span>
+				</div>
+				<div class="flex-1 h-px bg-dark-border"></div>
+			</div>
+
+			<!-- Special Credits -->
+			<div class="card overflow-hidden relative">
+				<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-orange-500/10 pointer-events-none"></div>
+				<div class="relative p-8 md:p-10">
+					<div class="text-center mb-8">
+						<h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">Special Credits</h2>
+						<p class="text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
+							Here's a list of people who helped with RealistikOsu and made everything possible!
+							We're grateful for their contributions and support.
+						</p>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
+							<div class="flex items-start gap-4">
+								{{ if $global.User.ID }}
+									<a href="/users/{{ $global.User.ID }}" class="flex-shrink-0">
+										<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ $global.User.ID }}"
+											alt="{{ $global.User.Username }}"
+											class="w-12 h-12 rounded-xl object-cover border-2 border-primary/50 hover:border-primary transition-colors">
+									</a>
+								{{ else }}
+									<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+										<i class="fas fa-user text-primary"></i>
+									</div>
+								{{ end }}
+								<div class="flex-1">
+									<p class="font-semibold text-white mb-2">
+										{{ if $global.User.ID }}
+											<a href="/users/{{ $global.User.ID }}" class="text-primary hover:underline"><strong>You!</strong></a>
+										{{ else }}
+											<strong>You!</strong>
+										{{ end }}
+									</p>
+									<p class="text-sm text-gray-400 leading-relaxed">
+										{{ if $global.User.ID }}
+											Thanks for being part of the RealistikOsu community! Your participation makes this server great.
+										{{ else }}
+											Join our community and become part of the RealistikOsu family!
+										{{ end }}
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
+							<div class="flex items-start gap-4">
+								<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+									<i class="fas fa-code-branch text-primary"></i>
+								</div>
+								<div class="flex-1">
+									<p class="font-semibold text-white mb-2">{{"<a href='https://ripple.moe' class='text-primary hover:underline'><strong>Ripple</strong></a>, for providing a solid base for RealistikOsu to work off!" | html}}</p>
+									<p class="text-sm text-gray-400 leading-relaxed">
+										Without Ripple's generous policy to <a href="https://github.com/osuripple" class="text-primary hover:underline">open source</a>, it is unlikely RealistikOsu would have even been started!
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
+							<div class="flex items-start gap-4">
+								<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+									<i class="fas fa-palette text-primary"></i>
+								</div>
+								<div class="flex-1">
+									<p class="font-semibold text-white mb-2">{{"<a href='/users/2415' class='text-primary hover:underline'><strong>lyandrxw</strong></a>, for designing the new RealistikOsu logos." | html}}</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="bg-dark-bg/60 border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors">
+							<div class="flex items-start gap-4">
+								<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+									<i class="fas fa-heart text-primary"></i>
+								</div>
+								<div class="flex-1">
+									<p class="font-semibold text-white mb-2">
+										<a @click="openSupportersModal" class="text-primary hover:underline cursor-pointer"><strong>Everyone</strong></a> who has supported RealistikOsu through their generous donations!
+									</p>
+									<p class="text-sm text-gray-400 leading-relaxed">
+										Your support helps keep the server running and enables us to continue improving RealistikOsu for everyone.
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
 	</div>
 
-	{{ $ := . }}
 	<!-- Modal for supporters -->
 	<div id="supporters-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" aria-hidden="true">
-		<div id="modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300 ease-out" data-close-modal></div>
+		<div id="modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300 ease-out" @click="closeSupportersModal"></div>
 		<div id="modal-panel" class="relative bg-dark-card rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-dark-border shadow-2xl opacity-0 scale-95 transition-all duration-300 ease-out transform">
 			<div class="flex items-center justify-between mb-6">
 				<h2 class="text-3xl font-display font-bold text-white">Our amazing supporters!</h2>
-				<button data-close-modal class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-dark-border transition-colors">
+				<button @click="closeSupportersModal" class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-dark-border transition-colors">
 					<i class="fas fa-times text-xl"></i>
 				</button>
 			</div>
-			{{ $data := index .Extra.TeamData 1002 }}
-			{{ template "userGroup" $data }}
-			<div class="text-center mt-8 pt-6 border-t border-dark-border">
+
+			<!-- Supporters Grid -->
+			<div v-if="supporters.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+				<div v-for="member in supporters" :key="member.id"
+					class="group rounded-xl overflow-hidden bg-slate-900/80 border border-slate-700 hover:border-pink-500/50 transition-all duration-300">
+					<div class="h-16 relative" :style="getBannerStyle(member)"></div>
+					<div class="px-3 -mt-8 flex justify-center relative z-10">
+						<a :href="'/users/' + member.id">
+							<img :src="avatarURL + '/' + member.id"
+								@load="extractBannerColors($event, member.id)"
+								@error="handleAvatarError($event, member.id)"
+								crossorigin="anonymous"
+								class="w-12 h-12 rounded-xl border-3 border-slate-900/50 shadow-lg object-cover bg-slate-800"
+								:alt="member.username">
+						</a>
+					</div>
+					<div class="px-3 pb-3 pt-1 text-center">
+						<a :href="'/users/' + member.id"
+							class="text-white text-sm font-semibold hover:text-pink-400 transition-colors truncate block"
+							:title="member.username">
+							[[ escapeHTML(member.username) ]]
+						</a>
+					</div>
+				</div>
+			</div>
+			<div v-else class="text-center py-8 text-gray-400">
+				<i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+				<p>Loading supporters...</p>
+			</div>
+
+			<div class="text-center pt-6 border-t border-dark-border">
 				<p class="font-semibold text-white mb-4">Do you want to be in this list?</p>
 				<a href="/donate" class="btn-primary inline-flex items-center gap-2">
 					<i class="fas fa-heart"></i>
@@ -288,53 +318,5 @@ DisableHH=true
 	</div>
 </div>
 
-<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		const modal = document.getElementById('supporters-modal');
-		const backdrop = document.getElementById('modal-backdrop');
-		const panel = document.getElementById('modal-panel');
-		const openBtn = document.getElementById('everyone');
-		const closeElements = document.querySelectorAll('[data-close-modal]');
-
-		function openModal() {
-			if (!modal) return;
-			modal.classList.remove('hidden');
-			// Force reflow
-			void modal.offsetWidth;
-
-			modal.setAttribute('aria-hidden', 'false');
-			backdrop.classList.remove('opacity-0');
-			panel.classList.remove('opacity-0', 'scale-95');
-			panel.classList.add('scale-100');
-		}
-
-		function closeModal() {
-			if (!modal) return;
-
-			modal.setAttribute('aria-hidden', 'true');
-			backdrop.classList.add('opacity-0');
-			panel.classList.remove('scale-100');
-			panel.classList.add('opacity-0', 'scale-95');
-
-			setTimeout(() => {
-				modal.classList.add('hidden');
-			}, 300);
-		}
-
-		if (openBtn) {
-			openBtn.addEventListener('click', openModal);
-		}
-
-		closeElements.forEach(el => {
-			el.addEventListener('click', closeModal);
-		});
-
-		// Close on Escape key
-		document.addEventListener('keydown', function(e) {
-			if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-				closeModal();
-			}
-		});
-	});
-</script>
+<script src="/static/vue/pages/team.js"></script>
 {{ end }}
