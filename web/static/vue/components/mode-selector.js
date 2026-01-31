@@ -17,119 +17,127 @@
  */
 
 const ModeSelectorComponent = {
-    name: 'ModeSelector',
-    props: {
-        mode: {
-            type: Number,
-            default: 0
-        },
-        customMode: {
-            type: Number,
-            default: 0
-        },
-        showCustomModes: {
-            type: Boolean,
-            default: true
-        },
-        variant: {
-            type: String,
-            default: 'pills',
-            validator: (v) => ['pills', 'buttons', 'compact'].includes(v)
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        }
+  name: 'ModeSelector',
+  props: {
+    mode: {
+      type: Number,
+      default: 0,
     },
-    emits: ['update:mode', 'update:custom-mode'],
-    data() {
-        return {
-            modes: [
-                { id: 0, name: 'Standard', icon: 'fa-circle', short: 'STD' },
-                { id: 1, name: 'Taiko', icon: 'fa-drum', short: 'TAI' },
-                { id: 2, name: 'Catch', icon: 'fa-apple-whole', short: 'CTB' },
-                { id: 3, name: 'Mania', icon: 'fa-keyboard', short: 'MAN' }
-            ],
-            customModes: [
-                { id: 0, name: 'Vanilla', short: 'VN' },
-                { id: 1, name: 'Relax', short: 'RX' },
-                { id: 2, name: 'Autopilot', short: 'AP' }
-            ]
-        };
+    customMode: {
+      type: Number,
+      default: 0,
     },
-    computed: {
-        modeButtonClass() {
-            const base = 'transition-all duration-200';
-            switch (this.variant) {
-                case 'compact':
-                    return `${base} px-2 py-1 text-xs rounded`;
-                case 'buttons':
-                    return `${base} px-4 py-2 rounded-lg border`;
-                case 'pills':
-                default:
-                    return `${base} px-3 py-1.5 rounded-full text-sm`;
-            }
-        },
-        customModeButtonClass() {
-            const base = 'transition-all duration-200';
-            switch (this.variant) {
-                case 'compact':
-                    return `${base} px-2 py-1 text-xs rounded`;
-                case 'buttons':
-                    return `${base} px-3 py-1.5 rounded-lg border`;
-                case 'pills':
-                default:
-                    return `${base} px-2.5 py-1 rounded-full text-xs`;
-            }
-        }
+    showCustomModes: {
+      type: Boolean,
+      default: true,
     },
-    methods: {
-        isModeDisabled(modeId) {
-            if (this.disabled) { return true; }
-            return SoumetsuGameHelpers.isModeDisabled(modeId, this.customMode);
-        },
-        isCustomModeDisabled(cmId) {
-            if (this.disabled) { return true; }
-            return SoumetsuGameHelpers.isCustomModeDisabled(cmId, this.mode);
-        },
-        getModeClasses(modeId) {
-            const isActive = this.mode === modeId;
-            const isDisabled = this.isModeDisabled(modeId);
+    variant: {
+      type: String,
+      default: 'pills',
+      validator: (v) => ['pills', 'buttons', 'compact'].includes(v),
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['update:mode', 'update:custom-mode'],
+  data() {
+    return {
+      modes: [
+        { id: 0, name: 'Standard', icon: 'fa-circle', short: 'STD' },
+        { id: 1, name: 'Taiko', icon: 'fa-drum', short: 'TAI' },
+        { id: 2, name: 'Catch', icon: 'fa-apple-whole', short: 'CTB' },
+        { id: 3, name: 'Mania', icon: 'fa-keyboard', short: 'MAN' },
+      ],
+      customModes: [
+        { id: 0, name: 'Vanilla', short: 'VN' },
+        { id: 1, name: 'Relax', short: 'RX' },
+        { id: 2, name: 'Autopilot', short: 'AP' },
+      ],
+    };
+  },
+  computed: {
+    modeButtonClass() {
+      const base = 'transition-all duration-200';
+      switch (this.variant) {
+        case 'compact':
+          return `${base} px-2 py-1 text-xs rounded`;
+        case 'buttons':
+          return `${base} px-4 py-2 rounded-lg border`;
+        case 'pills':
+        default:
+          return `${base} px-3 py-1.5 rounded-full text-sm`;
+      }
+    },
+    customModeButtonClass() {
+      const base = 'transition-all duration-200';
+      switch (this.variant) {
+        case 'compact':
+          return `${base} px-2 py-1 text-xs rounded`;
+        case 'buttons':
+          return `${base} px-3 py-1.5 rounded-lg border`;
+        case 'pills':
+        default:
+          return `${base} px-2.5 py-1 rounded-full text-xs`;
+      }
+    },
+  },
+  methods: {
+    isModeDisabled(modeId) {
+      if (this.disabled) {
+        return true;
+      }
+      return SoumetsuGameHelpers.isModeDisabled(modeId, this.customMode);
+    },
+    isCustomModeDisabled(cmId) {
+      if (this.disabled) {
+        return true;
+      }
+      return SoumetsuGameHelpers.isCustomModeDisabled(cmId, this.mode);
+    },
+    getModeClasses(modeId) {
+      const isActive = this.mode === modeId;
+      const isDisabled = this.isModeDisabled(modeId);
 
-            if (isDisabled) {
-                return `${this.modeButtonClass} bg-dark-card/30 text-gray-600 cursor-not-allowed`;
-            }
-            if (isActive) {
-                return `${this.modeButtonClass} bg-primary text-white`;
-            }
-            return `${this.modeButtonClass} bg-dark-card/50 text-gray-300 hover:bg-dark-card hover:text-white cursor-pointer`;
-        },
-        getCustomModeClasses(cmId) {
-            const isActive = this.customMode === cmId;
-            const isDisabled = this.isCustomModeDisabled(cmId);
-
-            if (isDisabled) {
-                return `${this.customModeButtonClass} bg-dark-card/30 text-gray-600 cursor-not-allowed`;
-            }
-            if (isActive) {
-                return `${this.customModeButtonClass} bg-primary/80 text-white`;
-            }
-            return `${this.customModeButtonClass} bg-dark-card/50 text-gray-400 hover:bg-dark-card hover:text-white cursor-pointer`;
-        },
-        selectMode(modeId) {
-            if (this.isModeDisabled(modeId)) { return; }
-            if (this.mode !== modeId) {
-                this.$emit('update:mode', modeId);
-            }
-        },
-        selectCustomMode(cmId) {
-            if (this.isCustomModeDisabled(cmId)) { return; }
-            if (this.customMode !== cmId) {
-                this.$emit('update:custom-mode', cmId);
-            }
-        }
+      if (isDisabled) {
+        return `${this.modeButtonClass} bg-dark-card/30 text-gray-600 cursor-not-allowed`;
+      }
+      if (isActive) {
+        return `${this.modeButtonClass} bg-primary text-white`;
+      }
+      return `${this.modeButtonClass} bg-dark-card/50 text-gray-300 hover:bg-dark-card hover:text-white cursor-pointer`;
     },
-    template: `
+    getCustomModeClasses(cmId) {
+      const isActive = this.customMode === cmId;
+      const isDisabled = this.isCustomModeDisabled(cmId);
+
+      if (isDisabled) {
+        return `${this.customModeButtonClass} bg-dark-card/30 text-gray-600 cursor-not-allowed`;
+      }
+      if (isActive) {
+        return `${this.customModeButtonClass} bg-primary/80 text-white`;
+      }
+      return `${this.customModeButtonClass} bg-dark-card/50 text-gray-400 hover:bg-dark-card hover:text-white cursor-pointer`;
+    },
+    selectMode(modeId) {
+      if (this.isModeDisabled(modeId)) {
+        return;
+      }
+      if (this.mode !== modeId) {
+        this.$emit('update:mode', modeId);
+      }
+    },
+    selectCustomMode(cmId) {
+      if (this.isCustomModeDisabled(cmId)) {
+        return;
+      }
+      if (this.customMode !== cmId) {
+        this.$emit('update:custom-mode', cmId);
+      }
+    },
+  },
+  template: `
         <div class="mode-selector">
             <!-- Game Mode Selection -->
             <div class="flex flex-wrap gap-2 mb-3" v-if="variant !== 'compact'">
@@ -171,7 +179,7 @@ const ModeSelectorComponent = {
                 </button>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -179,57 +187,57 @@ const ModeSelectorComponent = {
  * Simpler version for use in headers/navbars
  */
 const InlineModeSelectorComponent = {
-    name: 'InlineModeSelector',
-    props: {
-        mode: {
-            type: Number,
-            default: 0
-        },
-        customMode: {
-            type: Number,
-            default: 0
-        },
-        showCustomModes: {
-            type: Boolean,
-            default: true
-        }
+  name: 'InlineModeSelector',
+  props: {
+    mode: {
+      type: Number,
+      default: 0,
     },
-    emits: ['update:mode', 'update:custom-mode'],
-    data() {
-        return {
-            modeNames: ['std', 'taiko', 'fruits', 'mania'],
-            customModeNames: ['vn', 'rx', 'ap']
-        };
+    customMode: {
+      type: Number,
+      default: 0,
     },
-    computed: {
-        currentModeName() {
-            return this.modeNames[this.mode] || 'std';
-        },
-        currentCustomModeName() {
-            return this.customModeNames[this.customMode] || 'vn';
-        }
+    showCustomModes: {
+      type: Boolean,
+      default: true,
     },
-    methods: {
-        isModeDisabled(modeId) {
-            return SoumetsuGameHelpers.isModeDisabled(modeId, this.customMode);
-        },
-        isCustomModeDisabled(cmId) {
-            return SoumetsuGameHelpers.isCustomModeDisabled(cmId, this.mode);
-        },
-        selectMode(modeName) {
-            const modeId = this.modeNames.indexOf(modeName);
-            if (modeId !== -1 && !this.isModeDisabled(modeId) && this.mode !== modeId) {
-                this.$emit('update:mode', modeId);
-            }
-        },
-        selectCustomMode(cmName) {
-            const cmId = this.customModeNames.indexOf(cmName);
-            if (cmId !== -1 && !this.isCustomModeDisabled(cmId) && this.customMode !== cmId) {
-                this.$emit('update:custom-mode', cmId);
-            }
-        }
+  },
+  emits: ['update:mode', 'update:custom-mode'],
+  data() {
+    return {
+      modeNames: ['std', 'taiko', 'fruits', 'mania'],
+      customModeNames: ['vn', 'rx', 'ap'],
+    };
+  },
+  computed: {
+    currentModeName() {
+      return this.modeNames[this.mode] || 'std';
     },
-    template: `
+    currentCustomModeName() {
+      return this.customModeNames[this.customMode] || 'vn';
+    },
+  },
+  methods: {
+    isModeDisabled(modeId) {
+      return SoumetsuGameHelpers.isModeDisabled(modeId, this.customMode);
+    },
+    isCustomModeDisabled(cmId) {
+      return SoumetsuGameHelpers.isCustomModeDisabled(cmId, this.mode);
+    },
+    selectMode(modeName) {
+      const modeId = this.modeNames.indexOf(modeName);
+      if (modeId !== -1 && !this.isModeDisabled(modeId) && this.mode !== modeId) {
+        this.$emit('update:mode', modeId);
+      }
+    },
+    selectCustomMode(cmName) {
+      const cmId = this.customModeNames.indexOf(cmName);
+      if (cmId !== -1 && !this.isCustomModeDisabled(cmId) && this.customMode !== cmId) {
+        this.$emit('update:custom-mode', cmId);
+      }
+    },
+  },
+  template: `
         <div class="inline-flex items-center gap-1 text-sm">
             <select
                 :value="currentModeName"
@@ -249,7 +257,7 @@ const InlineModeSelectorComponent = {
                 </option>
             </select>
         </div>
-    `
+    `,
 };
 
 // Export components

@@ -35,6 +35,7 @@ Originally based on [hanayo](https://github.com/osuripple/hanayo), Soumetsu has 
 Soumetsu comes packed with all the features you'd expect from a modern osu! server frontend:
 
 ### Core Features
+
 - 👤 **User Profiles** - Comprehensive user profiles with statistics, achievements, and customization
 - 🎵 **Beatmap System** - Browse, search, and download beatmaps with ranking support
 - 🏆 **Leaderboards** - Global and country-specific leaderboards for all game modes
@@ -43,12 +44,14 @@ Soumetsu comes packed with all the features you'd expect from a modern osu! serv
 - 💬 **Community Features** - User interactions, comments, and social features
 
 ### Game Mode Support
+
 - 🎯 **osu!standard** - Full support for standard mode
 - 🥁 **osu!taiko** - Taiko mode leaderboards and statistics
 - 🍎 **osu!catch** - Catch the Beat mode support
 - ⌨️ **osu!mania** - Mania mode rankings and features
 
 ### Additional Features
+
 - 🔐 **Authentication** - Secure login and registration system
 - 📧 **Email Integration** - Password reset and notifications via Mailgun
 - 🤖 **Discord Integration** - Connect with Discord for authentication and features
@@ -71,22 +74,26 @@ Before you begin, ensure you have the following installed:
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/RealistikOsu/soumetsu.git
    cd soumetsu
    ```
 
 2. **Install Go dependencies**
+
    ```bash
    go mod download
    ```
 
 3. **Install Node.js dependencies**
+
    ```bash
    npm install
    ```
 
 4. **Build frontend assets**
+
    ```bash
    npm run tailwind:build
    # Or use the build script
@@ -94,6 +101,7 @@ Before you begin, ensure you have the following installed:
    ```
 
 5. **Configure the application**
+
    ```bash
    cp env.example .env
    # Edit .env with your configuration (see Configuration section)
@@ -157,7 +165,6 @@ soumetsu/
 - **RealistikOsu! Website**: [https://ussr.pl/](https://ussr.pl/)
 - **GitHub Organization**: [https://github.com/RealistikOsu](https://github.com/RealistikOsu)
 - **Original hanayo**: [https://github.com/osuripple/hanayo](https://github.com/osuripple/hanayo)
-
 
 ---
 

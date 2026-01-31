@@ -1,10 +1,12 @@
-(function() {
-    // Only run on non-mobile
-    if (window.innerWidth < 768) {return;}
+(function () {
+  // Only run on non-mobile
+  if (window.innerWidth < 768) {
+    return;
+  }
 
-    // Inject CSS
-    const style = document.createElement('style');
-    style.textContent = `
+  // Inject CSS
+  const style = document.createElement('style');
+  style.textContent = `
         #user-card-popover {
             transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: opacity, transform;
@@ -29,10 +31,10 @@
             100% { background-position: 1000px 0; }
         }
     `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 
-    // HTML Structure
-    const cardHTML = `
+  // HTML Structure
+  const cardHTML = `
         <div id="user-card-popover" class="fixed z-50 w-80 h-48 rounded-xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700 hidden-card" style="display: none;">
             <!-- Banner -->
             <div class="absolute inset-0 bg-cover bg-center transition-all duration-500" id="uc-banner"></div>
@@ -86,285 +88,317 @@
         </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', cardHTML);
+  document.body.insertAdjacentHTML('beforeend', cardHTML);
 
-    const card = document.getElementById('user-card-popover');
-    const els = {
-        banner: document.getElementById('uc-banner'),
-        avatar: document.getElementById('uc-avatar'),
-        usernameLink: document.getElementById('uc-username-link'),
-        flag: document.getElementById('uc-flag'),
-        statusDot: document.getElementById('uc-status-dot'),
-        statusText: document.getElementById('uc-status-text'),
-        badges: document.getElementById('uc-badges'),
-        rankBadge: document.getElementById('uc-rank-badge'),
-        rank: document.getElementById('uc-rank'),
-        countryRankBadge: document.getElementById('uc-country-rank-badge'),
-        countryRank: document.getElementById('uc-country-rank'),
-        rankFlag: document.getElementById('uc-rank-flag'),
-        pp: document.getElementById('uc-pp'),
-        accuracy: document.getElementById('uc-accuracy'),
-        modeBadge: document.getElementById('uc-mode-badge')
+  const card = document.getElementById('user-card-popover');
+  const els = {
+    banner: document.getElementById('uc-banner'),
+    avatar: document.getElementById('uc-avatar'),
+    usernameLink: document.getElementById('uc-username-link'),
+    flag: document.getElementById('uc-flag'),
+    statusDot: document.getElementById('uc-status-dot'),
+    statusText: document.getElementById('uc-status-text'),
+    badges: document.getElementById('uc-badges'),
+    rankBadge: document.getElementById('uc-rank-badge'),
+    rank: document.getElementById('uc-rank'),
+    countryRankBadge: document.getElementById('uc-country-rank-badge'),
+    countryRank: document.getElementById('uc-country-rank'),
+    rankFlag: document.getElementById('uc-rank-flag'),
+    pp: document.getElementById('uc-pp'),
+    accuracy: document.getElementById('uc-accuracy'),
+    modeBadge: document.getElementById('uc-mode-badge'),
+  };
+
+  const cache = {};
+  let activeLink = null;
+  let hideTimeout = null;
+  let showTimeout = null;
+  let isVisible = false;
+
+  // Config
+  const AVATAR_URL = window.soumetsuConf ? window.soumetsuConf.avatars : 'https://a.ussr.pl';
+  const API_URL = window.soumetsuConf ? window.soumetsuConf.baseAPI : '';
+  const BANCHO_URL = window.soumetsuConf ? window.soumetsuConf.banchoAPI : '';
+
+  function getRoleBadges(privileges) {
+    const badges = [];
+    // Helper to add badge
+    const add = (icon, colour, title) => {
+      badges.push(
+        `<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${colour} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`
+      );
     };
 
-    const cache = {};
-    let activeLink = null;
-    let hideTimeout = null;
-    let showTimeout = null;
-    let isVisible = false;
+    if (privileges & 8192) {
+      add('fas fa-gavel', 'text-red-400', 'Admin');
+    } // ManageUsers
+    else if (privileges & 4096) {
+      add('fas fa-shield-alt', 'text-purple-400', 'Moderator');
+    } // AccessRAP
 
-    // Config
-    const AVATAR_URL = window.soumetsuConf ? window.soumetsuConf.avatars : 'https://a.ussr.pl';
-    const API_URL = window.soumetsuConf ? window.soumetsuConf.baseAPI : '';
-    const BANCHO_URL = window.soumetsuConf ? window.soumetsuConf.banchoAPI : '';
+    if (privileges & 4) {
+      add('fas fa-heart', 'text-yellow-400', 'Supporter');
+    } // Donor
 
-    function getRoleBadges(privileges) {
-        const badges = [];
-        // Helper to add badge
-        const add = (icon, colour, title) => {
-            badges.push(`<div class="w-6 h-6 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center text-xs ${colour} shadow-sm border border-white/5" title="${title}"><i class="${icon}"></i></div>`);
-        };
+    return badges.join('');
+  }
 
-        if (privileges & 8192) {add('fas fa-gavel', 'text-red-400', 'Admin');} // ManageUsers
-        else if (privileges & 4096) {add('fas fa-shield-alt', 'text-purple-400', 'Moderator');} // AccessRAP
-
-        if (privileges & 4) {add('fas fa-heart', 'text-yellow-400', 'Supporter');} // Donor
-
-        return badges.join('');
+  async function fetchUser(id) {
+    if (cache[id] && Date.now() - cache[id].time < 60000) {
+      return cache[id].data;
     }
 
-    async function fetchUser(id) {
-        if (cache[id] && (Date.now() - cache[id].time < 60000)) {return cache[id].data;}
+    try {
+      const resp = await fetch(`${API_URL}/api/v2/users/${id}/card`);
+      const json = await resp.json();
+      if (json.status !== 200 || !json.data) {
+        throw new Error('User not found');
+      }
 
-        try {
-            const resp = await fetch(`${API_URL}/api/v2/users/${id}/card`);
-            const json = await resp.json();
-            if (json.status !== 200 || !json.data) {throw new Error("User not found");}
+      const data = json.data;
+      cache[id] = { time: Date.now(), data };
+      return data;
+    } catch (e) {
+      console.error('Failed to fetch user card', e);
+      return null;
+    }
+  }
 
-            const data = json.data;
-            cache[id] = { time: Date.now(), data };
-            return data;
-        } catch (e) {
-            console.error('Failed to fetch user card', e);
-            return null;
-        }
+  function updateCard(data) {
+    if (!data) {
+      return;
     }
 
-    function updateCard(data) {
-        if (!data) {return;}
+    els.usernameLink.textContent = data.username;
+    els.usernameLink.href = `/users/${data.id}`;
+    els.avatar.src = `${AVATAR_URL}/${data.id}`;
+    els.avatar.className =
+      'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-800 object-cover shadow-lg shrink-0';
 
-        els.usernameLink.textContent = data.username;
-        els.usernameLink.href = `/users/${data.id}`;
-        els.avatar.src = `${AVATAR_URL}/${data.id}`;
-        els.avatar.className = 'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-800 object-cover shadow-lg shrink-0';
-
-        if (data.country) {
-            els.flag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
-            els.flag.style.display = 'block';
-            requestAnimationFrame(() => els.flag.classList.remove('opacity-0'));
-        } else {
-            els.flag.style.display = 'none';
-        }
-
-        if (data.global_rank > 0) {
-            els.rank.textContent = '#' + data.global_rank.toLocaleString();
-            els.rankBadge.style.display = 'flex';
-        } else {
-            els.rankBadge.style.display = 'none';
-        }
-
-        if (data.country_rank > 0) {
-            els.countryRank.textContent = '#' + data.country_rank.toLocaleString();
-            if (data.country) {
-                els.rankFlag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
-            }
-            els.countryRankBadge.style.display = 'flex';
-        } else {
-            els.countryRankBadge.style.display = 'none';
-        }
-
-        if (data.is_online) {
-            els.statusDot.className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]';
-            els.statusText.textContent = 'Online';
-            els.statusText.className = 'text-xs text-green-400 font-medium';
-        } else {
-            els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-500';
-            els.statusText.textContent = 'Offline';
-            els.statusText.className = 'text-xs text-slate-400 font-medium';
-        }
-
-        els.badges.innerHTML = getRoleBadges(data.privileges || 0);
-
-        // PP and accuracy
-        els.pp.textContent = `${(data.pp || 0).toLocaleString()}pp`;
-        els.accuracy.textContent = `${(data.accuracy || 0).toFixed(2)}%`;
-
-        // Mode badge
-        const customModes = ['Vanilla', 'Relax', 'Autopilot'];
-        const modes = ['Standard', 'Taiko', 'Catch', 'Mania'];
-        els.modeBadge.textContent = `${customModes[data.custom_mode || 0]} ${modes[data.mode || 0]}`;
-
-        // Banner - use gradient from avatar (card endpoint doesn't include background)
-        els.banner.style.backgroundImage = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
-        els.banner.style.backgroundColor = '#0f172a';
-
-        if (window.BannerGradient && els.avatar) {
-            if (!els.avatar.crossOrigin) {els.avatar.crossOrigin = 'anonymous';}
-            els.banner.classList.add('banner-gradient-transition');
-
-            function applyGradient() {
-                setTimeout(function() {
-                    if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
-                        window.BannerGradient.extract(els.avatar, function(colours) {
-                            if (colours && colours.colour1 && colours.colour2 && els.banner) {
-                                window.BannerGradient.apply(els.banner, colours);
-                            }
-                        });
-                    }
-                }, 50);
-            }
-
-            if (els.avatar.complete && els.avatar.naturalWidth > 0) {
-                applyGradient();
-            } else {
-                const loadHandler = function() {
-                    applyGradient();
-                    els.avatar.removeEventListener('load', loadHandler);
-                };
-                els.avatar.addEventListener('load', loadHandler);
-            }
-        }
+    if (data.country) {
+      els.flag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
+      els.flag.style.display = 'block';
+      requestAnimationFrame(() => els.flag.classList.remove('opacity-0'));
+    } else {
+      els.flag.style.display = 'none';
     }
 
-    function showCard(target, id) {
-        clearTimeout(hideTimeout);
-        clearTimeout(showTimeout);
+    if (data.global_rank > 0) {
+      els.rank.textContent = '#' + data.global_rank.toLocaleString();
+      els.rankBadge.style.display = 'flex';
+    } else {
+      els.rankBadge.style.display = 'none';
+    }
 
-        activeLink = target;
-        card.style.display = 'block';
+    if (data.country_rank > 0) {
+      els.countryRank.textContent = '#' + data.country_rank.toLocaleString();
+      if (data.country) {
+        els.rankFlag.src = `/static/images/new-flags/flag-${data.country.toLowerCase()}.svg`;
+      }
+      els.countryRankBadge.style.display = 'flex';
+    } else {
+      els.countryRankBadge.style.display = 'none';
+    }
 
-        // Initial state (loading/cached)
-        const cached = cache[id]?.data;
+    if (data.is_online) {
+      els.statusDot.className =
+        'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]';
+      els.statusText.textContent = 'Online';
+      els.statusText.className = 'text-xs text-green-400 font-medium';
+    } else {
+      els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+      els.statusText.textContent = 'Offline';
+      els.statusText.className = 'text-xs text-slate-400 font-medium';
+    }
 
-        // Position
-        const rect = target.getBoundingClientRect();
-        const cardWidth = 320;
-        const cardHeight = 192;
-        const margin = 12;
+    els.badges.innerHTML = getRoleBadges(data.privileges || 0);
 
-        let top = rect.bottom + margin;
-        let left = rect.left + (rect.width / 2) - (cardWidth / 2);
+    // PP and accuracy
+    els.pp.textContent = `${(data.pp || 0).toLocaleString()}pp`;
+    els.accuracy.textContent = `${(data.accuracy || 0).toFixed(2)}%`;
 
-        // Flip if bottom overflow
-        if (top + cardHeight > window.innerHeight) {
-            top = rect.top - cardHeight - margin;
-        }
+    // Mode badge
+    const customModes = ['Vanilla', 'Relax', 'Autopilot'];
+    const modes = ['Standard', 'Taiko', 'Catch', 'Mania'];
+    els.modeBadge.textContent = `${customModes[data.custom_mode || 0]} ${modes[data.mode || 0]}`;
 
-        // Clamp horizontal
-        left = Math.max(margin, Math.min(left, window.innerWidth - cardWidth - margin));
+    // Banner - use gradient from avatar (card endpoint doesn't include background)
+    els.banner.style.backgroundImage =
+      'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(147,51,234,0.2) 100%)';
+    els.banner.style.backgroundColor = '#0f172a';
 
-        card.style.top = `${top}px`;
-        card.style.left = `${left}px`;
+    if (window.BannerGradient && els.avatar) {
+      if (!els.avatar.crossOrigin) {
+        els.avatar.crossOrigin = 'anonymous';
+      }
+      els.banner.classList.add('banner-gradient-transition');
 
-        // Render basic info immediately if possible
-        if (cached) {
-            updateCard(cached);
-        } else {
-            // Skeleton loading state
-            els.usernameLink.textContent = '';
-            els.usernameLink.removeAttribute('href');
-            els.usernameLink.innerHTML = '<div class="h-5 w-24 rounded bg-slate-700 animate-pulse"></div>';
-            els.avatar.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            els.avatar.className = 'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-700 animate-pulse object-cover shadow-lg shrink-0';
-            els.flag.style.display = 'none';
-            els.statusText.textContent = '';
-            els.statusText.innerHTML = '<div class="h-3 w-14 rounded bg-slate-700 animate-pulse"></div>';
-            els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-600 animate-pulse';
-            els.banner.style.backgroundImage = 'none';
-            els.banner.style.backgroundColor = '#1e293b';
-            els.badges.innerHTML = '<div class="w-6 h-6 rounded-full bg-slate-700 animate-pulse"></div>';
-            els.rankBadge.style.display = 'none';
-            els.countryRankBadge.style.display = 'none';
-            els.pp.textContent = '';
-            els.pp.innerHTML = '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
-            els.accuracy.textContent = '';
-            els.accuracy.innerHTML = '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
-            els.modeBadge.textContent = '';
-            els.modeBadge.innerHTML = '<span class="inline-block h-3 w-20 rounded bg-slate-700 animate-pulse"></span>';
-        }
-
-        // Animate in
-        requestAnimationFrame(() => {
-            card.classList.remove('hidden-card');
-            card.classList.add('visible');
-            isVisible = true;
-        });
-
-        // Fetch if not cached
-        if (!cached) {
-            fetchUser(id).then(data => {
-                if (activeLink === target && isVisible) {
-                    updateCard(data);
-                }
+      function applyGradient() {
+        setTimeout(function () {
+          if (els.avatar && els.avatar.complete && els.avatar.naturalWidth > 0) {
+            window.BannerGradient.extract(els.avatar, function (colours) {
+              if (colours && colours.colour1 && colours.colour2 && els.banner) {
+                window.BannerGradient.apply(els.banner, colours);
+              }
             });
-        }
+          }
+        }, 50);
+      }
+
+      if (els.avatar.complete && els.avatar.naturalWidth > 0) {
+        applyGradient();
+      } else {
+        const loadHandler = function () {
+          applyGradient();
+          els.avatar.removeEventListener('load', loadHandler);
+        };
+        els.avatar.addEventListener('load', loadHandler);
+      }
+    }
+  }
+
+  function showCard(target, id) {
+    clearTimeout(hideTimeout);
+    clearTimeout(showTimeout);
+
+    activeLink = target;
+    card.style.display = 'block';
+
+    // Initial state (loading/cached)
+    const cached = cache[id]?.data;
+
+    // Position
+    const rect = target.getBoundingClientRect();
+    const cardWidth = 320;
+    const cardHeight = 192;
+    const margin = 12;
+
+    let top = rect.bottom + margin;
+    let left = rect.left + rect.width / 2 - cardWidth / 2;
+
+    // Flip if bottom overflow
+    if (top + cardHeight > window.innerHeight) {
+      top = rect.top - cardHeight - margin;
     }
 
-    function hideCard() {
-        clearTimeout(showTimeout);
-        hideTimeout = setTimeout(() => {
-            card.classList.remove('visible');
-            card.classList.add('hidden-card');
-            isVisible = false;
+    // Clamp horizontal
+    left = Math.max(margin, Math.min(left, window.innerWidth - cardWidth - margin));
 
-            setTimeout(() => {
-                if (!isVisible) {
-                    card.style.display = 'none';
-                    activeLink = null;
-                }
-            }, 200);
-        }, 100);
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+
+    // Render basic info immediately if possible
+    if (cached) {
+      updateCard(cached);
+    } else {
+      // Skeleton loading state
+      els.usernameLink.textContent = '';
+      els.usernameLink.removeAttribute('href');
+      els.usernameLink.innerHTML =
+        '<div class="h-5 w-24 rounded bg-slate-700 animate-pulse"></div>';
+      els.avatar.src =
+        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      els.avatar.className =
+        'w-16 h-16 rounded-lg border-2 border-white/10 bg-slate-700 animate-pulse object-cover shadow-lg shrink-0';
+      els.flag.style.display = 'none';
+      els.statusText.textContent = '';
+      els.statusText.innerHTML = '<div class="h-3 w-14 rounded bg-slate-700 animate-pulse"></div>';
+      els.statusDot.className = 'w-2 h-2 rounded-full bg-slate-600 animate-pulse';
+      els.banner.style.backgroundImage = 'none';
+      els.banner.style.backgroundColor = '#1e293b';
+      els.badges.innerHTML = '<div class="w-6 h-6 rounded-full bg-slate-700 animate-pulse"></div>';
+      els.rankBadge.style.display = 'none';
+      els.countryRankBadge.style.display = 'none';
+      els.pp.textContent = '';
+      els.pp.innerHTML =
+        '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
+      els.accuracy.textContent = '';
+      els.accuracy.innerHTML =
+        '<span class="inline-block h-3 w-10 rounded bg-slate-700 animate-pulse"></span>';
+      els.modeBadge.textContent = '';
+      els.modeBadge.innerHTML =
+        '<span class="inline-block h-3 w-20 rounded bg-slate-700 animate-pulse"></span>';
     }
 
-    // Event Delegation
-    document.addEventListener('mouseover', (e) => {
-        const link = e.target.closest('a');
-        if (!link) {return;}
+    // Animate in
+    requestAnimationFrame(() => {
+      card.classList.remove('hidden-card');
+      card.classList.add('visible');
+      isVisible = true;
+    });
 
-        // Ignore links inside the card itself to prevent recursion
-        if (link.closest('#user-card-popover')) {return;}
-
-        const href = link.getAttribute('href');
-        if (!href) {return;}
-
-        // Match /u/123 or /users/123
-        const match = href.match(/^\/(?:u|users)\/(\d+)$/);
-        if (match) {
-            const id = parseInt(match[1]);
-
-            // Do not show for current user if inside navbar
-            if (id === window.currentUserID && link.closest('nav')) {return;}
-
-            clearTimeout(hideTimeout);
-            showTimeout = setTimeout(() => showCard(link, id), 200);
+    // Fetch if not cached
+    if (!cached) {
+      fetchUser(id).then((data) => {
+        if (activeLink === target && isVisible) {
+          updateCard(data);
         }
-    });
+      });
+    }
+  }
 
-    document.addEventListener('mouseout', (e) => {
-        const link = e.target.closest('a');
-        if (link && (link.getAttribute('href')?.match(/^\/(?:u|users)\/(\d+)$/))) {
-            hideCard();
+  function hideCard() {
+    clearTimeout(showTimeout);
+    hideTimeout = setTimeout(() => {
+      card.classList.remove('visible');
+      card.classList.add('hidden-card');
+      isVisible = false;
+
+      setTimeout(() => {
+        if (!isVisible) {
+          card.style.display = 'none';
+          activeLink = null;
         }
-    });
+      }, 200);
+    }, 100);
+  }
 
-    // Keep visible when hovering the card itself
-    card.addEventListener('mouseenter', () => {
-        clearTimeout(hideTimeout);
-        clearTimeout(showTimeout);
-    });
+  // Event Delegation
+  document.addEventListener('mouseover', (e) => {
+    const link = e.target.closest('a');
+    if (!link) {
+      return;
+    }
 
-    card.addEventListener('mouseleave', () => {
-        hideCard();
-    });
+    // Ignore links inside the card itself to prevent recursion
+    if (link.closest('#user-card-popover')) {
+      return;
+    }
 
+    const href = link.getAttribute('href');
+    if (!href) {
+      return;
+    }
+
+    // Match /u/123 or /users/123
+    const match = href.match(/^\/(?:u|users)\/(\d+)$/);
+    if (match) {
+      const id = parseInt(match[1]);
+
+      // Do not show for current user if inside navbar
+      if (id === window.currentUserID && link.closest('nav')) {
+        return;
+      }
+
+      clearTimeout(hideTimeout);
+      showTimeout = setTimeout(() => showCard(link, id), 200);
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    const link = e.target.closest('a');
+    if (link && link.getAttribute('href')?.match(/^\/(?:u|users)\/(\d+)$/)) {
+      hideCard();
+    }
+  });
+
+  // Keep visible when hovering the card itself
+  card.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+    clearTimeout(showTimeout);
+  });
+
+  card.addEventListener('mouseleave', () => {
+    hideCard();
+  });
 })();

@@ -14,113 +14,114 @@
  */
 
 const ScoreCardComponent = {
-    name: 'ScoreCard',
-    props: {
-        score: {
-            type: Object,
-            required: true
-        },
-        mode: {
-            type: Number,
-            default: 0
-        },
-        variant: {
-            type: String,
-            default: 'default',
-            validator: (v) => ['default', 'failed', 'first', 'pinned'].includes(v)
-        },
-        showPinButton: {
-            type: Boolean,
-            default: false
-        },
-        showTrophy: {
-            type: Boolean,
-            default: false
-        }
+  name: 'ScoreCard',
+  props: {
+    score: {
+      type: Object,
+      required: true,
     },
-    emits: ['click', 'pin'],
-    computed: {
-        cardClass() {
-            const base = 'score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border transition-all duration-200';
-            switch (this.variant) {
-                case 'failed':
-                    return `${base} border-red-500/30 hover:border-red-500/50`;
-                case 'first':
-                    return `${base} border-yellow-500/30 hover:border-yellow-500/50`;
-                default:
-                    return `${base} border-dark-border hover:border-primary/50`;
-            }
-        },
-        overlayClass() {
-            const base = 'score-card-overlay-compact';
-            switch (this.variant) {
-                case 'failed':
-                    return `${base} score-card-overlay-failed`;
-                case 'first':
-                    return `${base} score-card-overlay-first`;
-                default:
-                    return base;
-            }
-        },
-        backgroundStyle() {
-            const beatmapsetId = this.score.beatmap?.beatmapset_id;
-            if (!beatmapsetId) return {};
-            return {
-                backgroundImage: `url(https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg)`
-            };
-        },
-        rankGrade() {
-            return this.getRank(
-                this.mode,
-                this.score.mods,
-                this.score.accuracy,
-                this.score.count_300,
-                this.score.count_100,
-                this.score.count_50,
-                this.score.count_misses,
-                this.score.completed
-            );
-        },
-        rankClass() {
-            const grade = this.rankGrade.toLowerCase().replace('+', 'h');
-            return `rank-badge-compact flex-shrink-0 rank-${grade}`;
-        }
+    mode: {
+      type: Number,
+      default: 0,
     },
-    methods: {
-        // Delegate to shared game helpers
-        getRank(mode, mods, acc, c300, c100, c50, cmiss, completed) {
-            return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss, completed);
-        },
-        getScoreMods(mods) {
-            return SoumetsuGameHelpers.getScoreMods(mods);
-        },
+    variant: {
+      type: String,
+      default: 'default',
+      validator: (v) => ['default', 'failed', 'first', 'pinned'].includes(v),
+    },
+    showPinButton: {
+      type: Boolean,
+      default: false,
+    },
+    showTrophy: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['click', 'pin'],
+  computed: {
+    cardClass() {
+      const base =
+        'score-card-compact group relative rounded-lg overflow-hidden cursor-pointer border transition-all duration-200';
+      switch (this.variant) {
+        case 'failed':
+          return `${base} border-red-500/30 hover:border-red-500/50`;
+        case 'first':
+          return `${base} border-yellow-500/30 hover:border-yellow-500/50`;
+        default:
+          return `${base} border-dark-border hover:border-primary/50`;
+      }
+    },
+    overlayClass() {
+      const base = 'score-card-overlay-compact';
+      switch (this.variant) {
+        case 'failed':
+          return `${base} score-card-overlay-failed`;
+        case 'first':
+          return `${base} score-card-overlay-first`;
+        default:
+          return base;
+      }
+    },
+    backgroundStyle() {
+      const beatmapsetId = this.score.beatmap?.beatmapset_id;
+      if (!beatmapsetId) return {};
+      return {
+        backgroundImage: `url(https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg)`,
+      };
+    },
+    rankGrade() {
+      return this.getRank(
+        this.mode,
+        this.score.mods,
+        this.score.accuracy,
+        this.score.count_300,
+        this.score.count_100,
+        this.score.count_50,
+        this.score.count_misses,
+        this.score.completed
+      );
+    },
+    rankClass() {
+      const grade = this.rankGrade.toLowerCase().replace('+', 'h');
+      return `rank-badge-compact flex-shrink-0 rank-${grade}`;
+    },
+  },
+  methods: {
+    // Delegate to shared game helpers
+    getRank(mode, mods, acc, c300, c100, c50, cmiss, completed) {
+      return SoumetsuGameHelpers.getRank(mode, mods, acc, c300, c100, c50, cmiss, completed);
+    },
+    getScoreMods(mods) {
+      return SoumetsuGameHelpers.getScoreMods(mods);
+    },
 
-        // Delegate to shared helpers
-        addCommas(num) {
-            return SoumetsuHelpers.addCommas(num);
-        },
-        formatAccuracy(acc) {
-            return SoumetsuHelpers.formatAccuracy(acc);
-        },
-        timeAgo(dateStr) {
-            return SoumetsuHelpers.timeAgo(dateStr);
-        },
-        ppOrScore(pp, score, ranked) {
-            return SoumetsuHelpers.ppOrScore(pp, score, ranked);
-        },
-        escapeHTML(str) {
-            return SoumetsuHelpers.escapeHTML(str);
-        },
-
-        handleClick() {
-            this.$emit('click', this.score);
-        },
-        handlePin(e) {
-            e.stopPropagation();
-            this.$emit('pin', this.score);
-        }
+    // Delegate to shared helpers
+    addCommas(num) {
+      return SoumetsuHelpers.addCommas(num);
     },
-    template: `
+    formatAccuracy(acc) {
+      return SoumetsuHelpers.formatAccuracy(acc);
+    },
+    timeAgo(dateStr) {
+      return SoumetsuHelpers.timeAgo(dateStr);
+    },
+    ppOrScore(pp, score, ranked) {
+      return SoumetsuHelpers.ppOrScore(pp, score, ranked);
+    },
+    escapeHTML(str) {
+      return SoumetsuHelpers.escapeHTML(str);
+    },
+
+    handleClick() {
+      this.$emit('click', this.score);
+    },
+    handlePin(e) {
+      e.stopPropagation();
+      this.$emit('pin', this.score);
+    },
+  },
+  template: `
         <div :class="cardClass" @click="handleClick">
             <div class="score-card-bg" :style="backgroundStyle"></div>
             <div :class="overlayClass"></div>
@@ -167,7 +168,7 @@ const ScoreCardComponent = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -175,14 +176,14 @@ const ScoreCardComponent = {
  * Shows animated placeholder while scores are loading
  */
 const ScoreCardSkeletonComponent = {
-    name: 'ScoreCardSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 3
-        }
+  name: 'ScoreCardSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 3,
     },
-    template: `
+  },
+  template: `
         <div class="space-y-2">
             <div v-for="i in count" :key="i"
                 class="score-card-compact rounded-lg border border-dark-border bg-dark-card animate-pulse">
@@ -200,7 +201,7 @@ const ScoreCardSkeletonComponent = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -208,95 +209,95 @@ const ScoreCardSkeletonComponent = {
  * Wraps score cards with header, skeleton loading, empty state, and load more button
  */
 const ScoreSectionComponent = {
-    name: 'ScoreSection',
-    components: {
-        'score-card': ScoreCardComponent,
-        'score-card-skeleton': ScoreCardSkeletonComponent
+  name: 'ScoreSection',
+  components: {
+    'score-card': ScoreCardComponent,
+    'score-card-skeleton': ScoreCardSkeletonComponent,
+  },
+  props: {
+    title: {
+      type: String,
+      required: true,
     },
-    props: {
-        title: {
-            type: String,
-            required: true
-        },
-        icon: {
-            type: String,
-            default: 'fa-music'
-        },
-        iconColor: {
-            type: String,
-            default: 'text-primary'
-        },
-        scores: {
-            type: Array,
-            default: () => []
-        },
-        loading: {
-            type: Boolean,
-            default: false
-        },
-        hasMore: {
-            type: Boolean,
-            default: false
-        },
-        total: {
-            type: Number,
-            default: null
-        },
-        mode: {
-            type: Number,
-            default: 0
-        },
-        variant: {
-            type: String,
-            default: 'default'
-        },
-        showPinButton: {
-            type: Boolean,
-            default: false
-        },
-        showTrophy: {
-            type: Boolean,
-            default: false
-        },
-        emptyMessage: {
-            type: String,
-            default: 'No scores have been found'
-        },
-        skeletonCount: {
-            type: Number,
-            default: 3
-        },
-        headerExtra: {
-            type: String,
-            default: null
-        }
+    icon: {
+      type: String,
+      default: 'fa-music',
     },
-    emits: ['load-more', 'score-click', 'score-pin'],
-    computed: {
-        showEmpty() {
-            return this.scores.length === 0 && !this.loading;
-        },
-        showScores() {
-            return this.scores.length > 0 || this.loading;
-        },
-        showLoadMore() {
-            return this.hasMore && this.scores.length > 0;
-        },
-        titleWithTotal() {
-            if (this.total !== null && this.total > 0) {
-                return `${this.title} (${this.total})`;
-            }
-            return this.title;
-        }
+    iconColor: {
+      type: String,
+      default: 'text-primary',
     },
-    methods: {
-        getScoreVariant(score) {
-            if (this.variant === 'first') return 'first';
-            if (score.completed < 2) return 'failed';
-            return 'default';
-        }
+    scores: {
+      type: Array,
+      default: () => [],
     },
-    template: `
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    hasMore: {
+      type: Boolean,
+      default: false,
+    },
+    total: {
+      type: Number,
+      default: null,
+    },
+    mode: {
+      type: Number,
+      default: 0,
+    },
+    variant: {
+      type: String,
+      default: 'default',
+    },
+    showPinButton: {
+      type: Boolean,
+      default: false,
+    },
+    showTrophy: {
+      type: Boolean,
+      default: false,
+    },
+    emptyMessage: {
+      type: String,
+      default: 'No scores have been found',
+    },
+    skeletonCount: {
+      type: Number,
+      default: 3,
+    },
+    headerExtra: {
+      type: String,
+      default: null,
+    },
+  },
+  emits: ['load-more', 'score-click', 'score-pin'],
+  computed: {
+    showEmpty() {
+      return this.scores.length === 0 && !this.loading;
+    },
+    showScores() {
+      return this.scores.length > 0 || this.loading;
+    },
+    showLoadMore() {
+      return this.hasMore && this.scores.length > 0;
+    },
+    titleWithTotal() {
+      if (this.total !== null && this.total > 0) {
+        return `${this.title} (${this.total})`;
+      }
+      return this.title;
+    },
+  },
+  methods: {
+    getScoreVariant(score) {
+      if (this.variant === 'first') return 'first';
+      if (score.completed < 2) return 'failed';
+      return 'default';
+    },
+  },
+  template: `
         <div class="card" :data-section="title.toLowerCase().replace(/\\s+/g, '-')">
             <div class="flex items-center gap-3 mb-4 pb-4 border-b border-dark-border">
                 <i :class="'fas ' + icon + ' ' + iconColor"></i>
@@ -336,7 +337,7 @@ const ScoreSectionComponent = {
                 </button>
             </div>
         </div>
-    `
+    `,
 };
 
 // Export components for use

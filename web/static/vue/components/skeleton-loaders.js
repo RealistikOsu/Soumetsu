@@ -10,22 +10,22 @@
  * For leaderboard tables and similar list views
  */
 const TableRowSkeletonComponent = {
-    name: 'TableRowSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 5
-        },
-        showRank: {
-            type: Boolean,
-            default: true
-        },
-        showStats: {
-            type: Boolean,
-            default: true
-        }
+  name: 'TableRowSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 5,
     },
-    template: `
+    showRank: {
+      type: Boolean,
+      default: true,
+    },
+    showStats: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  template: `
         <div class="space-y-2">
             <div v-for="i in count" :key="i"
                 class="bg-dark-card/50 rounded-lg p-3 border border-dark-border animate-pulse">
@@ -43,7 +43,7 @@ const TableRowSkeletonComponent = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -51,33 +51,33 @@ const TableRowSkeletonComponent = {
  * For featured player cards (top 3 leaderboard)
  */
 const PlayerCardSkeletonComponent = {
-    name: 'PlayerCardSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 3
-        },
-        variant: {
-            type: String,
-            default: 'featured',
-            validator: (v) => ['featured', 'compact', 'member'].includes(v)
-        }
+  name: 'PlayerCardSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 3,
     },
-    computed: {
-        containerClass() {
-            switch (this.variant) {
-                case 'featured':
-                    return 'bg-dark-card/80 rounded-xl p-4 border border-dark-border animate-pulse';
-                case 'compact':
-                    return 'bg-dark-card/50 rounded-lg p-2 animate-pulse';
-                case 'member':
-                    return 'bg-dark-card/50 rounded-lg p-3 border border-dark-border animate-pulse';
-                default:
-                    return 'bg-dark-card/50 rounded-lg p-3 animate-pulse';
-            }
-        }
+    variant: {
+      type: String,
+      default: 'featured',
+      validator: (v) => ['featured', 'compact', 'member'].includes(v),
     },
-    template: `
+  },
+  computed: {
+    containerClass() {
+      switch (this.variant) {
+        case 'featured':
+          return 'bg-dark-card/80 rounded-xl p-4 border border-dark-border animate-pulse';
+        case 'compact':
+          return 'bg-dark-card/50 rounded-lg p-2 animate-pulse';
+        case 'member':
+          return 'bg-dark-card/50 rounded-lg p-3 border border-dark-border animate-pulse';
+        default:
+          return 'bg-dark-card/50 rounded-lg p-3 animate-pulse';
+      }
+    },
+  },
+  template: `
         <div class="space-y-3">
             <!-- Featured variant -->
             <template v-if="variant === 'featured'">
@@ -116,7 +116,7 @@ const PlayerCardSkeletonComponent = {
                 </div>
             </template>
         </div>
-    `
+    `,
 };
 
 /**
@@ -124,14 +124,14 @@ const PlayerCardSkeletonComponent = {
  * For profile comments section
  */
 const CommentSkeletonComponent = {
-    name: 'CommentSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 3
-        }
+  name: 'CommentSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 3,
     },
-    template: `
+  },
+  template: `
         <div class="space-y-4">
             <div v-for="i in count" :key="i"
                 class="bg-dark-card/50 rounded-lg p-4 border border-dark-border animate-pulse">
@@ -150,7 +150,7 @@ const CommentSkeletonComponent = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -158,20 +158,20 @@ const CommentSkeletonComponent = {
  * For achievements grid on profile
  */
 const AchievementSkeletonComponent = {
-    name: 'AchievementSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 8
-        }
+  name: 'AchievementSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 8,
     },
-    template: `
+  },
+  template: `
         <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
             <div v-for="i in count" :key="i"
                 class="aspect-square rounded-lg bg-dark-border animate-pulse">
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -179,14 +179,14 @@ const AchievementSkeletonComponent = {
  * For statistics cards
  */
 const StatsCardSkeletonComponent = {
-    name: 'StatsCardSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 4
-        }
+  name: 'StatsCardSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 4,
     },
-    template: `
+  },
+  template: `
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div v-for="i in count" :key="i"
                 class="bg-dark-card/50 rounded-lg p-4 border border-dark-border animate-pulse">
@@ -194,7 +194,7 @@ const StatsCardSkeletonComponent = {
                 <div class="h-6 bg-dark-border rounded w-3/4"></div>
             </div>
         </div>
-    `
+    `,
 };
 
 /**
@@ -202,14 +202,14 @@ const StatsCardSkeletonComponent = {
  * For beatmap listings
  */
 const BeatmapCardSkeletonComponent = {
-    name: 'BeatmapCardSkeleton',
-    props: {
-        count: {
-            type: Number,
-            default: 3
-        }
+  name: 'BeatmapCardSkeleton',
+  props: {
+    count: {
+      type: Number,
+      default: 3,
     },
-    template: `
+  },
+  template: `
         <div class="space-y-3">
             <div v-for="i in count" :key="i"
                 class="bg-dark-card/50 rounded-lg overflow-hidden border border-dark-border animate-pulse">
@@ -226,17 +226,17 @@ const BeatmapCardSkeletonComponent = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };
 
 // Export all skeleton components
 window.SkeletonComponents = {
-    TableRowSkeleton: TableRowSkeletonComponent,
-    PlayerCardSkeleton: PlayerCardSkeletonComponent,
-    CommentSkeleton: CommentSkeletonComponent,
-    AchievementSkeleton: AchievementSkeletonComponent,
-    StatsCardSkeleton: StatsCardSkeletonComponent,
-    BeatmapCardSkeleton: BeatmapCardSkeletonComponent
+  TableRowSkeleton: TableRowSkeletonComponent,
+  PlayerCardSkeleton: PlayerCardSkeletonComponent,
+  CommentSkeleton: CommentSkeletonComponent,
+  AchievementSkeleton: AchievementSkeletonComponent,
+  StatsCardSkeleton: StatsCardSkeletonComponent,
+  BeatmapCardSkeleton: BeatmapCardSkeletonComponent,
 };
 
 // Also export individually for direct access

@@ -15,106 +15,116 @@
  */
 
 const PlayerCardComponent = {
-    name: 'PlayerCard',
-    props: {
-        player: {
-            type: Object,
-            required: true
-        },
-        rank: {
-            type: Number,
-            default: null
-        },
-        showStats: {
-            type: Boolean,
-            default: true
-        },
-        variant: {
-            type: String,
-            default: 'leaderboard-row',
-            validator: (v) => ['leaderboard-row', 'featured', 'compact', 'member'].includes(v)
-        },
-        avatarUrl: {
-            type: String,
-            default: ''
-        }
+  name: 'PlayerCard',
+  props: {
+    player: {
+      type: Object,
+      required: true,
     },
-    emits: ['click'],
-    computed: {
-        playerAvatar() {
-            const baseUrl = this.avatarUrl || window.soumetsuConf?.avatars || '';
-            return `${baseUrl}/${this.player.id}`;
-        },
-        playerRole() {
-            return SoumetsuHelpers.getPlayerRole(this.player.privileges || 0);
-        },
-        countryName() {
-            return SoumetsuHelpers.getCountryName(this.player.country || 'XX');
-        },
-        formattedPP() {
-            const pp = this.player.stats?.pp || this.player.pp || 0;
-            return SoumetsuHelpers.addCommas(Math.round(pp));
-        },
-        formattedAccuracy() {
-            const acc = this.player.stats?.accuracy || this.player.accuracy || 0;
-            return SoumetsuHelpers.formatAccuracy(acc);
-        },
-        formattedPlaycount() {
-            const pc = this.player.stats?.playcount || this.player.playcount || 0;
-            return SoumetsuHelpers.addCommas(pc);
-        },
-        cardClass() {
-            const base = 'transition-all duration-200';
-            switch (this.variant) {
-                case 'featured':
-                    return `${base} bg-dark-card/80 hover:bg-dark-card rounded-xl p-4 border border-dark-border hover:border-primary/50 cursor-pointer`;
-                case 'compact':
-                    return `${base} bg-dark-card/50 hover:bg-dark-card/80 rounded-lg p-2 cursor-pointer`;
-                case 'member':
-                    return `${base} bg-dark-card/50 hover:bg-dark-card rounded-lg p-3 border border-dark-border hover:border-primary/30 cursor-pointer`;
-                case 'leaderboard-row':
-                default:
-                    return `${base} bg-dark-card/50 hover:bg-dark-card/80 rounded-lg p-3 border border-dark-border`;
-            }
-        },
-        rankClass() {
-            if (!this.rank) { return ''; }
-            if (this.rank === 1) { return 'text-yellow-400 font-bold'; }
-            if (this.rank === 2) { return 'text-gray-300 font-bold'; }
-            if (this.rank === 3) { return 'text-orange-400 font-bold'; }
-            return 'text-gray-400';
-        }
+    rank: {
+      type: Number,
+      default: null,
     },
-    methods: {
-        handleClick() {
-            this.$emit('click', this.player);
-        },
-        handleAvatarError(event) {
-            const img = event.target;
-            const currentSrc = img.src;
+    showStats: {
+      type: Boolean,
+      default: true,
+    },
+    variant: {
+      type: String,
+      default: 'leaderboard-row',
+      validator: (v) => ['leaderboard-row', 'featured', 'compact', 'member'].includes(v),
+    },
+    avatarUrl: {
+      type: String,
+      default: '',
+    },
+  },
+  emits: ['click'],
+  computed: {
+    playerAvatar() {
+      const baseUrl = this.avatarUrl || window.soumetsuConf?.avatars || '';
+      return `${baseUrl}/${this.player.id}`;
+    },
+    playerRole() {
+      return SoumetsuHelpers.getPlayerRole(this.player.privileges || 0);
+    },
+    countryName() {
+      return SoumetsuHelpers.getCountryName(this.player.country || 'XX');
+    },
+    formattedPP() {
+      const pp = this.player.stats?.pp || this.player.pp || 0;
+      return SoumetsuHelpers.addCommas(Math.round(pp));
+    },
+    formattedAccuracy() {
+      const acc = this.player.stats?.accuracy || this.player.accuracy || 0;
+      return SoumetsuHelpers.formatAccuracy(acc);
+    },
+    formattedPlaycount() {
+      const pc = this.player.stats?.playcount || this.player.playcount || 0;
+      return SoumetsuHelpers.addCommas(pc);
+    },
+    cardClass() {
+      const base = 'transition-all duration-200';
+      switch (this.variant) {
+        case 'featured':
+          return `${base} bg-dark-card/80 hover:bg-dark-card rounded-xl p-4 border border-dark-border hover:border-primary/50 cursor-pointer`;
+        case 'compact':
+          return `${base} bg-dark-card/50 hover:bg-dark-card/80 rounded-lg p-2 cursor-pointer`;
+        case 'member':
+          return `${base} bg-dark-card/50 hover:bg-dark-card rounded-lg p-3 border border-dark-border hover:border-primary/30 cursor-pointer`;
+        case 'leaderboard-row':
+        default:
+          return `${base} bg-dark-card/50 hover:bg-dark-card/80 rounded-lg p-3 border border-dark-border`;
+      }
+    },
+    rankClass() {
+      if (!this.rank) {
+        return '';
+      }
+      if (this.rank === 1) {
+        return 'text-yellow-400 font-bold';
+      }
+      if (this.rank === 2) {
+        return 'text-gray-300 font-bold';
+      }
+      if (this.rank === 3) {
+        return 'text-orange-400 font-bold';
+      }
+      return 'text-gray-400';
+    },
+  },
+  methods: {
+    handleClick() {
+      this.$emit('click', this.player);
+    },
+    handleAvatarError(event) {
+      const img = event.target;
+      const currentSrc = img.src;
 
-            if (!currentSrc.endsWith('.png')) {
-                img.src = this.playerAvatar + '.png';
-                return;
-            }
+      if (!currentSrc.endsWith('.png')) {
+        img.src = this.playerAvatar + '.png';
+        return;
+      }
 
-            // Fallback to SVG placeholder
-            const svgData = encodeURIComponent(`
+      // Fallback to SVG placeholder
+      const svgData = encodeURIComponent(
+        `
                 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <rect width="64" height="64" fill="#1E293B"/>
                     <circle cx="32" cy="24" r="12" fill="#475569"/>
                     <path d="M16 52C16 44 24 40 32 40C40 40 48 44 48 52V56H16V52Z" fill="#475569"/>
                 </svg>
-            `.trim());
+            `.trim()
+      );
 
-            img.src = 'data:image/svg+xml,' + svgData;
-            img.onerror = null;
-        },
-        escapeHTML(str) {
-            return SoumetsuHelpers.escapeHTML(str);
-        }
+      img.src = 'data:image/svg+xml,' + svgData;
+      img.onerror = null;
     },
-    template: `
+    escapeHTML(str) {
+      return SoumetsuHelpers.escapeHTML(str);
+    },
+  },
+  template: `
         <div :class="cardClass" @click="handleClick">
             <!-- Featured variant (top 3 leaderboard) -->
             <template v-if="variant === 'featured'">
@@ -224,7 +234,7 @@ const PlayerCardComponent = {
                 </div>
             </template>
         </div>
-    `
+    `,
 };
 
 // Export component

@@ -53,12 +53,14 @@
   }
 
   /* Rank colours - applies to both compact and modal */
-  .rank-ss, .rank-ssh {
+  .rank-ss,
+  .rank-ssh {
     background: linear-gradient(135deg, rgba(234, 179, 8, 0.9), rgba(202, 138, 4, 0.9));
     color: white;
     border-color: rgba(234, 179, 8, 0.5);
   }
-  .rank-s, .rank-sh {
+  .rank-s,
+  .rank-sh {
     background: linear-gradient(135deg, rgba(250, 204, 21, 0.9), rgba(234, 179, 8, 0.9));
     color: white;
     border-color: rgba(250, 204, 21, 0.5);

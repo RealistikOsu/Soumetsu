@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - '8080:80'
     environment:
       - APP_COMPONENT=api
       - SOUMETSU_ENV=development
@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8081:80"
+      - '8081:80'
     environment:
       - APP_COMPONENT=api
       - SOUMETSU_ENV=development

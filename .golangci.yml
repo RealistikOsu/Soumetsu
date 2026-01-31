@@ -44,9 +44,9 @@ linters-settings:
     excludes:
       - G104 # Audit errors not checked (we'll enable this gradually)
     config:
-      G301: "0750" # Directory permissions
-      G302: "0640" # File permissions
-      G306: "0640" # WriteFile permissions
+      G301: '0750' # Directory permissions
+      G302: '0640' # File permissions
+      G306: '0640' # WriteFile permissions
 
   errcheck:
     check-type-assertions: true
@@ -121,7 +121,7 @@ issues:
     # Allow unused parameters in interface implementations
     - linters:
         - revive
-      text: "unused-parameter"
+      text: 'unused-parameter'
 
   # Show all issues, don't limit
   max-issues-per-linter: 0
