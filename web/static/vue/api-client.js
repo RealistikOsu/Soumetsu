@@ -38,6 +38,23 @@ const SoumetsuAPI = {
         return meta ? meta.getAttribute('content') : null;
     },
 
+    getAuthToken() {
+        return window.soumetsuConf?.apiToken || null;
+    },
+
+    getAuthHeaders() {
+        const headers = {};
+        const authToken = this.getAuthToken();
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        const csrfToken = this.getCSRFToken();
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+        return headers;
+    },
+
     async get(endpoint, params = {}) {
         const url = new URL(`${this.baseURL()}/api/v2/${endpoint}`);
         Object.entries(params).forEach(([key, value]) => {
@@ -46,16 +63,15 @@ const SoumetsuAPI = {
             }
         });
 
-        const response = await fetch(url);
+        const headers = this.getAuthHeaders();
+        const response = await fetch(url, { headers });
         const json = await response.json();
         return json.data !== undefined ? json.data : json;
     },
 
     async post(endpoint, data = {}) {
         const url = `${this.baseURL()}/api/v2/${endpoint}`;
-        const headers = { 'Content-Type': 'application/json' };
-        const csrfToken = this.getCSRFToken();
-        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+        const headers = { 'Content-Type': 'application/json', ...this.getAuthHeaders() };
 
         const response = await fetch(url, {
             method: 'POST',
@@ -69,9 +85,7 @@ const SoumetsuAPI = {
 
     async put(endpoint, data = {}) {
         const url = `${this.baseURL()}/api/v2/${endpoint}`;
-        const headers = { 'Content-Type': 'application/json' };
-        const csrfToken = this.getCSRFToken();
-        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+        const headers = { 'Content-Type': 'application/json', ...this.getAuthHeaders() };
 
         const response = await fetch(url, {
             method: 'PUT',
@@ -85,9 +99,7 @@ const SoumetsuAPI = {
 
     async delete(endpoint) {
         const url = `${this.baseURL()}/api/v2/${endpoint}`;
-        const headers = {};
-        const csrfToken = this.getCSRFToken();
-        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+        const headers = { ...this.getAuthHeaders() };
 
         const response = await fetch(url, {
             method: 'DELETE',
@@ -105,6 +117,9 @@ const SoumetsuAPI = {
         getSet(id) {
             return SoumetsuAPI.fetchWithTimeout(`${SoumetsuAPI.cheesegullURL()}/s/${id}`).then(r => r.json());
         },
+        getSetLocal(setId) {
+            return SoumetsuAPI.get(`beatmaps/set/${setId}`);
+        },
         getScores(beatmapId, mode = 0, custom_mode = 0, page = 1, limit = 50) {
             return SoumetsuAPI.get(`beatmaps/${beatmapId}/scores`, {
                 mode,
@@ -112,6 +127,15 @@ const SoumetsuAPI = {
                 page,
                 limit,
             });
+        },
+        rankRequestStatus() {
+            return SoumetsuAPI.get('beatmaps/rank-requests/status');
+        },
+        submitRankRequest(url) {
+            return SoumetsuAPI.post('beatmaps/rank-requests', { url });
+        },
+        checkRankRequest(setId) {
+            return SoumetsuAPI.get(`beatmaps/rank-requests/check/${setId}`);
         },
     },
 
@@ -236,8 +260,8 @@ const SoumetsuAPI = {
         get(userId) {
             return SoumetsuAPI.get(`users/${userId}/comments`);
         },
-        create(targetId, content) {
-            return SoumetsuAPI.post('comments', { target_id: targetId, content });
+        create(profileId, message) {
+            return SoumetsuAPI.post('comments', { profile_id: profileId, message });
         },
         delete(id) {
             return SoumetsuAPI.delete(`comments/${id}`);

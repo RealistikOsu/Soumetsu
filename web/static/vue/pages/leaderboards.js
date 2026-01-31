@@ -11,6 +11,8 @@ const leaderboardApp = Soumetsu.createApp({
             page: window.page || 1,
             country: window.country || '',
             soumetsuConf: window.soumetsuConf || {},
+            totalUsers: 0,
+            totalPages: 1,
         }
     },
     computed: {
@@ -26,6 +28,21 @@ const leaderboardApp = Soumetsu.createApp({
         )
     },
     methods: {
+        async fetchTotalUsers() {
+            try {
+                const response = await SoumetsuAPI.get('leaderboard/total', {
+                    mode: this.modeInt,
+                    custom_mode: this.customModeInt
+                });
+                this.totalUsers = response.total || 0;
+                this.totalPages = Math.max(1, Math.ceil(this.totalUsers / 50));
+            } catch (error) {
+                console.error('Total users error:', error);
+                this.totalUsers = 0;
+                this.totalPages = 1;
+            }
+        },
+
         async loadLeaderboardData(sort, mode, customMode, page, country) {
             if (window.event) {
                 window.event.preventDefault();
@@ -44,6 +61,9 @@ const leaderboardApp = Soumetsu.createApp({
             else { this.country = country.toUpperCase(); }
             if (this.page <= 0 || this.page == null) { this.page = 1; }
             window.history.replaceState('', document.title, `/leaderboard?m=${this.mode}&cm=${this.customMode}&sort=${this.sort}&p=${this.page}&c=${this.country}`);
+
+            // Fetch total users for pagination
+            await this.fetchTotalUsers();
 
             try {
                 const response = await SoumetsuAPI.leaderboard.get(

@@ -104,39 +104,6 @@ DisableHH=true
 		</div>
 	</section>
 
-	<!-- Statistics Section -->
-	<section class="py-16 relative z-10">
-		<div class="container mx-auto px-4">
-			<div class="mb-8">
-				<p class="text-gray-400 text-sm mb-2 italic">So how are statistics on this server?</p>
-				<h2 class="text-3xl font-display font-bold">Statistics</h2>
-			</div>
-
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-				{{ $modes := slice "osu!standard" "osu!taiko" "osu!catch" "osu!mania" }}
-				{{ $modeUrls := slice "std" "taiko" "fruits" "mania" }}
-				{{ $icons := slice "fa-circle" "fa-drum" "fa-apple-alt" "fa-keyboard" }}
-				{{ $colors := slice "bg-pink-500/20 text-pink-400" "bg-orange-500/20 text-orange-400" "bg-green-500/20 text-green-400" "bg-purple-500/20 text-purple-400" }}
-				{{ range $i, $mode := $modes }}
-					{{ $modeUrl := index $modeUrls $i }}
-					<a href="/leaderboard?m={{ $modeUrl }}" class="card hover:border-primary transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
-						<div class="flex items-center justify-between mb-4">
-							<div class="w-12 h-12 {{ index $colors $i }} rounded-lg flex items-center justify-center">
-								<i class="fas {{ index $icons $i }}"></i>
-							</div>
-							<i class="fas fa-chevron-right text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
-						</div>
-						<h3 class="text-xl font-semibold mb-1">{{ $mode }}</h3>
-						<p class="text-sm text-gray-400">View leaderboard</p>
-						<div class="mt-3 pt-3 border-t border-dark-border">
-							<p class="text-xs text-gray-500">Ranked plays, PP leaderboard</p>
-						</div>
-					</a>
-				{{ end }}
-			</div>
-		</div>
-	</section>
-
 	<!-- Top Plays Section -->
 	<section class="py-16 relative z-10">
 		<div class="container mx-auto px-4">

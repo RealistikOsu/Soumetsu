@@ -8,6 +8,8 @@ const clanboardApp = Soumetsu.createApp({
             modeInt: 0,
             loading: true,
             page: window.page || 1,
+            totalClans: 0,
+            totalPages: 1,
         }
     },
     computed: {
@@ -20,6 +22,18 @@ const clanboardApp = Soumetsu.createApp({
         )
     },
     methods: {
+        async fetchTotalClans() {
+            try {
+                const response = await SoumetsuAPI.get('clans/leaderboard/total');
+                this.totalClans = response.total || 0;
+                this.totalPages = Math.max(1, Math.ceil(this.totalClans / 50));
+            } catch (error) {
+                console.error('Total clans error:', error);
+                this.totalClans = 0;
+                this.totalPages = 1;
+            }
+        },
+
         async loadClanboardData(mode, customMode, page) {
             if (window.event) {
                 window.event.preventDefault();
@@ -36,6 +50,9 @@ const clanboardApp = Soumetsu.createApp({
             this.page = page;
             if (this.page <= 0 || this.page == null) { this.page = 1; }
             window.history.replaceState('', document.title, `/clans/leaderboard?mode=${this.mode}&cm=${this.customMode}&p=${this.page}`);
+
+            // Fetch total clans for pagination
+            await this.fetchTotalClans();
 
             try {
                 const response = await SoumetsuAPI.get('clans/leaderboard', {

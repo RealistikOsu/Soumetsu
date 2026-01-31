@@ -176,18 +176,6 @@ DisableHH=true
 							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_total_score || 0)" }}</div>
 							<div class="text-xs text-gray-500">TS</div>
 						</div>
-						<div class="text-center px-3 border-l border-dark-border">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_playcount || 0)" }}</div>
-							<div class="text-xs text-gray-500">PC</div>
-						</div>
-						<div class="text-center px-3 border-l border-dark-border">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_replays_watched || 0)" }}</div>
-							<div class="text-xs text-gray-500">RP</div>
-						</div>
-						<div class="text-center px-3 border-l border-dark-border">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_hits || 0)" }}</div>
-							<div class="text-xs text-gray-500">Hits</div>
-						</div>
 					</div>
 					<div v-else class="ml-auto text-gray-500 text-sm">No stats</div>
 				</div>
@@ -269,18 +257,6 @@ DisableHH=true
 						<div class="text-center">
 							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_total_score || 0)" }}</div>
 							<div class="text-xs text-gray-500">TS</div>
-						</div>
-						<div class="text-center">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_playcount || 0)" }}</div>
-							<div class="text-xs text-gray-500">PC</div>
-						</div>
-						<div class="text-center">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_replays_watched || 0)" }}</div>
-							<div class="text-xs text-gray-500">RP</div>
-						</div>
-						<div class="text-center">
-							<div class="text-white font-bold text-sm">{{ v "addCommas(stats.total_hits || 0)" }}</div>
-							<div class="text-xs text-gray-500">Hits</div>
 						</div>
 					</div>
 					<div v-else class="text-center text-gray-500 text-sm py-2">No stats available</div>

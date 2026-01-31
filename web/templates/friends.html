@@ -5,7 +5,12 @@ KyutGrill=friends.jpg
 DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="relative min-h-screen py-8">
+<script src="/static/js/banner-gradient.js"></script>
+<script src="/static/vue/vue.js"></script>
+<script src="/static/vue/soumetsu-app.js"></script>
+<script src="/static/vue/api-client.js"></script>
+
+<div id="friends-app" class="relative min-h-screen py-8">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -21,56 +26,154 @@ DisableHH=true
 			</div>
 			<div>
 				<h1 class="text-4xl font-display font-bold text-white">Friends</h1>
-				<p class="text-gray-400">On this page you can see all of your friends, and unfriend them as you see fit.</p>
+				<p class="text-gray-400">Manage your friends list and see who's online.</p>
 			</div>
 		</div>
 
-		{{ $ := . }}
-		{{ $page := or (atoint (get .QueryParams "p")) 1 }}
-		{{ $friends := .Get "friends?p=%d&l=40&sort=username,asc" $page }}
+		<!-- Loading State -->
+		<div v-if="loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+			<div v-for="n in 10" :key="n" class="rounded-xl overflow-hidden bg-slate-900/80 border border-slate-700">
+				<div class="h-20 bg-slate-800 animate-pulse"></div>
+				<div class="p-4 pt-0 -mt-8 flex flex-col items-center">
+					<div class="w-16 h-16 rounded-xl bg-slate-700 animate-pulse border-4 border-slate-900/50"></div>
+					<div class="mt-3 h-4 w-24 bg-slate-700 rounded animate-pulse"></div>
+					<div class="mt-2 h-3 w-32 bg-slate-700 rounded animate-pulse"></div>
+					<div class="mt-4 h-8 w-full bg-slate-700 rounded-lg animate-pulse"></div>
+				</div>
+			</div>
+		</div>
 
-		{{ with $friends }}
-			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
-				{{ range .friends }}
-					<div class="card text-center hover:border-primary transition-colors{{ if not (has .privileges 1) }} opacity-50{{ end }}">
-						<a href="/users/{{ .id }}" class="block">
-							<img src="{{ config "APP_AVATAR_URL" .Conf }}/{{ .id }}"
-								alt="Avatar"
-								class="w-full aspect-square rounded-lg mb-4 object-cover border-2 border-dark-border">
-							<div class="flex items-center justify-center gap-2 mb-3">
-								{{ country .country false }}
-								<span class="font-semibold">{{ .username }}</span>
-							</div>
-							<button class="btn-secondary w-full text-sm py-2"
-								data-userid="{{ .id }}"
-								onclick="handleFriendAction(this)">
-								<i class="fas {{ if .is_mutual }}fa-heart text-red-400{{ else }}fa-minus text-green-400{{ end }} mr-2"></i>
-								<span>{{ if .is_mutual }}Mutual{{ else }}Remove{{ end }}</span>
-							</button>
+		<!-- Error State -->
+		<div v-else-if="error" class="card text-center py-12">
+			<i class="fas fa-exclamation-triangle text-red-400 text-5xl mb-4"></i>
+			<h2 class="text-2xl font-bold text-white mb-2">Error Loading Friends</h2>
+			<p class="text-gray-400 mb-4">[[ error ]]</p>
+			<button @click="loadFriends" class="btn-primary">
+				<i class="fas fa-refresh mr-2"></i>Try Again
+			</button>
+		</div>
+
+		<!-- Empty State -->
+		<div v-else-if="friends.length === 0" class="card text-center py-12">
+			<i class="fas fa-user-plus text-gray-500 text-5xl mb-4"></i>
+			<h2 class="text-2xl font-bold text-white mb-2">No Friends Yet</h2>
+			<p class="text-gray-400">Visit player profiles to add them as friends!</p>
+		</div>
+
+		<!-- Friends Grid -->
+		<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+			<div v-for="friend in sortedFriends" :key="friend.id"
+				class="group rounded-xl overflow-hidden bg-slate-900/80 border border-slate-700 hover:border-pink-500/50 transition-all duration-300 shadow-lg hover:shadow-pink-500/10"
+				:class="{ 'opacity-50': isRestricted(friend.privileges) }">
+
+				<!-- Banner with gradient -->
+				<div class="h-20 relative transition-all duration-500" :style="getBannerStyle(friend)">
+					<!-- Role Badges -->
+					<div class="absolute top-2 right-2 flex gap-1.5">
+						<div v-for="badge in getRoleBadges(friend.privileges)" :key="badge.title"
+							class="w-6 h-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/10"
+							:title="badge.title">
+							<i :class="[badge.icon, badge.color]" class="text-xs"></i>
+						</div>
+					</div>
+
+					<!-- Rank Badge -->
+					<div v-if="friend.global_rank > 0"
+						class="absolute top-2 left-2 bg-black/50 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1.5 border border-white/10">
+						<i class="fas fa-globe text-slate-400 text-xs"></i>
+						<span class="text-white font-bold text-xs">#[[ addCommas(friend.global_rank) ]]</span>
+					</div>
+				</div>
+
+				<!-- Avatar -->
+				<div class="px-4 -mt-10 flex justify-center relative z-10">
+					<a :href="'/users/' + friend.id">
+						<img :src="avatarURL + '/' + friend.id"
+							@load="extractBannerColors($event, friend.id)"
+							@error="handleAvatarError($event, friend.id)"
+							crossorigin="anonymous"
+							class="w-16 h-16 rounded-xl border-4 border-slate-900/50 shadow-lg object-cover bg-slate-800 group-hover:border-pink-500/30 transition-colors"
+							:alt="friend.username">
+					</a>
+				</div>
+
+				<!-- Info -->
+				<div class="px-4 pb-4 pt-2 text-center">
+					<!-- Username + Flag -->
+					<div class="flex items-center justify-center gap-1.5 mb-1">
+						<img :src="'/static/images/new-flags/flag-' + friend.country.toLowerCase() + '.svg'"
+							class="w-5 h-3.5 rounded-sm opacity-80"
+							:alt="friend.country"
+							:title="getCountryName(friend.country)">
+						<a :href="'/users/' + friend.id"
+							class="text-white font-semibold hover:text-pink-400 transition-colors truncate max-w-[120px]"
+							:title="friend.username">
+							[[ escapeHTML(friend.username) ]]
 						</a>
 					</div>
-				{{ end }}
-			</div>
-		{{ end }}
 
-		{{ $left := gt $page 1 }}
-		{{ $right := eq (len (rsin $friends.friends)) 40 }}
-		{{ if or $left $right }}
-			<div class="flex justify-center gap-2">
-				{{ if $left }}
-					<a href="/friends?p={{ minus (float $page) 1 }}" class="btn-secondary">
-						<i class="fas fa-chevron-left mr-2"></i>
-						Previous
-					</a>
-				{{ end }}
-				{{ if $right }}
-					<a href="/friends?p={{ plus (float $page) 1 }}" class="btn-secondary">
-						Next
-						<i class="fas fa-chevron-right ml-2"></i>
-					</a>
-				{{ end }}
+					<!-- Online Status + Stats -->
+					<div class="flex items-center justify-center gap-1.5 text-xs mb-3">
+						<div class="flex items-center gap-1">
+							<div class="w-2 h-2 rounded-full transition-colors"
+								:class="friend.is_online ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]' : 'bg-slate-500'">
+							</div>
+							<span :class="friend.is_online ? 'text-green-400' : 'text-slate-400'">
+								[[ friend.is_online ? 'Online' : 'Offline' ]]
+							</span>
+						</div>
+						<span class="text-slate-600">&#183;</span>
+						<span class="text-blue-300 font-semibold">[[ addCommas(friend.pp) ]]pp</span>
+						<span class="text-slate-600">&#183;</span>
+						<span class="text-slate-300">[[ formatAccuracy(friend.accuracy) ]]%</span>
+					</div>
+
+					<!-- Action Button -->
+					<button v-if="friend.is_mutual"
+						class="w-full py-2 px-3 rounded-lg text-xs font-medium transition-all
+							bg-pink-500/20 border border-pink-500/50 text-pink-300
+							hover:bg-pink-500/30 hover:border-pink-400"
+						disabled>
+						<i class="fas fa-heart mr-1.5"></i>
+						Mutual Friend
+					</button>
+					<button v-else
+						@click="removeFriend(friend.id)"
+						:disabled="removingId === friend.id"
+						class="w-full py-2 px-3 rounded-lg text-xs font-medium transition-all
+							bg-slate-700/80 border border-slate-600 text-slate-300
+							hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-300
+							disabled:opacity-50 disabled:cursor-not-allowed">
+						<template v-if="removingId === friend.id">
+							<i class="fas fa-spinner fa-spin mr-1.5"></i>
+							Removing...
+						</template>
+						<template v-else>
+							<i class="fas fa-user-minus mr-1.5"></i>
+							Remove Friend
+						</template>
+					</button>
+				</div>
 			</div>
-		{{ end }}
+		</div>
+
+		<!-- Load More -->
+		<div v-if="!loading && hasMore && friends.length > 0" class="flex justify-center mt-8">
+			<button @click="loadMore"
+				:disabled="loadingMore"
+				class="btn-secondary">
+				<template v-if="loadingMore">
+					<i class="fas fa-spinner fa-spin mr-2"></i>
+					Loading...
+				</template>
+				<template v-else>
+					<i class="fas fa-chevron-down mr-2"></i>
+					Load More
+				</template>
+			</button>
+		</div>
 	</div>
 </div>
+
+<script src="/static/vue/pages/friends.js"></script>
 {{ end }}

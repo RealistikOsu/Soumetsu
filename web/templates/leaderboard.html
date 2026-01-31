@@ -270,25 +270,35 @@ DisableHH=true
 			</div>
 		</div>
 
-		<!-- Pagination -->
+		<!-- Top Pagination -->
 		<div class="flex items-center justify-between mb-6">
 			<div class="flex items-center gap-2">
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p=1&c='+country"
+					:class="'px-3 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-1 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page > 1 && loadLeaderboardData(sort, mode, customMode, 1, country)">
+					<i class="fas fa-angles-left"></i>
+				</a>
 				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+(page-1)+'&c='+country"
 					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
 					@click.prevent="page > 1 && loadLeaderboardData(sort, mode, customMode, page - 1, country)">
 					<i class="fas fa-chevron-left"></i> Previous
 				</a>
 				<span class="px-4 py-2 bg-primary/10 rounded-lg border border-primary/30 text-sm">
-					Page <span class="text-primary font-bold">{{ v "page" }}</span>
+					Page <span class="text-primary font-bold">{{ v "page" }}</span> of <span class="text-primary font-bold">{{ v "totalPages" }}</span>
 				</span>
 				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+(page+1)+'&c='+country"
-					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (data.length < 50 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
-					@click.prevent="data.length >= 50 && loadLeaderboardData(sort, mode, customMode, page + 1, country)">
+					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page >= totalPages ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page < totalPages && loadLeaderboardData(sort, mode, customMode, page + 1, country)">
 					Next <i class="fas fa-chevron-right"></i>
+				</a>
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+totalPages+'&c='+country"
+					:class="'px-3 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-1 ' + (page >= totalPages ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page < totalPages && loadLeaderboardData(sort, mode, customMode, totalPages, country)">
+					<i class="fas fa-angles-right"></i>
 				</a>
 			</div>
 			<p class="text-gray-400 text-sm hidden sm:block">
-				<i class="fas fa-users mr-1"></i>Showing <span class="text-white font-medium">{{ v "data.length" }}</span> players
+				<i class="fas fa-users mr-1"></i>Showing <span class="text-white font-medium">{{ v "data.length" }}</span> of <span class="text-white font-medium">{{ v "totalUsers" }}</span> players
 			</p>
 		</div>
 
@@ -387,6 +397,38 @@ DisableHH=true
 				</div>
 				<p class="text-gray-400">No players found</p>
 			</div>
+		</div>
+
+		<!-- Bottom Pagination -->
+		<div class="flex items-center justify-between mt-6" v-if="!load && data.length > 0">
+			<div class="flex items-center gap-2">
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p=1&c='+country"
+					:class="'px-3 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-1 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page > 1 && loadLeaderboardData(sort, mode, customMode, 1, country)">
+					<i class="fas fa-angles-left"></i>
+				</a>
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+(page-1)+'&c='+country"
+					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page <= 1 ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page > 1 && loadLeaderboardData(sort, mode, customMode, page - 1, country)">
+					<i class="fas fa-chevron-left"></i> Previous
+				</a>
+				<span class="px-4 py-2 bg-primary/10 rounded-lg border border-primary/30 text-sm">
+					Page <span class="text-primary font-bold">{{ v "page" }}</span> of <span class="text-primary font-bold">{{ v "totalPages" }}</span>
+				</span>
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+(page+1)+'&c='+country"
+					:class="'px-4 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-2 ' + (page >= totalPages ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page < totalPages && loadLeaderboardData(sort, mode, customMode, page + 1, country)">
+					Next <i class="fas fa-chevron-right"></i>
+				</a>
+				<a :href="'/leaderboard?m='+mode+'&sort='+sort+'&cm='+customMode+'&p='+totalPages+'&c='+country"
+					:class="'px-3 py-2 rounded-lg border transition-all text-sm font-medium flex items-center gap-1 ' + (page >= totalPages ? 'opacity-50 cursor-not-allowed bg-dark-card border-dark-border text-gray-500' : 'bg-dark-card border-dark-border text-gray-300 hover:border-primary hover:text-primary')"
+					@click.prevent="page < totalPages && loadLeaderboardData(sort, mode, customMode, totalPages, country)">
+					<i class="fas fa-angles-right"></i>
+				</a>
+			</div>
+			<p class="text-gray-400 text-sm hidden sm:block">
+				<i class="fas fa-users mr-1"></i>Showing <span class="text-white font-medium">{{ v "data.length" }}</span> of <span class="text-white font-medium">{{ v "totalUsers" }}</span> players
+			</p>
 		</div>
 	</div>
 </div>

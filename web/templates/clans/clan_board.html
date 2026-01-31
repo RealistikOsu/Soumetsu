@@ -167,23 +167,39 @@ AdditionalJS=/static/vue/pages/clanboard.js
 			</div>
 		</div>
 
-		<!-- Pagination -->
+		<!-- Top Pagination -->
 		<div class="flex items-center justify-between mb-6">
-			<button class="btn-secondary"
-				:disabled="page <= 1"
-				:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
-				@click.prevent="page > 1 && loadClanboardData(mode, customMode, page - 1)">
-				<i class="fas fa-chevron-left mr-2"></i>
-				Previous
-			</button>
-			<span class="text-gray-300">Page {{ v "page" }}</span>
-			<button class="btn-secondary"
-				:disabled="data.length < 50"
-				:class="{ 'opacity-50 cursor-not-allowed': data.length < 50 }"
-				@click.prevent="data.length >= 50 && loadClanboardData(mode, customMode, page + 1)">
-				Next
-				<i class="fas fa-chevron-right ml-2"></i>
-			</button>
+			<div class="flex items-center gap-2">
+				<button class="btn-secondary px-3"
+					:disabled="page <= 1"
+					:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
+					@click.prevent="page > 1 && loadClanboardData(mode, customMode, 1)">
+					<i class="fas fa-angles-left"></i>
+				</button>
+				<button class="btn-secondary"
+					:disabled="page <= 1"
+					:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
+					@click.prevent="page > 1 && loadClanboardData(mode, customMode, page - 1)">
+					<i class="fas fa-chevron-left mr-2"></i>
+					Previous
+				</button>
+			</div>
+			<span class="text-gray-300">Page <span class="text-primary font-bold">{{ v "page" }}</span> of <span class="text-primary font-bold">{{ v "totalPages" }}</span></span>
+			<div class="flex items-center gap-2">
+				<button class="btn-secondary"
+					:disabled="page >= totalPages"
+					:class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+					@click.prevent="page < totalPages && loadClanboardData(mode, customMode, page + 1)">
+					Next
+					<i class="fas fa-chevron-right ml-2"></i>
+				</button>
+				<button class="btn-secondary px-3"
+					:disabled="page >= totalPages"
+					:class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+					@click.prevent="page < totalPages && loadClanboardData(mode, customMode, totalPages)">
+					<i class="fas fa-angles-right"></i>
+				</button>
+			</div>
 		</div>
 
 		<!-- Clan List -->
@@ -238,6 +254,41 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</tr>
 					</tbody>
 				</table>
+			</div>
+		</div>
+
+		<!-- Bottom Pagination -->
+		<div class="flex items-center justify-between mt-6" v-if="!loading && data.length > 0">
+			<div class="flex items-center gap-2">
+				<button class="btn-secondary px-3"
+					:disabled="page <= 1"
+					:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
+					@click.prevent="page > 1 && loadClanboardData(mode, customMode, 1)">
+					<i class="fas fa-angles-left"></i>
+				</button>
+				<button class="btn-secondary"
+					:disabled="page <= 1"
+					:class="{ 'opacity-50 cursor-not-allowed': page <= 1 }"
+					@click.prevent="page > 1 && loadClanboardData(mode, customMode, page - 1)">
+					<i class="fas fa-chevron-left mr-2"></i>
+					Previous
+				</button>
+			</div>
+			<span class="text-gray-300">Page <span class="text-primary font-bold">{{ v "page" }}</span> of <span class="text-primary font-bold">{{ v "totalPages" }}</span></span>
+			<div class="flex items-center gap-2">
+				<button class="btn-secondary"
+					:disabled="page >= totalPages"
+					:class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+					@click.prevent="page < totalPages && loadClanboardData(mode, customMode, page + 1)">
+					Next
+					<i class="fas fa-chevron-right ml-2"></i>
+				</button>
+				<button class="btn-secondary px-3"
+					:disabled="page >= totalPages"
+					:class="{ 'opacity-50 cursor-not-allowed': page >= totalPages }"
+					@click.prevent="page < totalPages && loadClanboardData(mode, customMode, totalPages)">
+					<i class="fas fa-angles-right"></i>
+				</button>
 			</div>
 		</div>
 	</div>
