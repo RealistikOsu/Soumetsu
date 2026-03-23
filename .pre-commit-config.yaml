@@ -8,7 +8,7 @@ repos:
         language: system
         files: \.(js|vue)$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
   # golangci-lint for Go
   - repo: local
@@ -19,7 +19,7 @@ repos:
         language: system
         files: \.go$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
   # Prettier for formatting
   - repo: local
@@ -29,7 +29,7 @@ repos:
         entry: npx prettier --write --ignore-unknown
         language: system
         files: \.(js|css|json|md|yaml|yml)$
-        stages: [commit]
+        stages: [pre-commit]
 
   # Go formatting
   - repo: local
@@ -39,7 +39,7 @@ repos:
         entry: gofmt -w
         language: system
         files: \.go$
-        stages: [commit]
+        stages: [pre-commit]
 
   # Go imports
   - repo: local
@@ -49,19 +49,19 @@ repos:
         entry: goimports -w
         language: system
         files: \.go$
-        stages: [commit]
+        stages: [pre-commit]
 
   # Prevent secrets from being committed
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.30.0
     hooks:
       - id: gitleaks
         name: Detect secrets
-        stages: [commit]
+        stages: [pre-commit]
 
   # Check for large files
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
         args: ['--maxkb=500']
