@@ -156,7 +156,7 @@ func (a *App) initTemplates() error {
 		templatesDir = filepath.Join(wd, "web", "templates")
 	}
 
-	funcMap := templates.FuncMap(a.CSRF)
+	funcMap := templates.FuncMap(a.CSRF, a.DB.DB)
 	engine := templates.NewEngine(templatesDir, funcMap)
 
 	if err := engine.Load(); err != nil {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"math"
 	"math/rand"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/RealistikOsu/soumetsu/internal/pkg/bbcode"
 	"github.com/dustin/go-humanize"
+	"github.com/jmoiron/sqlx"
 	"github.com/russross/blackfriday"
 	"zxq.co/ripple/playstyle"
 )
@@ -34,7 +36,81 @@ type CSRFService interface {
 	Generate(userID int) (string, error)
 }
 
-func FuncMap(csrfService CSRFService) template.FuncMap {
+// DBValue wraps a raw column value coming back from `qb`. It exposes typed
+// accessors so templates can write `$row.col.Bool` / `.Int` / `.String`
+// regardless of the underlying SQL type. Implements fmt.Stringer so
+// bare `{{ $row.col }}` interpolations print sensibly.
+type DBValue struct {
+	raw interface{}
+}
+
+func (v DBValue) String() string {
+	if v.raw == nil {
+		return ""
+	}
+	switch r := v.raw.(type) {
+	case string:
+		return r
+	case []byte:
+		return string(r)
+	case int64:
+		return strconv.FormatInt(r, 10)
+	case float64:
+		return strconv.FormatFloat(r, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(r)
+	case time.Time:
+		return r.Format(time.RFC3339)
+	default:
+		return fmt.Sprint(r)
+	}
+}
+
+func (v DBValue) Int() int64 {
+	if v.raw == nil {
+		return 0
+	}
+	switch r := v.raw.(type) {
+	case int64:
+		return r
+	case []byte:
+		n, _ := strconv.ParseInt(string(r), 10, 64)
+		return n
+	case string:
+		n, _ := strconv.ParseInt(r, 10, 64)
+		return n
+	case float64:
+		return int64(r)
+	case bool:
+		if r {
+			return 1
+		}
+		return 0
+	default:
+		return 0
+	}
+}
+
+func (v DBValue) Bool() bool {
+	if v.raw == nil {
+		return false
+	}
+	switch r := v.raw.(type) {
+	case bool:
+		return r
+	case int64:
+		return r != 0
+	case []byte:
+		s := string(r)
+		return s != "" && s != "0" && s != "false"
+	case string:
+		return r != "" && r != "0" && r != "false"
+	default:
+		return false
+	}
+}
+
+func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 	return template.FuncMap{
 		"html": func(value interface{}) template.HTML {
 			return template.HTML(fmt.Sprint(value))
@@ -392,12 +468,33 @@ func FuncMap(csrfService CSRFService) template.FuncMap {
 			return fmt.Sprintf("%02dh %02dm", int(math.Floor(seconds/3600)), int(math.Floor(seconds/60))%60)
 		},
 		"stringLower": strings.ToLower,
-		"qb": func(query string, args ...interface{}) map[string]interface{} {
-			return map[string]interface{}{
-				"frozen": map[string]interface{}{
-					"Bool": false,
-				},
+		// qb runs a SQL query against the primary MySQL connection and returns
+		// the first row as map[col]DBValue, or nil if no rows / error. Templates
+		// use this to inline simple lookups (e.g. system_settings flags, per-user
+		// state) without round-tripping through the API layer.
+		"qb": func(query string, args ...interface{}) map[string]DBValue {
+			if db == nil {
+				return nil
 			}
+			rows, err := db.Queryx(query, args...)
+			if err != nil {
+				slog.Error("template qb query failed", "query", query, "error", err)
+				return nil
+			}
+			defer rows.Close()
+			if !rows.Next() {
+				return nil
+			}
+			raw := make(map[string]interface{})
+			if err := rows.MapScan(raw); err != nil {
+				slog.Error("template qb scan failed", "query", query, "error", err)
+				return nil
+			}
+			out := make(map[string]DBValue, len(raw))
+			for k, val := range raw {
+				out[k] = DBValue{raw: val}
+			}
+			return out
 		},
 		"rediget": func(key string) string {
 			return "0"
