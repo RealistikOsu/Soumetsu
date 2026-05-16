@@ -240,38 +240,9 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) VerifyAccountPage(w http.ResponseWriter, r *http.Request) {
-	reqCtx := apicontext.GetRequestContextFromRequest(r)
-	if reqCtx.User.ID != 0 {
-		h.templates.Forbidden(w, r)
-		return
-	}
-
-	userID, valid := h.validateIdentityCookie(r)
-	if !valid {
-		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
-	user, err := h.apiClient.GetUser(r.Context(), userID, 0, 0)
-	if err != nil || user == nil {
-		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
-	if user.User.Privileges&int(models.UserPrivilegePendingVerification) == 0 {
-		sess, _ := h.store.Get(r, "session")
-		h.addMessage(sess, models.NewWarning("Invalid or expired session."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
+	// Public — the page is informational ("here's how to verify in-game").
+	// A newly registered user has no session yet, so we can't gate on anything
+	// meaningful anyway.
 	h.templates.Render(w, "auth/register/verify.html", &response.TemplateData{
 		TitleBar:       "Verify account",
 		HeadingOnRight: true,

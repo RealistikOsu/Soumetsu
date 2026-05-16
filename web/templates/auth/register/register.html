@@ -145,15 +145,15 @@
 			function check(input) {
 				const submit_btn = document.getElementById("THESUBMIT")
 				if (input.value != document.getElementById('password').value) {
-					if (!window.isDisplayed) {
-						showMessage("warning", "Both password values must match!");
-						window.isDisplayed = true;
+					if (!window.passwordMismatchEl) {
+						window.passwordMismatchEl = showMessage("warning", "Both password values must match!");
 						submit_btn.disabled = true;
 					}
 				} else {
-					const elements = document.getElementsByClassName("ui icon message black warning");
-					while (elements.length > 0) elements[0].remove();
-					window.isDisplayed = false;
+					if (window.passwordMismatchEl) {
+						window.passwordMismatchEl.remove();
+						window.passwordMismatchEl = null;
+					}
 					submit_btn.disabled = false;
 				}
 			}

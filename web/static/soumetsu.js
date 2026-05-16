@@ -209,6 +209,7 @@ function showMessage(type, message) {
   newEl.find('.close-btn').click(closeClosestMessage);
   $('#messages-container').append(newEl);
   newEl.slideDown(300);
+  return newEl;
 }
 
 // function for all api calls

@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"math"
 	"math/rand"
+	"net/url"
 	"os"
 	"reflect"
 	"sort"
@@ -468,6 +469,15 @@ func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 			return fmt.Sprintf("%02dh %02dm", int(math.Floor(seconds/3600)), int(math.Floor(seconds/60))%60)
 		},
 		"stringLower": strings.ToLower,
+		// domain extracts the host portion of a URL. Used for rendering
+		// `-devserver <domain>` instructions when only a full BaseURL is in config.
+		"domain": func(rawURL string) string {
+			u, err := url.Parse(rawURL)
+			if err != nil || u.Host == "" {
+				return rawURL
+			}
+			return u.Host
+		},
 		// qb runs a SQL query against the primary MySQL connection and returns
 		// the first row as map[col]DBValue, or nil if no rows / error. Templates
 		// use this to inline simple lookups (e.g. system_settings flags, per-user
