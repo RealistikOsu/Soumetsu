@@ -26,7 +26,7 @@ DisableHH=true
 						<div class="flex items-start gap-3">
 							<i class="fas fa-exclamation-triangle text-red-400 text-xl mt-0.5"></i>
 							<p class="text-gray-200">
-								We see that you're trying to sign up while having already signed up as %s! Please note that multiaccounting is punishable, and can lead to a one month restriction!
+								We see that you're trying to sign up while having already signed up as {{ $username }}! Please note that multiaccounting is punishable, and can lead to a one month restriction!
 							</p>
 						</div>
 					</div>
@@ -38,7 +38,7 @@ DisableHH=true
 								<i class="fas fa-user text-yellow-400"></i>
 							</div>
 							<p class="text-gray-300 text-sm">
-								If you're %s, keep in mind that multiaccounting = ban.
+								If you're {{ $username }}, keep in mind that multiaccounting = ban.
 							</p>
 						</div>
 
@@ -47,7 +47,7 @@ DisableHH=true
 								<i class="fas fa-desktop text-blue-400"></i>
 							</div>
 							<p class="text-gray-300 text-sm">
-								If you're not %s, but you're using %s's computer, please sign up on RealistikOsu! from your own computer.
+								If you're not {{ $username }}, but you're using {{ $username }}'s computer, please sign up on RealistikOsu! from your own computer.
 							</p>
 						</div>
 
@@ -56,7 +56,7 @@ DisableHH=true
 								<i class="fab fa-discord text-purple-400"></i>
 							</div>
 							<p class="text-gray-300 text-sm">
-								If you live with %s and you don't have your own computer from which to sign up on RealistikOsu!, then please contact one of the staff member on our
+								If you live with {{ $username }} and you don't have your own computer from which to sign up on RealistikOsu!, then please contact one of the staff member on our
 								<a href="{{ config "DISCORD_SERVER_URL" .Conf }}" class="text-primary hover:underline">Discord server</a>,  and we'll deal with your specific case.
 							</p>
 						</div>
@@ -67,7 +67,7 @@ DisableHH=true
 						<div class="flex items-start gap-3">
 							<i class="fas fa-wifi text-gray-400"></i>
 							<p class="text-gray-400 text-sm">
-								This warning may pop up also if you're using another computer on the same network of %s. As long as you're not using the same computer, you should be all good.
+								This warning may pop up also if you're using another computer on the same network of {{ $username }}. As long as you're not using the same computer, you should be all good.
 							</p>
 						</div>
 					</div>
