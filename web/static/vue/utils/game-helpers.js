@@ -5,72 +5,28 @@
  * These are exposed globally as SoumetsuGameHelpers.
  */
 
+const SILVER_RANK_ACRONYMS = new Set(['HD', 'FL', 'FI']);
+const SPEED_CHANGE_ACRONYMS = new Set(['DT', 'HT', 'NC']);
+const CANONICAL_SPEED_RATES = { DT: 1.5, NC: 1.5, HT: 0.75 };
+
+function formatModToken(mod) {
+  const acronym = mod.acronym;
+  if (!SPEED_CHANGE_ACRONYMS.has(acronym)) {
+    return acronym;
+  }
+  const rate = mod.settings && mod.settings.speed_change;
+  const canonical = CANONICAL_SPEED_RATES[acronym];
+  if (typeof rate !== 'number' || Math.abs(rate - canonical) < 0.01) {
+    return acronym;
+  }
+  return `${acronym}(${rate}x)`;
+}
+
 const SoumetsuGameHelpers = {
-  /**
-   * Standard mod bitmask map
-   */
-  MODS: {
-    NF: 1,
-    EZ: 2,
-    TD: 4,
-    HD: 8,
-    HR: 16,
-    SD: 32,
-    DT: 64,
-    RX: 128,
-    HT: 256,
-    NC: 512,
-    FL: 1024,
-    AU: 2048,
-    SO: 4096,
-    AP: 8192,
-    PF: 16384,
-  },
-
-  /**
-   * Extended mod bitmask map (includes mania key mods)
-   */
-  MODS_EXTENDED: {
-    NF: 1,
-    EZ: 2,
-    TD: 4,
-    HD: 8,
-    HR: 16,
-    SD: 32,
-    DT: 64,
-    RX: 128,
-    HT: 256,
-    NC: 512,
-    FL: 1024,
-    AU: 2048,
-    SO: 4096,
-    AP: 8192,
-    PF: 16384,
-    K4: 32768,
-    K5: 65536,
-    K6: 131072,
-    K7: 262144,
-    K8: 524288,
-    FI: 1048576,
-    RN: 2097152,
-    LM: 4194304,
-    K9: 16777216,
-    K1: 33554432,
-    K3: 67108864,
-    K2: 134217728,
-    S2: 536870912,
-    MR: 1073741824,
-  },
-
-  /**
-   * HD + FL + FI bitmask for silver ranks
-   */
-  HDFL_MASK: 1049608,
-
   /**
    * Get the rank grade for a score
    * @param {number} mode - Game mode (0=std, 1=taiko, 2=ctb, 3=mania)
-   * @param {number} mods - Mods bitmask
+   * @param {Array<{acronym: string, settings?: object}>} mods - Mods array
    * @param {number} acc - Accuracy (0-100)
    * @param {number} c300 - Count 300
    * @param {number} c100 - Count 100
@@ -89,7 +45,7 @@ const SoumetsuGameHelpers = {
       return 'D';
     }
 
-    const hdfl = (mods & this.HDFL_MASK) > 0;
+    const hdfl = Array.isArray(mods) && mods.some((m) => SILVER_RANK_ACRONYMS.has(m.acronym));
     const ss = hdfl ? 'SS+' : 'SS';
     const s = hdfl ? 'S+' : 'S';
 
@@ -159,63 +115,36 @@ const SoumetsuGameHelpers = {
   },
 
   /**
-   * Convert mods bitmask to string representation
-   * @param {number} mods - Mods bitmask
-   * @param {boolean} extended - Include mania key mods
-   * @returns {string} Mod string (e.g., "HDDT" or "None")
+   * Convert a mods array to display string.
+   * Filters out CL (Classic) since it's the stable-client implicit default.
+   * Speed-changing mods (DT/HT/NC) get a "(<rate>x)" suffix only when the
+   * speed differs from the canonical rate for that mod.
+   * @param {Array<{acronym: string, settings?: object}>} mods
+   * @returns {string} Mod string (e.g., "HDDT", "DT(1.2x)", or "None")
    */
-  getScoreMods(mods, extended = false) {
-    if (!mods) {
-      return 'None';
-    }
-
-    const modMap = extended ? { ...this.MODS_EXTENDED } : { ...this.MODS };
-    const playmods = [];
-
-    // NC includes DT, only show NC
-    if (mods & modMap.NC) {
-      playmods.push('NC');
-      modMap.NC = 0;
-      modMap.DT = 0;
-    } else if (mods & modMap.DT) {
-      playmods.push('DT');
-      modMap.NC = 0;
-      modMap.DT = 0;
-    }
-
-    // PF includes SD, only show PF
-    if (mods & modMap.PF) {
-      playmods.push('PF');
-      modMap.PF = 0;
-      modMap.SD = 0;
-    } else if (mods & modMap.SD) {
-      playmods.push('SD');
-      modMap.PF = 0;
-      modMap.SD = 0;
-    }
-
-    for (const [mod, value] of Object.entries(modMap)) {
-      if (value !== 0 && mods & value) {
-        playmods.push(mod);
-      }
-    }
-
-    return playmods.length ? playmods.join('') : 'None';
+  getScoreMods(mods) {
+    const tokens = this.getScoreModsArray(mods);
+    return tokens.length ? tokens.join('') : 'None';
   },
 
   /**
-   * Get mods as an array instead of string
-   * @param {number} mods - Mods bitmask
-   * @param {boolean} extended - Include mania key mods
-   * @returns {string[]} Array of mod names
+   * Get displayable mod tokens as an array (CL filtered out).
+   * Each token is the display string for one mod, e.g. "HD" or "DT(1.2x)".
+   * @param {Array<{acronym: string, settings?: object}>} mods
+   * @returns {string[]}
    */
-  getScoreModsArray(mods, extended = false) {
-    const modStr = this.getScoreMods(mods, extended);
-    if (modStr === 'None') {
+  getScoreModsArray(mods) {
+    if (!Array.isArray(mods)) {
       return [];
     }
-    // Split every 2 characters (mod names are 2 chars)
-    return modStr.match(/.{1,2}/g) || [];
+    const tokens = [];
+    for (const mod of mods) {
+      if (!mod || mod.acronym === 'CL') {
+        continue;
+      }
+      tokens.push(formatModToken(mod));
+    }
+    return tokens;
   },
 
   /**

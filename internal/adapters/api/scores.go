@@ -6,6 +6,16 @@ import (
 	"strconv"
 )
 
+type ModSettings struct {
+	SpeedChange float64 `json:"speed_change"`
+	AdjustPitch bool    `json:"adjust_pitch"`
+}
+
+type Mod struct {
+	Acronym  string       `json:"acronym"`
+	Settings *ModSettings `json:"settings,omitempty"`
+}
+
 type Score struct {
 	ID          int64   `json:"id"`
 	BeatmapID   int     `json:"beatmap_id"`
@@ -15,7 +25,7 @@ type Score struct {
 	Accuracy    float64 `json:"accuracy"`
 	MaxCombo    int     `json:"max_combo"`
 	FullCombo   bool    `json:"full_combo"`
-	Mods        int     `json:"mods"`
+	Mods        []Mod   `json:"mods"`
 	Count300    int     `json:"count_300"`
 	Count100    int     `json:"count_100"`
 	Count50     int     `json:"count_50"`
