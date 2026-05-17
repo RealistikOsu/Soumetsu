@@ -34,8 +34,8 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 					</div>
 					<div class="mt-4">
-						<div v-if="data[1].icon && !data[1].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-gray-400/50 shadow-lg">
-							<img :src="data[1].icon" :alt="data[1].name" class="w-full h-full object-cover" @error="data[1].iconError = true">
+						<div v-if="!data[1].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-gray-400/50 shadow-lg">
+							<img :src="'/api/v2/clans/' + data[1].id + '/icon'" :alt="data[1].name" class="w-full h-full object-cover" @error="data[1].iconError = true">
 						</div>
 						<div v-else class="w-16 h-16 rounded-xl border-4 border-gray-400/50 shadow-lg bg-dark-card flex items-center justify-center mx-auto">
 							<i class="fas fa-users text-gray-400 text-2xl"></i>
@@ -59,8 +59,8 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 					</div>
 					<div class="mt-4">
-						<div v-if="data[0].icon && !data[0].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
-							<img :src="data[0].icon" :alt="data[0].name" class="w-full h-full object-cover" @error="data[0].iconError = true">
+						<div v-if="!data[0].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
+							<img :src="'/api/v2/clans/' + data[0].id + '/icon'" :alt="data[0].name" class="w-full h-full object-cover" @error="data[0].iconError = true">
 						</div>
 						<div v-else class="w-16 h-16 rounded-xl border-4 border-yellow-500/50 shadow-lg shadow-yellow-500/20 bg-dark-card flex items-center justify-center mx-auto">
 							<i class="fas fa-crown text-yellow-400 text-2xl"></i>
@@ -84,8 +84,8 @@ AdditionalJS=/static/vue/pages/clanboard.js
 						</div>
 					</div>
 					<div class="mt-4">
-						<div v-if="data[2].icon && !data[2].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
-							<img :src="data[2].icon" :alt="data[2].name" class="w-full h-full object-cover" @error="data[2].iconError = true">
+						<div v-if="!data[2].iconError" class="w-16 h-16 rounded-xl overflow-hidden border-4 border-orange-600/50 shadow-lg shadow-orange-500/20">
+							<img :src="'/api/v2/clans/' + data[2].id + '/icon'" :alt="data[2].name" class="w-full h-full object-cover" @error="data[2].iconError = true">
 						</div>
 						<div v-else class="w-16 h-16 rounded-xl border-4 border-orange-600/50 shadow-lg shadow-orange-500/20 bg-dark-card flex items-center justify-center mx-auto">
 							<i class="fas fa-medal text-orange-400 text-2xl"></i>
@@ -233,8 +233,8 @@ AdditionalJS=/static/vue/pages/clanboard.js
 							</td>
 							<td class="py-3 px-4">
 								<a :href="'/clans/' + clan.id" class="flex items-center gap-3 text-white hover:text-primary">
-									<div v-if="clan.icon && !clan.iconError" class="w-12 h-12 rounded-xl overflow-hidden border-2 border-dark-border shadow-lg">
-										<img :src="clan.icon" :alt="clan.name" class="w-full h-full object-cover" @error="clan.iconError = true">
+									<div v-if="!clan.iconError" class="w-12 h-12 rounded-xl overflow-hidden border-2 border-dark-border shadow-lg">
+										<img :src="'/api/v2/clans/' + clan.id + '/icon'" :alt="clan.name" class="w-full h-full object-cover" @error="clan.iconError = true">
 									</div>
 									<div v-else class="w-12 h-12 rounded-xl border-2 border-dark-border shadow-lg bg-dark-card flex items-center justify-center">
 										<i class="fas fa-users text-gray-400"></i>

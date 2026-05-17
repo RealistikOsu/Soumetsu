@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"io"
 	"strconv"
 )
 
@@ -11,7 +12,6 @@ type Clan struct {
 	Name        string `json:"name"`
 	Tag         string `json:"tag"`
 	Description string `json:"description"`
-	Icon        string `json:"icon"`
 	OwnerID     int    `json:"owner_id"`
 	CreatedAt   string `json:"created_at"`
 	MemberCount int    `json:"member_count"`
@@ -49,7 +49,6 @@ type UpdateClanRequest struct {
 	Name        *string `json:"name,omitempty"`
 	Tag         *string `json:"tag,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Icon        *string `json:"icon,omitempty"`
 }
 
 type ClanInviteResponse struct {
@@ -186,6 +185,25 @@ func (c *Client) GenerateClanInvite(ctx context.Context, token string, clanID in
 		return nil, err
 	}
 	return decodeResponse[ClanInviteResponse](resp)
+}
+
+func (c *Client) UploadClanIcon(ctx context.Context, token string, clanID int, fileName string, fileContent io.Reader, contentType string) (*UploadResponse, error) {
+	path := fmt.Sprintf("/api/v2/clans/%d/icon", clanID)
+	resp, err := c.PostMultipart(ctx, path, "file", fileName, fileContent, contentType, token)
+	if err != nil {
+		return nil, err
+	}
+	return decodeResponse[UploadResponse](resp)
+}
+
+func (c *Client) DeleteClanIcon(ctx context.Context, token string, clanID int) error {
+	path := fmt.Sprintf("/api/v2/clans/%d/icon", clanID)
+	resp, err := c.Delete(ctx, path, token)
+	if err != nil {
+		return err
+	}
+	_, err = decodeResponse[any](resp)
+	return err
 }
 
 func (c *Client) GetClanLeaderboard(ctx context.Context, mode, customMode, page, limit int) ([]ClanResponse, error) {

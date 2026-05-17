@@ -42,7 +42,7 @@ DisableHH=true
 			<div class="card">
 				<h3 class="text-xl font-semibold mb-6">Clan Details</h3>
 
-				<form id="register-form" method="post" action="/clans/create" class="space-y-6">
+				<form id="register-form" method="post" action="/clans/create" enctype="multipart/form-data" class="space-y-6">
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
 							{{"Your clan may contain alphanumeric characters and these symbols <code>_[]-</code>" | html}}
@@ -83,12 +83,11 @@ DisableHH=true
 
 					<div>
 						<label class="block text-sm font-medium text-gray-300 mb-2">
-							Clan Logo [Link] (Optional)
+							Clan Icon (Optional, PNG/JPEG/GIF, ≤2MB)
 						</label>
-						<input type="url"
+						<input type="file"
 							name="icon"
-							placeholder="Clan Logo"
-							value="{{ .FormData.icon }}"
+							accept="image/png,image/jpeg,image/gif"
 							class="input-field"
 							tabindex="4">
 					</div>

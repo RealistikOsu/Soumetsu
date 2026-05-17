@@ -74,7 +74,7 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	sess, _ := h.store.Get(r, "session")
 
-	if err := r.ParseForm(); err != nil {
+	if err := r.ParseMultipartForm(2 << 20); err != nil {
 		h.createResp(w, r, models.NewError("Invalid form data."))
 		return
 	}
@@ -93,6 +93,18 @@ func (h *ClanHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 		h.templates.InternalError(w, r, err)
 		return
+	}
+
+	if iconFile, iconHeader, iconErr := r.FormFile("icon"); iconErr == nil {
+		defer iconFile.Close()
+		_, upErr := h.apiClient.UploadClanIcon(r.Context(), token, clan.ID, iconHeader.Filename, iconFile, iconHeader.Header.Get("Content-Type"))
+		if upErr != nil {
+			if apiErr, ok := upErr.(*api.APIError); ok {
+				h.addMessage(sess, models.NewWarning("Clan created, but icon upload failed: "+apiErr.Code))
+			} else {
+				h.addMessage(sess, models.NewWarning("Clan created, but icon upload failed."))
+			}
+		}
 	}
 
 	h.addMessage(sess, models.NewSuccess("Clan created."))
@@ -265,19 +277,15 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 
 	name := r.FormValue("name")
 	description := r.FormValue("description")
-	icon := r.FormValue("icon")
 	tag := r.FormValue("tag")
 
-	if name != "" || description != "" || icon != "" || tag != "" {
+	if name != "" || description != "" || tag != "" {
 		req := &api.UpdateClanRequest{}
 		if name != "" {
 			req.Name = &name
 		}
 		if description != "" {
 			req.Description = &description
-		}
-		if icon != "" {
-			req.Icon = &icon
 		}
 		if tag != "" {
 			req.Tag = &tag
@@ -309,6 +317,91 @@ func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.addMessage(sess, models.NewSuccess("Settings saved successfully."))
+	sess.Save(r, w)
+	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+}
+
+func (h *ClanHandler) UploadClanIcon(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	sess, _ := h.store.Get(r, "session")
+
+	if reqCtx.User.Clan == 0 || reqCtx.User.ClanOwner == 0 {
+		h.addMessage(sess, models.NewError("You must be a clan owner to change its icon."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+
+	if err := r.ParseMultipartForm(2 << 20); err != nil {
+		h.addMessage(sess, models.NewError("File too large. Maximum size is 2MB."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+
+	file, header, err := r.FormFile("icon")
+	if err != nil {
+		h.addMessage(sess, models.NewError("Please select an image to upload."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+	defer file.Close()
+
+	token, _ := sess.Values["token"].(string)
+
+	_, err = h.apiClient.UploadClanIcon(r.Context(), token, reqCtx.User.Clan, header.Filename, file, header.Header.Get("Content-Type"))
+	if err != nil {
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
+		} else {
+			h.addMessage(sess, models.NewError("Failed to upload clan icon."))
+		}
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+
+	h.addMessage(sess, models.NewSuccess("Clan icon updated."))
+	sess.Save(r, w)
+	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+}
+
+func (h *ClanHandler) RemoveClanIcon(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	sess, _ := h.store.Get(r, "session")
+
+	if reqCtx.User.Clan == 0 || reqCtx.User.ClanOwner == 0 {
+		h.addMessage(sess, models.NewError("You must be a clan owner to change its icon."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+
+	token, _ := sess.Values["token"].(string)
+
+	if err := h.apiClient.DeleteClanIcon(r.Context(), token, reqCtx.User.Clan); err != nil {
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
+		} else {
+			h.addMessage(sess, models.NewError("Failed to remove clan icon."))
+		}
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+		return
+	}
+
+	h.addMessage(sess, models.NewSuccess("Clan icon removed."))
 	sess.Save(r, w)
 	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
 }

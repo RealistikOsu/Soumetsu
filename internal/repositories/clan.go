@@ -18,7 +18,7 @@ func NewClanRepository(db *mysql.DB) *ClanRepository {
 
 func (r *ClanRepository) FindByID(ctx context.Context, id int) (*models.Clan, error) {
 	var clan models.Clan
-	err := r.db.GetContext(ctx, &clan, "SELECT id, name, tag, description, icon, mlimit FROM clans WHERE id = ?", id)
+	err := r.db.GetContext(ctx, &clan, "SELECT id, name, tag, description, mlimit FROM clans WHERE id = ?", id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -28,20 +28,20 @@ func (r *ClanRepository) FindByID(ctx context.Context, id int) (*models.Clan, er
 	return &clan, nil
 }
 
-func (r *ClanRepository) Create(ctx context.Context, name, tag, description, icon string) (int64, error) {
+func (r *ClanRepository) Create(ctx context.Context, name, tag, description string) (int64, error) {
 	result, err := r.db.ExecContext(ctx, `
-		INSERT INTO clans(name, description, icon, tag)
-		VALUES (?, ?, ?, ?)`, name, description, icon, tag)
+		INSERT INTO clans(name, description, tag)
+		VALUES (?, ?, ?)`, name, description, tag)
 	if err != nil {
 		return 0, err
 	}
 	return result.LastInsertId()
 }
 
-func (r *ClanRepository) Update(ctx context.Context, id int, name, description, icon, tag string) error {
+func (r *ClanRepository) Update(ctx context.Context, id int, name, description, tag string) error {
 	_, err := r.db.ExecContext(ctx, `
-		UPDATE clans SET name = ?, description = ?, icon = ?, tag = ?
-		WHERE id = ?`, name, description, icon, tag, id)
+		UPDATE clans SET name = ?, description = ?, tag = ?
+		WHERE id = ?`, name, description, tag, id)
 	return err
 }
 

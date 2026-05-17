@@ -79,6 +79,8 @@ func (a *App) Routes() chi.Router {
 		r.Post("/settings/clans/kick", a.ClanHandler.Kick)
 		r.Get("/settings/clans/manage", a.ClanHandler.ManagePage)
 		r.Post("/settings/clans/manage", a.ClanHandler.UpdateClan)
+		r.Post("/settings/clans/icon", a.ClanHandler.UploadClanIcon)
+		r.Post("/settings/clans/icon/remove", a.ClanHandler.RemoveClanIcon)
 
 		r.Post("/settings/clan", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/settings/clans/invite", http.StatusTemporaryRedirect)

@@ -5,7 +5,6 @@ type Clan struct {
 	Name        string `db:"name"`
 	Tag         string `db:"tag"`
 	Description string `db:"description"`
-	Icon        string `db:"icon"`
 	MemberLimit int    `db:"mlimit"`
 }
 
