@@ -110,6 +110,14 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				}
 			}
 
+			logoutKey, _ := sess.Values["logout"].(string)
+			if logoutKey == "" {
+				logoutKey = crypto.GenerateLogoutKey()
+				sess.Values["logout"] = logoutKey
+				sess.Save(r, w)
+			}
+			reqCtx.LogoutKey = logoutKey
+
 			ctx := apicontext.WithRequestContext(r.Context(), reqCtx)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

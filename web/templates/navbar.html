@@ -180,7 +180,7 @@
 								Settings
 							</a>
 							<hr class="my-2 border-dark-border">
-							<a href="/logout?k={{ .Session.Get "logout" }}"
+							<a href="/logout?k={{ .Context.LogoutKey }}"
 								class="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-border/50 transition-colors">
 								<i class="fas fa-sign-out-alt w-4"></i>
 								Logout

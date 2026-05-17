@@ -16,8 +16,9 @@ const (
 )
 
 type RequestContext struct {
-	User  models.SessionUser
-	Token string
+	User      models.SessionUser
+	Token     string
+	LogoutKey string
 }
 
 func WithRequestContext(ctx context.Context, reqCtx *RequestContext) context.Context {
