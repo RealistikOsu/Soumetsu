@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -206,43 +207,9 @@ func (h *ClanHandler) JoinInvite(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/clans/"+strconv.Itoa(clan.ID), http.StatusFound)
 }
 
-func (h *ClanHandler) Kick(w http.ResponseWriter, r *http.Request) {
-	reqCtx := apicontext.GetRequestContextFromRequest(r)
-	if reqCtx.User.ID == 0 {
-		h.templates.Forbidden(w, r)
-		return
-	}
-
-	sess, _ := h.store.Get(r, "session")
-
-	if err := r.ParseForm(); err != nil {
-		h.addMessage(sess, models.NewError("Invalid form data."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	token, _ := sess.Values["token"].(string)
-	memberID, _ := strconv.Atoi(r.FormValue("member"))
-	clanID := reqCtx.User.Clan
-
-	err := h.apiClient.KickClanMember(r.Context(), token, clanID, memberID)
-	if err != nil {
-		if apiErr, ok := err.(*api.APIError); ok {
-			h.addMessage(sess, models.NewError(apiErr.Code))
-		} else {
-			h.addMessage(sess, models.NewError("An unexpected error occurred."))
-		}
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	h.addMessage(sess, models.NewSuccess("Member has been removed."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-}
-
+// ManagePage renders the clan settings shell at /clans/{id}/settings.
+// All mutations on this page happen client-side via clan-settings.js, so this
+// handler only loads data and gates access — non-owners get a 403.
 func (h *ClanHandler) ManagePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {
@@ -250,160 +217,48 @@ func (h *ClanHandler) ManagePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.templates.Render(w, "settings/clans/manage.html", &response.TemplateData{
-		TitleBar: "Manage Clan",
-		Context:  reqCtx,
-	})
-}
+	clanID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil || clanID <= 0 {
+		h.templates.NotFound(w, r)
+		return
+	}
 
-func (h *ClanHandler) UpdateClan(w http.ResponseWriter, r *http.Request) {
-	reqCtx := apicontext.GetRequestContextFromRequest(r)
-	if reqCtx.User.ID == 0 {
+	if reqCtx.User.Clan != clanID || reqCtx.User.ClanOwner == 0 {
 		h.templates.Forbidden(w, r)
 		return
 	}
 
 	sess, _ := h.store.Get(r, "session")
-
-	if err := r.ParseForm(); err != nil {
-		h.addMessage(sess, models.NewError("Invalid form data."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	token, _ := sess.Values["token"].(string)
-	clanID := reqCtx.User.Clan
-
-	name := r.FormValue("name")
-	description := r.FormValue("description")
-	tag := r.FormValue("tag")
-
-	if name != "" || description != "" || tag != "" {
-		req := &api.UpdateClanRequest{}
-		if name != "" {
-			req.Name = &name
-		}
-		if description != "" {
-			req.Description = &description
-		}
-		if tag != "" {
-			req.Tag = &tag
-		}
-
-		err := h.apiClient.UpdateClan(r.Context(), token, clanID, req)
-		if err != nil {
-			if apiErr, ok := err.(*api.APIError); ok {
-				h.addMessage(sess, models.NewError(apiErr.Code))
-			} else {
-				h.addMessage(sess, models.NewError("An unexpected error occurred."))
-			}
-			sess.Save(r, w)
-			http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-			return
-		}
-	} else {
-		_, err := h.apiClient.GenerateClanInvite(r.Context(), token, clanID)
-		if err != nil {
-			if apiErr, ok := err.(*api.APIError); ok {
-				h.addMessage(sess, models.NewError(apiErr.Code))
-			} else {
-				h.addMessage(sess, models.NewError("An unexpected error occurred."))
-			}
-			sess.Save(r, w)
-			http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-			return
-		}
-	}
-
-	h.addMessage(sess, models.NewSuccess("Settings saved successfully."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-}
-
-func (h *ClanHandler) UploadClanIcon(w http.ResponseWriter, r *http.Request) {
-	reqCtx := apicontext.GetRequestContextFromRequest(r)
-	if reqCtx.User.ID == 0 {
-		h.redirectToLogin(w, r)
-		return
-	}
-
-	sess, _ := h.store.Get(r, "session")
-
-	if reqCtx.User.Clan == 0 || reqCtx.User.ClanOwner == 0 {
-		h.addMessage(sess, models.NewError("You must be a clan owner to change its icon."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	if err := r.ParseMultipartForm(2 << 20); err != nil {
-		h.addMessage(sess, models.NewError("File too large. Maximum size is 2MB."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	file, header, err := r.FormFile("icon")
-	if err != nil {
-		h.addMessage(sess, models.NewError("Please select an image to upload."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-	defer file.Close()
-
 	token, _ := sess.Values["token"].(string)
 
-	_, err = h.apiClient.UploadClanIcon(r.Context(), token, reqCtx.User.Clan, header.Filename, file, header.Header.Get("Content-Type"))
-	if err != nil {
-		if apiErr, ok := err.(*api.APIError); ok {
-			h.addMessage(sess, models.NewError(apiErr.Code))
-		} else {
-			h.addMessage(sess, models.NewError("Failed to upload clan icon."))
-		}
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+	clan, err := h.apiClient.GetClan(r.Context(), clanID)
+	if err != nil || clan == nil {
+		h.templates.NotFound(w, r)
 		return
 	}
 
-	h.addMessage(sess, models.NewSuccess("Clan icon updated."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-}
-
-func (h *ClanHandler) RemoveClanIcon(w http.ResponseWriter, r *http.Request) {
-	reqCtx := apicontext.GetRequestContextFromRequest(r)
-	if reqCtx.User.ID == 0 {
-		h.redirectToLogin(w, r)
-		return
+	var inviteCode string
+	if invite, err := h.apiClient.GetClanInvite(r.Context(), token, clanID); err == nil && invite != nil {
+		inviteCode = invite.InviteCode
 	}
 
-	sess, _ := h.store.Get(r, "session")
-
-	if reqCtx.User.Clan == 0 || reqCtx.User.ClanOwner == 0 {
-		h.addMessage(sess, models.NewError("You must be a clan owner to change its icon."))
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
+	inviteURL := ""
+	if inviteCode != "" {
+		inviteURL = strings.TrimRight(h.config.App.BaseURL, "/") + "/clans/invites/" + inviteCode
 	}
 
-	token, _ := sess.Values["token"].(string)
+	members, _ := h.apiClient.GetClanMembers(r.Context(), clanID, 1, 100)
 
-	if err := h.apiClient.DeleteClanIcon(r.Context(), token, reqCtx.User.Clan); err != nil {
-		if apiErr, ok := err.(*api.APIError); ok {
-			h.addMessage(sess, models.NewError(apiErr.Code))
-		} else {
-			h.addMessage(sess, models.NewError("Failed to remove clan icon."))
-		}
-		sess.Save(r, w)
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
-		return
-	}
-
-	h.addMessage(sess, models.NewSuccess("Clan icon removed."))
-	sess.Save(r, w)
-	http.Redirect(w, r, "/settings/clans/manage", http.StatusFound)
+	h.templates.RenderWithRequest(w, r, "clans/clan_settings.html", &response.TemplateData{
+		TitleBar: "Manage " + clan.Name,
+		Context:  reqCtx,
+		Extra: map[string]interface{}{
+			"Clan":       clan,
+			"InviteURL":  inviteURL,
+			"InviteCode": inviteCode,
+			"Members":    members,
+		},
+	})
 }
 
 func (h *ClanHandler) createResp(w http.ResponseWriter, r *http.Request, messages ...models.Message) {

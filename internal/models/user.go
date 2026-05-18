@@ -74,6 +74,12 @@ func (u SessionUser) OnlyUserPublic() string {
 	return fmt.Sprintf("(users.privileges & 1 = 1 OR users.id = '%d')", u.ID)
 }
 
+// Clan perm bitmask, matching CLAN_PERM_* in soumetsu-api.
+const (
+	ClanPermMember = 1
+	ClanPermOwner  = 2
+)
+
 type ClanMembership struct {
 	UserID    int `db:"user"`
 	ClanID    int `db:"clan"`
@@ -81,7 +87,7 @@ type ClanMembership struct {
 }
 
 func (m ClanMembership) IsClanOwner() bool {
-	return m.ClanPerms == 8
+	return m.ClanPerms == ClanPermOwner
 }
 
 type UserStats struct {

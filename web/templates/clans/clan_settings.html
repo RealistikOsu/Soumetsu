@@ -1,161 +1,241 @@
 {{/*###
-Handler=/settings/clans/manage
-KyutGrill=settings2.jpg
+KyutGrill=clans.jpg
 DisableHH=true
 */}}
 {{ define "tpl" }}
-{{ $ := . }}
-<div class="relative min-h-screen py-8">
+{{ $clan := .Extra.Clan }}
+{{ $inviteURL := .Extra.InviteURL }}
+{{ $inviteCode := .Extra.InviteCode }}
+{{ $members := .Extra.Members }}
+
+<div id="clan-settings-root" class="relative min-h-screen py-8" data-clan-id="{{ $clan.ID }}">
 	<!-- Background with blur -->
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-			style="background-image: url('/static/headers/settings2.jpg');"></div>
+			style="background-image: url('/static/headers/clans.jpg');"></div>
 		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
 	</div>
 
-	<div class="container mx-auto px-4 max-w-4xl">
-		<!-- Header -->
-		<div class="flex items-center gap-4 mb-8">
-			<div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
-				<i class="fas fa-cog text-purple-400 text-2xl"></i>
-			</div>
-			<div>
-				<h1 class="text-4xl font-display font-bold text-white">Manage Clan</h1>
-				<p class="text-gray-400">Update your clan settings</p>
+	<div class="container mx-auto px-4 max-w-6xl space-y-6">
+		<!-- Header card -->
+		<div class="card overflow-hidden relative">
+			<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-purple-500/15 pointer-events-none"></div>
+			<div class="relative flex items-center gap-4">
+				<img src="/api/v2/clans/{{ $clan.ID }}/icon"
+					alt="Clan icon"
+					data-clan-icon
+					class="w-16 h-16 rounded-2xl border border-dark-border object-cover shadow-lg shadow-primary/20"
+					onerror="this.style.visibility='hidden'">
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-3 text-sm text-primary font-semibold uppercase tracking-wider">
+						<span id="clan-tag-badge">[{{ $clan.Tag }}]</span>
+						<span class="text-gray-500">·</span>
+						<span class="text-gray-500 font-normal">{{ $clan.MemberCount }} member{{ if ne $clan.MemberCount 1 }}s{{ end }}</span>
+					</div>
+					<h1 id="clan-name-heading" class="text-3xl font-display font-bold text-white truncate">Manage {{ $clan.Name }}</h1>
+					<p class="text-sm text-gray-400">Owner controls for your clan.</p>
+				</div>
+				<a href="/clans/{{ $clan.ID }}" class="btn-secondary inline-flex items-center gap-2">
+					<i class="fas fa-arrow-left"></i>
+					<span class="hidden sm:inline">Back to clan</span>
+				</a>
 			</div>
 		</div>
 
-		{{ $d := qb "SELECT user, clan, perms FROM user_clans WHERE user = ? AND perms = 8 LIMIT 1" .Context.User.ID }}
-		{{ $g := or $d.clan.Int -1 }}
-		{{ if $d }}
-			<div class="card mb-6">
-				<h3 class="text-xl font-semibold mb-6">Clan Credentials</h3>
-
-				{{ $o := (.Get "clans/isclan?uid=%d" .Context.User.ID).clan.clan }}
-				{{ $c := qb "SELECT * FROM clans WHERE id = ? LIMIT 1" $o }}
-				{{ $tag := or $c.tag.String "" }}
-				{{ $name := or $c.name.String "" }}
-				{{ $desc := or $c.description.String "" }}
-
-				<form id="register-form" method="post" enctype="multipart/form-data" action="/settings/clan" class="space-y-6">
-					<div>
-						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clan Name" }}</label>
-						<input type="text"
-							name="name"
-							placeholder="Clan Name"
-							value="{{ $name }}"
-							class="input-field"
-							tabindex="1">
+		<!-- Identity + side column (Icon, Invite) -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Identity -->
+			<div class="card overflow-hidden relative lg:col-span-2">
+				<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+				<div class="relative">
+					<div class="flex items-center gap-3 mb-6">
+						<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+							<i class="fas fa-id-badge text-primary"></i>
+						</div>
+						<div>
+							<h2 class="text-xl font-display font-bold text-white">Identity</h2>
+							<p class="text-sm text-gray-500">How your clan appears across the site.</p>
+						</div>
 					</div>
 
-					<div>
-						<label class="block text-sm font-medium text-gray-300 mb-2">{{ "Clantag (2 to 6 characters)" }}</label>
-						<input type="text"
-							name="tag"
-							placeholder="Clantag"
-							value="{{ $tag }}"
-							pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$"
-							class="input-field"
-							tabindex="2">
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-						<textarea name="description"
-							rows="4"
-							class="input-field resize-none"
-							tabindex="3">{{ $desc }}</textarea>
-					</div>
-
-					{{ ieForm .Context }}
-
-					<div class="flex justify-end pt-4 border-t border-dark-border">
-						<button type="submit"
-							form="register-form"
-							class="btn-primary"
-							tabindex="4">
-							Save
-						</button>
-					</div>
-				</form>
+					<form id="clan-identity-form" class="space-y-4">
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<div class="sm:col-span-2">
+								<label class="block text-sm font-medium text-gray-300 mb-2">Clan name</label>
+								<div class="relative">
+									<i class="fas fa-signature absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+									<input type="text" name="name" value="{{ $clan.Name }}" placeholder="Clan name" required class="input-field pl-10">
+								</div>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-300 mb-2">Tag <span class="text-gray-500 text-xs">(2-6)</span></label>
+								<div class="relative">
+									<i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+									<input type="text" name="tag" value="{{ $clan.Tag }}" placeholder="TAG" pattern="^[A-Za-z0-9 '_\[\]-]{2,6}$" required class="input-field pl-10 uppercase">
+								</div>
+							</div>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+							<textarea name="description" rows="5" placeholder="Tell the world what your clan is about..." class="input-field resize-none">{{ $clan.Description }}</textarea>
+						</div>
+						<div class="flex justify-end pt-2">
+							<button type="submit" class="btn-primary inline-flex items-center gap-2">
+								<i class="fas fa-save"></i>
+								Save details
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
-			<div class="card mb-6">
-				<h3 class="text-xl font-semibold mb-6">Clan Icon</h3>
+			<!-- Right column: Icon + Invite -->
+			<div class="space-y-6">
+				<!-- Icon -->
+				<div class="card overflow-hidden relative">
+					<div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-fuchsia-500/10 pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-5">
+							<div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+								<i class="fas fa-image text-violet-400"></i>
+							</div>
+							<div>
+								<h2 class="text-xl font-display font-bold text-white">Icon</h2>
+								<p class="text-sm text-gray-500">PNG/JPEG/GIF, &le;2MB.</p>
+							</div>
+						</div>
 
-				<div class="flex items-center gap-6 mb-6">
-					<img src="/api/v2/clans/{{ $o }}/icon"
-						alt="Clan icon"
-						class="w-24 h-24 rounded-2xl border-2 border-dark-border object-cover"
-						onerror="this.style.visibility='hidden'">
-					<p class="text-gray-400 text-sm">Recommended: 256×256 PNG/JPEG/GIF, ≤2MB.<br>Icons larger than 256×256 will be downscaled.</p>
+						<div class="flex items-center gap-4 mb-4">
+							<img src="/api/v2/clans/{{ $clan.ID }}/icon"
+								alt="Current clan icon"
+								data-clan-icon
+								class="w-24 h-24 rounded-2xl border border-dark-border object-cover bg-dark-bg/40 flex-shrink-0"
+								onerror="this.style.visibility='hidden'">
+
+							<form id="clan-icon-form" enctype="multipart/form-data" class="flex-1 min-w-0 space-y-2">
+								<input type="file" name="icon" accept="image/png,image/jpeg,image/gif" required class="input-field text-xs">
+								<button type="submit" class="btn-primary inline-flex items-center gap-2 w-full justify-center">
+									<i class="fas fa-upload"></i>
+									Upload
+								</button>
+							</form>
+						</div>
+
+						<form id="clan-icon-remove-form" class="pt-4 border-t border-dark-border">
+							<button type="submit" class="btn-secondary inline-flex items-center gap-2 bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-red-300 w-full justify-center">
+								<i class="fas fa-trash"></i>
+								Remove icon
+							</button>
+						</form>
+					</div>
 				</div>
 
-				<form action="/settings/clans/icon" method="post" enctype="multipart/form-data" class="space-y-4">
-					<div>
-						<label class="block text-sm font-medium text-gray-300 mb-2">Upload a new icon</label>
-						<input type="file"
-							name="icon"
-							accept="image/png,image/jpeg,image/gif"
-							required
-							class="input-field">
-					</div>
-					{{ ieForm .Context }}
-					<div class="flex justify-end gap-3">
-						<button type="submit" class="btn-primary">Upload icon</button>
-					</div>
-				</form>
+				<!-- Invite -->
+				<div class="card overflow-hidden relative">
+					<div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10 pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-5">
+							<div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+								<i class="fas fa-link text-emerald-400"></i>
+							</div>
+							<div>
+								<h2 class="text-xl font-display font-bold text-white">Invite</h2>
+								<p class="text-sm text-gray-500">Rotate if it leaks.</p>
+							</div>
+						</div>
 
-				<form action="/settings/clans/icon/remove" method="post" class="mt-4 pt-4 border-t border-dark-border">
-					{{ ieForm .Context }}
-					<div class="flex justify-end">
-						<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30">
-							Remove icon
-						</button>
-					</div>
-				</form>
-			</div>
-
-			<div class="card">
-				<h2 class="text-2xl font-display font-bold mb-6">Invite</h2>
-
-				<div class="space-y-4">
-					{{ with .Get "clans/getinvite?id=%d" .Context.User.ID }}
-						<div>
-							<label class="block text-sm font-medium text-gray-300 mb-2">Invite Link</label>
+						<div id="invite-present-state" class="space-y-2 mb-4 {{ if not $inviteCode }}hidden{{ end }}">
 							<div class="flex gap-2">
-								<input type="text"
-									value="https://ussr.pl/clans/invites/{{ .invite }}"
-									readonly
-									class="input-field flex-1 bg-dark-bg">
-								<button onclick="navigator.clipboard.writeText('https://ussr.pl/clans/invites/{{ .invite }}')" class="btn-secondary">
+								<input id="invite-url-field" type="text" value="{{ $inviteURL }}" readonly class="input-field flex-1 bg-dark-bg/60 text-sm">
+								<button id="invite-copy-button" type="button" class="btn-secondary inline-flex items-center justify-center px-3" title="Copy link">
 									<i class="fas fa-copy"></i>
 								</button>
 							</div>
 						</div>
-					{{ end }}
+						<p id="invite-empty-state" class="text-sm text-gray-400 mb-4 {{ if $inviteCode }}hidden{{ end }}">No invite is set. Generate one below.</p>
 
-					<div class="flex gap-3 pt-4 border-t border-dark-border">
-						<form action="/settings/clans/invite" method="POST" class="flex-1">
-							{{ ieForm .Context }}
-							<button type="submit" class="btn-secondary bg-green-600/20 border-green-500/50 hover:bg-green-600/30 w-full">
-								Generate a new invite!
-							</button>
-						</form>
-						<form action="/clans/{{ $o }}/leave" method="POST" class="flex-1">
-							{{ ieForm .Context }}
-							<button type="submit" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 w-full">
-								Disband Clan!
+						<form id="clan-invite-form">
+							<button type="submit" class="btn-primary inline-flex items-center gap-2 w-full justify-center">
+								<i class="fas fa-rotate"></i>
+								{{ if $inviteCode }}Regenerate{{ else }}Generate invite{{ end }}
 							</button>
 						</form>
 					</div>
 				</div>
 			</div>
-		{{ else }}
-			<div class="card text-center">
-				<p class="text-xl text-gray-300">You can only manage a clan if you own it!</p>
+		</div>
+
+		<!-- Members + Danger Zone row -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			{{ if $members }}
+			<!-- Members -->
+			<div class="card overflow-hidden relative lg:col-span-2">
+				<div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-primary/10 pointer-events-none"></div>
+				<div class="relative">
+					<div class="flex items-center gap-3 mb-5">
+						<div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+							<i class="fas fa-users text-cyan-400"></i>
+						</div>
+						<div>
+							<h2 class="text-xl font-display font-bold text-white">Members</h2>
+							<p class="text-sm text-gray-500">Kick anyone you no longer want in the clan.</p>
+						</div>
+					</div>
+
+					<div class="divide-y divide-dark-border">
+						{{ range $members }}
+						<div data-member-row class="flex items-center justify-between gap-3 py-3">
+							<a href="/users/{{ .UserID }}" class="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">
+								<img src="{{ config "APP_AVATAR_URL" $.Conf }}/{{ .UserID }}" alt="" class="w-9 h-9 rounded-full object-cover bg-dark-bg/60 flex-shrink-0">
+								<div class="min-w-0">
+									<div class="text-white font-medium truncate flex items-center gap-2">
+										{{ .Username }}
+										{{ if .IsOwner }}<i class="fas fa-crown text-yellow-400 text-xs" title="Owner"></i>{{ end }}
+									</div>
+									<div class="text-xs text-gray-500">{{ .Country }}</div>
+								</div>
+							</a>
+							{{ if not .IsOwner }}
+							<form data-kick-member="{{ .UserID }}" data-kick-username="{{ .Username }}" class="flex-shrink-0">
+								<button type="submit" class="btn-secondary inline-flex items-center gap-2 bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-red-300 text-sm">
+									<i class="fas fa-user-minus"></i>
+									Kick
+								</button>
+							</form>
+							{{ end }}
+						</div>
+						{{ end }}
+					</div>
+				</div>
 			</div>
-		{{ end }}
+			{{ end }}
+
+			<!-- Danger zone -->
+			<div class="card overflow-hidden relative border border-red-700/40 {{ if not $members }}lg:col-span-3{{ end }}">
+				<div class="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-transparent pointer-events-none"></div>
+				<div class="relative">
+					<div class="flex items-center gap-3 mb-5">
+						<div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+							<i class="fas fa-triangle-exclamation text-red-400"></i>
+						</div>
+						<div>
+							<h2 class="text-xl font-display font-bold text-white">Danger zone</h2>
+							<p class="text-sm text-gray-500">Disbanding permanently removes the clan and kicks every member.</p>
+						</div>
+					</div>
+
+					<form id="clan-disband-form" data-clan-name="{{ $clan.Name }}">
+						<button type="submit" class="btn-secondary inline-flex items-center gap-2 bg-red-600/20 border-red-500/50 hover:bg-red-600/30 text-red-300 w-full justify-center">
+							<i class="fas fa-trash-can"></i>
+							Disband clan
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
+
+<script src="/static/vue/api-client.js"></script>
+<script src="/static/js/clan-settings.js"></script>
 {{ end }}

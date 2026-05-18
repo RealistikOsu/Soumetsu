@@ -55,13 +55,13 @@ type ClanInviteResponse struct {
 	InviteCode string `json:"invite_code"`
 }
 
-func (c *Client) GetClan(ctx context.Context, clanID int) (*ClanResponse, error) {
+func (c *Client) GetClan(ctx context.Context, clanID int) (*Clan, error) {
 	path := fmt.Sprintf("/api/v2/clans/%d", clanID)
 	resp, err := c.Get(ctx, path, "")
 	if err != nil {
 		return nil, err
 	}
-	return decodeResponse[ClanResponse](resp)
+	return decodeResponse[Clan](resp)
 }
 
 func (c *Client) GetClanMembers(ctx context.Context, clanID int, page, limit int) ([]ClanMember, error) {

@@ -48,10 +48,24 @@ AdditionalJS=/static/vue/pages/clanboard.js
 					<p class="text-gray-400">Top clans ranked by combined performance</p>
 				</div>
 			</div>
-			<a href="/clans/create" class="btn-primary inline-flex items-center gap-2 self-start sm:self-auto">
-				<i class="fas fa-plus"></i>
-				Create Clan
-			</a>
+			{{ if .Context.User.ID }}
+				{{ if eq .Context.User.Clan 0 }}
+					<a href="/clans/create" class="btn-primary inline-flex items-center gap-2 self-start sm:self-auto">
+						<i class="fas fa-plus"></i>
+						Create Clan
+					</a>
+				{{ else if .Context.User.ClanOwner }}
+					<a href="/clans/{{ .Context.User.Clan }}/settings" class="btn-primary inline-flex items-center gap-2 self-start sm:self-auto">
+						<i class="fas fa-cog"></i>
+						Manage your clan
+					</a>
+				{{ else }}
+					<a href="/clans/{{ .Context.User.Clan }}" class="btn-secondary inline-flex items-center gap-2 self-start sm:self-auto">
+						<i class="fas fa-shield-alt"></i>
+						Your clan
+					</a>
+				{{ end }}
+			{{ end }}
 		</div>
 
 		<!-- Top 3 Clans Cards -->
@@ -365,10 +379,12 @@ AdditionalJS=/static/vue/pages/clanboard.js
 					<i class="fas fa-shield-alt text-gray-500 text-2xl"></i>
 				</div>
 				<p class="text-gray-400 mb-4">No clans found</p>
+				{{ if and .Context.User.ID (eq .Context.User.Clan 0) }}
 				<a href="/clans/create" class="btn-primary inline-flex items-center gap-2">
 					<i class="fas fa-plus"></i>
 					Create the first clan!
 				</a>
+				{{ end }}
 			</div>
 		</div>
 	</div>

@@ -76,19 +76,12 @@ func (a *App) Routes() chi.Router {
 		r.Post("/clans/create", a.ClanHandler.Create)
 		r.Post("/clans/{id}/leave", a.ClanHandler.Leave)
 		r.Post("/clans/{id}/disband", a.ClanHandler.Disband)
-		r.Post("/settings/clans/invite", a.ClanHandler.UpdateClan)
-		r.Post("/settings/clans/kick", a.ClanHandler.Kick)
-		r.Get("/settings/clans/manage", a.ClanHandler.ManagePage)
-		r.Post("/settings/clans/manage", a.ClanHandler.UpdateClan)
-		r.Post("/settings/clans/icon", a.ClanHandler.UploadClanIcon)
-		r.Post("/settings/clans/icon/remove", a.ClanHandler.RemoveClanIcon)
 
-		r.Post("/settings/clan", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/settings/clans/invite", http.StatusTemporaryRedirect)
-		})
-		r.Post("/settings/clansettings/k", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/settings/clans/kick", http.StatusTemporaryRedirect)
-		})
+		// The settings page is server-rendered for SEO/auth, but every mutation
+		// (update, invite, icon, kick, disband) is fired client-side from
+		// clan-settings.js straight against the soumetsu-api endpoints. No
+		// server-side POST handlers live on this path.
+		r.Get("/clans/{id}/settings", a.ClanHandler.ManagePage)
 	})
 
 	r.Get("/clans/{id}", a.ClanHandler.ClanPage)
@@ -155,9 +148,6 @@ func (a *App) Routes() chi.Router {
 	})
 	r.Get("/connect", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/connection", http.StatusMovedPermanently)
-	})
-	r.Get("/clan/manage", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/settings/clans/manage", http.StatusMovedPermanently)
 	})
 	r.Get("/help", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, a.Config.Discord.ServerURL, http.StatusMovedPermanently)

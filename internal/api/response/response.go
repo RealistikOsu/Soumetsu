@@ -376,7 +376,7 @@ func (e *TemplateEngine) Forbidden(w http.ResponseWriter, r *http.Request) {
 		Path:     r.URL.Path,
 		Context:  reqCtx,
 	}
-	e.RenderWithStatus(w, "403.html", data, http.StatusForbidden)
+	e.RenderWithStatus(w, "errors/error_403.html", data, http.StatusForbidden)
 }
 
 func AddMessage(messages *[]models.Message, msg models.Message) {

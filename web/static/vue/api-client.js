@@ -143,6 +143,34 @@ const SoumetsuAPI = {
     },
   },
 
+  // Like post/put/delete, but throws on non-2xx and unwraps the JSON envelope.
+  // The thrown Error has `.status` (HTTP code) and `.message` (the API error code
+  // string, e.g. "auth.unauthenticated"), so callers can show useful toasts.
+  async _mutate(method, endpoint, body) {
+    const url = `${this.baseURL()}/api/v2/${endpoint}`;
+    const headers = { ...this.getAuthHeaders() };
+    let payload;
+    if (body instanceof FormData) {
+      payload = body;
+    } else if (body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+      payload = JSON.stringify(body);
+    }
+    const response = await fetch(url, {
+      method,
+      headers,
+      credentials: 'same-origin',
+      body: payload,
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const err = new Error(typeof json.data === 'string' ? json.data : 'request_failed');
+      err.status = response.status;
+      throw err;
+    }
+    return json.data !== undefined ? json.data : json;
+  },
+
   clans: {
     get(id) {
       return SoumetsuAPI.get(`clans/${id}`);
@@ -161,6 +189,29 @@ const SoumetsuAPI = {
     },
     list(page = 1, limit = 50, sort = 'pp') {
       return SoumetsuAPI.get('clans', { page, limit, sort });
+    },
+    update(id, body) {
+      return SoumetsuAPI._mutate('PUT', `clans/${id}`, body);
+    },
+    disband(id) {
+      return SoumetsuAPI._mutate('DELETE', `clans/${id}`);
+    },
+    getInvite(id) {
+      return SoumetsuAPI.get(`clans/${id}/invite`);
+    },
+    regenerateInvite(id) {
+      return SoumetsuAPI._mutate('POST', `clans/${id}/invite`, {});
+    },
+    uploadIcon(id, file) {
+      const form = new FormData();
+      form.append('file', file);
+      return SoumetsuAPI._mutate('POST', `clans/${id}/icon`, form);
+    },
+    removeIcon(id) {
+      return SoumetsuAPI._mutate('DELETE', `clans/${id}/icon`);
+    },
+    kickMember(clanId, userId) {
+      return SoumetsuAPI._mutate('DELETE', `clans/${clanId}/members/${userId}`);
     },
   },
 

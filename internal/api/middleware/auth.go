@@ -87,8 +87,9 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 			}
 
 			var clanID, clanOwner int
+			// perms = 2 is CLAN_PERM_OWNER in soumetsu-api.
 			err = db.QueryRowContext(r.Context(), `
-				SELECT clan, perms = 8 FROM user_clans WHERE user = ?`, userID).Scan(&clanID, &clanOwner)
+				SELECT clan, perms = 2 FROM user_clans WHERE user = ?`, userID).Scan(&clanID, &clanOwner)
 			if err != nil {
 				clanID = 0
 				clanOwner = 0
