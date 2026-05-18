@@ -165,6 +165,12 @@ func (a *App) Routes() chi.Router {
 	r.Get("/discord", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, a.Config.Discord.ServerURL, http.StatusMovedPermanently)
 	})
+	// The osu! client opens /home/account/edit#avatar when the user clicks
+	// "change avatar". The #avatar fragment never reaches the server, so we
+	// just route the whole edit page to our avatar settings.
+	r.Get("/home/account/edit", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/settings/avatar", http.StatusMovedPermanently)
+	})
 
 	r.NotFound(a.ErrorsHandler.NotFound)
 	r.MethodNotAllowed(a.ErrorsHandler.MethodNotAllowed)
