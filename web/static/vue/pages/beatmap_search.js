@@ -21,7 +21,7 @@ const beatmapSearchApp = Soumetsu.createApp({
       beatmapTimer: null,
 
       // Constants
-      mirror_api: 'https://catboy.best/api',
+      mirror_api: 'https://osu.direct/api',
       statusMap: {
         '-2': 'Graveyard',
         '-1': 'WIP',

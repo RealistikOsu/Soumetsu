@@ -1,12 +1,17 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/RealistikOsu/soumetsu/internal/adapters/api"
+	"github.com/RealistikOsu/soumetsu/internal/adapters/discord"
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
 	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/api/response"
@@ -14,6 +19,13 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/gorilla/sessions"
 )
+
+// discordHTTPClient is the shared HTTP client used for the Discord OAuth
+// round-trip. 10s is generous — the token exchange and /users/@me each take
+// well under a second on a healthy network.
+var discordHTTPClient = &http.Client{Timeout: 10 * time.Second}
+
+const discordOAuthStateKey = "discord_oauth_state"
 
 type UserHandler struct {
 	config    *config.Config
@@ -341,9 +353,117 @@ func (h *UserHandler) DiscordPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sess, _ := h.store.Get(r, "session")
+	token, _ := sess.Values["token"].(string)
+
+	linked := false
+	discordID, discordUsername, discordAvatar := "", "", ""
+	if d, err := h.apiClient.GetDiscord(r.Context(), token); err == nil && d != nil && d.DiscordID != nil && *d.DiscordID != "" {
+		linked = true
+		discordID = *d.DiscordID
+		if d.DiscordUsername != nil {
+			discordUsername = *d.DiscordUsername
+		}
+		if d.DiscordAvatar != nil {
+			discordAvatar = *d.DiscordAvatar
+		}
+	}
+
 	h.templates.RenderWithRequest(w, r, "settings/discord.html", &response.TemplateData{
 		TitleBar: "Discord",
+		Context:  reqCtx,
+		Extra: map[string]interface{}{
+			"discordLinked":   linked,
+			"discordID":       discordID,
+			"discordUsername": discordUsername,
+			"discordAvatar":   discordAvatar,
+		},
 	})
+}
+
+// RedirectDiscord is the single endpoint that both kicks off the Discord OAuth
+// flow and consumes its callback. When called with no `code` query param it
+// generates a CSRF `state`, stashes it in the session, and redirects the user
+// to Discord. When called with a `code`, it validates `state`, exchanges the
+// code for an access token, fetches the user's Discord ID, and persists the
+// link via the API.
+func (h *UserHandler) RedirectDiscord(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	sess, _ := h.store.Get(r, "session")
+	token, _ := sess.Values["token"].(string)
+	redirectURI := strings.TrimRight(h.config.App.BaseURL, "/") + "/settings/discord/redirect"
+
+	// Error feedback rides on the query string, not the session — the global
+	// flash mechanism is broken (messages never get cleared) so anything we
+	// stash via AddMessage would pile up forever and surface on unrelated
+	// page loads.
+	failRedirect := func(code string) {
+		http.Redirect(w, r, "/settings/discord?error="+code, http.StatusFound)
+	}
+
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		state, err := randomState(32)
+		if err != nil {
+			failRedirect("oauth_init_failed")
+			return
+		}
+		sess.Values[discordOAuthStateKey] = state
+		_ = sess.Save(r, w)
+		http.Redirect(w, r, discord.AuthorizeURL(h.config.Discord.AppClientID, redirectURI, state), http.StatusFound)
+		return
+	}
+
+	// Callback path. Consume the stored state regardless of outcome so it
+	// can't be replayed.
+	storedState, _ := sess.Values[discordOAuthStateKey].(string)
+	delete(sess.Values, discordOAuthStateKey)
+	_ = sess.Save(r, w)
+
+	if storedState == "" || r.URL.Query().Get("state") != storedState {
+		failRedirect("state_mismatch")
+		return
+	}
+
+	accessToken, err := discord.ExchangeCode(r.Context(), discordHTTPClient, h.config.Discord.AppClientID, h.config.Discord.AppClientSecret, code, redirectURI)
+	if err != nil {
+		failRedirect("token_exchange_failed")
+		return
+	}
+
+	dcUser, err := discord.FetchUser(r.Context(), discordHTTPClient, accessToken)
+	if err != nil {
+		failRedirect("profile_fetch_failed")
+		return
+	}
+
+	if err := h.apiClient.LinkDiscord(r.Context(), token, &api.LinkDiscordRequest{
+		DiscordID:       dcUser.ID,
+		DiscordUsername: dcUser.Username,
+		DiscordAvatar:   dcUser.Avatar,
+	}); err != nil {
+		if apiErr, ok := err.(*api.APIError); ok && apiErr.Code == "users.discord_already_linked" {
+			failRedirect("already_linked")
+		} else {
+			failRedirect("link_failed")
+		}
+		return
+	}
+
+	http.Redirect(w, r, "/settings/discord?linked=1", http.StatusFound)
+}
+
+func randomState(n int) (string, error) {
+	buf := make([]byte, n)
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(buf), nil
 }
 
 func (h *UserHandler) UnlinkDiscord(w http.ResponseWriter, r *http.Request) {

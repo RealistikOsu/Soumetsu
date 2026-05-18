@@ -56,6 +56,7 @@ func (a *App) Routes() chi.Router {
 		r.Post("/settings/profile-banner/{type}", a.UserHandler.SetProfileBackground)
 		r.Post("/settings/change-username", a.UserHandler.ChangeUsername)
 		r.Get("/settings/discord", a.UserHandler.DiscordPage)
+		r.Get("/settings/discord/redirect", a.UserHandler.RedirectDiscord)
 		r.Get("/settings/discord/unlink", a.UserHandler.UnlinkDiscord)
 
 		r.Get("/settings/user-page", a.UserHandler.UserpageSettingsPage)

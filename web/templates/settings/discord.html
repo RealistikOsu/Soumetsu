@@ -1,13 +1,13 @@
 {{/*###
-Handler=/settings/discord
 KyutGrill=settings2.jpg
 Include=menu.html
 DisableHH=true
-AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.js
 */}}
 {{ define "tpl" }}
 {{ $isLinked := get .Extra "discordLinked" }}
 {{ $discordID := get .Extra "discordID" }}
+{{ $discordUsername := get .Extra "discordUsername" }}
+{{ $discordAvatar := get .Extra "discordAvatar" }}
 
 <div class="relative min-h-screen py-8">
 	<!-- Background with blur -->
@@ -33,77 +33,110 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 						</div>
 					</div>
 
-					{{ if $isLinked }}
-						{{ with dcAPI $discordID }}
-							<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-								<!-- Left: Connected Account -->
-								<div class="space-y-6">
-									<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
-										<div class="relative inline-block mb-4">
-											<img src="{{ .avatar.link }}"
-												alt="Discord Avatar"
-												class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg"/>
-											<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-dark-bg flex items-center justify-center">
-												<i class="fas fa-check text-white text-xs"></i>
-											</div>
-										</div>
-										<h3 class="text-xl font-bold text-white">@{{ .raw.username }}</h3>
-										<p class="text-sm text-gray-400 mt-1">Discord Account Connected</p>
-									</div>
+					{{ if .QueryParams.linked }}
+						<div class="mb-6 p-4 bg-green-900/30 border border-green-700/50 rounded-lg flex items-start gap-3">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<p class="text-sm text-gray-200">Your Discord account has been linked.</p>
+						</div>
+					{{ end }}
 
-									<div class="p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
-										<div class="flex items-center gap-3">
-											<div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-												<i class="fas fa-link text-green-400"></i>
-											</div>
-											<div>
-												<p class="text-green-400 font-medium">Account Linked</p>
-												<p class="text-sm text-gray-400">Your Discord is connected</p>
-											</div>
+					{{ if .QueryParams.error }}
+						<div class="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg flex items-start gap-3">
+							<i class="fas fa-exclamation-circle text-red-400 mt-1"></i>
+							<p class="text-sm text-gray-200">
+								{{ if eq .QueryParams.error "state_mismatch" }}OAuth state mismatch — please try linking again.
+								{{ else if eq .QueryParams.error "token_exchange_failed" }}Discord rejected the authorisation code. Please try again.
+								{{ else if eq .QueryParams.error "profile_fetch_failed" }}Could not fetch your Discord profile. Please try again.
+								{{ else if eq .QueryParams.error "already_linked" }}That Discord account is already linked to another player.
+								{{ else if eq .QueryParams.error "link_failed" }}Failed to link your Discord account.
+								{{ else if eq .QueryParams.error "oauth_init_failed" }}Could not start the Discord linking flow.
+								{{ else }}Something went wrong while linking Discord.
+								{{ end }}
+							</p>
+						</div>
+					{{ end }}
+
+					{{ if $isLinked }}
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<!-- Left: connected account -->
+							<div class="space-y-6">
+								<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
+									<div class="relative inline-block mb-4">
+										{{ if $discordAvatar }}
+										<img src="https://cdn.discordapp.com/avatars/{{ $discordID }}/{{ $discordAvatar }}.png?size=128"
+											alt="Discord avatar"
+											class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg object-cover"
+											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+										<div class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg bg-indigo-500/20 items-center justify-center" style="display: none;">
+											<i class="fab fa-discord text-indigo-400 text-4xl"></i>
+										</div>
+										{{ else }}
+										<div class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg bg-indigo-500/20 flex items-center justify-center">
+											<i class="fab fa-discord text-indigo-400 text-4xl"></i>
+										</div>
+										{{ end }}
+										<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-dark-bg flex items-center justify-center">
+											<i class="fas fa-check text-white text-xs"></i>
 										</div>
 									</div>
+									<h3 class="text-xl font-bold text-white">
+										{{ if $discordUsername }}@{{ $discordUsername }}{{ else }}Discord account{{ end }}
+									</h3>
+									<p class="text-xs text-gray-500 mt-1 font-mono">ID: {{ $discordID }}</p>
 								</div>
 
-								<!-- Right: Actions & Info -->
-								<div class="space-y-6">
-									<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
-										<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
-											<i class="fas fa-info-circle"></i>
-											Benefits
-										</h4>
-										<ul class="space-y-2 text-sm text-gray-400">
-											<li class="flex items-start gap-2">
-												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-												<span>Receive notifications on Discord</span>
-											</li>
-											<li class="flex items-start gap-2">
-												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-												<span>Show Discord status on profile</span>
-											</li>
-											<li class="flex items-start gap-2">
-												<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-												<span>Access Discord-exclusive features</span>
-											</li>
-										</ul>
-									</div>
-
-									<div class="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
-										<h4 class="text-red-300 font-medium mb-2 flex items-center gap-2">
-											<i class="fas fa-unlink"></i>
-											Unlink Account
-										</h4>
-										<p class="text-sm text-gray-400 mb-4">Disconnect your Discord account from your profile.</p>
-										<a href="/settings/discord/unlink" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 inline-flex items-center gap-2">
-											<i class="fab fa-discord"></i>
-											Unlink Discord
-										</a>
+								<div class="p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+											<i class="fas fa-link text-green-400"></i>
+										</div>
+										<div>
+											<p class="text-green-400 font-medium">Account Linked</p>
+											<p class="text-sm text-gray-400">Your Discord is connected</p>
+										</div>
 									</div>
 								</div>
 							</div>
-						{{ end }}
+
+							<!-- Right: actions & info -->
+							<div class="space-y-6">
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										Benefits
+									</h4>
+									<ul class="space-y-2 text-sm text-gray-400">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Automatic donor role assignment on Discord.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Bot commands recognise your osu! account.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Show Discord status on your profile.</span>
+										</li>
+									</ul>
+								</div>
+
+								<div class="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
+									<h4 class="text-red-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-unlink"></i>
+										Unlink Account
+									</h4>
+									<p class="text-sm text-gray-400 mb-4">Disconnect your Discord account from your profile.</p>
+									<a href="/settings/discord/unlink" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 inline-flex items-center gap-2">
+										<i class="fab fa-discord"></i>
+										Unlink Discord
+									</a>
+								</div>
+							</div>
+						</div>
 					{{ else }}
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-							<!-- Left: Preview -->
+							<!-- Left: preview -->
 							<div class="space-y-6">
 								<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
 									<div class="relative inline-block mb-4">
@@ -128,7 +161,7 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 								</div>
 							</div>
 
-							<!-- Right: Link Action -->
+							<!-- Right: link action -->
 							<div class="space-y-6">
 								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
 									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
@@ -138,15 +171,15 @@ AdditionalJS=https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jque
 									<ul class="space-y-2 text-sm text-gray-400">
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>Receive notifications on Discord</span>
+											<span>Automatic donor role assignment on Discord.</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>Show Discord status on profile</span>
+											<span>Bot commands recognise your osu! account.</span>
 										</li>
 										<li class="flex items-start gap-2">
 											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
-											<span>Access Discord-exclusive features</span>
+											<span>Show Discord status on your profile.</span>
 										</li>
 									</ul>
 								</div>

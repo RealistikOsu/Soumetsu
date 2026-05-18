@@ -161,6 +161,15 @@ DisableHH=true
 								<div>Last Seen: <b>
 										{{ v "formatDate(user.latest_activity)" }}
 									</b></div>
+								<div v-if="discordUser" class="flex items-center gap-2">
+									<i class="fab fa-discord text-indigo-400"></i>
+									<img v-if="discordUser.avatar"
+										:src="'https://cdn.discordapp.com/avatars/' + discordUser.id + '/' + discordUser.avatar + '.png?size=32'"
+										:alt="discordUser.username"
+										class="w-5 h-5 rounded-full border border-dark-border"
+										@error="discordUser.avatar = ''">
+									<span class="text-gray-200">@{{ v "discordUser.username" }}</span>
+								</div>
 							</div>
 
 							<div class="flex gap-2 mt-4">

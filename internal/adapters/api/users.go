@@ -181,6 +181,35 @@ func (c *Client) ChangeUsername(ctx context.Context, token string, username stri
 	return err
 }
 
+type DiscordLinkResponse struct {
+	DiscordID       *string `json:"discord_id"`
+	DiscordUsername *string `json:"discord_username"`
+	DiscordAvatar   *string `json:"discord_avatar"`
+}
+
+type LinkDiscordRequest struct {
+	DiscordID       string `json:"discord_id"`
+	DiscordUsername string `json:"discord_username"`
+	DiscordAvatar   string `json:"discord_avatar"`
+}
+
+func (c *Client) GetDiscord(ctx context.Context, token string) (*DiscordLinkResponse, error) {
+	resp, err := c.Get(ctx, "/api/v2/users/me/discord", token)
+	if err != nil {
+		return nil, err
+	}
+	return decodeResponse[DiscordLinkResponse](resp)
+}
+
+func (c *Client) LinkDiscord(ctx context.Context, token string, req *LinkDiscordRequest) error {
+	resp, err := c.Post(ctx, "/api/v2/users/me/discord", req, token)
+	if err != nil {
+		return err
+	}
+	_, err = decodeResponse[DiscordLinkResponse](resp)
+	return err
+}
+
 func (c *Client) UnlinkDiscord(ctx context.Context, token string) error {
 	resp, err := c.Delete(ctx, "/api/v2/users/me/discord", token)
 	if err != nil {

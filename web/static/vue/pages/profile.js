@@ -389,7 +389,9 @@ const profileApp = Soumetsu.createApp({
     },
 
     async loadDiscordInfo() {
-      // TODO: Implement when backend endpoint is available
+      // The /users/{id} response now carries `discord: { id, username, avatar }`
+      // (or null) — no extra request needed, just pluck it off `this.user`.
+      this.discordUser = (this.user && this.user.discord) || null;
     },
 
     async loadOnlineStatus() {

@@ -54,11 +54,11 @@ DisableHH=true
 
 						<!-- Description -->
 						<p class="text-gray-300 mb-8 leading-relaxed">
-							RealistikOsu is a custom server for the rhythm game osu!, featuring tons of unique features!
-							We provide a nice, safe, unique place for everyone to enjoy, offering a wide variety of new
-							experiences and features. We have everything from custom map ranking and clans to dedicated
-							leaderboards and PP systems for Relax and Autopilot mods — and our feature set grows daily!
-							Why hesitate? Join RealistikOsu now!
+							RealistikOsu is a custom server for the rhythm game "osu!". We offer
+							the complete core osu! experience alongside a vast array of unique
+							features! From competitive ranked Relax and Autopilot mod leaderboards
+							to custom rate changes with our patcher, join RealistikOsu to experience
+							osu! in a new way!
 						</p>
 
 						<!-- CTA Buttons -->
@@ -95,7 +95,8 @@ DisableHH=true
 								</div>
 							</div>
 							<div class="w-full h-2 bg-dark-bg rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full" style="width: 65%;"></div>
+								<div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full transition-all duration-500"
+									:style="{ width: (maxOnline > 0 ? Math.min(100, (onlineUsers / maxOnline) * 100) : 0) + '%' }"></div>
 							</div>
 						</div>
 					</div>
@@ -108,7 +109,6 @@ DisableHH=true
 	<section class="py-16 relative z-10">
 		<div class="container mx-auto px-4">
 			<div class="mb-8">
-				<p class="text-gray-400 text-sm mb-2 italic">Alright, let's see if people can do that!</p>
 				<h2 class="text-3xl font-display font-bold">Top plays in the server</h2>
 			</div>
 
@@ -205,8 +205,10 @@ DisableHH=true
 					<div class="flex-1 p-8 md:p-12">
 						<h2 class="text-3xl md:text-4xl font-display font-bold mb-4">What are you waiting for?</h2>
 						<p class="text-gray-300 mb-8 leading-relaxed max-w-lg">
-							Join RealistikOsu! It's risk-free: you won't get your account banned on the official server if you play here.
-							You can also switch anytime between the official osu! server and RealistikOsu!
+							Whether you're looking for a fresh start, want to try out ranked Relax
+							or just want to get your own maps ranked, RealistikOsu has a place for
+							you. Join RealistikOsu! It's risk-free: you won't get your account banned
+							on the official server if you play here.
 						</p>
 						<div class="flex flex-col sm:flex-row gap-4">
 							<a href="/register" class="btn-primary text-center flex items-center justify-center gap-2">
