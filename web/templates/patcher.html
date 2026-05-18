@@ -13,7 +13,7 @@ DisableHH=true
 			</div>
 			<div>
 				<h1 class="text-4xl font-display font-bold text-white">RealistikOsu Patcher</h1>
-				<p class="text-gray-400">The ultimate enhancement for your relax gameplay</p>
+				<p class="text-gray-400">The ultimate enhancement for your gameplay</p>
 			</div>
 		</div>
 
@@ -25,7 +25,7 @@ DisableHH=true
 					Elevate Your Relax Experience
 				</h2>
 				<p class="text-gray-400 max-w-2xl mx-auto">
-					Unlock the full potential of RealistikOsu with our official patcher. Restore ranking panels, enable miss tracking, and customize your gameplay like never before.
+					Unlock the full potential of RealistikOsu with our official patcher. Bring custom rate changes, enable relax miss tracking, and customise your gameplay like never before.
 				</p>
 			</div>
 		</div>
@@ -60,13 +60,33 @@ DisableHH=true
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<!-- Feature 1 - Relax Misses -->
+				<!-- Feature 1 - Rate Changes -->
 				<div class="card overflow-hidden relative group hover:border-purple-500/50 transition-all duration-300">
 					<div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent pointer-events-none"></div>
 					<div class="relative">
 						<div class="flex items-center gap-3 mb-4">
 							<div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
-								<i class="fas fa-bullseye text-purple-400 text-lg"></i>
+								<i class="fas fa-tachometer-alt text-purple-400 text-lg"></i>
+							</div>
+							<div>
+								<h3 class="text-lg font-semibold text-white">Custom Rate Changes</h3>
+								<p class="text-sm text-gray-500">Play at any speed you want</p>
+							</div>
+						</div>
+						<p class="text-sm text-gray-400 mb-4">
+							Break free from the canonical DT, HT, and NC rates. Dial in any custom playback rate and submit scores at speeds that fit your style.
+						</p>
+						<img src="/static/images/patcher_rate_change_mod.png" alt="Custom Rate Changes" class="w-full rounded-xl border border-dark-border">
+					</div>
+				</div>
+
+				<!-- Feature 2 - Relax Misses -->
+				<div class="card overflow-hidden relative group hover:border-violet-500/50 transition-all duration-300">
+					<div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent pointer-events-none"></div>
+					<div class="relative">
+						<div class="flex items-center gap-3 mb-4">
+							<div class="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/30 transition-colors">
+								<i class="fas fa-bullseye text-violet-400 text-lg"></i>
 							</div>
 							<div>
 								<h3 class="text-lg font-semibold text-white">Relax Miss Tracking</h3>
@@ -74,29 +94,9 @@ DisableHH=true
 							</div>
 						</div>
 						<p class="text-sm text-gray-400 mb-4">
-							Track your misses during relax gameplay for a more authentic and competitive experience. Know exactly where you need to improve.
+							Bring back misses into your relax gameplay!
 						</p>
 						<img src="/static/images/patcher_relax_misses.jpg" alt="Relax Misses" class="w-full rounded-xl border border-dark-border">
-					</div>
-				</div>
-
-				<!-- Feature 2 - Settings -->
-				<div class="card overflow-hidden relative group hover:border-violet-500/50 transition-all duration-300">
-					<div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent pointer-events-none"></div>
-					<div class="relative">
-						<div class="flex items-center gap-3 mb-4">
-							<div class="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/30 transition-colors">
-								<i class="fas fa-sliders-h text-violet-400 text-lg"></i>
-							</div>
-							<div>
-								<h3 class="text-lg font-semibold text-white">Customisable Settings</h3>
-								<p class="text-sm text-gray-500">Tailor your experience</p>
-							</div>
-						</div>
-						<p class="text-sm text-gray-400 mb-4">
-							Configure the patcher to your liking with an intuitive settings panel. Enable or disable features based on your preferences.
-						</p>
-						<img src="/static/images/patcher_settings.jpeg" alt="Settings" class="w-full rounded-xl border border-dark-border">
 					</div>
 				</div>
 			</div>
@@ -139,11 +139,71 @@ DisableHH=true
 				<div class="card group hover:border-fuchsia-500/50 transition-all duration-300">
 					<div class="flex items-start gap-4">
 						<div class="w-10 h-10 bg-fuchsia-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-fuchsia-500/30 transition-colors">
-							<i class="fas fa-shield-alt text-fuchsia-400"></i>
+							<i class="fas fa-paint-brush text-fuchsia-400"></i>
 						</div>
 						<div>
-							<h3 class="text-lg font-semibold text-white mb-1">100% Safe</h3>
-							<p class="text-sm text-gray-400">Open source and verified by our community.</p>
+							<h3 class="text-lg font-semibold text-white mb-1">Per-Mode Skin Picker</h3>
+							<p class="text-sm text-gray-400">Assign a different skin to each gamemode and switch automatically.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-pink-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-10 h-10 bg-pink-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-pink-500/30 transition-colors">
+							<i class="fas fa-pause-circle text-pink-400"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">Confirm Unpause</h3>
+							<p class="text-sm text-gray-400">Adds a confirmation step before unpausing on relax so you never resume by accident.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-cyan-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-10 h-10 bg-cyan-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500/30 transition-colors">
+							<i class="fas fa-chart-line text-cyan-400"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">Vanilla PP Leaderboards</h3>
+							<p class="text-sm text-gray-400">Browse in-game leaderboards using pp values instead of just score.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-yellow-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500/30 transition-colors">
+							<i class="fas fa-coins text-yellow-400"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">osu! Coins</h3>
+							<p class="text-sm text-gray-400">Earn and spend osu! coins, restored in-client.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-red-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/30 transition-colors">
+							<i class="fas fa-ban text-red-400"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">No More Forced Score V2</h3>
+							<p class="text-sm text-gray-400">Maps with over 7k objects will no longer force ScoreV2.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="card group hover:border-teal-500/50 transition-all duration-300">
+					<div class="flex items-start gap-4">
+						<div class="w-10 h-10 bg-teal-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-teal-500/30 transition-colors">
+							<i class="fas fa-wave-square text-teal-400"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-white mb-1">Show Unstable Rate</h3>
+							<p class="text-sm text-gray-400">Surface UR live during gameplay to fine-tune your aim and tap consistency.</p>
 						</div>
 					</div>
 				</div>
@@ -201,7 +261,7 @@ DisableHH=true
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div class="flex items-start gap-3 p-4 bg-dark-card border border-dark-border rounded-xl">
 					<i class="fas fa-check-circle text-green-400 mt-1"></i>
-					<span class="text-sm text-gray-300">Windows 7 or later (64-bit recommended)</span>
+					<span class="text-sm text-gray-300">Windows 10 (64-bit)</span>
 				</div>
 				<div class="flex items-start gap-3 p-4 bg-dark-card border border-dark-border rounded-xl">
 					<i class="fas fa-check-circle text-green-400 mt-1"></i>
