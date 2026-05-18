@@ -46,11 +46,18 @@ type UserProfile struct {
 	Stats *UserStats `json:"stats"`
 }
 
+type UpdateCustomBadgeRequest struct {
+	Show *bool   `json:"show,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
 type UpdateSettingsRequest struct {
-	UsernameAka   *string `json:"username_aka,omitempty"`
-	FavouriteMode *int    `json:"favourite_mode,omitempty"`
-	PlayStyle     *int    `json:"play_style,omitempty"`
-	CustomBadge   *string `json:"custom_badge,omitempty"`
+	UsernameAka      *string                   `json:"username_aka,omitempty"`
+	FavouriteMode    *int                      `json:"favourite_mode,omitempty"`
+	PlayStyle        *int                      `json:"play_style,omitempty"`
+	CustomBadge      *UpdateCustomBadgeRequest `json:"custom_badge,omitempty"`
+	DisabledComments *bool                     `json:"disabled_comments,omitempty"`
 }
 
 type CustomBadge struct {

@@ -99,6 +99,74 @@ func (h *UserHandler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *UserHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+	reqCtx := apicontext.GetRequestContextFromRequest(r)
+	if reqCtx.User.ID == 0 {
+		h.redirectToLogin(w, r)
+		return
+	}
+
+	sess, _ := h.store.Get(r, "session")
+
+	if err := r.ParseForm(); err != nil {
+		h.addMessage(sess, models.NewError("Invalid form data."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings", http.StatusFound)
+		return
+	}
+
+	if ok, _ := h.csrf.Validate(reqCtx.User.ID, r.FormValue("csrf")); !ok {
+		h.addMessage(sess, models.NewError("Your session has expired. Please try redoing what you were trying to do."))
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings", http.StatusFound)
+		return
+	}
+
+	usernameAka := r.FormValue("username_aka")
+	disabledComments := r.FormValue("disabled_comments") != ""
+
+	req := &api.UpdateSettingsRequest{
+		UsernameAka:      &usernameAka,
+		DisabledComments: &disabledComments,
+	}
+
+	if favouriteMode, err := strconv.Atoi(r.FormValue("favourite_mode")); err == nil {
+		req.FavouriteMode = &favouriteMode
+	}
+
+	if playStyle, err := strconv.Atoi(r.FormValue("play_style")); err == nil {
+		req.PlayStyle = &playStyle
+	}
+
+	if reqCtx.User.Privileges&models.UserPrivilegeDonor > 0 {
+		show := r.FormValue("custom_badge.show") != ""
+		icon := r.FormValue("custom_badge.icon")
+		name := r.FormValue("custom_badge.name")
+		req.CustomBadge = &api.UpdateCustomBadgeRequest{
+			Show: &show,
+			Icon: &icon,
+			Name: &name,
+		}
+	}
+
+	token, _ := sess.Values["token"].(string)
+	err := h.apiClient.UpdateSettings(r.Context(), token, req)
+	if err != nil {
+		if apiErr, ok := err.(*api.APIError); ok {
+			h.addMessage(sess, models.NewError(apiErr.Code))
+		} else {
+			h.addMessage(sess, models.NewError("Failed to save settings."))
+		}
+		sess.Save(r, w)
+		http.Redirect(w, r, "/settings", http.StatusFound)
+		return
+	}
+
+	h.addMessage(sess, models.NewSuccess("Your new settings have been saved."))
+	sess.Save(r, w)
+	http.Redirect(w, r, "/settings", http.StatusFound)
+}
+
 func (h *UserHandler) ChangeUsernamePage(w http.ResponseWriter, r *http.Request) {
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
 	if reqCtx.User.ID == 0 {

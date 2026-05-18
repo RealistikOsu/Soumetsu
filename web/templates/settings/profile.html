@@ -1,107 +1,224 @@
 {{/*###
-Handler=/settings
 KyutGrill=settings2.jpg
 Include=menu.html
-MinPrivileges=2
+DisableHH=true
 */}}
 {{ define "tpl" }}
-<div class="container mx-auto px-4">
-	<div class="flex flex-col md:flex-row gap-6">
-		{{ template "settingsSidebar" . }}
-		<div class="flex-1">
-			<div class="card">
-				<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
-					<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-						<i class="fas fa-cog text-primary text-xl"></i>
-					</div>
-					<div>
-						<h2 class="text-2xl font-display font-bold text-white">Profile Settings</h2>
-						<p class="text-sm text-gray-400">Manage your account preferences</p>
+<div class="relative min-h-screen py-8">
+	<!-- Background with blur -->
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+
+			<div class="flex-1 space-y-6">
+				<!-- Header card -->
+				<div class="card overflow-hidden relative">
+					<div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-blue-500/15 pointer-events-none"></div>
+					<div class="relative flex items-center gap-4">
+						<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/20">
+							<i class="fas fa-user-cog text-white text-2xl"></i>
+						</div>
+						<div>
+							<h1 class="text-3xl font-display font-bold text-white">Profile Settings</h1>
+							<p class="text-sm text-gray-400">Tune your profile, presentation, and privacy.</p>
+						</div>
 					</div>
 				</div>
 
 				{{ $d := .Extra.Settings }}
 				{{ if not $d }}
-				<div class="bg-red-900/30 border border-red-700 rounded-lg p-4 flex items-start gap-3">
-					<i class="fas fa-exclamation-circle text-red-400 mt-1"></i>
-					<div>
-						<div class="font-semibold text-red-300 mb-1">Error loading settings</div>
-						<p class="text-sm text-gray-300">Could not load your settings. Please try again later.</p>
+				<div class="card border border-red-700/60">
+					<div class="flex items-start gap-3">
+						<i class="fas fa-exclamation-circle text-red-400 mt-1"></i>
+						<div>
+							<div class="font-semibold text-red-300 mb-1">Error loading settings</div>
+							<p class="text-sm text-gray-300">Could not load your settings. Please try again later.</p>
+						</div>
 					</div>
 				</div>
 				{{ else }}
-				<form class="space-y-6" method="post">
-					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2">General</h3>
+				<form method="post" action="/settings" class="space-y-6">
+					<input type="hidden" name="play_style" value="{{ $d.play_style }}">
 
-					<div class="space-y-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-							<input type="text" value="{{ .Context.User.Username }}" disabled class="input-field bg-dark-bg/50 cursor-not-allowed opacity-60">
+					<!-- General -->
+					<div class="card overflow-hidden relative">
+						<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+						<div class="relative">
+							<div class="flex items-center gap-3 mb-6">
+								<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+									<i class="fas fa-id-card text-primary"></i>
+								</div>
+								<h2 class="text-xl font-display font-bold text-white">General</h2>
+							</div>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+									<div class="relative">
+										<i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+										<input type="text" value="{{ .Context.User.Username }}" disabled class="input-field pl-10 bg-dark-bg/50 cursor-not-allowed opacity-60">
+									</div>
+									<p class="text-xs text-gray-500 mt-1">Use the <a href="/settings/change-username" class="text-primary hover:underline">change username</a> page to alter this.</p>
+								</div>
+								<div>
+									<label class="block text-sm font-medium text-gray-300 mb-2">Email address</label>
+									<div class="relative">
+										<i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+										<input type="email" value="{{ $d.email }}" disabled class="input-field pl-10 bg-dark-bg/50 cursor-not-allowed opacity-60">
+									</div>
+								</div>
+								<div>
+									<label class="block text-sm font-medium text-gray-300 mb-2">Alternative username</label>
+									<div class="relative">
+										<i class="fas fa-signature absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+										<input type="text" name="username_aka" value="{{ $d.username_aka }}" placeholder="Also known as..." class="input-field pl-10">
+									</div>
+									<p class="text-xs text-gray-500 mt-1">Cannot be used for login.</p>
+								</div>
+								<div>
+									<label class="block text-sm font-medium text-gray-300 mb-2">Favourite mode</label>
+									<div class="relative">
+										<i class="fas fa-gamepad absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+										<select name="favourite_mode" data-cast="int" class="input-field pl-10 pr-10 appearance-none">
+											{{ range $k, $v := modes }}
+												<option value="{{ $k }}" {{ if eq (int $d.favourite_mode) $k }}selected{{ end }}>{{ $v }}</option>
+											{{ end }}
+										</select>
+										<i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-300 mb-2">Email address</label>
-							<input type="email" value="{{ $d.email }}" placeholder="Email address" disabled class="input-field bg-dark-bg/50 cursor-not-allowed opacity-60">
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-300 mb-2">Alternative username (cannot be used for login)</label>
-							<input type="text" name="username_aka" value="{{ $d.username_aka }}" placeholder="Also known as..." class="input-field">
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-300 mb-2">Favourite mode</label>
-							<select name="favourite_mode" data-cast="int" class="input-field">
-								{{ range $k, $v := modes }}
-									<option value="{{ $k }}" {{ if eq (int $d.favourite_mode) $k }}selected{{ end }}>{{ $v }}</option>
+					</div>
+
+					<!-- Playstyle -->
+					<div class="card overflow-hidden relative">
+						<div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-fuchsia-500/10 pointer-events-none"></div>
+						<div class="relative">
+							<div class="flex items-center gap-3 mb-6">
+								<div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+									<i class="fas fa-hand-pointer text-violet-400"></i>
+								</div>
+								<div>
+									<h2 class="text-xl font-display font-bold text-white">Playstyle</h2>
+									<p class="text-sm text-gray-500">Tell the world what you play with.</p>
+								</div>
+							</div>
+							<div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="checkbox-grid">
+								{{ range $k, $v := styles }}
+									{{ $bit := shift 1 $k }}
+									{{ $checked := band (int $d.play_style) $bit }}
+									{{ $icon := "fa-question" }}
+									{{ if eq $v "Mouse" }}{{ $icon = "fa-computer-mouse" }}{{ end }}
+									{{ if eq $v "Tablet" }}{{ $icon = "fa-tablet-screen-button" }}{{ end }}
+									{{ if eq $v "Keyboard" }}{{ $icon = "fa-keyboard" }}{{ end }}
+									{{ if eq $v "Touchscreen" }}{{ $icon = "fa-hand-pointer" }}{{ end }}
+									<label class="relative cursor-pointer group">
+										<input type="checkbox" data-sv="{{ $bit }}" {{ if $checked }}checked{{ end }} class="peer sr-only">
+										<div class="flex flex-col items-center gap-2 p-4 rounded-xl border border-dark-border bg-dark-bg/40 text-gray-400 transition-all duration-200 group-hover:border-violet-500/40 peer-checked:border-violet-500 peer-checked:bg-violet-500/10 peer-checked:text-violet-300 peer-checked:shadow-lg peer-checked:shadow-violet-500/10">
+											<i class="fas {{ $icon }} text-2xl"></i>
+											<span class="text-sm font-medium">{{ $v }}</span>
+										</div>
+									</label>
 								{{ end }}
-							</select>
+							</div>
 						</div>
 					</div>
 
 					{{ if has .Context.User.Privileges 4 }}
-					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">Custom badge</h3>
-					<div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 flex items-start gap-3">
-						<i class="fas fa-exclamation-triangle text-orange-400 mt-1"></i>
-						<p class="text-sm text-gray-300">{{"<b>Do not use offensive badges and do not pretend to be someone else with your badge.</b> If you abuse the badges system, you'll be silenced and you won't be able to edit your custom badge anymore." | html}}</p>
-					</div>
-					{{ $cb := $d.custom_badge }}
-					<label class="flex items-center gap-3 cursor-pointer">
-						<input type="checkbox" name="custom_badge.show" {{ if and $cb $cb.show }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
-						<span class="text-gray-300">Enable</span>
-					</label>
-					<div id="custom-badge-fields" {{ if not (and $cb $cb.show) }}style="display: none"{{ end }} class="mt-4 space-y-4">
-						<p class="text-sm text-gray-400"><a href="https://fontawesome.com/icons" target="_blank" class="text-primary hover:underline">Icon reference</a></p>
-						<div class="grid grid-cols-2 gap-4">
-							<div class="text-center">
-								<i class="fas {{ if and $cb $cb.icon }}fa-{{ $cb.icon }}{{ else }}fa-question{{ end }} text-4xl text-primary mb-2" id="badge-icon"></i><br>
-								<b id="badge-name" class="text-white">{{ if and $cb $cb.name }}{{ $cb.name }}{{ end }}</b>
+					<!-- Custom Badge (donors) -->
+					<div class="card overflow-hidden relative">
+						<div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/10 pointer-events-none"></div>
+						<div class="relative">
+							<div class="flex items-center gap-3 mb-6">
+								<div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+									<i class="fas fa-award text-amber-400"></i>
+								</div>
+								<div>
+									<h2 class="text-xl font-display font-bold text-white">Custom badge</h2>
+									<p class="text-sm text-gray-500">Donor perk — shows on your profile.</p>
+								</div>
 							</div>
-							<div class="space-y-2">
-								<input type="text" name="custom_badge.icon" placeholder="plane, chevron-left, hand-spock..." value="{{ if and $cb $cb.icon }}{{ $cb.icon }}{{ end }}" class="input-field">
-								<input type="text" name="custom_badge.name" placeholder="Dinosaur, oompa-loompa, cool guy..." value="{{ if and $cb $cb.name }}{{ $cb.name }}{{ end }}" class="input-field">
+
+							<div class="bg-orange-900/30 border border-orange-700/60 rounded-xl p-4 flex items-start gap-3 mb-6">
+								<i class="fas fa-exclamation-triangle text-orange-400 mt-1"></i>
+								<p class="text-sm text-gray-300">{{"<b>Do not use offensive badges or impersonate other people.</b> Abuse will get you silenced and lose you the badge perk." | html}}</p>
+							</div>
+
+							{{ $cb := $d.custom_badge }}
+							<label class="flex items-center gap-3 cursor-pointer mb-6 w-fit">
+								<div class="relative">
+									<input type="checkbox" name="custom_badge.show" {{ if and $cb $cb.show }}checked{{ end }} class="peer sr-only">
+									<div class="w-11 h-6 rounded-full bg-dark-bg border border-dark-border peer-checked:bg-amber-500/30 peer-checked:border-amber-500 transition-colors"></div>
+									<div class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-gray-400 peer-checked:bg-amber-300 peer-checked:translate-x-5 transition-all"></div>
+								</div>
+								<span class="text-gray-300 font-medium">Enable custom badge</span>
+							</label>
+
+							<div id="custom-badge-fields" {{ if not (and $cb $cb.show) }}style="display: none"{{ end }} class="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<div class="flex flex-col items-center justify-center bg-dark-bg/60 border border-dark-border rounded-2xl p-6 min-h-[180px]">
+									<i class="fas {{ if and $cb $cb.icon }}fa-{{ $cb.icon }}{{ else }}fa-question{{ end }} text-5xl text-amber-400 mb-3" id="badge-icon"></i>
+									<b id="badge-name" class="text-white text-lg">{{ if and $cb $cb.name }}{{ $cb.name }}{{ else }}Preview{{ end }}</b>
+								</div>
+								<div class="space-y-3">
+									<div>
+										<label class="block text-sm font-medium text-gray-300 mb-2">Icon name</label>
+										<input type="text" name="custom_badge.icon" placeholder="e.g. plane, hand-spock" value="{{ if and $cb $cb.icon }}{{ $cb.icon }}{{ end }}" class="input-field">
+										<p class="text-xs text-gray-500 mt-1"><a href="https://fontawesome.com/icons" target="_blank" class="text-primary hover:underline">Browse the FontAwesome icon library</a>.</p>
+									</div>
+									<div>
+										<label class="block text-sm font-medium text-gray-300 mb-2">Badge label</label>
+										<input type="text" name="custom_badge.name" placeholder="e.g. Dinosaur, oompa-loompa" value="{{ if and $cb $cb.name }}{{ $cb.name }}{{ end }}" class="input-field">
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 					{{ end }}
 
-					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">Playstyle</h3>
-					<div class="grid grid-cols-3 gap-4" id="checkbox-grid">
-						{{ $ := . }}
-						{{ range $k, $v := styles }}
-							{{ $checked := band (int $d.play_style) (shift 1 $k) }}
-							<label class="flex items-center gap-3 cursor-pointer">
-								<input type="checkbox" data-sv="{{ shift 1 $k }}" {{ if $checked }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
-								<span class="text-gray-300">{{$v}}</span>
+					<!-- Privacy -->
+					<div class="card overflow-hidden relative">
+						<div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-primary/10 pointer-events-none"></div>
+						<div class="relative">
+							<div class="flex items-center gap-3 mb-6">
+								<div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+									<i class="fas fa-shield-halved text-cyan-400"></i>
+								</div>
+								<h2 class="text-xl font-display font-bold text-white">Privacy</h2>
+							</div>
+							<label class="flex items-center justify-between gap-4 cursor-pointer p-4 bg-dark-bg/40 border border-dark-border rounded-xl hover:border-cyan-500/40 transition-colors">
+								<div>
+									<div class="text-white font-medium">Disable comments on my profile</div>
+									<p class="text-sm text-gray-500">Hides the comments box and prevents new comments.</p>
+								</div>
+								<div class="relative flex-shrink-0">
+									<input type="checkbox" name="disabled_comments" {{ if $d.disabled_comments }}checked{{ end }} class="peer sr-only">
+									<div class="w-11 h-6 rounded-full bg-dark-bg border border-dark-border peer-checked:bg-cyan-500/30 peer-checked:border-cyan-500 transition-colors"></div>
+									<div class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-gray-400 peer-checked:bg-cyan-300 peer-checked:translate-x-5 transition-all"></div>
+								</div>
 							</label>
-						{{ end }}
+						</div>
 					</div>
 
-					<h3 class="text-lg font-display font-bold text-white border-b border-dark-border pb-2 pt-4">Disable Comments?</h3>
-					<label class="flex items-center gap-3 cursor-pointer">
-						<input type="checkbox" name="disabled_comments" {{ if $d.disabled_comments }}checked{{ end }} class="w-5 h-5 rounded border-dark-border bg-dark-bg text-primary focus:ring-primary">
-						<span class="text-gray-300">Disable comments on my profile</span>
-					</label>
-
-					<div class="border-t border-dark-border pt-6 flex justify-end">
-						<button type="submit" class="btn-primary">Save</button>
+					<!-- Save -->
+					<div class="card overflow-hidden relative">
+						<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+						<div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+							<div class="flex items-center gap-3">
+								<i class="fas fa-circle-check text-primary"></i>
+								<p class="text-sm text-gray-400">Changes save when you press the button.</p>
+							</div>
+							<button type="submit" class="btn-primary inline-flex items-center gap-2">
+								<i class="fas fa-save"></i>
+								Save changes
+							</button>
+						</div>
 					</div>
 					{{ ieForm .Context }}
 				</form>

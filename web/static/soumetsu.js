@@ -39,11 +39,8 @@ const singlePageSnippets = {
       }
     });
 
-    // Form submission to API
-    $('form').submit(function (e) {
-      e.preventDefault();
-
-      const obj = formToObject($(this));
+    // Pack the play_style checkbox bitmask into the hidden input before submit
+    $('form').submit(function () {
       let ps = 0;
       $(this)
         .find('input[data-sv]')
@@ -53,28 +50,7 @@ const singlePageSnippets = {
             ps |= el.data('sv');
           }
         });
-      obj.play_style = ps;
-      const f = $(this);
-      fetch(soumetsuConf.baseAPI + '/api/v2/users/me/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(obj),
-      })
-        .then(function (resp) {
-          return resp.json();
-        })
-        .then(function (data) {
-          showMessage('success', 'Your new settings have been saved.');
-          f.removeClass('loading');
-        })
-        .catch(function () {
-          showMessage('error', 'An error occurred while saving settings.');
-          f.removeClass('loading');
-        });
-      return false;
+      $(this).find('input[name="play_style"]').val(ps);
     });
   },
 };

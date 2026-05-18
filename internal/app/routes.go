@@ -47,6 +47,7 @@ func (a *App) Routes() chi.Router {
 		r.Use(apimiddleware.RequireAuth)
 
 		r.Get("/settings", a.UserHandler.SettingsPage)
+		r.Post("/settings", a.UserHandler.UpdateSettings)
 		r.Get("/settings/password", a.PasswordHandler.ChangePage)
 		r.Post("/settings/password", a.PasswordHandler.Change)
 		r.Get("/settings/avatar", a.UserHandler.AvatarPage)

@@ -21,8 +21,18 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/jmoiron/sqlx"
 	"github.com/russross/blackfriday"
-	"zxq.co/ripple/playstyle"
 )
+
+// validPlaystyles lists the legitimate playstyle bits exposed in the settings
+// UI and used to render the play_style bitmask elsewhere. The bit order is
+// load-bearing (it maps to the database column), so append new entries at the
+// end and never reorder.
+var validPlaystyles = []string{
+	"Mouse",
+	"Tablet",
+	"Keyboard",
+	"Touchscreen",
+}
 
 type ConfigAccessor interface {
 	GetAvatarURL() string
@@ -373,7 +383,7 @@ func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 		"playstyle": func(i float64) string {
 			var parts []string
 			p := int(i)
-			for k, v := range playstyle.Styles {
+			for k, v := range validPlaystyles {
 				if p&(1<<uint(k)) > 0 {
 					parts = append(parts, v)
 				}
@@ -441,7 +451,7 @@ func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 			return t.After(time.Now())
 		},
 		"styles": func() []string {
-			return playstyle.Styles[:]
+			return validPlaystyles
 		},
 		"shift": func(n1, n2 int) int {
 			return n1 << uint(n2)
