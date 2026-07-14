@@ -18,6 +18,7 @@ type Config struct {
 	Beatmap  BeatmapConfig
 	Security SecurityConfig
 	Links    LinksConfig
+	Payments PaymentsConfig
 }
 
 type AppConfig struct {
@@ -89,6 +90,22 @@ type LinksConfig struct {
 	GitHubOrgURL string
 }
 
+type PaymentsConfig struct {
+	Currency string // default "GBP"
+
+	StripeSecretKey     string
+	StripeWebhookSecret string
+
+	FreeKassaMerchantID  string
+	FreeKassaSecretWord1 string
+	FreeKassaSecretWord2 string
+
+	PayPalClientID  string
+	PayPalSecret    string
+	PayPalWebhookID string
+	PayPalLive      bool // false = sandbox
+}
+
 func Load() (*Config, error) {
 	loadEnvFile()
 
@@ -140,6 +157,18 @@ func Load() (*Config, error) {
 		},
 		Links: LinksConfig{
 			GitHubOrgURL: optionalEnv("GITHUB_ORG_URL", "https://github.com/RealistikOsu"),
+		},
+		Payments: PaymentsConfig{
+			Currency:             optionalEnv("DONOR_CURRENCY", "GBP"),
+			StripeSecretKey:      os.Getenv("STRIPE_SECRET_KEY"),
+			StripeWebhookSecret:  os.Getenv("STRIPE_WEBHOOK_SECRET"),
+			FreeKassaMerchantID:  os.Getenv("FREEKASSA_MERCHANT_ID"),
+			FreeKassaSecretWord1: os.Getenv("FREEKASSA_SECRET_WORD_1"),
+			FreeKassaSecretWord2: os.Getenv("FREEKASSA_SECRET_WORD_2"),
+			PayPalClientID:       os.Getenv("PAYPAL_CLIENT_ID"),
+			PayPalSecret:         os.Getenv("PAYPAL_SECRET"),
+			PayPalWebhookID:      os.Getenv("PAYPAL_WEBHOOK_ID"),
+			PayPalLive:           os.Getenv("PAYPAL_ENV") == "live",
 		},
 	}
 
