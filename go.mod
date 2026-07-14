@@ -20,6 +20,8 @@ require (
 
 require github.com/stripe/stripe-go/v74 v74.30.0
 
+require github.com/plutov/paypal/v4 v4.10.0
+
 require (
 	github.com/boj/redistore v0.0.0-20160128113310-fc113767cd6b
 	github.com/garyburd/redigo v1.6.4 // indirect
