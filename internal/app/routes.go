@@ -83,7 +83,19 @@ func (a *App) Routes() chi.Router {
 		// clan-settings.js straight against the soumetsu-api endpoints. No
 		// server-side POST handlers live on this path.
 		r.Get("/clans/{id}/settings", a.ClanHandler.ManagePage)
+
+		r.Get("/donate", a.DonateHandler.Page)
+		r.Post("/donate/{provider}", a.DonateHandler.Checkout)
 	})
+
+	// Payment provider webhooks are server-to-server callbacks, not
+	// browser form submissions, so they carry no session cookie or CSRF
+	// token. They live outside the RequireAuth group (and outside any
+	// CSRF check — CSRF here is validated manually per-handler via
+	// h.csrf.Validate, not a global middleware, so simply not calling it
+	// is the exemption) and each provider verifies authenticity itself
+	// inside ParseWebhook.
+	r.Post("/webhooks/{provider}", a.DonateHandler.Webhook)
 
 	r.Get("/clans/{id}", a.ClanHandler.ClanPage)
 	r.Get("/clans/invites/{inv}", a.ClanHandler.JoinInvite)

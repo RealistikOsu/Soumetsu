@@ -18,6 +18,7 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/auth"
 	"github.com/RealistikOsu/soumetsu/internal/services/beatmap"
+	"github.com/RealistikOsu/soumetsu/internal/services/payments"
 	"github.com/RealistikOsu/soumetsu/internal/services/stats"
 	"github.com/RealistikOsu/soumetsu/web/templates"
 	"github.com/boj/redistore"
@@ -31,12 +32,16 @@ type App struct {
 	Redis     *redis.Client
 	APIClient *api.Client
 
-	TokenRepo *repositories.TokenRepository
-	UserRepo  *repositories.UserRepository
+	TokenRepo    *repositories.TokenRepository
+	UserRepo     *repositories.UserRepository
+	DonationRepo *repositories.DonationRepository
 
-	AuthService    *auth.Service
-	BeatmapService *beatmap.Service
-	StatsService   *stats.Service
+	AuthService     *auth.Service
+	BeatmapService  *beatmap.Service
+	StatsService    *stats.Service
+	PaymentsService *payments.Service
+
+	Providers map[string]payments.PaymentProvider
 
 	CSRF         middleware.CSRFService
 	SessionStore middleware.SessionStore
@@ -52,6 +57,7 @@ type App struct {
 	BeatmapHandler  *handlers.BeatmapHandler
 	PagesHandler    *handlers.PagesHandler
 	ErrorsHandler   *handlers.ErrorsHandler
+	DonateHandler   *handlers.DonateHandler
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -68,6 +74,8 @@ func New(cfg *config.Config) (*App, error) {
 	if err := app.initServices(); err != nil {
 		return nil, err
 	}
+
+	app.initPayments()
 
 	if err := app.initMiddleware(); err != nil {
 		return nil, err
@@ -103,6 +111,7 @@ func (a *App) initAdapters() error {
 func (a *App) initRepositories() {
 	a.TokenRepo = repositories.NewTokenRepository(a.DB)
 	a.UserRepo = repositories.NewUserRepository(a.DB)
+	a.DonationRepo = repositories.NewDonationRepository(a.DB)
 }
 
 func (a *App) initServices() error {
@@ -118,6 +127,16 @@ func (a *App) initServices() error {
 	a.StatsService = stats.NewService(a.Redis)
 
 	return nil
+}
+
+func (a *App) initPayments() {
+	pc := a.Config.Payments
+	a.Providers = map[string]payments.PaymentProvider{
+		"freekassa": payments.NewFreeKassaProvider(pc.FreeKassaMerchantID, pc.FreeKassaSecretWord1, pc.FreeKassaSecretWord2, a.Config.App.BaseURL),
+		"stripe":    payments.NewStripeProvider(pc.StripeSecretKey, pc.StripeWebhookSecret, a.Config.App.BaseURL),
+		"paypal":    payments.NewPayPalProvider(pc.PayPalClientID, pc.PayPalSecret, pc.PayPalWebhookID, a.Config.App.BaseURL, pc.PayPalLive),
+	}
+	a.PaymentsService = payments.NewService(a.DonationRepo, pc.Currency)
 }
 
 func (a *App) initMiddleware() error {
@@ -234,6 +253,13 @@ func (a *App) initHandlers() {
 	)
 
 	a.ErrorsHandler = handlers.NewErrorsHandler(a.ResponseEngine)
+
+	a.DonateHandler = handlers.NewDonateHandler(
+		a.PaymentsService,
+		a.DonationRepo,
+		a.Providers,
+		a.ResponseEngine,
+	)
 }
 
 type sessionStoreWrapper struct {
