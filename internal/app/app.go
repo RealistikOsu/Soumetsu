@@ -258,7 +258,6 @@ func (a *App) initHandlers() {
 		a.PaymentsService,
 		a.DonationRepo,
 		a.Providers,
-		a.ResponseEngine,
 	)
 }
 

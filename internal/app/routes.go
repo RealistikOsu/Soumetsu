@@ -84,7 +84,8 @@ func (a *App) Routes() chi.Router {
 		// server-side POST handlers live on this path.
 		r.Get("/clans/{id}/settings", a.ClanHandler.ManagePage)
 
-		r.Get("/donate", a.DonateHandler.Page)
+		// GET /donate is served by the SimplePage engine via
+		// web/templates/support.html (Handler=/donate in its header comment).
 		r.Post("/donate/{provider}", a.DonateHandler.Checkout)
 	})
 

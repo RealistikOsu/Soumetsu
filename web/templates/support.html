@@ -217,18 +217,10 @@ DisableHH=true
 					</div>
 				</div>
 
-				<!-- PayPal Form -->
-				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_self" id="donate-form">
-					<input type="hidden" name="on0" value="Period">
-					<input type="hidden" name="os0" value="1 month" id="period-input">
-					{{ range _range 24 }}
-						{{ $months := plus (float .) 1 }}
-						<input type="hidden" name="option_select{{ . }}" value="{{ $months }} month{{ if . }}s{{ end }}">
-						<input type="hidden" name="option_amount{{ . }}" value="{{ calculateDonorPrice $months }}">
-					{{ end }}
-					<input type="hidden" name="on1" value="RealistikOsu! user to give donor">
-					<input type="hidden" name="custom" value="username={{ $global.User.Username }}" id="ipn-username">
-					<input type="hidden" name="amount" value="{{ calculateDonorPrice 1 }}" id="paypal-amt">
+				<!-- Payment Form -->
+				<form method="post" id="donate-form">
+					<input type="hidden" name="months" value="1" id="months-input">
+					<input type="hidden" name="username" value="" id="username-input">
 
 					<div class="mb-6">
 						<label class="block text-sm font-medium text-gray-300 mb-3">Gift to User</label>
@@ -284,21 +276,24 @@ DisableHH=true
 							</div>
 						</div>
 
-						<!-- Hidden form input -->
-						<input name="os1" type="hidden" value="{{ $global.User.Username }}" id="username-input">
 					</div>
 
 					{{ $ief }}
-					<input type="hidden" name="business" value="realistikdash@gmail.com">
-					<input type="hidden" name="cmd" value="_xclick">
-					<input type="hidden" name="lc" value="GB">
-					<input type="hidden" name="no_note" value="0">
-					<input type="hidden" name="currency_code" value="GBP">
 
-					<button type="submit" class="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-3">
-						<i class="fab fa-paypal"></i>
-						Pay with PayPal
-					</button>
+					<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+						<button type="submit" formaction="/donate/freekassa" formmethod="post" class="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-3">
+							<i class="fas fa-wallet"></i>
+							FreeKassa
+						</button>
+						<button type="submit" formaction="/donate/stripe" formmethod="post" class="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-3">
+							<i class="fas fa-credit-card"></i>
+							Card (Stripe)
+						</button>
+						<button type="submit" formaction="/donate/paypal" formmethod="post" class="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-3">
+							<i class="fab fa-paypal"></i>
+							PayPal
+						</button>
+					</div>
 				</form>
 
 				<div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
@@ -319,10 +314,8 @@ DisableHH=true
 				const monthButtons = document.querySelectorAll('.month-btn');
 				const priceDisplay = document.getElementById('price-display');
 				const monthsDisplay = document.getElementById('months-display');
-				const paypalAmt = document.getElementById('paypal-amt');
-				const periodInput = document.getElementById('period-input');
+				const monthsInput = document.getElementById('months-input');
 				const usernameInput = document.getElementById('username-input');
-				const ipnUsername = document.getElementById('ipn-username');
 
 				// Month selection
 				monthButtons.forEach(btn => {
@@ -339,8 +332,7 @@ DisableHH=true
 
 						priceDisplay.textContent = price;
 						monthsDisplay.textContent = months;
-						paypalAmt.value = price;
-						periodInput.value = months + ' month' + (months > 1 ? 's' : '');
+						monthsInput.value = months;
 					});
 				});
 
@@ -399,7 +391,6 @@ DisableHH=true
 					}
 
 					usernameInput.value = user.username;
-					ipnUsername.value = 'username=' + user.username;
 					currentUserId = user.id;
 				}
 

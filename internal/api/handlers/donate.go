@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
-	"github.com/RealistikOsu/soumetsu/internal/api/response"
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/payments"
 )
@@ -16,26 +15,18 @@ type DonateHandler struct {
 	service   *payments.Service
 	repo      *repositories.DonationRepository
 	providers map[string]payments.PaymentProvider
-	templates *response.TemplateEngine
 }
 
 func NewDonateHandler(
 	service *payments.Service,
 	repo *repositories.DonationRepository,
 	providers map[string]payments.PaymentProvider,
-	templates *response.TemplateEngine,
 ) *DonateHandler {
 	return &DonateHandler{
 		service:   service,
 		repo:      repo,
 		providers: providers,
-		templates: templates,
 	}
-}
-
-// Page renders the donation page.
-func (h *DonateHandler) Page(w http.ResponseWriter, r *http.Request) {
-	h.templates.Render(w, "donate.html", &response.TemplateData{})
 }
 
 // Checkout starts a checkout session with the named provider and redirects
