@@ -132,7 +132,7 @@ func (a *App) initServices() error {
 func (a *App) initPayments() {
 	pc := a.Config.Payments
 	a.Providers = map[string]payments.PaymentProvider{
-		"freekassa": payments.NewFreeKassaProvider(pc.FreeKassaMerchantID, pc.FreeKassaSecretWord1, pc.FreeKassaSecretWord2, a.Config.App.BaseURL),
+		"freekassa": payments.NewFreeKassaProvider(pc.FreeKassaMerchantID, pc.FreeKassaSecretWord1, pc.FreeKassaSecretWord2, pc.FreeKassaPayURL, a.Config.App.BaseURL),
 		"stripe":    payments.NewStripeProvider(pc.StripeSecretKey, pc.StripeWebhookSecret, a.Config.App.BaseURL),
 		"paypal":    payments.NewPayPalProvider(pc.PayPalClientID, pc.PayPalSecret, pc.PayPalWebhookID, a.Config.App.BaseURL, pc.PayPalLive),
 	}
@@ -258,6 +258,7 @@ func (a *App) initHandlers() {
 		a.PaymentsService,
 		a.DonationRepo,
 		a.Providers,
+		a.CSRF,
 	)
 }
 

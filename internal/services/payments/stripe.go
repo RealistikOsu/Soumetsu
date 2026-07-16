@@ -63,7 +63,8 @@ func (p *StripeProvider) ParseWebhook(r *http.Request) (*WebhookResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"), p.webhookSecret)
+	event, err := webhook.ConstructEventWithOptions(payload, r.Header.Get("Stripe-Signature"), p.webhookSecret,
+		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
 	if err != nil {
 		return nil, err
 	}

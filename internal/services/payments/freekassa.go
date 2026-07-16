@@ -9,31 +9,35 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type FreeKassaProvider struct {
 	merchantID string
 	secret1    string // payment-URL signature
 	secret2    string // webhook signature
+	payURL     string
 	baseURL    string
 }
 
-func NewFreeKassaProvider(merchantID, secret1, secret2, baseURL string) *FreeKassaProvider {
-	return &FreeKassaProvider{merchantID, secret1, secret2, baseURL}
+func NewFreeKassaProvider(merchantID, secret1, secret2, payURL, baseURL string) *FreeKassaProvider {
+	return &FreeKassaProvider{merchantID, secret1, secret2, payURL, baseURL}
 }
 
 func (p *FreeKassaProvider) Name() string             { return "freekassa" }
 func (p *FreeKassaProvider) BonusMultiplier() float64 { return 1.00 }
 
 func (p *FreeKassaProvider) InitiateCheckout(ctx context.Context, req CheckoutRequest) (string, error) {
-	amount := fmt.Sprintf("%.2f", req.PriceGBP)
-	orderID := fmt.Sprintf("%d-%d", req.UserID, req.Months)
-	sig := md5hex(fmt.Sprintf("%s:%s:%s:GBP:%s", p.merchantID, amount, p.secret1, orderID))
+	priceUSD := req.PriceGBP * 1.34
+	amount := fmt.Sprintf("%.2f", priceUSD)
+	currency := "USD"
+	orderID := fmt.Sprintf("%d", time.Now().UnixNano())
+	sig := md5hex(fmt.Sprintf("%s:%s:%s:%s:%s", p.merchantID, amount, p.secret1, currency, orderID))
 	q := url.Values{
-		"m": {p.merchantID}, "oa": {amount}, "currency": {"GBP"}, "o": {orderID},
+		"m": {p.merchantID}, "oa": {amount}, "currency": {currency}, "o": {orderID},
 		"s": {sig}, "us_months": {strconv.Itoa(req.Months)}, "us_user_id": {strconv.Itoa(req.UserID)},
 	}
-	return "https://pay.freekassa.ru/?" + q.Encode(), nil
+	return p.payURL + "?" + q.Encode(), nil
 }
 
 func (p *FreeKassaProvider) ParseWebhook(r *http.Request) (*WebhookResult, error) {

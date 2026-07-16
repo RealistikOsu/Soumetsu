@@ -99,6 +99,7 @@ type PaymentsConfig struct {
 	FreeKassaMerchantID  string
 	FreeKassaSecretWord1 string
 	FreeKassaSecretWord2 string
+	FreeKassaPayURL      string
 
 	PayPalClientID  string
 	PayPalSecret    string
@@ -165,6 +166,7 @@ func Load() (*Config, error) {
 			FreeKassaMerchantID:  os.Getenv("FREEKASSA_MERCHANT_ID"),
 			FreeKassaSecretWord1: os.Getenv("FREEKASSA_SECRET_WORD_1"),
 			FreeKassaSecretWord2: os.Getenv("FREEKASSA_SECRET_WORD_2"),
+			FreeKassaPayURL:      optionalEnv("FREEKASSA_PAY_URL", "https://pay.freekassa.ru/"),
 			PayPalClientID:       os.Getenv("PAYPAL_CLIENT_ID"),
 			PayPalSecret:         os.Getenv("PAYPAL_SECRET"),
 			PayPalWebhookID:      os.Getenv("PAYPAL_WEBHOOK_ID"),

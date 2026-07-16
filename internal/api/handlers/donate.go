@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	apicontext "github.com/RealistikOsu/soumetsu/internal/api/context"
+	"github.com/RealistikOsu/soumetsu/internal/api/middleware"
 	"github.com/RealistikOsu/soumetsu/internal/repositories"
 	"github.com/RealistikOsu/soumetsu/internal/services/payments"
 )
@@ -15,17 +16,20 @@ type DonateHandler struct {
 	service   *payments.Service
 	repo      *repositories.DonationRepository
 	providers map[string]payments.PaymentProvider
+	csrf      middleware.CSRFService
 }
 
 func NewDonateHandler(
 	service *payments.Service,
 	repo *repositories.DonationRepository,
 	providers map[string]payments.PaymentProvider,
+	csrf middleware.CSRFService,
 ) *DonateHandler {
 	return &DonateHandler{
 		service:   service,
 		repo:      repo,
 		providers: providers,
+		csrf:      csrf,
 	}
 }
 
@@ -51,6 +55,11 @@ func (h *DonateHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reqCtx := apicontext.GetRequestContextFromRequest(r)
+
+	if ok, _ := h.csrf.Validate(reqCtx.User.ID, r.FormValue("csrf")); !ok {
+		http.Error(w, "invalid csrf", http.StatusForbidden)
+		return
+	}
 
 	recipient := r.FormValue("username")
 	if recipient == "" {
