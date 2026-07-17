@@ -5,13 +5,13 @@ type Clan struct {
 	Name        string `db:"name"`
 	Tag         string `db:"tag"`
 	Description string `db:"description"`
-	MemberLimit int    `db:"mlimit"`
+	MemberLimit int    `db:"member_limit"`
 }
 
 type ClanMember struct {
-	UserID int `db:"user"`
-	ClanID int `db:"clan"`
-	Perms  int `db:"perms"`
+	UserID int `db:"user_id"`
+	ClanID int `db:"clan_id"`
+	Perms  int `db:"clan_perms"`
 }
 
 func (m ClanMember) IsOwner() bool {
@@ -19,6 +19,6 @@ func (m ClanMember) IsOwner() bool {
 }
 
 type ClanInvite struct {
-	ClanID int    `db:"clan"`
+	ClanID int    `db:"clan_id"`
 	Invite string `db:"invite"`
 }

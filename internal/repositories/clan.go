@@ -18,7 +18,7 @@ func NewClanRepository(db *mysql.DB) *ClanRepository {
 
 func (r *ClanRepository) FindByID(ctx context.Context, id int) (*models.Clan, error) {
 	var clan models.Clan
-	err := r.db.GetContext(ctx, &clan, "SELECT id, name, tag, description, mlimit FROM clans WHERE id = ?", id)
+	err := r.db.GetContext(ctx, &clan, "SELECT id, name, tag, description, member_limit FROM clans WHERE id = ?", id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -76,34 +76,34 @@ func (r *ClanRepository) NameExists(ctx context.Context, name string) (bool, err
 
 func (r *ClanRepository) GetMemberCount(ctx context.Context, clanID int) (int, error) {
 	var count int
-	err := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM user_clans WHERE clan = ?", clanID).Scan(&count)
+	err := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM users WHERE clan_id = ?", clanID).Scan(&count)
 	return count, err
 }
 
 func (r *ClanRepository) GetMemberLimit(ctx context.Context, clanID int) (int, error) {
 	var limit int
-	err := r.db.QueryRowContext(ctx, "SELECT mlimit FROM clans WHERE id = ?", clanID).Scan(&limit)
+	err := r.db.QueryRowContext(ctx, "SELECT member_limit FROM clans WHERE id = ?", clanID).Scan(&limit)
 	return limit, err
 }
 
 func (r *ClanRepository) AddMember(ctx context.Context, userID, clanID, perms int) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO user_clans(user, clan, perms) VALUES (?, ?, ?)", userID, clanID, perms)
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET clan_id = ?, clan_perms = ? WHERE id = ?", clanID, perms, userID)
 	return err
 }
 
 func (r *ClanRepository) RemoveMember(ctx context.Context, userID int) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM user_clans WHERE user = ?", userID)
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET clan_id = NULL, clan_perms = 0 WHERE id = ?", userID)
 	return err
 }
 
 func (r *ClanRepository) RemoveAllMembers(ctx context.Context, clanID int) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM user_clans WHERE clan = ?", clanID)
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET clan_id = NULL, clan_perms = 0 WHERE clan_id = ?", clanID)
 	return err
 }
 
 func (r *ClanRepository) GetMember(ctx context.Context, userID, clanID int) (*models.ClanMember, error) {
 	var member models.ClanMember
-	err := r.db.GetContext(ctx, &member, "SELECT user, clan, perms FROM user_clans WHERE user = ? AND clan = ?", userID, clanID)
+	err := r.db.GetContext(ctx, &member, "SELECT id AS user_id, clan_id, clan_perms FROM users WHERE id = ? AND clan_id = ?", userID, clanID)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -115,7 +115,7 @@ func (r *ClanRepository) GetMember(ctx context.Context, userID, clanID int) (*mo
 
 func (r *ClanRepository) GetMemberByClan(ctx context.Context, userID int) (*models.ClanMember, error) {
 	var member models.ClanMember
-	err := r.db.GetContext(ctx, &member, "SELECT user, clan, perms FROM user_clans WHERE user = ?", userID)
+	err := r.db.GetContext(ctx, &member, "SELECT id AS user_id, clan_id, clan_perms FROM users WHERE id = ? AND clan_id IS NOT NULL", userID)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -127,7 +127,7 @@ func (r *ClanRepository) GetMemberByClan(ctx context.Context, userID int) (*mode
 
 func (r *ClanRepository) GetOwnerClan(ctx context.Context, userID int) (int, error) {
 	var clanID int
-	err := r.db.QueryRowContext(ctx, "SELECT clan FROM user_clans WHERE user = ? AND perms = 8 LIMIT 1", userID).Scan(&clanID)
+	err := r.db.QueryRowContext(ctx, "SELECT clan_id FROM users WHERE id = ? AND clan_perms = 8 LIMIT 1", userID).Scan(&clanID)
 	if err == sql.ErrNoRows {
 		return 0, nil
 	}
@@ -136,7 +136,7 @@ func (r *ClanRepository) GetOwnerClan(ctx context.Context, userID int) (int, err
 
 func (r *ClanRepository) IsOwner(ctx context.Context, userID int) (bool, error) {
 	var perms int
-	err := r.db.QueryRowContext(ctx, "SELECT perms FROM user_clans WHERE user = ? AND perms = 8 LIMIT 1", userID).Scan(&perms)
+	err := r.db.QueryRowContext(ctx, "SELECT clan_perms FROM users WHERE id = ? AND clan_perms = 8 LIMIT 1", userID).Scan(&perms)
 	if err == sql.ErrNoRows {
 		return false, nil
 	}
@@ -148,7 +148,7 @@ func (r *ClanRepository) IsOwner(ctx context.Context, userID int) (bool, error) 
 
 func (r *ClanRepository) IsMember(ctx context.Context, userID int) (bool, error) {
 	var exists int
-	err := r.db.QueryRowContext(ctx, "SELECT 1 FROM user_clans WHERE user = ?", userID).Scan(&exists)
+	err := r.db.QueryRowContext(ctx, "SELECT 1 FROM users WHERE id = ? AND clan_id IS NOT NULL", userID).Scan(&exists)
 	if err == sql.ErrNoRows {
 		return false, nil
 	}
@@ -159,7 +159,7 @@ func (r *ClanRepository) IsMember(ctx context.Context, userID int) (bool, error)
 }
 
 func (r *ClanRepository) GetAllMemberUserIDs(ctx context.Context, clanID int) ([]int, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT user FROM user_clans WHERE clan = ?", clanID)
+	rows, err := r.db.QueryContext(ctx, "SELECT id FROM users WHERE clan_id = ?", clanID)
 	if err != nil {
 		return nil, err
 	}
@@ -177,18 +177,18 @@ func (r *ClanRepository) GetAllMemberUserIDs(ctx context.Context, clanID int) ([
 }
 
 func (r *ClanRepository) CreateInvite(ctx context.Context, clanID int, inviteCode string) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO clans_invites(clan, invite) VALUES (?, ?)", clanID, inviteCode)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO clans_invites(clan_id, invite) VALUES (?, ?)", clanID, inviteCode)
 	return err
 }
 
 func (r *ClanRepository) DeleteInvites(ctx context.Context, clanID int) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM clans_invites WHERE clan = ?", clanID)
+	_, err := r.db.ExecContext(ctx, "DELETE FROM clans_invites WHERE clan_id = ?", clanID)
 	return err
 }
 
 func (r *ClanRepository) ResolveInvite(ctx context.Context, inviteCode string) (int, error) {
 	var clanID int
-	err := r.db.QueryRowContext(ctx, "SELECT clan FROM clans_invites WHERE invite = ?", inviteCode).Scan(&clanID)
+	err := r.db.QueryRowContext(ctx, "SELECT clan_id FROM clans_invites WHERE invite = ?", inviteCode).Scan(&clanID)
 	if err == sql.ErrNoRows {
 		return 0, nil
 	}
