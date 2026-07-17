@@ -8,55 +8,45 @@ import (
 // UserPrivileges represents the bitwise privilege flags for a user
 type UserPrivileges int
 
-// User privileges - these are bitwise flags
+// User privileges v2 - these are bitwise flags (see docs/reference/privileges.md)
 const (
-	UserPrivilegePublic              UserPrivileges = 1
-	UserPrivilegeNormal              UserPrivileges = 2 << 0  // 2
-	UserPrivilegeDonor               UserPrivileges = 2 << 1  // 4
-	AdminPrivilegeAccessRAP          UserPrivileges = 2 << 2  // 8
-	AdminPrivilegeManageUsers        UserPrivileges = 2 << 3  // 16
-	AdminPrivilegeBanUsers           UserPrivileges = 2 << 4  // 32
-	AdminPrivilegeSilenceUsers       UserPrivileges = 2 << 5  // 64
-	AdminPrivilegeWipeUsers          UserPrivileges = 2 << 6  // 128
-	AdminPrivilegeManageBeatmaps     UserPrivileges = 2 << 7  // 256
-	AdminPrivilegeManageServers      UserPrivileges = 2 << 8  // 512
-	AdminPrivilegeManageSettings     UserPrivileges = 2 << 9  // 1024
-	AdminPrivilegeManageBetakeys     UserPrivileges = 2 << 10 // 2048
-	AdminPrivilegeManageReports      UserPrivileges = 2 << 11 // 4096
-	AdminPrivilegeManageDocs         UserPrivileges = 2 << 12 // 8192
-	AdminPrivilegeManageBadges       UserPrivileges = 2 << 13 // 16384
-	AdminPrivilegeViewRAPLogs        UserPrivileges = 2 << 14 // 32768
-	AdminPrivilegeManagePrivileges   UserPrivileges = 2 << 15 // 65536
-	AdminPrivilegeSendAlerts         UserPrivileges = 2 << 16 // 131072
-	AdminPrivilegeChatMod            UserPrivileges = 2 << 17 // 262144
-	AdminPrivilegeKickUsers          UserPrivileges = 2 << 18 // 524288
-	UserPrivilegePendingVerification UserPrivileges = 2 << 19 // 1048576
-	UserPrivilegeTournamentStaff     UserPrivileges = 2 << 20 // 2097152
+	UserPrivilegeActivated         UserPrivileges = 1
+	UserPrivilegeDonor             UserPrivileges = 2
+	AdminPrivilegeManageUsers      UserPrivileges = 4
+	AdminPrivilegeViewRAPLogs      UserPrivileges = 8
+	AdminPrivilegeManageReports    UserPrivileges = 16
+	AdminPrivilegeManageClans      UserPrivileges = 32
+	AdminPrivilegeSendAlerts       UserPrivileges = 64
+	AdminPrivilegeManageSettings   UserPrivileges = 128
+	AdminPrivilegeManageBadges     UserPrivileges = 256
+	AdminPrivilegeManagePrivileges UserPrivileges = 512
+	DevPrivilegeViewErrorLogs      UserPrivileges = 1024
+	UserPrivilegeTournamentStaff   UserPrivileges = 2048
+	UserPrivilegeBot               UserPrivileges = 4096
+	BnPrivilegeStd                 UserPrivileges = 8192
+	BnPrivilegeTaiko               UserPrivileges = 16384
+	BnPrivilegeCtb                 UserPrivileges = 32768
+	BnPrivilegeMania               UserPrivileges = 65536
 )
 
 var privilegeNames = map[UserPrivileges]string{
-	UserPrivilegePublic:              "Public",
-	UserPrivilegeNormal:              "Normal",
-	UserPrivilegeDonor:               "Donor",
-	AdminPrivilegeAccessRAP:          "AccessRAP",
-	AdminPrivilegeManageUsers:        "ManageUsers",
-	AdminPrivilegeBanUsers:           "BanUsers",
-	AdminPrivilegeSilenceUsers:       "SilenceUsers",
-	AdminPrivilegeWipeUsers:          "WipeUsers",
-	AdminPrivilegeManageBeatmaps:     "ManageBeatmaps",
-	AdminPrivilegeManageServers:      "ManageServers",
-	AdminPrivilegeManageSettings:     "ManageSettings",
-	AdminPrivilegeManageBetakeys:     "ManageBetakeys",
-	AdminPrivilegeManageReports:      "ManageReports",
-	AdminPrivilegeManageDocs:         "ManageDocs",
-	AdminPrivilegeManageBadges:       "ManageBadges",
-	AdminPrivilegeViewRAPLogs:        "ViewRAPLogs",
-	AdminPrivilegeManagePrivileges:   "ManagePrivileges",
-	AdminPrivilegeSendAlerts:         "SendAlerts",
-	AdminPrivilegeChatMod:            "ChatMod",
-	AdminPrivilegeKickUsers:          "KickUsers",
-	UserPrivilegePendingVerification: "PendingVerification",
-	UserPrivilegeTournamentStaff:     "TournamentStaff",
+	UserPrivilegeActivated:         "Activated",
+	UserPrivilegeDonor:             "Donor",
+	AdminPrivilegeManageUsers:      "ManageUsers",
+	AdminPrivilegeViewRAPLogs:      "ViewRAPLogs",
+	AdminPrivilegeManageReports:    "ManageReports",
+	AdminPrivilegeManageClans:      "ManageClans",
+	AdminPrivilegeSendAlerts:       "SendAlerts",
+	AdminPrivilegeManageSettings:   "ManageSettings",
+	AdminPrivilegeManageBadges:     "ManageBadges",
+	AdminPrivilegeManagePrivileges: "ManagePrivileges",
+	DevPrivilegeViewErrorLogs:      "ViewErrorLogs",
+	UserPrivilegeTournamentStaff:   "TournamentStaff",
+	UserPrivilegeBot:               "Bot",
+	BnPrivilegeStd:                 "BN(std)",
+	BnPrivilegeTaiko:               "BN(taiko)",
+	BnPrivilegeCtb:                 "BN(ctb)",
+	BnPrivilegeMania:               "BN(mania)",
 }
 
 // String returns a human-readable string of the privileges
