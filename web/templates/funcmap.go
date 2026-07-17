@@ -142,13 +142,13 @@ func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 			return time.Now().Year()
 		},
 		"hasAdmin": func(privs models.UserPrivileges) bool {
-			return privs&models.AdminPrivilegeAccessRAP > 0
+			return privs&models.AdminPrivilegeViewRAPLogs > 0
 		},
 		"getUserRole": func(privs models.UserPrivileges) string {
 			if privs&models.AdminPrivilegeManageUsers > 0 {
 				return "Admin"
 			}
-			if privs&models.AdminPrivilegeAccessRAP > 0 {
+			if privs&models.AdminPrivilegeViewRAPLogs > 0 {
 				return "Moderator"
 			}
 			if privs&models.UserPrivilegeDonor > 0 {
@@ -157,7 +157,7 @@ func FuncMap(csrfService CSRFService, db *sqlx.DB) template.FuncMap {
 			return ""
 		},
 		"isStaff": func(privs models.UserPrivileges) bool {
-			return privs&models.AdminPrivilegeAccessRAP > 0
+			return privs&models.AdminPrivilegeViewRAPLogs > 0
 		},
 		"isRAP": func(p string) bool {
 			parts := strings.Split(p, "/")

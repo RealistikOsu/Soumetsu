@@ -275,15 +275,12 @@ func (h *AuthHandler) WelcomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.User.Privileges&int(models.UserPrivilegePendingVerification) > 0 {
+	if user.User.Privileges&int(models.UserPrivilegeActivated) == 0 {
 		http.Redirect(w, r, "/register/verify?u="+r.URL.Query().Get("u"), http.StatusFound)
 		return
 	}
 
 	title := "Welcome!"
-	if user.User.Privileges&int(models.UserPrivilegePublic) == 0 {
-		title = "Welcome back!"
-	}
 
 	h.templates.Render(w, "auth/register/welcome.html", &response.TemplateData{
 		TitleBar:       title,

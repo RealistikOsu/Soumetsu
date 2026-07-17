@@ -43,15 +43,15 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 			var userData struct {
 				Username   string `db:"username"`
 				Privileges int64  `db:"privileges"`
-				Flags      uint64 `db:"flags"`
-				Password   string `db:"password_md5"`
+				Public     bool   `db:"public"`
+				Password   string `db:"password_bcrypt"`
 				Coins      int    `db:"coins"`
 			}
 
 			err = db.QueryRowContext(r.Context(), `
-				SELECT username, privileges, flags, password_md5, coins
+				SELECT username, privileges, public, password_bcrypt, coins
 				FROM users WHERE id = ?`, userID).Scan(
-				&userData.Username, &userData.Privileges, &userData.Flags, &userData.Password, &userData.Coins)
+				&userData.Username, &userData.Privileges, &userData.Public, &userData.Password, &userData.Coins)
 
 			if err == sql.ErrNoRows {
 				sess.Values["userid"] = nil
@@ -87,9 +87,10 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 			}
 
 			var clanID, clanOwner int
-			// perms = 2 is CLAN_PERM_OWNER in soumetsu-api.
+			// perms = 2 is CLAN_PERM_OWNER in soumetsu-api. Membership is now
+			// folded into users.clan_id / users.clan_perms.
 			err = db.QueryRowContext(r.Context(), `
-				SELECT clan, perms = 2 FROM user_clans WHERE user = ?`, userID).Scan(&clanID, &clanOwner)
+				SELECT clan_id, clan_perms = 2 FROM users WHERE id = ? AND clan_id IS NOT NULL`, userID).Scan(&clanID, &clanOwner)
 			if err != nil {
 				clanID = 0
 				clanOwner = 0
@@ -99,7 +100,7 @@ func SessionInitializer(store SessionStore, db *mysql.DB) func(http.Handler) htt
 				ID:         userID,
 				Username:   userData.Username,
 				Privileges: models.UserPrivileges(userData.Privileges),
-				Flags:      userData.Flags,
+				Public:     userData.Public,
 				Clan:       clanID,
 				ClanOwner:  clanOwner,
 				Coins:      userData.Coins,

@@ -1,29 +1,30 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
+	"time"
 )
 
 type User struct {
-	ID              int            `db:"id"`
-	Username        string         `db:"username"`
-	UsernameSafe    string         `db:"username_safe"`
-	Email           string         `db:"email"`
-	Password        string         `db:"password_md5"`
-	PasswordVersion int            `db:"password_version"`
-	Privileges      UserPrivileges `db:"privileges"`
-	Flags           uint64         `db:"flags"`
-	Country         string         `db:"country"`
-	RegisteredOn    int64          `db:"register_datetime"`
-	LatestActivity  int64          `db:"latest_activity"`
-	Coins           int            `db:"coins"`
+	ID             int            `db:"id"`
+	Username       string         `db:"username"`
+	UsernameSafe   string         `db:"username_safe"`
+	Email          string         `db:"email"`
+	Password       string         `db:"password_bcrypt"`
+	Privileges     UserPrivileges `db:"privileges"`
+	Public         bool           `db:"public"`
+	Country        string         `db:"country"`
+	RegisteredOn   time.Time      `db:"register_time"`
+	LatestActivity sql.NullTime   `db:"latest_activity"`
+	Coins          int            `db:"coins"`
 }
 
 type SessionUser struct {
 	ID         int
 	Username   string
 	Privileges UserPrivileges
-	Flags      uint64
+	Public     bool
 	Clan       int
 	ClanOwner  int
 	Coins      int
@@ -33,8 +34,9 @@ func (u SessionUser) IsLoggedIn() bool {
 	return u.ID != 0
 }
 
+// Banned/restricted is the public cache now, not a privilege bit.
 func (u SessionUser) IsBanned() bool {
-	return !u.HasPrivilege(UserPrivilegeNormal)
+	return !u.Public
 }
 
 // HasPrivilege checks if the user has ALL of the specified privileges.
@@ -47,12 +49,12 @@ func (u SessionUser) HasAnyPrivilege(priv UserPrivileges) bool {
 	return u.Privileges&priv != 0
 }
 
-func (u SessionUser) IsNormal() bool {
-	return u.HasPrivilege(UserPrivilegeNormal)
+func (u SessionUser) IsActivated() bool {
+	return u.HasPrivilege(UserPrivilegeActivated)
 }
 
 func (u SessionUser) IsPendingVerification() bool {
-	return u.HasAnyPrivilege(UserPrivilegePendingVerification)
+	return !u.IsActivated()
 }
 
 func (u SessionUser) IsDonor() bool {
@@ -60,18 +62,19 @@ func (u SessionUser) IsDonor() bool {
 }
 
 func (u SessionUser) IsAdmin() bool {
-	return u.HasAnyPrivilege(AdminPrivilegeAccessRAP)
+	return u.HasAnyPrivilege(AdminPrivilegeManageSettings)
 }
 
 func (u SessionUser) CanManageUsers() bool {
 	return u.HasPrivilege(AdminPrivilegeManageUsers)
 }
 
+// leaderboard visibility filter -> users.public
 func (u SessionUser) OnlyUserPublic() string {
 	if u.CanManageUsers() {
 		return "1"
 	}
-	return fmt.Sprintf("(users.privileges & 1 = 1 OR users.id = '%d')", u.ID)
+	return fmt.Sprintf("(users.public = 1 OR users.id = '%d')", u.ID)
 }
 
 // Clan perm bitmask, matching CLAN_PERM_* in soumetsu-api.
