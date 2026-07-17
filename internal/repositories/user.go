@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strings"
+	"time"
 
 	"github.com/RealistikOsu/soumetsu/internal/adapters/mysql"
 	"github.com/RealistikOsu/soumetsu/internal/models"
@@ -20,8 +21,8 @@ func NewUserRepository(db *mysql.DB) *UserRepository {
 func (r *UserRepository) FindByID(ctx context.Context, id int) (*models.User, error) {
 	var user models.User
 	err := r.db.GetContext(ctx, &user, `
-		SELECT id, username, username_safe, email, password_md5, password_version,
-		       privileges, flags, country, register_datetime, latest_activity, coins
+		SELECT id, username, username_safe, email, password_bcrypt,
+		       privileges, public, country, register_time, latest_activity, coins
 		FROM users WHERE id = ? LIMIT 1`, id)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -36,8 +37,8 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 	safe := SafeUsername(username)
 	var user models.User
 	err := r.db.GetContext(ctx, &user, `
-		SELECT id, username, username_safe, email, password_md5, password_version,
-		       privileges, flags, country, register_datetime, latest_activity, coins
+		SELECT id, username, username_safe, email, password_bcrypt,
+		       privileges, public, country, register_time, latest_activity, coins
 		FROM users WHERE username_safe = ? LIMIT 1`, safe)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -51,8 +52,8 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 	err := r.db.GetContext(ctx, &user, `
-		SELECT id, username, username_safe, email, password_md5, password_version,
-		       privileges, flags, country, register_datetime, latest_activity, coins
+		SELECT id, username, username_safe, email, password_bcrypt,
+		       privileges, public, country, register_time, latest_activity, coins
 		FROM users WHERE email = ? LIMIT 1`, email)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -71,13 +72,12 @@ func (r *UserRepository) FindByUsernameOrEmail(ctx context.Context, identifier s
 }
 
 type UserForLogin struct {
-	ID              int                   `db:"id"`
-	Username        string                `db:"username"`
-	Password        string                `db:"password_md5"`
-	PasswordVersion int                   `db:"password_version"`
-	Country         string                `db:"country"`
-	Privileges      models.UserPrivileges `db:"privileges"`
-	Flags           uint64                `db:"flags"`
+	ID         int                   `db:"id"`
+	Username   string                `db:"username"`
+	Password   string                `db:"password_bcrypt"`
+	Country    string                `db:"country"`
+	Privileges models.UserPrivileges `db:"privileges"`
+	Public     bool                  `db:"public"`
 }
 
 func (r *UserRepository) FindForLogin(ctx context.Context, identifier string) (*UserForLogin, error) {
@@ -90,7 +90,7 @@ func (r *UserRepository) FindForLogin(ctx context.Context, identifier string) (*
 	}
 
 	var user UserForLogin
-	query := `SELECT id, password_md5, username, password_version, country, privileges, flags
+	query := `SELECT id, password_bcrypt, username, country, privileges, public
 		FROM users WHERE ` + param + ` = ? LIMIT 1`
 	err := r.db.GetContext(ctx, &user, query, strings.TrimSpace(value))
 	if err == sql.ErrNoRows {
@@ -102,11 +102,11 @@ func (r *UserRepository) FindForLogin(ctx context.Context, identifier string) (*
 	return &user, nil
 }
 
-func (r *UserRepository) Create(ctx context.Context, username, email, password, apiKey string, privileges models.UserPrivileges, registerTime int64) (int64, error) {
+func (r *UserRepository) Create(ctx context.Context, username, email, password string, privileges models.UserPrivileges) (int64, error) {
 	result, err := r.db.ExecContext(ctx, `
-		INSERT INTO users(username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version, api_key)
-		VALUES (?, ?, ?, '', ?, ?, ?, 2, ?)`,
-		username, SafeUsername(username), password, email, registerTime, privileges, apiKey)
+		INSERT INTO users(username, username_safe, password_bcrypt, email, privileges)
+		VALUES (?, ?, ?, ?, ?)`,
+		username, SafeUsername(username), password, email, privileges)
 	if err != nil {
 		return 0, err
 	}
@@ -114,12 +114,12 @@ func (r *UserRepository) Create(ctx context.Context, username, email, password, 
 }
 
 func (r *UserRepository) UpdatePassword(ctx context.Context, id int, password string) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET password_md5 = ?, password_version = 2 WHERE id = ?", password, id)
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET password_bcrypt = ? WHERE id = ?", password, id)
 	return err
 }
 
 func (r *UserRepository) UpdatePasswordByUsername(ctx context.Context, usernameSafe, password string) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET password_md5 = ?, salt = '', password_version = '2' WHERE username_safe = ?", password, usernameSafe)
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET password_bcrypt = ? WHERE username_safe = ?", password, usernameSafe)
 	return err
 }
 
@@ -128,8 +128,8 @@ func (r *UserRepository) UpdateCountry(ctx context.Context, id int, country stri
 	return err
 }
 
-func (r *UserRepository) UpdateLatestActivity(ctx context.Context, id int, timestamp int64) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET latest_activity = ? WHERE id = ?", timestamp, id)
+func (r *UserRepository) UpdateLatestActivity(ctx context.Context, id int, t time.Time) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET latest_activity = ? WHERE id = ?", t, id)
 	return err
 }
 
@@ -141,11 +141,6 @@ func (r *UserRepository) UpdateEmail(ctx context.Context, id int, email string) 
 func (r *UserRepository) UpdateUsername(ctx context.Context, id int, username string) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE users SET username = ?, username_safe = ? WHERE id = ?",
 		username, SafeUsername(username), id)
-	return err
-}
-
-func (r *UserRepository) ClearFlags(ctx context.Context, id int, flags uint64) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET flags = flags & ~? WHERE id = ? LIMIT 1", flags, id)
 	return err
 }
 
@@ -196,14 +191,15 @@ func (r *UserRepository) UsernameInHistory(ctx context.Context, username string)
 
 func (r *UserRepository) RecordUsernameChange(ctx context.Context, userID int, oldUsername, newUsername string, changedAt int64) error {
 	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO user_name_history(user_id, username, changed_datetime)
+		INSERT INTO user_name_history(user_id, username, replaced_at)
 		VALUES (?, ?, ?)`, userID, oldUsername, changedAt)
 	return err
 }
 
 func (r *UserRepository) GetClanMembership(ctx context.Context, userID int) (*models.ClanMembership, error) {
 	var membership models.ClanMembership
-	err := r.db.GetContext(ctx, &membership, "SELECT user, clan, perms FROM user_clans WHERE user = ?", userID)
+	err := r.db.GetContext(ctx, &membership,
+		"SELECT id AS user_id, clan_id, clan_perms FROM users WHERE id = ? AND clan_id IS NOT NULL", userID)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -214,26 +210,26 @@ func (r *UserRepository) GetClanMembership(ctx context.Context, userID int) (*mo
 }
 
 func (r *UserRepository) GetUserpage(ctx context.Context, userID int) (string, error) {
-	var content string
-	err := r.db.QueryRowContext(ctx, "SELECT userpage_content FROM users_stats WHERE id = ?", userID).Scan(&content)
+	var content sql.NullString
+	err := r.db.QueryRowContext(ctx, "SELECT userpage_content FROM user_settings WHERE user_id = ?", userID).Scan(&content)
 	if err == sql.ErrNoRows {
 		return "", nil
 	}
-	return content, err
+	return content.String, err
 }
 
 func (r *UserRepository) UpdateUserpage(ctx context.Context, userID int, content string) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users_stats SET userpage_content = ? WHERE id = ?", content, userID)
+	_, err := r.db.ExecContext(ctx, "UPDATE user_settings SET userpage_content = ? WHERE user_id = ?", content, userID)
 	return err
 }
 
 func (r *UserRepository) GetBadgeMembers(ctx context.Context, badgeID int) ([]models.User, error) {
 	var users []models.User
 	err := r.db.SelectContext(ctx, &users, `
-		SELECT u.id, u.username, u.privileges, u.country, u.register_datetime, u.latest_activity
+		SELECT u.id, u.username, u.privileges, u.country, u.register_time, u.latest_activity
 		FROM users u
-		JOIN user_badges ub ON u.id = ub.user
-		WHERE ub.badge = ?
+		JOIN user_badges ub ON u.id = ub.user_id
+		WHERE ub.badge_id = ?
 		ORDER BY u.id ASC`, badgeID)
 	if err != nil {
 		return nil, err

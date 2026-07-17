@@ -84,9 +84,9 @@ const (
 )
 
 type ClanMembership struct {
-	UserID    int `db:"user"`
-	ClanID    int `db:"clan"`
-	ClanPerms int `db:"perms"`
+	UserID    int `db:"user_id"`
+	ClanID    int `db:"clan_id"`
+	ClanPerms int `db:"clan_perms"`
 }
 
 func (m ClanMembership) IsClanOwner() bool {
