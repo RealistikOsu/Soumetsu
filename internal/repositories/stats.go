@@ -15,35 +15,14 @@ func NewStatsRepository(db *mysql.DB) *StatsRepository {
 }
 
 func (r *StatsRepository) InitializeUserStats(ctx context.Context, userID int64, username string) error {
-	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO users_stats(id, username, user_color, user_style,
-			ranked_score_std, playcount_std, total_score_std,
-			ranked_score_taiko, playcount_taiko, total_score_taiko,
-			ranked_score_ctb, playcount_ctb, total_score_ctb,
-			ranked_score_mania, playcount_mania, total_score_mania)
-		VALUES (?, ?, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`, userID, username)
-	if err != nil {
-		return err
+	// 8 rows: vn std/taiko/ctb/mania (0-3), rx std/taiko/ctb (4-6), ap std (7)
+	for _, mode := range []int{0, 1, 2, 3, 4, 5, 6, 7} {
+		if _, err := r.db.ExecContext(ctx,
+			"INSERT INTO user_stats(user_id, mode) VALUES (?, ?)", userID, mode); err != nil {
+			return err
+		}
 	}
-
-	_, err = r.db.ExecContext(ctx, `
-		INSERT INTO rx_stats(id, username, user_color, user_style,
-			ranked_score_std, playcount_std, total_score_std,
-			ranked_score_taiko, playcount_taiko, total_score_taiko,
-			ranked_score_ctb, playcount_ctb, total_score_ctb,
-			ranked_score_mania, playcount_mania, total_score_mania)
-		VALUES (?, ?, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`, userID, username)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.db.ExecContext(ctx, `
-		INSERT INTO ap_stats(id, username, user_color, user_style,
-			ranked_score_std, playcount_std, total_score_std,
-			ranked_score_taiko, playcount_taiko, total_score_taiko,
-			ranked_score_ctb, playcount_ctb, total_score_ctb,
-			ranked_score_mania, playcount_mania, total_score_mania)
-		VALUES (?, ?, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`, userID, username)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO user_settings(user_id) VALUES (?)", userID)
 	return err
 }
 
@@ -83,8 +62,8 @@ func (r *DiscordRepository) IsLinked(ctx context.Context, userID int) (bool, err
 
 func (r *DiscordRepository) Link(ctx context.Context, userID int, discordID string) error {
 	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO discord_oauth(id, discord_id, user_id)
-		VALUES (NULL, ?, ?)`, discordID, userID)
+		INSERT INTO discord_oauth(discord_id, user_id, discord_username, discord_avatar)
+		VALUES (?, ?, '', '')`, discordID, userID)
 	return err
 }
 
@@ -103,9 +82,9 @@ func NewProfileBackgroundRepository(db *mysql.DB) *ProfileBackgroundRepository {
 
 func (r *ProfileBackgroundRepository) SetBackground(ctx context.Context, userID int, bgType int, value string) error {
 	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO profile_backgrounds(uid, time, type, value)
-		VALUES (?, UNIX_TIMESTAMP(), ?, ?)
-		ON DUPLICATE KEY UPDATE time = UNIX_TIMESTAMP(), type = ?, value = ?`,
+		INSERT INTO profile_backgrounds(user_id, set_at, type, value)
+		VALUES (?, NOW(), ?, ?)
+		ON DUPLICATE KEY UPDATE set_at = NOW(), type = ?, value = ?`,
 		userID, bgType, value, bgType, value)
 	return err
 }
@@ -113,6 +92,6 @@ func (r *ProfileBackgroundRepository) SetBackground(ctx context.Context, userID 
 func (r *ProfileBackgroundRepository) GetBackground(ctx context.Context, userID int) (int, string, error) {
 	var bgType int
 	var value string
-	err := r.db.QueryRowContext(ctx, "SELECT type, value FROM profile_backgrounds WHERE uid = ?", userID).Scan(&bgType, &value)
+	err := r.db.QueryRowContext(ctx, "SELECT type, value FROM profile_backgrounds WHERE user_id = ?", userID).Scan(&bgType, &value)
 	return bgType, value, err
 }
