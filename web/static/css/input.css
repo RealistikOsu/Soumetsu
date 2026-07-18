@@ -8,21 +8,51 @@
   }
 
   body {
-    @apply bg-dark-bg text-white;
+    @apply text-white;
+    background-color: #120f1c;
+    /* Branded atmosphere: two soft colour pools from the logo gradient bleed in
+       from the corners, over a faint grain — instead of a flat slate fill. */
+    background-image:
+      radial-gradient(60rem 60rem at 88% -10%, rgba(192, 57, 143, 0.16), transparent 60%),
+      radial-gradient(52rem 52rem at -8% 8%, rgba(46, 58, 143, 0.18), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: rgba(192, 57, 143, 0.35);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+    @apply text-white font-semibold px-6 py-3 rounded-md transition-all duration-200 shadow-glow-sm;
+    background-image: linear-gradient(120deg, #2e3a8f 0%, #7e2a8e 55%, #c0398f 100%);
+    background-size: 140% 140%;
+    background-position: 0% 50%;
+  }
+  .btn-primary:hover {
+    background-position: 100% 50%;
+    @apply shadow-glow;
   }
 
   .btn-secondary {
-    @apply bg-dark-card hover:bg-dark-border text-white font-medium px-6 py-3 rounded-lg border border-dark-border transition-colors duration-200;
+    @apply bg-dark-elevated hover:bg-dark-border text-white font-medium px-6 py-3 rounded-md border border-dark-border transition-colors duration-200;
   }
 
   .card {
     @apply bg-dark-card rounded-lg p-6 border border-dark-border;
+    /* subtle top edge-light so cards read as lit panels, not flat rectangles */
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
   }
 
   .input-field {
