@@ -188,9 +188,8 @@ type DiscordLinkResponse struct {
 }
 
 type LinkDiscordRequest struct {
-	DiscordID       string `json:"discord_id"`
-	DiscordUsername string `json:"discord_username"`
-	DiscordAvatar   string `json:"discord_avatar"`
+	Code        string `json:"code"`
+	RedirectURI string `json:"redirect_uri"`
 }
 
 func (c *Client) GetDiscord(ctx context.Context, token string) (*DiscordLinkResponse, error) {

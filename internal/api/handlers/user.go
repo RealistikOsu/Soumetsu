@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -19,11 +18,6 @@ import (
 	"github.com/RealistikOsu/soumetsu/internal/models"
 	"github.com/gorilla/sessions"
 )
-
-// discordHTTPClient is the shared HTTP client used for the Discord OAuth
-// round-trip. 10s is generous — the token exchange and /users/@me each take
-// well under a second on a healthy network.
-var discordHTTPClient = &http.Client{Timeout: 10 * time.Second}
 
 const discordOAuthStateKey = "discord_oauth_state"
 
@@ -430,22 +424,13 @@ func (h *UserHandler) RedirectDiscord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := discord.ExchangeCode(r.Context(), discordHTTPClient, h.config.Discord.AppClientID, h.config.Discord.AppClientSecret, code, redirectURI)
-	if err != nil {
-		failRedirect("token_exchange_failed")
-		return
-	}
-
-	dcUser, err := discord.FetchUser(r.Context(), discordHTTPClient, accessToken)
-	if err != nil {
-		failRedirect("profile_fetch_failed")
-		return
-	}
-
+	// The authorization code exchange and profile fetch happen server-side in
+	// soumetsu-api, which holds the Discord client secret and verifies the
+	// resulting identity itself — this handler never sees or trusts a
+	// client-asserted discord_id/username/avatar.
 	if err := h.apiClient.LinkDiscord(r.Context(), token, &api.LinkDiscordRequest{
-		DiscordID:       dcUser.ID,
-		DiscordUsername: dcUser.Username,
-		DiscordAvatar:   dcUser.Avatar,
+		Code:        code,
+		RedirectURI: redirectURI,
 	}); err != nil {
 		if apiErr, ok := err.(*api.APIError); ok && apiErr.Code == "users.discord_already_linked" {
 			failRedirect("already_linked")
