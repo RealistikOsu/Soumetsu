@@ -119,7 +119,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	sess.Values["logout"] = crypto.GenerateLogoutKey()
 
 	redir := r.FormValue("redir")
-	if len(redir) > 0 && redir[0] != '/' {
+	if len(redir) == 0 || redir[0] != '/' || strings.HasPrefix(redir, "//") || strings.HasPrefix(redir, "/\\") {
 		redir = ""
 	}
 	if redir == "" {
