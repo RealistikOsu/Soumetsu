@@ -59,6 +59,11 @@ func (a *App) Routes() chi.Router {
 		r.Get("/settings/discord/redirect", a.UserHandler.RedirectDiscord)
 		r.Get("/settings/discord/unlink", a.UserHandler.UnlinkDiscord)
 
+		r.Get("/settings/twitch", a.TwitchHandler.Page)
+		r.Post("/settings/twitch", a.TwitchHandler.UpdateSettings)
+		r.Get("/settings/twitch/redirect", a.TwitchHandler.Redirect)
+		r.Get("/settings/twitch/unlink", a.TwitchHandler.Unlink)
+
 		r.Get("/settings/user-page", a.UserHandler.UserpageSettingsPage)
 		r.Post("/settings/user-page", a.UserHandler.UpdateUserpage)
 
