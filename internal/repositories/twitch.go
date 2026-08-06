@@ -23,13 +23,13 @@ type TwitchLink struct {
 
 // TwitchSettings are the per-streamer request rules honoured by the bot.
 type TwitchSettings struct {
-	Enabled     bool
-	Echo        bool
-	SubOnly     bool
-	PointsOnly  bool
-	Cooldown    int
-	StarMin     float64
-	StarMax     float64
+	Enabled    bool
+	Echo       bool
+	SubOnly    bool
+	PointsOnly bool
+	Cooldown   int
+	StarMin    float64
+	StarMax    float64
 }
 
 // DefaultTwitchSettings matches the column defaults in twitch_settings, so a link
