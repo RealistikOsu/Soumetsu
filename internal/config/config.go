@@ -15,6 +15,7 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	Discord  DiscordConfig
+	Twitch   TwitchConfig
 	Beatmap  BeatmapConfig
 	Security SecurityConfig
 	Links    LinksConfig
@@ -73,6 +74,20 @@ type DiscordConfig struct {
 	UserLookupURL   string
 }
 
+// TwitchConfig drives the Twitch account linking flow used by the beatmap
+// request bot. Optional: when the client ID or secret is unset, the linking page
+// reports the feature as unavailable rather than failing at boot, so existing
+// deployments keep starting without new environment variables.
+type TwitchConfig struct {
+	AppClientID     string
+	AppClientSecret string
+}
+
+// Enabled reports whether Twitch linking is configured.
+func (c TwitchConfig) Enabled() bool {
+	return c.AppClientID != "" && c.AppClientSecret != ""
+}
+
 type BeatmapConfig struct {
 	MirrorAPIURL      string
 	DownloadMirrorURL string
@@ -127,6 +142,10 @@ func Load() (*Config, error) {
 			AppClientID:     mustEnv("DISCORD_APP_CLIENT_ID"),
 			AppClientSecret: mustEnv("DISCORD_APP_CLIENT_SECRET"),
 			UserLookupURL:   mustEnv("DISCORD_USER_LOOKUP_URL"),
+		},
+		Twitch: TwitchConfig{
+			AppClientID:     optionalEnv("TWITCH_APP_CLIENT_ID", ""),
+			AppClientSecret: optionalEnv("TWITCH_APP_CLIENT_SECRET", ""),
 		},
 		Beatmap: BeatmapConfig{
 			MirrorAPIURL:      mustEnv("SOUMETSU_BEATMAP_MIRROR_API_URL"),

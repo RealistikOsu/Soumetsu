@@ -1,0 +1,280 @@
+{{/*###
+KyutGrill=settings2.jpg
+Include=menu.html
+DisableHH=true
+*/}}
+{{ define "tpl" }}
+{{ $enabled := get .Extra "twitchEnabled" }}
+{{ $isLinked := get .Extra "twitchLinked" }}
+{{ $twitchID := get .Extra "twitchID" }}
+{{ $twitchUsername := get .Extra "twitchUsername" }}
+{{ $settings := get .Extra "settings" }}
+{{ $excluded := get .Extra "excludedUsers" }}
+
+<div class="relative min-h-screen py-8">
+	<div class="fixed inset-0 -z-10">
+		<div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+			style="background-image: url('/static/headers/settings2.jpg');"></div>
+		<div class="absolute inset-0 bg-gradient-to-b from-dark-bg via-dark-bg/90 to-dark-bg"></div>
+	</div>
+
+	<div class="container mx-auto px-4">
+		<div class="flex flex-col md:flex-row gap-6">
+			{{ template "settingsSidebar" . }}
+
+			<div class="flex-1 space-y-6">
+				<div class="card">
+					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-dark-border">
+						<div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+							<i class="fab fa-twitch text-purple-400 text-xl"></i>
+						</div>
+						<div>
+							<h2 class="text-2xl font-display font-bold text-white">Twitch Beatmap Requests</h2>
+							<p class="text-sm text-gray-400">Let your viewers send you maps in-game</p>
+						</div>
+					</div>
+
+					{{ if .QueryParams.linked }}
+						<div class="mb-6 p-4 bg-green-900/30 border border-green-700/50 rounded-lg flex items-start gap-3">
+							<i class="fas fa-check-circle text-green-400 mt-1"></i>
+							<p class="text-sm text-gray-200">Your Twitch account has been linked.</p>
+						</div>
+					{{ end }}
+
+					{{ if .QueryParams.error }}
+						<div class="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg flex items-start gap-3">
+							<i class="fas fa-exclamation-circle text-red-400 mt-1"></i>
+							<p class="text-sm text-gray-200">
+								{{ if eq .QueryParams.error "state_mismatch" }}OAuth state mismatch — please try linking again.
+								{{ else if eq .QueryParams.error "token_exchange_failed" }}Twitch rejected the authorisation code. Please try again.
+								{{ else if eq .QueryParams.error "profile_fetch_failed" }}Could not fetch your Twitch profile. Please try again.
+								{{ else if eq .QueryParams.error "already_linked" }}That Twitch account is already linked to another player.
+								{{ else if eq .QueryParams.error "link_failed" }}Failed to link your Twitch account.
+								{{ else if eq .QueryParams.error "unlink_failed" }}Failed to unlink your Twitch account.
+								{{ else if eq .QueryParams.error "oauth_init_failed" }}Could not start the Twitch linking flow.
+								{{ else if eq .QueryParams.error "not_configured" }}Twitch linking is not configured on this server.
+								{{ else if eq .QueryParams.error "not_linked" }}You need to link a Twitch account first.
+								{{ else if eq .QueryParams.error "denied" }}You cancelled the Twitch authorisation.
+								{{ else if eq .QueryParams.error "save_failed" }}Could not save your settings. Please try again.
+								{{ else if eq .QueryParams.error "invalid_form" }}That form submission could not be read.
+								{{ else }}Something went wrong while talking to Twitch.
+								{{ end }}
+							</p>
+						</div>
+					{{ end }}
+
+					{{ if not $enabled }}
+						<div class="p-4 bg-orange-900/20 border border-orange-700/50 rounded-lg flex items-start gap-3">
+							<i class="fas fa-plug text-orange-400 mt-1"></i>
+							<div>
+								<p class="text-orange-400 font-medium">Not available</p>
+								<p class="text-sm text-gray-400">Twitch linking has not been configured on this server yet.</p>
+							</div>
+						</div>
+					{{ else if $isLinked }}
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<div class="space-y-6">
+								<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
+									<div class="relative inline-block mb-4">
+										<div class="w-24 h-24 rounded-full border-4 border-purple-500 shadow-lg bg-purple-500/20 flex items-center justify-center">
+											<i class="fab fa-twitch text-purple-400 text-4xl"></i>
+										</div>
+										<div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-dark-bg flex items-center justify-center">
+											<i class="fas fa-check text-white text-xs"></i>
+										</div>
+									</div>
+									<h3 class="text-xl font-bold text-white">
+										<a href="https://twitch.tv/{{ $twitchUsername }}" target="_blank" rel="noopener noreferrer"
+											class="hover:text-purple-400 transition-colors">{{ $twitchUsername }}</a>
+									</h3>
+									<p class="text-xs text-gray-500 mt-1 font-mono">ID: {{ $twitchID }}</p>
+								</div>
+
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										How it works
+									</h4>
+									<ul class="space-y-2 text-sm text-gray-400">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>The bot joins your chat automatically while you are live.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Viewers post a beatmap link; you receive it in-game.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Mods written after the link (<code>+HDDT</code>) are passed along.</span>
+										</li>
+									</ul>
+								</div>
+
+								<div class="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
+									<h4 class="text-red-300 font-medium mb-2 flex items-center gap-2">
+										<i class="fas fa-unlink"></i>
+										Unlink Account
+									</h4>
+									<p class="text-sm text-gray-400 mb-4">Stop receiving beatmap requests and remove the link.</p>
+									<a href="/settings/twitch/unlink" class="btn-secondary bg-red-600/20 border-red-500/50 hover:bg-red-600/30 inline-flex items-center gap-2">
+										<i class="fab fa-twitch"></i>
+										Unlink Twitch
+									</a>
+								</div>
+							</div>
+
+							<div>
+								<form action="/settings/twitch" method="POST" class="space-y-5">
+									{{ ieForm .Context }}
+
+									<h4 class="text-sm font-medium text-gray-400 flex items-center gap-2">
+										<i class="fas fa-sliders-h"></i>
+										Request Settings
+									</h4>
+
+									<label class="flex items-start gap-3 p-3 bg-dark-bg rounded-lg border border-dark-border cursor-pointer">
+										<input type="checkbox" name="enabled" value="1" class="mt-1" {{ if $settings.Enabled }}checked{{ end }}>
+										<span>
+											<span class="block text-white font-medium">Accept requests</span>
+											<span class="block text-sm text-gray-400">Turn this off to pause requests without unlinking.</span>
+										</span>
+									</label>
+
+									<label class="flex items-start gap-3 p-3 bg-dark-bg rounded-lg border border-dark-border cursor-pointer">
+										<input type="checkbox" name="echo" value="1" class="mt-1" {{ if $settings.Echo }}checked{{ end }}>
+										<span>
+											<span class="block text-white font-medium">Confirm in chat</span>
+											<span class="block text-sm text-gray-400">Reply in Twitch chat when a request goes through.</span>
+										</span>
+									</label>
+
+									<label class="flex items-start gap-3 p-3 bg-dark-bg rounded-lg border border-dark-border cursor-pointer">
+										<input type="checkbox" name="sub_only" value="1" class="mt-1" {{ if $settings.SubOnly }}checked{{ end }}>
+										<span>
+											<span class="block text-white font-medium">Subscribers only</span>
+											<span class="block text-sm text-gray-400">Mods and VIPs can always request.</span>
+										</span>
+									</label>
+
+									<label class="flex items-start gap-3 p-3 bg-dark-bg rounded-lg border border-dark-border cursor-pointer">
+										<input type="checkbox" name="points_only" value="1" class="mt-1" {{ if $settings.PointsOnly }}checked{{ end }}>
+										<span>
+											<span class="block text-white font-medium">Channel points only</span>
+											<span class="block text-sm text-gray-400">Requests must be redeemed with a channel point reward.</span>
+										</span>
+									</label>
+
+									<div class="p-3 bg-dark-bg rounded-lg border border-dark-border">
+										<label for="cooldown" class="block text-white font-medium mb-1">Cooldown per viewer</label>
+										<p class="text-sm text-gray-400 mb-2">Seconds a viewer must wait between requests. 0 disables it.</p>
+										<input type="number" id="cooldown" name="cooldown" min="0" max="3600"
+											value="{{ $settings.Cooldown }}"
+											class="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-white">
+									</div>
+
+									<div class="p-3 bg-dark-bg rounded-lg border border-dark-border">
+										<label class="flex items-start gap-3 cursor-pointer mb-3">
+											<input type="checkbox" name="sr_filter" value="1" class="mt-1"
+												{{ if ge $settings.StarMax 0.0 }}checked{{ end }}>
+											<span>
+												<span class="block text-white font-medium">Limit star rating</span>
+												<span class="block text-sm text-gray-400">Reject maps outside this range.</span>
+											</span>
+										</label>
+										<div class="grid grid-cols-2 gap-3">
+											<div>
+												<label for="sr_min" class="block text-xs text-gray-400 mb-1">Minimum</label>
+												<input type="number" id="sr_min" name="sr_min" step="0.1" min="0" max="20"
+													value="{{ if ge $settings.StarMin 0.0 }}{{ $settings.StarMin }}{{ else }}0{{ end }}"
+													class="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-white">
+											</div>
+											<div>
+												<label for="sr_max" class="block text-xs text-gray-400 mb-1">Maximum</label>
+												<input type="number" id="sr_max" name="sr_max" step="0.1" min="0" max="20"
+													value="{{ if ge $settings.StarMax 0.0 }}{{ $settings.StarMax }}{{ else }}10{{ end }}"
+													class="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-white">
+											</div>
+										</div>
+									</div>
+
+									<div class="p-3 bg-dark-bg rounded-lg border border-dark-border">
+										<label for="excluded_users" class="block text-white font-medium mb-1">Blocked viewers</label>
+										<p class="text-sm text-gray-400 mb-2">Twitch usernames that may never request. One per line.</p>
+										<textarea id="excluded_users" name="excluded_users" rows="4"
+											class="w-full bg-dark-card border border-dark-border rounded px-3 py-2 text-white font-mono text-sm">{{ $excluded }}</textarea>
+									</div>
+
+									<button type="submit" class="btn-primary bg-purple-600 hover:bg-purple-700 inline-flex items-center gap-2">
+										<i class="fas fa-save"></i>
+										Save Settings
+									</button>
+								</form>
+							</div>
+						</div>
+					{{ else }}
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<div class="space-y-6">
+								<div class="text-center p-6 bg-dark-bg rounded-lg border border-dark-border">
+									<div class="relative inline-block mb-4">
+										<div class="w-24 h-24 rounded-full bg-purple-500/20 border-4 border-dashed border-purple-500/50 flex items-center justify-center">
+											<i class="fab fa-twitch text-4xl text-purple-400"></i>
+										</div>
+									</div>
+									<h3 class="text-xl font-bold text-white">Not Connected</h3>
+									<p class="text-sm text-gray-400 mt-1">Link your Twitch channel</p>
+								</div>
+
+								<div class="p-4 bg-orange-900/20 border border-orange-700/50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<div class="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+											<i class="fas fa-exclamation text-orange-400"></i>
+										</div>
+										<div>
+											<p class="text-orange-400 font-medium">Not Linked</p>
+											<p class="text-sm text-gray-400">Connect to receive beatmap requests</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="space-y-6">
+								<div class="p-4 bg-dark-bg rounded-lg border border-dark-border">
+									<h4 class="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+										<i class="fas fa-info-circle"></i>
+										What this does
+									</h4>
+									<ul class="space-y-2 text-sm text-gray-400">
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Viewers request maps by posting a link in your Twitch chat.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Requests arrive as an in-game message from the server bot.</span>
+										</li>
+										<li class="flex items-start gap-2">
+											<i class="fas fa-check text-green-400 mt-1 text-xs"></i>
+											<span>Filter by star rating, subscriber status or channel points.</span>
+										</li>
+									</ul>
+								</div>
+
+								<div class="p-6 bg-gradient-to-br from-purple-900/30 to-fuchsia-900/30 border border-purple-700/50 rounded-lg text-center">
+									<i class="fab fa-twitch text-5xl text-purple-400 mb-4"></i>
+									<h4 class="text-lg font-bold text-white mb-2">Connect with Twitch</h4>
+									<p class="text-sm text-gray-400 mb-4">Link your channel to get started</p>
+									<a href="/settings/twitch/redirect" class="btn-primary bg-purple-600 hover:bg-purple-700 inline-flex items-center gap-2">
+										<i class="fab fa-twitch"></i>
+										Link Twitch Account
+									</a>
+								</div>
+							</div>
+						</div>
+					{{ end }}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{ end }}

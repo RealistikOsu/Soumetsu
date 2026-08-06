@@ -35,6 +35,12 @@ NoCompile=true
 				<span>Discord Linking</span>
 			</a>
 
+			<a href="/settings/twitch"
+				class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ if eq .Path "/settings/twitch" }}bg-primary/20 text-primary border-l-4 border-primary{{ else }}text-gray-300 hover:bg-dark-bg{{ end }}">
+				<i class="fab fa-twitch w-5"></i>
+				<span>Twitch Requests</span>
+			</a>
+
 			{{/* Supporter only features */}}
 			{{ if has .Context.User.Privileges 4 }}
 				<div class="border-t border-dark-border my-2"></div>

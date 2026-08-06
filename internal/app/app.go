@@ -31,8 +31,9 @@ type App struct {
 	Redis     *redis.Client
 	APIClient *api.Client
 
-	TokenRepo *repositories.TokenRepository
-	UserRepo  *repositories.UserRepository
+	TokenRepo  *repositories.TokenRepository
+	UserRepo   *repositories.UserRepository
+	TwitchRepo *repositories.TwitchRepository
 
 	AuthService    *auth.Service
 	BeatmapService *beatmap.Service
@@ -52,6 +53,7 @@ type App struct {
 	BeatmapHandler  *handlers.BeatmapHandler
 	PagesHandler    *handlers.PagesHandler
 	ErrorsHandler   *handlers.ErrorsHandler
+	TwitchHandler   *handlers.TwitchHandler
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -103,6 +105,7 @@ func (a *App) initAdapters() error {
 func (a *App) initRepositories() {
 	a.TokenRepo = repositories.NewTokenRepository(a.DB)
 	a.UserRepo = repositories.NewUserRepository(a.DB)
+	a.TwitchRepo = repositories.NewTwitchRepository(a.DB)
 }
 
 func (a *App) initServices() error {
@@ -200,6 +203,14 @@ func (a *App) initHandlers() {
 	a.PasswordHandler = handlers.NewPasswordHandler(
 		a.Config,
 		a.APIClient,
+		a.CSRF,
+		a.SessionStore,
+		a.ResponseEngine,
+	)
+
+	a.TwitchHandler = handlers.NewTwitchHandler(
+		a.Config,
+		a.TwitchRepo,
 		a.CSRF,
 		a.SessionStore,
 		a.ResponseEngine,
