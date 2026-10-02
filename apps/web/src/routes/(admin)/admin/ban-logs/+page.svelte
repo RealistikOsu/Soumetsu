@@ -42,7 +42,8 @@
     <tbody>
       {#if logs.state.status === 'ready'}
         {#each logs.state.data.rows as row, i (i)}
-          {@const tag = tags[row.summary] ?? [row.summary, 'c-grey']}
+          {@const known = tags[row.summary]}
+          {@const tag = known ?? ['Flagged', 'c-grey']}
           <tr>
             <td class="player">
               <a class="who" href="/admin/users/{row.from_id}">
@@ -58,7 +59,14 @@
               </div>
             </td>
             <td><AdminTag colour={tag[1]}>{tag[0]}</AdminTag></td>
-            <td class="note">{row.detail}</td>
+            <td class="note" title={row.detail}>
+              {#if known}
+                {row.detail}
+              {:else}
+                <b>{row.summary}</b>{#if row.detail !== row.summary}
+                  · {row.detail}{/if}
+              {/if}
+            </td>
             <td class="dim">{timeAgo(row.ts)}</td>
           </tr>
         {:else}

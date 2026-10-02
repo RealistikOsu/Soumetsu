@@ -1051,6 +1051,11 @@
   margin-left: 6px;
 }
 
+.admin-table .note b {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .admin-table .note {
   max-width: 320px;
   overflow: hidden;
