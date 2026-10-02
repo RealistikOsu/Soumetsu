@@ -21,3 +21,19 @@
 .foot a:hover {
   color: var(--text);
 }
+
+.foot .language {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.foot .language select {
+  padding: 2px 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+}

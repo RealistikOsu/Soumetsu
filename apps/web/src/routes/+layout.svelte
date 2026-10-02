@@ -9,6 +9,7 @@
   import LoadBar from '$lib/components/LoadBar.svelte';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { getLocale } from '$lib/i18n';
   import { reducedMotion } from '$lib/motion';
   import { site } from '$lib/site.svelte';
   import '../styles/index.css';
@@ -16,6 +17,7 @@
   let { children }: { children: Snippet } = $props();
 
   onMount(() => {
+    document.documentElement.lang = getLocale();
     session.start();
     site.load();
     const refresh = setInterval(() => site.load(), 60_000);

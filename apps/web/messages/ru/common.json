@@ -1,0 +1,9 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "common_language": "Язык",
+  "common_today": "Сегодня",
+  "common_yesterday": "Вчера",
+  "footer_not_affiliated": "Никак не связаны с \"ppy\" и \"osu!\".",
+  "footer_about": "О нас",
+  "footer_team": "Наша команда"
+}

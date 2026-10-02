@@ -8,10 +8,12 @@
     "dev": "vite dev",
     "build": "prisma generate && vite build",
     "start": "bun ./build/index.js",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy cookie preferredLanguage baseLocale --silent && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "postinstall": "prisma generate"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "2.25.4",
+    "@inlang/plugin-message-format": "4.4.4",
     "@sveltejs/kit": "2",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "prisma": "7.10.0",
