@@ -1,6 +1,6 @@
 # Writing docs
 
-Each file in `en/` is one page at `/doc/<file name>`. They're plain markdown, so you can drop a file in or edit one at any time. Everything below is optional, and a file that uses none of it still works.
+Each file in `en/` is one page at `/doc/<file name>`. To translate a page, put a file with the same name in the language's folder (`ru/`, `pl/`); readers in that language get it, and everyone else keeps the English one. They're plain markdown, so you can drop a file in or edit one at any time. Everything below is optional, and a file that uses none of it still works.
 
 The extras are picked so the file still reads normally anywhere else (GitHub, an editor preview, the current site): they're either standard markdown, GitHub's own syntax, or HTML comments that other renderers hide.
 

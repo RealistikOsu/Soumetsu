@@ -1,13 +1,36 @@
 # Soumetsu
 
-The RealistikOsu website. SvelteKit (Svelte 5) on Bun, client-rendered, reading from soumetsu-api.
+The RealistikOsu website, including the admin panel (RealistikPanel) at `/admin`.
+
+Built with SvelteKit and Svelte 5, running on Bun. Pages render in the browser and read most of their data from [soumetsu-api](https://github.com/RealistikOsu/soumetsu-api). A small server layer in the same app covers what the API doesn't.
+
+## What it talks to
+
+| Service | Used for | How it's reached |
+| --- | --- | --- |
+| soumetsu-api | Users, scores, beatmaps, clans, leaderboards, login | Browser, at `/api/v2` |
+| Statistics service | Profile rank and pp history, peak rank, online player count | Browser, at `/api/v1` (routed by nginx) |
+| Beatmap mirror | Beatmap and set details, the beatmap listing | Browser, at `PUBLIC_MIRROR_URL` |
+| MySQL and Redis | The server layer: settings, linking, payments, the admin panel | Server, from `DATABASE_URL` and `REDIS_URL` |
+| Bancho, score service, performance service | Online status and admin panel tools | Server only |
 
 ## Layout
 
-- `apps/web`: the site, plus a thin server layer under `src/routes/site-api` for what soumetsu-api doesn't cover.
-- `packages/ui`: design tokens, base styles and motion, shared with the admin panel.
+```
+apps/web               the site
+  src/routes           pages; (admin), (member) and (guest) group pages by who can see them
+  src/routes/site-api  the server layer (Prisma and Redis), one +server.ts per endpoint
+  src/server           server-only helpers: config, auth, database, admin actions
+  src/lib              API clients, components and shared code
+  messages             translations, one folder per language
+  prisma               the parts of the game database the server layer uses
+packages/ui            design tokens, base styles, motion and chart pieces
+website-docs           the pages served at /doc
+```
 
 ## Development
+
+You need Bun, plus a MySQL database and Redis with RealistikOsu's schema. A dump of prod works.
 
 ```sh
 bun install
@@ -15,18 +38,75 @@ cp apps/web/.env.example apps/web/.env
 bun run dev
 ```
 
-The dev origin (`http://localhost:5173`) has to be in `SOUMETSUAPI_CORS_ALLOWED_ORIGINS` in soumetsu-api's `configuration/app.env`.
+The site runs on `http://localhost:5173`. Add that origin to `SOUMETSUAPI_CORS_ALLOWED_ORIGINS` in soumetsu-api so the browser can call it.
 
-## Checks
+The statistics service is only reachable behind nginx. In development the online graph, profile graphs and peak rank stay empty.
 
-```sh
-bun run check
-bun run lint
-```
-
-## Production
+Before committing:
 
 ```sh
-bun run build
-bun run start
+bun run check   # compiles translations, then type-checks
+bun run lint    # eslint and prettier
+bun run format  # fixes formatting
 ```
+
+## Configuration
+
+Everything is read from the environment at runtime, so the same build works anywhere. `apps/web/.env.example` lists every variable.
+
+**Required**
+
+- `APP_BASE_URL`: the site's public address. OAuth redirects and payment return links are built from it.
+- `API_URL`: soumetsu-api, as the server reaches it (e.g. `http://soumetsu-api:8000`).
+- `DATABASE_URL`, `REDIS_URL`: URL-encode any special characters in passwords.
+
+**Browser-facing** (the `PUBLIC_` prefix means the browser sees them)
+
+- `PUBLIC_API_URL`: leave empty in production, where nginx serves the API on the same origin.
+- `PUBLIC_MIRROR_URL`: the beatmap mirror. It must send `Access-Control-Allow-Origin`.
+- `PUBLIC_HCAPTCHA_SITE_KEY`, `PUBLIC_DISCORD_CLIENT_ID`
+
+**Optional features**
+
+- Email: `BREVO_API_KEY`, `BREVO_FROM`. Password resets fail without it.
+- Bancho linking: `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`. Hidden when empty.
+- Twitch linking: `TWITCH_APP_CLIENT_ID`, `TWITCH_APP_CLIENT_SECRET`. Hidden when empty.
+- Supporter payments: `STRIPE_*`, `FREEKASSA_*`, `PAYPAL_EMAIL_ADDRESS`. Each method is hidden when its variables are empty.
+- Admin panel: `BANCHO_URL`, `SCORE_SERVICE_URL` and `PERFORMANCE_URL` (internal addresses are fine), plus `ADMIN_LOG_WEBHOOK_URL` and `RANKED_WEBHOOK_URL` for Discord
+
+**Proxy**
+
+- `TRUST_PROXY=true`: only behind a proxy that overwrites `X-Real-IP` itself. Otherwise anyone could claim any IP.
+
+## Deploying
+
+```sh
+docker build -t soumetsu .
+```
+
+The image runs the built server on `PORT` (default 3000). Put nginx in front of it:
+
+| Path | Goes to |
+| --- | --- |
+| `^/api/v2` | soumetsu-api |
+| `^/api/v1/statistics/homepage`, `^/api/v1/profile-history` | statistics service |
+| `^/api/v1/patcher` | patcher service |
+| `/web/replays` | score service |
+| everything else | this app |
+
+Anchor the regex locations with `^`. Otherwise `/site-api/mirror/api/v2/...`-style paths match the API rule. Allow uploads of at least 10 MB (`client_max_body_size`) for avatars and banners.
+
+## Translations
+
+English is the source. Russian and Polish are translated. The language is picked in the footer or in settings, and remembered in a cookie.
+
+- **Where strings live:** each language has a folder in `apps/web/messages`, one JSON file per area (`common`, `profile`, `settings` and so on). Keys start with their area's name.
+- **Using strings in code:** `import { m } from '$lib/paraglide/messages'`, then `m.profile_peak_label()`. The functions are generated by [Paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) when you run `bun run check` or build. Don't edit `src/lib/paraglide`.
+- **Adding a language:** add its code to `project.inlang/settings.json`, copy `messages/en` to the new folder and translate it, then add its name to `languageNames` in `src/lib/i18n.ts`.
+- **Tone:** keep it casual, like talking to another osu! player. osu! terms (pp, acc, FC, mods, Ranked, Loved and the like) stay as players say them.
+
+The admin panel is English only.
+
+## Docs
+
+Pages under `/doc` are the markdown files in `website-docs/en`. They're read from disk on every request, so edits show up without a rebuild. A translated copy in e.g. `website-docs/ru` is served to Russian readers, falling back to English for any page that hasn't been translated. See `website-docs/README.md` for the extras the files support.
