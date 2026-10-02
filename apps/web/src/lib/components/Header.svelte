@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/state';
   import { env } from '$env/dynamic/public';
   import { isStaff } from '$lib/auth/privileges';
@@ -78,8 +78,7 @@
 
   const isActive = (prefixes: string[]) => prefixes.some((prefix) => path.startsWith(prefix));
 
-  $effect(() => {
-    path;
+  afterNavigate(() => {
     openMenu = null;
     mobileOpen = false;
     meOpen = false;

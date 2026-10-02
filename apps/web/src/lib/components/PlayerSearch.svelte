@@ -94,9 +94,9 @@
   <div class="search-results" hidden={!loading && results === null}>
     {#if loading}
       {#each [0, 1, 2] as n (n)}
-        <a class="skel-result" aria-hidden="true">
+        <span class="skel-line skel-result" aria-hidden="true">
           <span class="skel-avatar"></span><span class="skel" style="width: 60%"></span>
-        </a>
+        </span>
       {/each}
     {:else if results?.length === 0}
       <p>Nobody found.</p>
