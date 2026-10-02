@@ -67,6 +67,12 @@
   gap: 16px;
 }
 
+@media (min-width: 1900px) {
+  .map-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .map-card {
   position: relative;
   min-width: 0;

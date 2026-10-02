@@ -39,3 +39,10 @@
 
   --wrap: 1180px;
 }
+
+/* wide screens get more of the page, up to a width lines and tables still read well at */
+@media (min-width: 1480px) {
+  :root {
+    --wrap: min(1600px, 80vw);
+  }
+}

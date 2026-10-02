@@ -143,6 +143,12 @@
   margin: 10px 0;
 }
 
+/* keeps lines readable now that wide screens give the page more room */
+.doc-body p,
+.doc-body li {
+  max-width: 90ch;
+}
+
 .doc-body ul ul {
   margin: 4px 0;
 }
