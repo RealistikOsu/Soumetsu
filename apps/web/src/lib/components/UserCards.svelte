@@ -3,7 +3,7 @@
   import { card as loadCard, cardExtras, type Card, type CardExtras } from '$lib/api/cards';
   import { describe } from '$lib/api/messages';
   import { addFriend, isFriend, removeFriend } from '$lib/api/users';
-  import { avatarUrl } from '$lib/assets';
+  import { avatarUrl, defaultAvatar } from '$lib/assets';
   import { session } from '$lib/auth/session.svelte';
   import { decorationClass } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
@@ -135,7 +135,10 @@
       : 'bottom left'}"
     transition:scale={{ start: 0.96, duration: ms(160) }}
   >
-    <div class="card-cover" style="background-image: url({avatarUrl(card.id)})"></div>
+    <div
+      class="card-cover"
+      style="background-image: url({avatarUrl(card.id)}), url({defaultAvatar})"
+    ></div>
     <div class="card-head">
       <Avatar id={card.id} class="card-avatar" />
       <div class="card-who">

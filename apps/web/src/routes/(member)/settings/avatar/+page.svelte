@@ -3,7 +3,7 @@
   import { deleteAvatar, uploadAvatar } from '$lib/api/settings';
   import { isSupporter } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
-  import { avatarUrl } from '$lib/assets';
+  import { avatarUrl, defaultAvatar } from '$lib/assets';
   import { flash } from '$lib/flash.svelte';
 
   let file = $state<File | null>(null);
@@ -14,6 +14,12 @@
   const preview = $derived(file ? URL.createObjectURL(file) : null);
   const current = $derived(session.user ? `${avatarUrl(session.user.id)}?v=${version}` : '');
   const shown = $derived(preview ?? current);
+  let missing = $state(false);
+
+  $effect(() => {
+    void shown;
+    missing = false;
+  });
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
@@ -52,7 +58,12 @@
 <form onsubmit={save}>
   <h2 class="section-title c-teal"><i class="fa-solid fa-image"></i>Avatar</h2>
   <div class="panel form-panel c-teal avatar-panel">
-    <img class="avatar current" src={shown} alt="Current avatar" />
+    <img
+      class="avatar current"
+      src={missing ? defaultAvatar : shown}
+      alt="Current avatar"
+      onerror={() => (missing = true)}
+    />
     <div>
       <p>This is how it shows around the site:</p>
       <div class="avatar-sizes">

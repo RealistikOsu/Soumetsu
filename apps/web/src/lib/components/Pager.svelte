@@ -23,10 +23,7 @@
   >
     <i class="fa-solid fa-chevron-left"></i>Previous
   </a>
-  <span
-    >Page <b>{page}</b>{#if pages}
-      of {pages}{/if}</span
-  >
+  <span>Page <b>{page}</b>{pages ? ` of ${pages}` : ''}</span>
   <a
     class:disabled={!hasNext}
     href="?p={page + 1}"
