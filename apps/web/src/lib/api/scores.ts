@@ -53,11 +53,12 @@ export const playerScores = (
   rx: number,
   page: number,
   limit: number,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  excludeFailed = false
 ) =>
   api.get<ScoreWithBeatmap[]>(
     `/users/${id}/scores/${kind}`,
-    { mode, custom_mode: rx, page, limit },
+    { mode, custom_mode: rx, page, limit, exclude_failed: excludeFailed || undefined },
     signal
   );
 

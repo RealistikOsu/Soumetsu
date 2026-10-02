@@ -106,8 +106,8 @@
         {/each}
       </ul>
       <p class="detail-meta">
-        <span class="tag {score.completed >= 2 ? 'tag-pass' : 'tag-fail'}">
-          {score.completed >= 2 ? 'Passed' : 'Failed'}
+        <span class="tag {score.completed >= 1 ? 'tag-pass' : 'tag-fail'}">
+          {score.completed >= 1 ? 'Passed' : 'Failed'}
         </span>
         {#if score.completed === 3}<span class="tag tag-best">Personal best</span>{/if}
         <span>{modeNames[score.play_mode]} · {timeAgo(score.submitted_at)}</span>

@@ -144,3 +144,25 @@
 .faint {
   color: var(--faint);
 }
+
+/* imagemap areas carry prod's data-tooltip; the floating tip shows it so panels can't clip it */
+.float-tip {
+  position: fixed;
+  z-index: 50;
+  max-width: 260px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-2);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.float-tip[hidden] {
+  display: none;
+}

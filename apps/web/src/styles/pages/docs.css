@@ -430,11 +430,24 @@
   width: auto;
 }
 
+.userpage .bbcode-imagemap {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 12px auto 0;
+}
+
+.userpage .bbcode-imagemap-image {
+  max-height: none;
+}
+
 .bbcode-imagemap-tooltip {
   position: absolute;
 }
 
-.bbcode-imagemap-tooltip:hover {
+.bbcode-imagemap-tooltip:hover,
+.bbcode-imagemap-tooltip:focus-visible {
+  z-index: 1;
   outline: 2px solid var(--link);
   background: rgb(104 173 242 / 0.15);
 }

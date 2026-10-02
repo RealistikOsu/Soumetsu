@@ -67,10 +67,6 @@
   background: rgb(70 24 24 / 0.82);
 }
 
-.hide-failed-rows .is-failed {
-  display: none;
-}
-
 .score-row .grade {
   justify-self: center;
   font-size: 24px;

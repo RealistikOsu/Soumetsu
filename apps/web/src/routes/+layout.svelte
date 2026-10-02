@@ -2,6 +2,7 @@
   import { fadeImages } from '@soumetsu/ui';
   import { onMount, type Snippet } from 'svelte';
   import { afterNavigate, onNavigate } from '$app/navigation';
+  import FloatTip from '$lib/components/FloatTip.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import Header from '$lib/components/Header.svelte';
   import LoadBar from '$lib/components/LoadBar.svelte';
@@ -50,3 +51,4 @@
 {@render children()}
 <Footer />
 <LoadBar />
+<FloatTip />

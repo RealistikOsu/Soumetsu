@@ -18,7 +18,7 @@ export const gradeClass: Record<GradeName, string> = {
 export const gradeLabel = (grade: GradeName) => grade.replace('H', '');
 
 export function gradeOf(score: Score): GradeName {
-  if (score.completed < 2) return 'D';
+  if (score.completed < 1) return 'D';
   const silver = hasMod(score.mods, 'HD') || hasMod(score.mods, 'FL');
   const named = (name: 'SS' | 'S') => (silver ? (`${name}H` as GradeName) : name);
 

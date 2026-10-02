@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
+  import { ms } from '$lib/motion';
   import { mostPlayed, ppHistory, rankHistory, type MostPlayed } from '$lib/api/users';
   import { query } from '$lib/api/query.svelte';
   import {
@@ -171,13 +173,16 @@
     ><input class="hide-failed" type="checkbox" bind:checked={hideFailed} /> Hide failed scores</label
   >
 </h2>
-<LoadMoreList
-  colour="c-blue"
-  class={hideFailed ? 'hide-failed-rows' : ''}
-  key={(s: ScoreWithBeatmap) => s.id}
-  row={scoreRow}
-  load={(page, signal) => playerScores('recent', id, mode, rx, page, 5, signal)}
-/>
+{#key hideFailed}
+  <div in:fade={{ duration: ms(180), delay: ms(120) }} out:fade={{ duration: ms(120) }}>
+    <LoadMoreList
+      colour="c-blue"
+      key={(s: ScoreWithBeatmap) => s.id}
+      row={scoreRow}
+      load={(page, signal) => playerScores('recent', id, mode, rx, page, 5, signal, hideFailed)}
+    />
+  </div>
+{/key}
 
 <SectionTitle colour="c-red" icon="fa-trophy">
   First places <small>{number(firstPlaces)}</small>
