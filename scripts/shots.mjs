@@ -9,6 +9,19 @@ const app = process.env.APP_URL ?? 'http://localhost:5173';
 const pocRoot = process.env.POC_ROOT ?? 'C:/Users/Aochi/rosu-redesign';
 const widths = [360, 800, 1440];
 const reduced = process.env.REDUCED === '1';
+const login = process.env.LOGIN; // user:password, logs in through the API first
+const apiUrl = process.env.API_URL ?? 'http://localhost:8000';
+
+let token = null;
+if (login) {
+  const [username, password] = login.split(':');
+  const response = await fetch(`${apiUrl}/api/v2/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  token = (await response.json()).data.token;
+}
 
 mkdirSync('screenshots', { recursive: true });
 const browser = await chromium.launch();
@@ -18,6 +31,7 @@ for (const width of widths) {
     viewport: { width, height: 900 },
     reducedMotion: reduced ? 'reduce' : 'no-preference'
   });
+  if (token) await context.addInitScript((t) => localStorage.setItem('soumetsu.token', t), token);
   const page = await context.newPage();
   const errors = [];
   page.on('console', (message) => {

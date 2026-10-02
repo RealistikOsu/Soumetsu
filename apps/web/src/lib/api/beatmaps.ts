@@ -65,3 +65,18 @@ export const beatmapScores = (
 
 export const difficultyOf = (map: Beatmap, mode = map.mode) =>
   [map.difficulty_std, map.difficulty_taiko, map.difficulty_ctb, map.difficulty_mania][mode];
+
+export interface RankRequestStatus {
+  submitted: number;
+  queue_size: number;
+  can_submit: boolean;
+  submitted_by_user: number | null;
+  max_per_user: number | null;
+  next_expiration: string | null;
+}
+
+export const rankRequestStatus = (signal?: AbortSignal) =>
+  api.get<RankRequestStatus>('/beatmaps/rank-requests/status', undefined, signal);
+
+export const submitRankRequest = (url: string) =>
+  api.post<{ request_id: number }>('/beatmaps/rank-requests', { url });

@@ -25,6 +25,7 @@
     "@prisma/adapter-mariadb": "7.10.0",
     "@prisma/client": "7.10.0",
     "@soumetsu/ui": "workspace:*",
+    "bcryptjs": "3.0.3",
     "dompurify": "3.4.16",
     "ioredis": "6.0.0"
   }

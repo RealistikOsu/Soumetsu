@@ -16,7 +16,9 @@ export default ts.config(
       semi: ['error', 'always'],
       'svelte/no-navigation-without-resolve': 'off',
       // Every {@html} goes through lib/sanitise first.
-      'svelte/no-at-html-tags': 'off'
+      'svelte/no-at-html-tags': 'off',
+      // False positives on $bindable props.
+      'no-useless-assignment': 'off'
     }
   },
   {
