@@ -10,6 +10,7 @@
   import { session } from '$lib/auth/session.svelte';
   import { bannerUrl } from '$lib/assets';
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
+  import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
   import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
   import Avatar from './Avatar.svelte';
@@ -160,18 +161,41 @@
       <Avatar {id} />
       <div class="who-block">
         {#if base}
-          <h1>
-            {#if base.clan}
-              <a class="clan-tag" href="/c/{base.clan.id}">[{base.clan.tag}]</a>
-            {/if}
-            <span class={decorationClass(extra?.nameDecoration)}>{base.username}</span>
+          <div class="name-row">
+            <h1>
+              {#if base.clan}
+                <a class="clan-tag" href="/c/{base.clan.id}">[{base.clan.tag}]</a>
+              {/if}
+              <span class={decorationClass(extra?.nameDecoration)}>{base.username}</span>
+            </h1>
             {#if extra?.pastNames.length}
-              <i
-                class="fa-solid fa-address-book past-names"
-                title="Previously known as: {extra.pastNames.join(', ')}"
-              ></i>
+              <details class="past-names">
+                <summary title="Previous usernames" aria-label="Previous usernames">
+                  <i class="fa-solid fa-clock-rotate-left"></i>{extra.pastNames.length}
+                </summary>
+                <div>
+                  <span>Previously known as</span>
+                  <ol>
+                    {#each extra.pastNames as name (name)}<li>{name}</li>{/each}
+                  </ol>
+                </div>
+              </details>
             {/if}
-          </h1>
+          </div>
+          {#if extra && (extra.badges.length || extra.customBadge)}
+            <div class="badges">
+              {#each extra.badges as badge (badge.name)}
+                {@const look = badgeIcon(badge.icon)}
+                <span class="badge {look.colour}"><i class={look.icon}></i>{badge.name}</span>
+              {/each}
+              {#if extra.customBadge}
+                {@const look = badgeIcon(extra.customBadge.icon)}
+                <span class="badge custom {look.colour}" title="Custom badge">
+                  <i class={look.icon}></i>{extra.customBadge.name}
+                </span>
+              {/if}
+            </div>
+          {/if}
           <div class="meta">
             <span
               ><Flag country={base.country} /> {countryNames.of(base.country) ?? base.country}</span
@@ -207,28 +231,6 @@
                 >
                   <img src="/img/modes/mode-0.png" alt="" />{extra.bancho.username}
                 </a>
-              {/if}
-            </div>
-          {/if}
-          {#if extra && (extra.badges.length || extra.customBadge)}
-            <div class="badges">
-              {#each extra.badges as badge (badge.name)}
-                <i
-                  class="fa-solid {badge.icon
-                    .split(' ')
-                    .filter((c: string) => c.startsWith('fa-'))
-                    .join(' ')}"
-                  title={badge.name}
-                ></i>
-              {/each}
-              {#if extra.customBadge}
-                <i
-                  class="fa-solid {extra.customBadge.icon
-                    .split(' ')
-                    .filter((c: string) => c.startsWith('fa-'))
-                    .join(' ')}"
-                  title={extra.customBadge.name}
-                ></i>
               {/if}
             </div>
           {/if}

@@ -68,3 +68,7 @@
 .s-pending {
   --accent: var(--pending);
 }
+
+.c-grey {
+  --accent: var(--muted);
+}
