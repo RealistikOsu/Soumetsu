@@ -243,7 +243,7 @@
             </div>
           {/if}
         {:else}
-          <h1><span class="skel" style="width: 180px"></span>&nbsp;</h1>
+          <h1>…</h1>
         {/if}
       </div>
       {#if !own && base}<FriendButton {id} />{/if}

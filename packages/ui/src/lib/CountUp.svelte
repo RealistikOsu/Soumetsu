@@ -1,7 +1,11 @@
 <script lang="ts">
   import { inView, reducedMotion } from './actions';
 
-  let { value, decimals = 0 }: { value: number; decimals?: number } = $props();
+  let {
+    value,
+    decimals = 0,
+    prefix = ''
+  }: { value: number; decimals?: number; prefix?: string } = $props();
 
   let shown = $state(0);
   let visible = $state(false);
@@ -36,4 +40,4 @@
   }
 </script>
 
-<span use:watch>{format(shown)}</span>
+<span use:watch>{prefix}{format(shown)}</span>

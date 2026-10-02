@@ -22,12 +22,12 @@
 <div class="ranks">
   <div title={peakRank ? `Peak rank: #${number(peakRank)}` : undefined}>
     Global<b>
-      {#if stats.global_rank}#<CountUp value={stats.global_rank} />{:else}-{/if}
+      {#if stats.global_rank}<CountUp prefix="#" value={stats.global_rank} />{:else}-{/if}
     </b>
   </div>
   <div>
     {country}<b>
-      {#if stats.country_rank}#<CountUp value={stats.country_rank} />{:else}-{/if}
+      {#if stats.country_rank}<CountUp prefix="#" value={stats.country_rank} />{:else}-{/if}
     </b>
   </div>
   <div class="total">PP<b><CountUp value={stats.pp} /></b></div>
