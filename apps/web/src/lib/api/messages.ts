@@ -81,6 +81,8 @@ const messages: Record<string, string> = {
   'site.oauth_state_invalid': 'The authorisation could not be verified. Please try again.',
   'site.oauth_rejected': 'The authorisation was rejected. Please try again.',
   'site.oauth_profile_failed': 'Could not read your profile. Please try again.',
+  'site.payments_unavailable': 'Payments are currently unavailable. Please try again later.',
+  'site.doc_not_found': 'That page could not be found.',
   'site.mirror_unreachable': "Couldn't reach the beatmap mirror. Try again in a bit.",
 
   network_error: "Couldn't reach the server. Check your connection and try again."
