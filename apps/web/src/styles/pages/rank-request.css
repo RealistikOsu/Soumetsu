@@ -50,17 +50,18 @@
   outline: none;
 }
 
-#link-state {
+.field small.ok,
+.field small.error {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-#link-state.ok {
+.field small.ok {
   color: var(--green);
 }
 
-#link-state.error {
+.field small.error {
   color: var(--red);
 }
 
