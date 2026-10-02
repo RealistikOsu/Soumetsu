@@ -1,7 +1,10 @@
+import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
 
+// The build loads every route once to analyse it, without any of the runtime environment.
 function required(name: string) {
   const value = env[name];
+  if (!value && building) return '';
   if (!value) throw new Error(`Missing required environment variable ${name}`);
   return value;
 }
