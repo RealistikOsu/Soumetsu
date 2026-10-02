@@ -51,7 +51,7 @@
     {:else}
       <a
         class:active={n === page}
-        class:far={Math.abs(n - page) === 2}
+        class:distant={Math.abs(n - page) === 2}
         href="?p={n}"
         aria-current={n === page ? 'page' : undefined}
         onclick={(event) => go(event, n)}

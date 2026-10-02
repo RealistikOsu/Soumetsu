@@ -174,7 +174,7 @@
 
 @media (max-width: 600px) {
   .pager-label,
-  .pager a.far {
+  .pager a.distant {
     display: none;
   }
 }
