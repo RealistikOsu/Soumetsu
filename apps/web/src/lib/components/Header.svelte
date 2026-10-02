@@ -1,7 +1,6 @@
 <script lang="ts">
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { env } from '$env/dynamic/public';
   import { isStaff } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -152,8 +151,8 @@
             <a href="/users/{user.id}"><i class="fa-solid fa-user"></i>Profile</a>
             <a href="/friends"><i class="fa-solid fa-user-group"></i>Friends</a>
             <a href="/settings"><i class="fa-solid fa-gear"></i>Settings</a>
-            {#if isStaff(user.privileges) && env.PUBLIC_ADMIN_URL}
-              <a href={env.PUBLIC_ADMIN_URL}>
+            {#if isStaff(user.privileges)}
+              <a href="/admin">
                 <i class="fa-solid fa-screwdriver-wrench"></i>Admin panel
               </a>
             {/if}
