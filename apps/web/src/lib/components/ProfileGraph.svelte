@@ -47,10 +47,10 @@
   );
 
   // One label per month at most, thinned out to fit, and the ends are anchored so nothing is clipped.
-  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a throwaway date, not reactive state
   const ticks = $derived.by(() => {
     const labels: { x: number; label: string }[] = [];
     const first = new Date(span.from);
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a throwaway date, not reactive state
     const cursor = new Date(first.getFullYear(), first.getMonth() + 1, 1);
     while (cursor.getTime() < span.to) {
       labels.push({
