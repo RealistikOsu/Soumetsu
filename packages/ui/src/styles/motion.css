@@ -422,3 +422,23 @@
 .motion .score-list > .score-row {
   animation: rise 0.35s cubic-bezier(0.2, 0, 0, 1) both;
 }
+
+/* the peak rank line draws in each time its card opens */
+.motion .peak-spark polyline {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.motion .global-rank:is(:hover, :focus-visible) .peak-spark polyline {
+  animation: draw 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.08s forwards;
+}
+
+.motion .peak-spark circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.motion .global-rank:is(:hover, :focus-visible) .peak-spark circle {
+  animation: dot-in 0.3s cubic-bezier(0.2, 0, 0, 1.4) 0.45s forwards;
+}

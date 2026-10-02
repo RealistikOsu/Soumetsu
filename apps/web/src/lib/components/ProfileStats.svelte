@@ -1,18 +1,21 @@
 <script lang="ts">
   import { CountUp } from '@soumetsu/ui';
   import type { UserStats } from '$lib/api/users';
-  import { fullDate, number } from '$lib/format';
+  import { number } from '$lib/format';
   import { level } from '$lib/level';
   import { m } from '$lib/paraglide/messages';
+  import PeakCard from './PeakCard.svelte';
 
   let {
     stats,
     country,
-    peakRank
+    peakRank,
+    history
   }: {
     stats: UserStats;
     country: string;
     peakRank: { rank: number; time: number } | null;
+    history: { time: number; value: number }[];
   } = $props();
 
   const value = $derived(level(stats.total_score));
@@ -21,18 +24,19 @@
 </script>
 
 <div class="ranks">
-  <div
-    title={peakRank
-      ? m.profile_stats_peak_rank({
-          rank: number(peakRank.rank),
-          date: fullDate(peakRank.time / 1000)
-        })
-      : undefined}
-  >
-    {m.profile_stats_global()}<b>
-      {#if stats.global_rank}<CountUp prefix="#" value={stats.global_rank} />{:else}-{/if}
-    </b>
-  </div>
+  {#if peakRank && stats.global_rank}
+    <div class="global-rank" tabindex="0" role="button" aria-label={m.profile_peak_label()}>
+      {m.profile_stats_global()}<b><CountUp prefix="#" value={stats.global_rank} /></b>
+      <i class="fa-solid fa-crown peak-hint" title={m.profile_peak_label()}></i>
+      <PeakCard peak={peakRank} current={stats.global_rank} {history} />
+    </div>
+  {:else}
+    <div>
+      {m.profile_stats_global()}<b>
+        {#if stats.global_rank}<CountUp prefix="#" value={stats.global_rank} />{:else}-{/if}
+      </b>
+    </div>
+  {/if}
   <div>
     {country}<b>
       {#if stats.country_rank}<CountUp prefix="#" value={stats.country_rank} />{:else}-{/if}

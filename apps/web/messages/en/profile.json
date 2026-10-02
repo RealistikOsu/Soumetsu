@@ -50,7 +50,6 @@
       }
     }
   ],
-  "profile_stats_peak_rank": "Peak rank: #{rank} on {date}",
   "profile_stats_global": "Global",
   "profile_stats_accuracy": "Accuracy",
   "profile_stats_max_combo": "Maximum combo",
@@ -97,5 +96,10 @@
   "profile_past_names_heading": "Previously known as",
   "profile_pinned_more": "Load more",
   "profile_staff_edit": "Edit in the admin panel",
-  "profile_graph_inactive": "No graph for players who haven't played in the last 60 days."
+  "profile_graph_inactive": "No graph for players who haven't played in the last 60 days.",
+  "profile_peak_label": "Peak rank",
+  "profile_peak_since": "Since {date}",
+  "profile_peak_now": "Now",
+  "profile_peak_below": "{count} below peak",
+  "profile_peak_at": "at their peak"
 }

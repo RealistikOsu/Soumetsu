@@ -7,7 +7,7 @@
   import { playerScores, type ScoreWithBeatmap } from '$lib/api/scores';
   import { userExtras } from '$lib/api/site';
   import { profile, userpage, type UserProfile } from '$lib/api/users';
-  import { peakRank } from '$lib/api/v1';
+  import { peakRank, profileHistory, type ProfileHistory } from '$lib/api/v1';
   import { Privilege } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { bannerUrl } from '$lib/assets';
@@ -78,6 +78,7 @@
   let visited = $state.raw<string[]>([]);
   let failure = $state<unknown>(null);
   let peak = $state.raw<Record<string, { rank: number; time: number } | null>>({});
+  let rankHistory = $state.raw<Record<string, ProfileHistory>>({});
   let pinned = $state.raw<Record<string, ScoreWithBeatmap[]>>({});
   let refresh = $state(0);
 
@@ -94,6 +95,10 @@
       peakRank(id, mode, rx).then(
         (found) => (peak = { ...peak, [current]: found }),
         () => null
+      );
+      profileHistory('rank', id, mode, rx).then(
+        (found) => (rankHistory = { ...rankHistory, [current]: found }),
+        () => (rankHistory = { ...rankHistory, [current]: { status: 'missing' } })
       );
     });
   });
@@ -317,6 +322,7 @@
                 stats={loaded[pane].stats}
                 country={countryNames.of(loaded[pane].country) ?? loaded[pane].country}
                 peakRank={peak[pane] ?? null}
+                history={rankHistory[pane]?.status === 'ready' ? rankHistory[pane].points : []}
               />
             {/if}
           {:else}
@@ -343,6 +349,7 @@
                 rx={paneRx}
                 {own}
                 firstPlaces={loaded[pane].stats.first_places}
+                rankHistory={rankHistory[pane]}
                 pinned={pinned[pane] ?? null}
                 ondetails={(score) => {
                   detail = score;

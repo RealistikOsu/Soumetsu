@@ -197,17 +197,119 @@
   margin-top: 32px;
 }
 
-.ranks div {
+.ranks > div {
   color: var(--muted);
   font-size: 13px;
 }
 
-.ranks b {
+.ranks > div > b {
   display: block;
   color: var(--text);
   font-size: 30px;
   font-weight: 600;
   line-height: 1.15;
+}
+
+.global-rank {
+  position: relative;
+  outline: none;
+  cursor: default;
+}
+
+.peak-hint {
+  position: absolute;
+  top: 2px;
+  left: 50px;
+  color: var(--yellow);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.peak-card {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: -12px;
+  z-index: 10;
+  display: grid;
+  width: 252px;
+  padding: 14px 12px 10px;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--yellow);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--panel-2);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.45);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.16s,
+    transform 0.16s cubic-bezier(0.2, 0, 0, 1),
+    visibility 0.16s;
+}
+
+.global-rank:is(:hover, :focus-visible) .peak-card {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.peak-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.peak-label i {
+  color: var(--yellow);
+}
+
+.peak-card strong {
+  color: var(--yellow);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.peak-when {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.peak-spark {
+  width: 100%;
+  height: auto;
+  margin: 10px 0 6px;
+  overflow: visible;
+}
+
+.peak-spark polyline {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.peak-spark circle {
+  fill: var(--yellow);
+  stroke: var(--panel-2);
+  stroke-width: 2;
+}
+
+.peak-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.peak-foot b {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .ranks .total {

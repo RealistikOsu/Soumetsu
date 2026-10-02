@@ -3,7 +3,7 @@
   import { ms } from '$lib/motion';
   import { readFlag, writeFlag } from '$lib/preferences';
   import { mostPlayed, type MostPlayed } from '$lib/api/users';
-  import { profileHistory } from '$lib/api/v1';
+  import { profileHistory, type ProfileHistory } from '$lib/api/v1';
   import { query } from '$lib/api/query.svelte';
   import {
     playerScores,
@@ -27,6 +27,7 @@
     rx,
     own,
     firstPlaces,
+    rankHistory,
     pinned,
     ondetails,
     onpin
@@ -36,6 +37,8 @@
     rx: number;
     own: boolean;
     firstPlaces: number;
+    // Loaded by the profile, which also shows it in the peak rank card; undefined while loading.
+    rankHistory: ProfileHistory | undefined;
     pinned: ScoreWithBeatmap[] | null;
     ondetails: (score: ScoreWithBeatmap) => void;
     onpin: (score: ScoreWithBeatmap) => void;
@@ -45,7 +48,6 @@
   const HIDE_FAILED = 'soumetsu.hide-failed';
   let hideFailed = $state(readFlag(HIDE_FAILED));
 
-  const ranks = query((signal) => profileHistory('rank', id, mode, rx, signal));
   const pps = query((signal) => profileHistory('pp', id, mode, rx, signal));
 
   const pinnedIds = $derived(new Set((pinned ?? []).map((s) => s.id)));
@@ -60,7 +62,13 @@
       .filter((p, i, all) => i === all.length - 1 || day(all[i + 1].time) !== day(p.time));
   }
 
-  const history = $derived(graph === 'rank' ? ranks.state : pps.state);
+  const history = $derived(
+    graph === 'pp'
+      ? pps.state
+      : rankHistory
+        ? { status: 'ready' as const, data: rankHistory }
+        : { status: 'loading' as const }
+  );
   const points = $derived(
     history.status === 'ready' && history.data.status === 'ready'
       ? pointsOf(history.data.points)
