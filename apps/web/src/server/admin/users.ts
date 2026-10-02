@@ -1,5 +1,3 @@
-import { readdir, unlink } from 'node:fs/promises';
-import { join, parse } from 'node:path';
 import bcrypt from 'bcryptjs';
 import { config } from '$server/config';
 import { db } from '$server/db';
@@ -286,12 +284,13 @@ export async function rename(userId: number, by: number, requested: string, skip
   return null;
 }
 
-export async function resetAvatar(userId: number) {
-  if (!config.avatarsPath) return false;
-  const files = await readdir(config.avatarsPath).catch(() => []);
-  const own = files.filter((file) => parse(file).name === String(userId));
-  await Promise.all(own.map((file) => unlink(join(config.avatarsPath, file))));
-  return own.length > 0;
+// The API owns the avatar files, so it deletes them and writes its own action log entry.
+export async function resetAvatar(userId: number, authorization: string) {
+  const response = await fetch(`${config.apiUrl}/api/v2/admin/users/${userId}/avatar`, {
+    method: 'DELETE',
+    headers: { Authorization: authorization }
+  });
+  if (!response.ok) throw new Failure(response.status, 'Failed to reset the avatar.');
 }
 
 const KEYS: Record<string, string[]> = {

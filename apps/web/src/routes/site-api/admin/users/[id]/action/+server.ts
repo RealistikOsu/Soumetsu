@@ -123,7 +123,7 @@ export const POST = handle(async ({ request, params }) => {
       await db.users.update({ where: { id }, data: { bypass_hwid: !!body.bypass } });
       break;
     case 'reset-avatar':
-      if (await users.resetAvatar(id)) await rapLog(caller.id, `reset avatar for user ${id}`);
+      await users.resetAvatar(id, request.headers.get('Authorization') ?? '');
       break;
     case 'clear-hwid':
       await db.hw_user.deleteMany({ where: { userid: id } });
