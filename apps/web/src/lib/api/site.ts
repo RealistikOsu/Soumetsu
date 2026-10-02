@@ -24,6 +24,9 @@ export interface UserExtras {
   customBadge: { icon: string; name: string } | null;
   banner: { type: number; value: string | null } | null;
   bancho: { id: number; username: string } | null;
+  pastNames: string[];
+  badges: { name: string; icon: string }[];
+  commentCount: number;
 }
 
 export const siteInfo = (signal?: AbortSignal) => siteApi.get<SiteInfo>('/site', undefined, signal);

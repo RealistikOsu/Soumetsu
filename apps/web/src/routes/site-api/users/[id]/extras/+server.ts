@@ -42,13 +42,24 @@ export const GET = handle(async ({ params, request }) => {
     (caller !== null && (caller.privileges & MANAGE_USERS) !== 0);
   if (!visible) return ok({ visibility: 'hidden' });
 
-  const [stats, banner, bancho] = await Promise.all([
+  const [stats, banner, bancho, names, badges, comments] = await Promise.all([
     db.$queryRaw<StatsExtras[]>`
       SELECT username_aka, favourite_mode, play_style, custom_badge_icon,
              custom_badge_name, show_custom_badge, can_custom_badge
       FROM users_stats WHERE id = ${id}`,
     db.profile_backgrounds.findUnique({ where: { uid: id } }),
-    db.osu_official_links.findUnique({ where: { osu_user_id: id } })
+    db.osu_official_links.findUnique({ where: { osu_user_id: id } }),
+    db.user_name_history.findMany({
+      where: { user_id: id },
+      orderBy: { replaced_at: 'desc' },
+      select: { username: true }
+    }),
+    db.$queryRaw<{ name: string; icon: string }[]>`
+      SELECT b.name, b.icon FROM user_badges ub
+      INNER JOIN badges b ON b.id = ub.badge WHERE ub.user = ${id} ORDER BY b.id`,
+    db.$queryRaw<
+      { total: bigint }[]
+    >`SELECT COUNT(*) AS total FROM user_comments WHERE prof = ${id}`
   ]);
   const extras = stats[0];
   const now = Math.floor(Date.now() / 1000);
@@ -70,6 +81,9 @@ export const GET = handle(async ({ params, request }) => {
       banner && (privileges & 4) !== 0 && banner.type !== 0
         ? { type: banner.type, value: banner.type === 2 ? banner.value : null }
         : null,
-    bancho: bancho ? { id: Number(bancho.ppy_user_id), username: bancho.ppy_username } : null
+    bancho: bancho ? { id: Number(bancho.ppy_user_id), username: bancho.ppy_username } : null,
+    pastNames: names.map((n) => n.username),
+    badges,
+    commentCount: Number(comments[0]?.total ?? 0)
   });
 });

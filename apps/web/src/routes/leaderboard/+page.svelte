@@ -243,6 +243,9 @@
 </main>
 
 <Dialog bind:open={chooser} class="country-dialog">
+  <button class="dialog-close" aria-label="Close" onclick={() => (chooser = false)}>
+    <i class="fa-solid fa-xmark"></i>
+  </button>
   <h2>Pick a country</h2>
   <div class="country-grid">
     {#each allCountries ?? [] as country (country)}

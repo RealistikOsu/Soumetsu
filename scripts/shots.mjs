@@ -25,8 +25,12 @@ for (const width of widths) {
   });
   page.on('pageerror', (error) => errors.push(error.message));
 
-  await page.goto(`${app}${path}`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1500);
+  await page.goto(`${app}${path}`, { waitUntil: 'load' });
+  await page.waitForTimeout(3000);
+  // Rows reveal against the viewport, so it is made as tall as the page for the full-page shot.
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewportSize({ width, height });
+  await page.waitForTimeout(500);
   await page.screenshot({ path: `screenshots/${name}-${width}-app.png`, fullPage: true });
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth

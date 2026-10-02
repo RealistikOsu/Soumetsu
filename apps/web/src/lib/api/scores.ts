@@ -1,5 +1,6 @@
 import type { Mod } from '$lib/mods';
 import { api } from './client';
+import { siteApi } from './site';
 
 export interface Score {
   id: number;
@@ -42,3 +43,43 @@ export interface TopScore extends ScoreWithBeatmap {
 
 export const topScoresMixed = (signal?: AbortSignal) =>
   api.get<TopScore[]>('/scores/top/mixed', undefined, signal);
+
+export type ScoreKind = 'best' | 'recent' | 'firsts' | 'pinned';
+
+export const playerScores = (
+  kind: ScoreKind,
+  id: number,
+  mode: number,
+  rx: number,
+  page: number,
+  limit: number,
+  signal?: AbortSignal
+) =>
+  api.get<ScoreWithBeatmap[]>(
+    `/users/${id}/scores/${kind}`,
+    { mode, custom_mode: rx, page, limit },
+    signal
+  );
+
+export interface WatchedScore extends ScoreWithBeatmap {
+  watched_count: number;
+}
+
+export const watchedScores = (
+  id: number,
+  mode: number,
+  rx: number,
+  page: number,
+  limit: number,
+  signal?: AbortSignal
+) =>
+  siteApi.get<WatchedScore[]>(
+    `/users/${id}/scores/watched`,
+    { mode, custom_mode: rx, page, limit },
+    signal
+  );
+
+export const pinScore = (id: number, rx: number) =>
+  api.post(`/scores/${id}/pin`, undefined, { custom_mode: rx });
+
+export const unpinScore = (id: number) => api.delete(`/scores/${id}/pin`);

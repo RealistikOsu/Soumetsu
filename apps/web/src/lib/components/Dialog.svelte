@@ -28,8 +28,5 @@
     if (event.target === dialog) open = false;
   }}
 >
-  <form method="dialog">
-    <button class="dialog-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-  </form>
   {@render children()}
 </dialog>

@@ -13,6 +13,7 @@ export const config = {
   databaseUrl: required('DATABASE_URL'),
   redisUrl: required('REDIS_URL'),
   appBaseUrl: required('APP_BASE_URL').replace(/\/$/, ''),
+  mirrorUrl: (optional('MIRROR_URL') || 'https://mirror.ussr.pl').replace(/\/$/, ''),
   docsPath: optional('DOCS_PATH') || '../../website-docs',
   hcaptchaSecret: optional('HCAPTCHA_SECRET_KEY'),
   brevoApiKey: optional('BREVO_API_KEY'),

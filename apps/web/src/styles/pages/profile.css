@@ -393,3 +393,34 @@
   color: var(--faint);
   font-size: 12px;
 }
+
+.comment-delete {
+  margin-left: 8px;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.comment-delete:hover {
+  color: var(--red);
+}
+
+.clan-tag {
+  margin-right: 6px;
+  color: var(--link);
+}
+
+.past-names {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 0.6em;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--muted);
+}

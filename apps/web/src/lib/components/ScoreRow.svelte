@@ -1,0 +1,88 @@
+<script lang="ts">
+  import type { ScoreWithBeatmap } from '$lib/api/scores';
+  import { replayUrl, coverUrl } from '$lib/assets';
+  import { number, songParts, timeAgo } from '$lib/format';
+  import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
+  import { modsText } from '$lib/mods';
+
+  let {
+    score,
+    own = false,
+    pinned = false,
+    watched,
+    ondetails,
+    onpin
+  }: {
+    score: ScoreWithBeatmap;
+    own?: boolean;
+    pinned?: boolean;
+    watched?: number;
+    ondetails: () => void;
+    onpin: () => void;
+  } = $props();
+
+  const grade = $derived(gradeOf(score));
+  const parts = $derived(songParts(score.beatmap.song_name));
+  const mods = $derived(modsText(score.mods));
+  let menu = $state<HTMLDetailsElement>();
+
+  function onWindowClick(event: MouseEvent) {
+    if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+  }
+</script>
+
+<svelte:window onclick={onWindowClick} />
+
+<div
+  class="score-row"
+  class:is-failed={score.completed < 2}
+  style="--cover: url({coverUrl(score.beatmap.beatmapset_id, 'card')})"
+>
+  <div class="score-bg"></div>
+  <span class="grade grade-{gradeClass[grade]}" title={grade}>{gradeLabel(grade)}</span>
+  <div class="score-info">
+    <a class="song" href="/beatmaps/{score.beatmap.beatmap_id}">
+      {parts.song}
+      {#if parts.diff}<span>[{parts.diff}]</span>{/if}
+    </a>
+    <div class="score-meta">
+      {number(score.score)} · {number(score.max_combo)}x{score.count_misses
+        ? ` · ${score.count_misses} miss`
+        : ''}
+      {#if mods}<span class="mods">{mods}</span>{/if}
+    </div>
+    <time>{timeAgo(score.submitted_at)}</time>
+  </div>
+  <div class="score-pp">
+    <b>{number(Math.round(score.pp))}pp</b><span>{number(score.accuracy, 2)}%</span>
+    {#if watched !== undefined}<span class="watched">watched {watched}×</span>{/if}
+  </div>
+  <details class="score-menu" bind:this={menu}>
+    <summary aria-label="Score options"><i class="fa-solid fa-ellipsis-vertical"></i></summary>
+    <div>
+      <button
+        type="button"
+        onclick={() => {
+          menu!.open = false;
+          ondetails();
+        }}
+      >
+        <i class="fa-solid fa-circle-info"></i>View details
+      </button>
+      {#if score.completed === 3}
+        <a href={replayUrl(score.id)}><i class="fa-solid fa-download"></i>Download replay</a>
+      {/if}
+      {#if own && score.completed >= 2}
+        <button
+          type="button"
+          onclick={() => {
+            menu!.open = false;
+            onpin();
+          }}
+        >
+          <i class="fa-solid fa-thumbtack"></i>{pinned ? 'Unpin' : 'Pin'} score
+        </button>
+      {/if}
+    </div>
+  </details>
+</div>
