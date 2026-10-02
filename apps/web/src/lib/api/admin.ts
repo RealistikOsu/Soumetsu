@@ -199,3 +199,51 @@ export interface StatsData {
 
 export const adminStats = (minPp: number, signal?: AbortSignal) =>
   siteApi.get<StatsData>('/admin/stats', { minpp: minPp }, signal);
+
+export type RankStatus = 'ranked' | 'loved' | 'unranked';
+
+export interface Suggestion {
+  beatmapId: number;
+  song: string;
+  diff: string;
+  creator: string | null;
+  cover: string;
+  difficulties: number;
+  modes: number[];
+}
+
+export const suggestions = (signal?: AbortSignal) =>
+  siteApi.get<Suggestion[]>('/admin/ranking', undefined, signal);
+
+export interface RankingSet {
+  setId: number;
+  title: string;
+  creator: string | null;
+  cover: string;
+  difficulties: { id: number; name: string; mode: number; stars: number; ranked: number }[];
+}
+
+export const rankingSet = (id: number, signal?: AbortSignal) =>
+  siteApi.get<RankingSet>(`/admin/ranking/${id}`, undefined, signal);
+
+export const rankSet = (
+  id: number,
+  body: { all: RankStatus } | { changes: { beatmapId: number; status: RankStatus }[] }
+) => siteApi.post(`/admin/ranking/${id}`, body);
+
+export interface RankRequest {
+  id: number;
+  time: number;
+  setId: number | null;
+  song: string;
+  cover: string | null;
+  creator: string | null;
+  difficulties: number;
+  modes: number[];
+  requester: { id: number; username: string; country: string };
+}
+
+export const rankRequests = (page: number, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; requests: RankRequest[] }>('/admin/requests', { page }, signal);
+
+export const dismissRequest = (id: number) => siteApi.delete(`/admin/requests/${id}`);
