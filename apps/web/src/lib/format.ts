@@ -29,3 +29,14 @@ export function songParts(songName: string) {
 
 export const length = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
+export function dayLabel(unixSeconds: number) {
+  const days = Math.floor(Date.now() / 86400000) - Math.floor(unixSeconds / 86400);
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  return new Date(unixSeconds * 1000).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}

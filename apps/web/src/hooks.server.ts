@@ -1,5 +1,6 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { env } from '$env/dynamic/public';
+import { record } from '$server/admin/console';
 import { config } from '$server/config';
 
 // Pages are rendered in the browser, so link previews (Discord embeds and the like) would find nothing to read.
@@ -91,4 +92,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   return resolve(event, {
     transformPageChunk: ({ html }) => html.replace('</head>', `    ${tags}\n  </head>`)
   });
+};
+
+export const handleError: HandleServerError = async ({ error }) => {
+  await record('error', null, error);
 };

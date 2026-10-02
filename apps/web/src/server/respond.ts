@@ -1,4 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
+import { record } from './admin/console';
 
 export class Failure extends Error {
   constructor(
@@ -32,6 +33,7 @@ export const handle =
       return await handler(event);
     } catch (error) {
       if (error instanceof Failure) return fail(error.status, error.code);
+      await record('error', null, error);
       throw error;
     }
   };

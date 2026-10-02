@@ -153,3 +153,40 @@ export const userIps = (id: number, signal?: AbortSignal) =>
 
 export const ipUsers = (ip: string, signal?: AbortSignal) =>
   siteApi.get<IpRow[]>(`/admin/ips/${encodeURIComponent(ip)}`, undefined, signal);
+
+export interface LogRow {
+  id: number;
+  userid: number;
+  username: string | null;
+  text: string;
+  datetime: number;
+  through: string;
+}
+
+export const actionLogs = (page: number, q: string, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; rows: LogRow[] }>('/admin/logs', { page, q }, signal);
+
+export interface BanLogRow {
+  from_id: number;
+  from_name: string;
+  to_id: number;
+  to_name: string;
+  ts: number;
+  summary: string;
+  detail: string;
+}
+
+export const banLogs = (page: number, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; rows: BanLogRow[] }>('/admin/ban-logs', { page }, signal);
+
+export interface ConsoleRow {
+  level: 'error' | 'warning';
+  userId: number | null;
+  username: string | null;
+  message: string;
+  stack: string;
+  time: number;
+}
+
+export const consoleLogs = (page: number, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; rows: ConsoleRow[] }>('/console', { page }, signal);
