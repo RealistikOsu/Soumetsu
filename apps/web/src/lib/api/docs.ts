@@ -1,3 +1,4 @@
+import { getLocale } from '$lib/i18n';
 import { siteApi } from './site';
 
 export interface DocMeta {
@@ -9,7 +10,8 @@ export interface DocMeta {
   oldId: number | null;
 }
 
-export const docs = (signal?: AbortSignal) => siteApi.get<DocMeta[]>('/docs', undefined, signal);
+export const docs = (signal?: AbortSignal) =>
+  siteApi.get<DocMeta[]>('/docs', { lang: getLocale() }, signal);
 
 export const doc = (slug: string, signal?: AbortSignal) =>
-  siteApi.get<{ meta: DocMeta; body: string }>(`/docs/${slug}`, undefined, signal);
+  siteApi.get<{ meta: DocMeta; body: string }>(`/docs/${slug}`, { lang: getLocale() }, signal);
