@@ -51,11 +51,15 @@ export const tabInk: Action<HTMLElement> = (tabs) => {
   const mutations = new MutationObserver(place);
   mutations.observe(tabs, { subtree: true, attributes: true, attributeFilter: ['class'] });
   addEventListener('resize', place);
+  // Counts and labels that load in after mount change a tab's width.
+  const sizes = new ResizeObserver(place);
+  for (const tab of tabs.querySelectorAll(':scope > a')) sizes.observe(tab);
 
   return {
     destroy() {
       cancelAnimationFrame(ready);
       mutations.disconnect();
+      sizes.disconnect();
       removeEventListener('resize', place);
     }
   };
