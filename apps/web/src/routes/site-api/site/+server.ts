@@ -1,3 +1,4 @@
+import { config } from '$server/config';
 import { db } from '$server/db';
 import { handle, ok } from '$server/respond';
 
@@ -28,7 +29,9 @@ async function load() {
     registrationsEnabled: !!get('registrations_enabled')?.value_int,
     clanCreationEnabled: !!get('ccreation_enabled')?.value_int,
     latestPlayer: latest[0] ?? null,
-    mapsRanked: ranked
+    mapsRanked: ranked,
+    twitchConfigured: !!(config.twitch.id && config.twitch.secret),
+    banchoConfigured: !!(config.osu.id && config.osu.secret)
   };
 }
 

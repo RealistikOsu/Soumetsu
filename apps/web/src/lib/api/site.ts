@@ -10,6 +10,8 @@ export interface SiteInfo {
   clanCreationEnabled: boolean;
   latestPlayer: { id: number; username: string } | null;
   mapsRanked: number;
+  twitchConfigured: boolean;
+  banchoConfigured: boolean;
 }
 
 export interface UserExtras {
