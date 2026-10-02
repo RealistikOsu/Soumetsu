@@ -30,6 +30,11 @@ async function load() {
     clanCreationEnabled: !!get('ccreation_enabled')?.value_int,
     latestPlayer: latest[0] ?? null,
     mapsRanked: ranked,
+    payments: {
+      stripe: !!config.stripe.key,
+      freekassa: !!(config.freekassa.merchantId && config.freekassa.secret1),
+      paypal: config.paypalEmail || null
+    },
     twitchConfigured: !!(config.twitch.id && config.twitch.secret),
     banchoConfigured: !!(config.osu.id && config.osu.secret)
   };

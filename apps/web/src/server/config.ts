@@ -24,6 +24,7 @@ export const config = {
   osu: { id: optional('OSU_CLIENT_ID'), secret: optional('OSU_CLIENT_SECRET') },
   twitch: { id: optional('TWITCH_APP_CLIENT_ID'), secret: optional('TWITCH_APP_CLIENT_SECRET') },
   stripe: { key: optional('STRIPE_SECRET_KEY'), webhookSecret: optional('STRIPE_WEBHOOK_SECRET') },
+  paypalEmail: optional('PAYPAL_EMAIL_ADDRESS'),
   freekassa: {
     merchantId: optional('FREEKASSA_MERCHANT_ID'),
     secret1: optional('FREEKASSA_SECRET_WORD_1'),

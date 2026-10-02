@@ -10,6 +10,7 @@ export interface SiteInfo {
   clanCreationEnabled: boolean;
   latestPlayer: { id: number; username: string } | null;
   mapsRanked: number;
+  payments: { stripe: boolean; freekassa: boolean; paypal: string | null };
   twitchConfigured: boolean;
   banchoConfigured: boolean;
 }

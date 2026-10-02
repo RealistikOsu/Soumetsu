@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { env } from '$env/dynamic/public';
+  import { site } from '$lib/site.svelte';
   import { page } from '$app/state';
   import { api } from '$lib/api/client';
   import { describe } from '$lib/api/messages';
@@ -129,8 +129,7 @@
     }
   }
 
-  // PayPal is a plain form the browser posts, with the player's name for the payment to be matched by.
-  const paypalEmail = env.PUBLIC_PAYPAL_EMAIL;
+  const methods = $derived(site.info?.payments);
 </script>
 
 <svelte:head><title>Support · RealistikOsu</title></svelte:head>
@@ -191,80 +190,90 @@
       <p class="empty-note"><a href="/login?redir=/donate">Log in</a> to get supporter.</p>
     </div>
   {:else}
-    <div class="panel checkout c-pink">
-      <div class="checkout-amount">
-        <label for="months">How long?</label>
-        <input id="months" type="range" min="1" max="24" step="1" bind:value={months} />
-        <div class="price">
-          <b>£{price}</b> for <b>{months === 1 ? '1 month' : `${months} months`}</b>
-        </div>
-        <div class="gift">
-          Donating for: <b>{payee?.username}</b>
-          <button class="link-button" type="button" onclick={() => (gifting = !gifting)}>
-            <i class="fa-solid fa-gift"></i>Gift it to someone
-          </button>
-        </div>
-        {#if gifting}
-          <input
-            class="gift-search"
-            type="search"
-            bind:value={search}
-            placeholder="Search for a player"
-          />
-          {#each found as player (player.id)}
-            <button
-              class="link-button"
-              type="button"
-              onclick={() => {
-                target = player;
-                search = '';
-                found = [];
-              }}
-            >
-              {player.username}
-            </button>
-          {/each}
-        {/if}
+    {#if site.info && !methods?.stripe && !methods?.freekassa && !methods?.paypal}
+      <div class="panel c-pink">
+        <p class="empty-note">Payments are currently unavailable. Please try again later.</p>
       </div>
-      <div class="checkout-methods">
-        <button class="pay stripe" type="button" disabled={busy} onclick={() => pay('stripe')}>
-          <span><i class="fa-brands fa-stripe-s"></i>Stripe <em>Recommended</em></span>
-          <small>
-            <b>+10% time</b>: you get {+(months * 1.1).toFixed(1)} months
-          </small>
-        </button>
-        {#if paypalEmail && payee}
-          <form
-            action="https://www.paypal.com/cgi-bin/webscr"
-            method="post"
-            class="pay paypal-form"
-          >
-            <input type="hidden" name="cmd" value="_xclick" />
-            <input type="hidden" name="business" value={paypalEmail} />
+    {:else}
+      <div class="panel checkout c-pink">
+        <div class="checkout-amount">
+          <label for="months">How long?</label>
+          <input id="months" type="range" min="1" max="24" step="1" bind:value={months} />
+          <div class="price">
+            <b>£{price}</b> for <b>{months === 1 ? '1 month' : `${months} months`}</b>
+          </div>
+          <div class="gift">
+            Donating for: <b>{payee?.username}</b>
+            <button class="link-button" type="button" onclick={() => (gifting = !gifting)}>
+              <i class="fa-solid fa-gift"></i>Gift it to someone
+            </button>
+          </div>
+          {#if gifting}
             <input
-              type="hidden"
-              name="item_name"
-              value="{months} month(s) RealistikOsu supporter for {payee.username}"
+              class="gift-search"
+              type="search"
+              bind:value={search}
+              placeholder="Search for a player"
             />
-            <input type="hidden" name="amount" value={price} />
-            <input type="hidden" name="currency_code" value="GBP" />
-            <input type="hidden" name="custom" value="username={payee.username}" />
-            <input type="hidden" name="lc" value="GB" />
-            <button class="pay paypal" type="submit">
-              <span><i class="fa-brands fa-paypal"></i>PayPal</span>
-              <small>Or a card linked to PayPal</small>
+            {#each found as player (player.id)}
+              <button
+                class="link-button"
+                type="button"
+                onclick={() => {
+                  target = player;
+                  search = '';
+                  found = [];
+                }}
+              >
+                {player.username}
+              </button>
+            {/each}
+          {/if}
+        </div>
+        <div class="checkout-methods">
+          {#if methods?.stripe}
+            <button class="pay stripe" type="button" disabled={busy} onclick={() => pay('stripe')}>
+              <span><i class="fa-brands fa-stripe-s"></i>Stripe <em>Recommended</em></span>
+              <small>
+                <b>+10% time</b>: you get {+(months * 1.1).toFixed(1)} months
+              </small>
             </button>
-          </form>
-        {/if}
-        <button
-          class="pay freekassa"
-          type="button"
-          disabled={busy}
-          onclick={() => pay('freekassa')}
-        >
-          <span><i class="fa-solid fa-credit-card"></i>FreeKassa</span>
-        </button>
+          {/if}
+          {#if methods?.paypal && payee}
+            <form
+              action="https://www.paypal.com/cgi-bin/webscr"
+              method="post"
+              class="pay paypal-form"
+            >
+              <input type="hidden" name="cmd" value="_xclick" />
+              <input type="hidden" name="business" value={methods.paypal} />
+              <input
+                type="hidden"
+                name="item_name"
+                value="{months} month(s) RealistikOsu supporter for {payee.username}"
+              />
+              <input type="hidden" name="amount" value={price} />
+              <input type="hidden" name="currency_code" value="GBP" />
+              <input type="hidden" name="custom" value="username={payee.username}" />
+              <input type="hidden" name="lc" value="GB" />
+              <button class="pay paypal" type="submit">
+                <span><i class="fa-brands fa-paypal"></i>PayPal</span>
+                <small>Or a card linked to PayPal</small>
+              </button>
+            </form>
+          {/if}
+          {#if methods?.freekassa}
+            <button
+              class="pay freekassa"
+              type="button"
+              disabled={busy}
+              onclick={() => pay('freekassa')}
+            >
+              <span><i class="fa-solid fa-credit-card"></i>FreeKassa</span>
+            </button>
+          {/if}
+        </div>
       </div>
-    </div>
+    {/if}
   {/if}
 </main>
