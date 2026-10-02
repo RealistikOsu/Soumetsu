@@ -42,3 +42,19 @@ export const serviceStatus = (signal?: AbortSignal) =>
     undefined,
     signal
   );
+
+export interface AdminUserRow {
+  id: number;
+  username: string;
+  country: string;
+  registered: number;
+  lastSeen: number;
+  group: { name: string; colour: string };
+}
+
+export const adminUsers = (page: number, user: string, signal?: AbortSignal) =>
+  siteApi.get<{ total: number; pages: number; users: AdminUserRow[] }>(
+    '/admin/users',
+    { page, user },
+    signal
+  );

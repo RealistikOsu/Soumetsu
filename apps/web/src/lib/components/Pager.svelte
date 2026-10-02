@@ -2,10 +2,12 @@
   let {
     page,
     hasNext,
+    pages,
     onpage
   }: {
     page: number;
     hasNext: boolean;
+    pages?: number;
     onpage: (page: number) => void;
   } = $props();
 </script>
@@ -21,7 +23,10 @@
   >
     <i class="fa-solid fa-chevron-left"></i>Previous
   </a>
-  <span>Page <b>{page}</b></span>
+  <span
+    >Page <b>{page}</b>{#if pages}
+      of {pages}{/if}</span
+  >
   <a
     class:disabled={!hasNext}
     href="?p={page + 1}"
