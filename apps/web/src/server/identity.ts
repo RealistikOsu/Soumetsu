@@ -1,12 +1,13 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type { Cookies, RequestEvent } from '@sveltejs/kit';
+import { config } from './config';
 import { db } from './db';
 
 const COOKIE = 'y';
 const SIX_MONTHS = 60 * 60 * 24 * 30 * 6;
 
 export const clientIp = (event: Pick<RequestEvent, 'request' | 'getClientAddress'>) =>
-  event.request.headers.get('X-Real-IP') ?? event.getClientAddress();
+  (config.trustProxy && event.request.headers.get('X-Real-IP')) || event.getClientAddress();
 
 export const md5 = (value: string) => createHash('md5').update(value).digest('hex');
 

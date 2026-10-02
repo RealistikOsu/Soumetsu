@@ -15,6 +15,8 @@ export const config = {
   appBaseUrl: required('APP_BASE_URL').replace(/\/$/, ''),
   mirrorUrl: (optional('MIRROR_URL') || 'https://mirror.ussr.pl').replace(/\/$/, ''),
   docsPath: optional('DOCS_PATH') || '../../website-docs',
+  // Only behind a proxy that sets X-Real-IP itself; otherwise anyone could claim any address.
+  trustProxy: optional('TRUST_PROXY') === 'true',
   hcaptchaSecret: optional('HCAPTCHA_SECRET_KEY'),
   brevoApiKey: optional('BREVO_API_KEY'),
   brevoFrom: optional('BREVO_FROM'),
