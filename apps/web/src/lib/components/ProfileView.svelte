@@ -20,6 +20,7 @@
   import Flag from './Flag.svelte';
   import Medals from './Medals.svelte';
   import ModeTabs from './ModeTabs.svelte';
+  import PastNames from './PastNames.svelte';
   import NotFound from './NotFound.svelte';
   import PinDialog from './PinDialog.svelte';
   import ProfilePane from './ProfilePane.svelte';
@@ -168,19 +169,7 @@
               {/if}
               <span class={decorationClass(extra?.nameDecoration)}>{base.username}</span>
             </h1>
-            {#if extra?.pastNames.length}
-              <details class="past-names">
-                <summary title="Previous usernames" aria-label="Previous usernames">
-                  <i class="fa-solid fa-clock-rotate-left"></i>{extra.pastNames.length}
-                </summary>
-                <div>
-                  <span>Previously known as</span>
-                  <ol>
-                    {#each extra.pastNames as name (name)}<li>{name}</li>{/each}
-                  </ol>
-                </div>
-              </details>
-            {/if}
+            {#if extra?.pastNames.length}<PastNames names={extra.pastNames} />{/if}
           </div>
           {#if extra && (extra.badges.length || extra.customBadge)}
             <div class="badges">

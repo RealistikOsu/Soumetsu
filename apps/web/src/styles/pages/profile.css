@@ -432,7 +432,9 @@
   flex: none;
 }
 
-.past-names summary {
+.past-names > button {
+  border: 0;
+  font-family: inherit;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -446,12 +448,8 @@
   cursor: pointer;
 }
 
-.past-names summary::-webkit-details-marker {
-  display: none;
-}
-
-.past-names summary:hover,
-.past-names[open] summary {
+.past-names > button:hover,
+.past-names > button[aria-expanded='true'] {
   color: #fff;
   background: rgb(0 0 0 / 0.65);
 }

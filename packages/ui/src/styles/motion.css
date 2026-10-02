@@ -192,19 +192,11 @@
 }
 
 /* menus grow out of the corner they hang from */
-.motion
-  :is(
-    .nav-drop,
-    .me-menu,
-    .score-menu > div,
-    details.downloads > div,
-    .search-results,
-    .past-names > div
-  ) {
+.motion :is(.nav-drop, .me-menu, .score-menu > div, details.downloads > div, .search-results) {
   animation: menu-in 0.18s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.motion :is(.nav-drop, .search-results, .past-names > div) {
+.motion :is(.nav-drop, .search-results) {
   transform-origin: top left;
 }
 
