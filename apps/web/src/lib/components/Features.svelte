@@ -1,23 +1,29 @@
+<script lang="ts">
+  import { m } from '$lib/paraglide/messages';
+</script>
+
 <dl class="features">
   <div class="c-pink">
-    <dt><i class="fa-solid fa-user-group"></i>Relax and Autopilot leaderboards</dt>
-    <dd>Both get their own pp system and rankings, separate from vanilla.</dd>
+    <dt><i class="fa-solid fa-user-group"></i>{m.home_feature_relax_title()}</dt>
+    <dd>{m.home_feature_relax_text()}</dd>
   </div>
   <div class="c-lblue">
-    <dt><i class="fa-solid fa-forward"></i>Rate changes</dt>
+    <dt><i class="fa-solid fa-forward"></i>{m.home_feature_rate_title()}</dt>
     <dd>
-      Play maps at other speeds with the <a href="/patcher">patcher</a>, which also brings relax
-      misses and a pp counter.
+      {m.home_feature_rate_before()}
+      <a href="/patcher">{m.home_feature_rate_link()}</a>{m.home_feature_rate_after()}
     </dd>
   </div>
   <div class="c-orange">
-    <dt><i class="fa-solid fa-angles-up"></i>Custom map ranking</dt>
+    <dt><i class="fa-solid fa-angles-up"></i>{m.home_feature_ranking_title()}</dt>
     <dd>
-      Missing a map? <a href="/rank-request">Request beatmap ranking</a> and it goes into the queue.
+      {m.home_feature_ranking_before()}
+      <a href="/rank-request">{m.home_feature_ranking_link()}</a>
+      {m.home_feature_ranking_after()}
     </dd>
   </div>
   <div class="c-purple">
-    <dt><i class="fa-solid fa-shield-halved"></i>Clans</dt>
-    <dd>Create a clan or join one through an invite. Its tag shows next to your name.</dd>
+    <dt><i class="fa-solid fa-shield-halved"></i>{m.home_feature_clans_title()}</dt>
+    <dd>{m.home_feature_clans_text()}</dd>
   </div>
 </dl>

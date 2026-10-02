@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { m } from '$lib/paraglide/messages';
+
   // 1 is Register, 2 Connect, 3 Play; 0 highlights none.
   let { current }: { current: number } = $props();
 
   const steps = [
-    ['Register', 'c-green', 'fa-user-plus'],
-    ['Connect', 'c-blue', 'fa-link'],
-    ['Play', 'c-pink', 'fa-circle-play']
+    [m.home_journey_register(), 'c-green', 'fa-user-plus'],
+    [m.home_journey_connect(), 'c-blue', 'fa-link'],
+    [m.home_journey_play(), 'c-pink', 'fa-circle-play']
   ];
 </script>
 

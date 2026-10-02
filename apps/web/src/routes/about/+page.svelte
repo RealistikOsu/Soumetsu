@@ -1,75 +1,71 @@
 <script lang="ts">
   import Banner from '$lib/components/Banner.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const rows = [
     [
       'leaderboards.jpg',
       'c-purple',
       'fa-list-ol',
-      'Leaderboards',
-      'Every map has its own leaderboard in-game for vanilla, relax and autopilot, with clan tags next to names.'
+      m.support_about_leaderboards(),
+      m.support_about_leaderboards_text()
     ],
     [
       'onlineusers.jpg',
       'c-green',
       'fa-globe',
-      'Online users',
-      "See who's online from the in-game user panel, along with their rank, pp and what they're up to."
+      m.support_about_online(),
+      m.support_about_online_text()
     ],
     [
       'osudirect.jpg',
       'c-lblue',
       'fa-download',
-      'Free beatmap downloads',
-      'osu!direct works for everyone, no supporter tag needed. Search for maps and download them without leaving the game.'
+      m.support_about_direct(),
+      m.support_about_direct_text()
     ],
     [
       'global_leaderboards.jpg',
       'c-yellow',
       'fa-trophy',
-      'Global leaderboards',
-      'Rankings for every mode, by pp or by score, and for every country. <a href="/leaderboard">See the leaderboard</a>.'
+      m.support_about_global(),
+      `${m.support_about_global_text()} <a href="/leaderboard">${m.support_about_global_link()}</a>.`
     ],
     [
       'request_beatmaps.jpg',
       'c-pink',
       'fa-circle-question',
-      'Beatmap rank requests',
-      'Found an unranked map you like? Send it in, and the Beatmap Appreciation Team will check the whole set. <a href="/rank-request">Request a beatmap</a>.'
+      m.support_about_requests(),
+      `${m.support_about_requests_text()} <a href="/rank-request">${m.support_about_requests_link()}</a>.`
     ],
     [
       'spectator.jpg',
       'c-teal',
       'fa-eye',
-      'Spectator',
-      'Watch other players live, right from the game.'
+      m.support_about_spectator(),
+      m.support_about_spectator_text()
     ],
-    [
-      'multi.jpg',
-      'c-blue',
-      'fa-users',
-      'Multiplayer',
-      'Make or join a lobby and play against others, just like on the official server.'
-    ],
+    ['multi.jpg', 'c-blue', 'fa-users', m.support_about_multi(), m.support_about_multi_text()],
     [
       'relestobot.jpg',
       'c-orange',
       'fa-robot',
       'RealistikBot',
-      'Our in-game bot. Ask it for pp with <code>!with</code>, roll with <code>!roll</code>, and see everything else it can do with <code>!help</code>.'
+      m.support_about_bot_text({
+        withCmd: '<code>!with</code>',
+        rollCmd: '<code>!roll</code>',
+        helpCmd: '<code>!help</code>'
+      })
     ]
   ];
 </script>
 
-<svelte:head><title>About · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.support_about_title()} · RealistikOsu</title></svelte:head>
 
 <Banner url="/img/about/intro.jpg" class="about-banner">
   <div>
-    <h1>Welcome to RealistikOsu!</h1>
-    <p class="sub">
-      A custom server for the rhythm game osu!, building on the online experience with lots of fun
-      features.
-    </p>
+    <h1>{m.support_about_heading()}</h1>
+    <p class="sub">{m.support_about_sub()}</p>
   </div>
 </Banner>
 
@@ -85,20 +81,17 @@
   {/each}
 
   <div class="panel about-more c-blue">
-    <h2>And a lot more!</h2>
-    <p>
-      RealistikOsu was first released to the public in early 2020, and has grown an unbelievable
-      amount since. We have a long journey ahead of us, so come along and watch it unfold.
-    </p>
-    <p class="muted">
-      We're also open source, so you can see the exact code we run and even contribute to it.
-    </p>
+    <h2>{m.support_about_more_title()}</h2>
+    <p>{m.support_about_more_text()}</p>
+    <p class="muted">{m.support_about_open_source()}</p>
     <div class="avatar-actions">
-      <a class="btn btn-blue" href="/register"><i class="fa-solid fa-user-plus"></i>Register</a>
-      <a class="btn" href="https://github.com/RealistikOsu"
-        ><i class="fa-brands fa-github"></i>Source code</a
+      <a class="btn btn-blue" href="/register"
+        ><i class="fa-solid fa-user-plus"></i>{m.support_about_register()}</a
       >
-      <a class="btn" href="/team"><i class="fa-solid fa-users"></i>Meet the team</a>
+      <a class="btn" href="https://github.com/RealistikOsu"
+        ><i class="fa-brands fa-github"></i>{m.support_about_source()}</a
+      >
+      <a class="btn" href="/team"><i class="fa-solid fa-users"></i>{m.support_about_team()}</a>
     </div>
   </div>
 </main>

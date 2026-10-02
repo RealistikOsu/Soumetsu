@@ -8,6 +8,7 @@
   import ClanFields from '$lib/components/ClanFields.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
   import { site } from '$lib/site.svelte';
 
   let name = $state('');
@@ -21,14 +22,14 @@
   async function submit(event: SubmitEvent) {
     event.preventDefault();
     if (!clanNamePattern.test(name.trim()) || !clanTagPattern.test(tag.trim())) {
-      return flash.show('error', 'Check the clan name and tag, then try again.');
+      return flash.show('error', m.clans_form_check());
     }
     busy = true;
     try {
       const created = await createClan({ name: name.trim(), tag: tag.trim(), description });
       // The clan exists now, so a logo that fails to upload can be added later from Manage clan.
       if (icon) await uploadClanIcon(created.id, icon).catch(() => null);
-      flash.next('success', 'Clan created.');
+      flash.next('success', m.clans_create_done());
       await session.start();
       await goto(`/c/${created.id}`);
     } catch (error) {
@@ -39,45 +40,46 @@
   }
 </script>
 
-<svelte:head><title>Create a clan · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.clans_create_title()} · RealistikOsu</title></svelte:head>
 
 <Banner image="clans.jpg">
   <div>
-    <h1>Create a clan</h1>
-    <p class="sub">Team up with your friends and climb the clan leaderboard together.</p>
+    <h1>{m.clans_create_title()}</h1>
+    <p class="sub">{m.clans_create_sub()}</p>
   </div>
 </Banner>
 
 <main class="wrap clan-form">
   {#if session.user?.clan}
-    <p class="panel empty-note">You're already in a clan. Leave it before making a new one.</p>
+    <p class="panel empty-note">{m.clans_create_already()}</p>
   {:else if site.info && !site.info.clanCreationEnabled}
-    <p class="panel empty-note">Ow, sorry the clan is not available to create right now ;p</p>
+    <p class="panel empty-note">{m.clans_create_disabled()}</p>
   {:else}
     <form onsubmit={submit}>
-      <SectionTitle colour="c-purple" icon="fa-shield-halved">Your clan</SectionTitle>
+      <SectionTitle colour="c-purple" icon="fa-shield-halved"
+        >{m.clans_create_your_clan()}</SectionTitle
+      >
       <div class="panel form-panel c-purple">
         <ClanFields bind:name bind:tag bind:description bind:icon />
       </div>
       <div class="form-actions">
         <button class="btn btn-blue" type="submit" disabled={busy}>
-          <i class="fa-solid fa-plus"></i>Create clan
+          <i class="fa-solid fa-plus"></i>{m.clans_create_submit()}
         </button>
       </div>
     </form>
     <aside>
-      <SectionTitle colour="c-yellow" icon="fa-eye">Preview</SectionTitle>
+      <SectionTitle colour="c-yellow" icon="fa-eye">{m.clans_create_preview()}</SectionTitle>
       <div class="panel clan-preview c-purple">
-        <ClanBadge tag={tag || 'TAG'} size="large" preview={iconPreview} />
+        <ClanBadge tag={tag || m.clans_create_preview_tag()} size="large" preview={iconPreview} />
         <div>
-          <span class="clan-tag">[{tag || 'TAG'}]</span>
-          <b>{name || 'Clan name'}</b>
-          <p>{description || 'Your description goes here.'}</p>
+          <span class="clan-tag">[{tag || m.clans_create_preview_tag()}]</span>
+          <b>{name || m.clans_fields_name()}</b>
+          <p>{description || m.clans_create_preview_description()}</p>
         </div>
       </div>
       <p class="faint">
-        You'll be the clan's owner. Once it's made, you get an invite link to share from Manage
-        clan.
+        {m.clans_create_owner_note()}
       </p>
     </aside>
   {/if}

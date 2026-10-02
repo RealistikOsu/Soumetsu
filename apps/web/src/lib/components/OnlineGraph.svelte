@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ChartOverlay, inView } from '@soumetsu/ui';
   import type { ChartPoint } from '@soumetsu/ui';
+  import { m } from '$lib/paraglide/messages';
 
   // Values are evenly spaced over the span, ending now.
   let { values, spanMinutes }: { values: number[]; spanMinutes: number } = $props();
@@ -20,11 +21,13 @@
   let point = $state<ChartPoint | null>(null);
 
   function minutesAgo(minutes: number) {
-    if (minutes < 1) return 'now';
-    if (minutes < 60) return `${minutes} min ago`;
+    if (minutes < 1) return m.home_graph_now();
+    if (minutes < 60) return m.home_graph_minutes_ago({ minutes });
     const hours = Math.floor(minutes / 60);
     const rest = minutes % 60;
-    return rest ? `${hours}h ${rest}m ago` : `${hours}h ago`;
+    return rest
+      ? m.home_graph_hours_minutes_ago({ hours, minutes: rest })
+      : m.home_graph_hours_ago({ hours });
   }
 
   function onMove(event: PointerEvent) {
@@ -34,7 +37,7 @@
     point = {
       x: (i / (values.length - 1)) * area.width,
       y: area.height - (values[i] / peak) * area.height * FILL,
-      value: `${values[i]} online`,
+      value: m.home_graph_online({ count: values[i] }),
       label: minutesAgo(Math.round(((values.length - 1 - i) * spanMinutes) / (values.length - 1))),
       marker: true
     };
@@ -42,7 +45,7 @@
 </script>
 
 <div class="online-graph" bind:this={box} use:inView>
-  <span>Max {peak} players in the last {Math.round(spanMinutes / 60)}h</span>
+  <span>{m.home_graph_peak({ peak, hours: Math.round(spanMinutes / 60) })}</span>
   <svg
     bind:this={svg}
     viewBox="0 0 1000 40"
@@ -50,7 +53,7 @@
     onpointermove={onMove}
     onpointerleave={() => (point = null)}
     role="img"
-    aria-label="Players online"
+    aria-label={m.home_graph_aria()}
   >
     <path d={path} />
   </svg>

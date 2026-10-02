@@ -6,6 +6,7 @@
   import Flag from '$lib/components/Flag.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import Username from '$lib/components/Username.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   interface Member {
     id: number;
@@ -21,55 +22,13 @@
 
   // How each badge's group is described, in the order they show.
   const teams: [number, string, string, string, string][] = [
-    [
-      2,
-      'c-blue',
-      'fa-code',
-      'Developers',
-      'Developers do all the server-side magic and the technical work behind the scenes. They have full power over the server as they run it, and have a blue name in the in-game chat.'
-    ],
-    [
-      1018,
-      'c-red',
-      'fa-list-check',
-      'Administrators',
-      "Administrators make sure everything runs smoothly, from organising events to hunting cheaters. They're cool people ready to help you, with power over many areas like the Discord server."
-    ],
-    [
-      1020,
-      'c-green',
-      'fa-envelope',
-      'Community Managers',
-      'Community Managers deal with bans, silences, name changes and pretty much everything to do with the community. They look after our Discord server and answer support requests there.'
-    ],
-    [
-      30,
-      'c-yellow',
-      'fa-comments',
-      'Chat Moderators',
-      'Chat Moderators keep an eye on the chat to make sure The Law™ (the rules) is respected.'
-    ],
-    [
-      5,
-      'c-pink',
-      'fa-circle-play',
-      'Beatmap Appreciation Team',
-      "BATs play beatmaps in the ranking queue and decide whether they're good enough to be ranked."
-    ],
-    [
-      1017,
-      'c-lblue',
-      'fa-hashtag',
-      'Social Media',
-      "The Social Media Team handles everything to do with RealistikOsu's presence on social media."
-    ],
-    [
-      1015,
-      'c-purple',
-      'fa-graduation-cap',
-      'Alumni',
-      'Former team members who have stepped down, but whose work helped shape RealistikOsu into what it is today.'
-    ]
+    [2, 'c-blue', 'fa-code', m.support_team_developers(), m.support_team_developers_text()],
+    [1018, 'c-red', 'fa-list-check', m.support_team_admins(), m.support_team_admins_text()],
+    [1020, 'c-green', 'fa-envelope', m.support_team_community(), m.support_team_community_text()],
+    [30, 'c-yellow', 'fa-comments', m.support_team_chat_mods(), m.support_team_chat_mods_text()],
+    [5, 'c-pink', 'fa-circle-play', 'Beatmap Appreciation Team', m.support_team_bat_text()],
+    [1017, 'c-lblue', 'fa-hashtag', m.support_team_social(), m.support_team_social_text()],
+    [1015, 'c-purple', 'fa-graduation-cap', m.support_team_alumni(), m.support_team_alumni_text()]
   ];
 
   const ALUMNI = 1015;
@@ -105,18 +64,18 @@
   const groups = $derived(loaded.state.status === 'ready' ? loaded.state.data : null);
 </script>
 
-<svelte:head><title>Team · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.support_team_title()} · RealistikOsu</title></svelte:head>
 
 <Banner image="team.jpg">
   <div>
-    <h1>Hall of Fame</h1>
-    <p class="sub">The people who keep RealistikOsu, the server and its community, running.</p>
+    <h1>{m.support_team_heading()}</h1>
+    <p class="sub">{m.support_team_sub()}</p>
   </div>
 </Banner>
 
 <main class="wrap team">
   {#if loaded.state.status === 'error'}
-    <p class="panel empty-note">Couldn't load the team. Try again in a bit.</p>
+    <p class="panel empty-note">{m.support_team_error()}</p>
   {:else if !groups}
     <div class="panel"><span class="skel" style="width: 100%; height: 280px"></span></div>
   {:else}
@@ -145,29 +104,31 @@
       {/if}
     {/each}
 
-    <SectionTitle colour="c-orange" icon="fa-star">Special credits</SectionTitle>
+    <SectionTitle colour="c-orange" icon="fa-star">{m.support_team_credits_title()}</SectionTitle>
     <ul class="panel credits c-orange">
       <li>
-        <b>Franc[e]sco</b> and <b>cmyui</b>, for the relax pp calculator. It's based on
-        <a href="https://github.com/Francesco149/oppai-ng">oppai-ng</a> by Franc[e]sco, modified by
-        cmyui for relax, and licensed under GPL v3.
-        <a href="https://github.com/osuAkatsuki/akatsuki-pp">Their implementation</a> is on GitHub.
+        <b>Franc[e]sco</b>
+        {m.support_team_credits_and()} <b>cmyui</b>{m.support_team_credits_pp_for()}
+        <a href="https://github.com/Francesco149/oppai-ng">oppai-ng</a>
+        {m.support_team_credits_pp_by()}
+        <a href="https://github.com/osuAkatsuki/akatsuki-pp">{m.support_team_credits_pp_link()}</a>
+        {m.support_team_credits_pp_after()}
       </li>
       <li>
-        <a href="https://ripple.moe"><b>Ripple</b></a>, for the solid base RealistikOsu was built
-        on. Without their generous policy to
-        <a href="https://github.com/osuripple">open source</a>, it's unlikely RealistikOsu would
-        have been started at all.
+        <a href="https://ripple.moe"><b>Ripple</b></a>{m.support_team_credits_ripple()}
+        <a href="https://github.com/osuripple">{m.support_team_credits_ripple_link()}</a
+        >{m.support_team_credits_ripple_after()}
       </li>
-      <li><b>lyandrxw</b>, for designing the RealistikOsu logos.</li>
+      <li><b>lyandrxw</b>{m.support_team_credits_logo()}</li>
       <li>
-        <a href="#supporters"><b>Everyone</b></a> who has supported RealistikOsu with a donation.
+        <a href="#supporters"><b>{m.support_team_credits_everyone()}</b></a>
+        {m.support_team_credits_everyone_after()}
       </li>
     </ul>
 
     <h2 class="section-title c-pink" id="supporters">
-      <i class="fa-solid fa-heart"></i>Our amazing supporters<a href="/donate"
-        >Want to be here? Support us</a
+      <i class="fa-solid fa-heart"></i>{m.support_team_supporters()}<a href="/donate"
+        >{m.support_team_supporters_link()}</a
       >
     </h2>
     <div class="supporter-chips">

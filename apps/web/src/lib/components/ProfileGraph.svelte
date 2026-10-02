@@ -41,11 +41,14 @@
     return TOP + (inverted ? t : 1 - t) * (H - TOP - BOTTOM);
   };
 
+  // A narrow range rounds several lines to the same label, so repeats are dropped.
   const grid = $derived(
-    [0, 1, 2, 3].map((i) => {
-      const value = bounds.lo + ((bounds.hi - bounds.lo) * i) / 3;
-      return { y: y(value), label: compact(value) };
-    })
+    [0, 1, 2, 3]
+      .map((i) => {
+        const value = bounds.lo + ((bounds.hi - bounds.lo) * i) / 3;
+        return { y: y(value), label: compact(value) };
+      })
+      .filter((line, i, all) => all.findIndex((other) => other.label === line.label) === i)
   );
 
   // One label per month at most, thinned out to fit, and the ends are anchored so nothing is clipped.

@@ -2,6 +2,7 @@
   import { CountUp } from '@soumetsu/ui';
   import { query } from '$lib/api/query.svelte';
   import { stats } from '$lib/api/stats';
+  import { m } from '$lib/paraglide/messages';
   import { site } from '$lib/site.svelte';
   import Username from './Username.svelte';
 
@@ -19,7 +20,7 @@
         <span class="skel" style="width: 90px"></span>
       {/if}
     </b>
-    Online / Registered
+    {m.home_counter_online_registered()}
   </div>
   <div class="c-orange">
     <i class="fa-solid fa-user-plus"></i>
@@ -30,6 +31,6 @@
         <span class="skel" style="width: 70px"></span>
       {/if}
     </b>
-    Latest player
+    {m.home_counter_latest_player()}
   </div>
 </div>

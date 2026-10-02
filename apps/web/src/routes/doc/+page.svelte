@@ -2,16 +2,17 @@
   import { docs } from '$lib/api/docs';
   import { query } from '$lib/api/query.svelte';
   import Banner from '$lib/components/Banner.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const list = query((signal) => docs(signal));
 </script>
 
-<svelte:head><title>Documentation · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.support_doc_title()} · RealistikOsu</title></svelte:head>
 
 <Banner image="docs.jpg">
   <div>
-    <h1>Documentation</h1>
-    <p class="sub">Need help getting around? Start here.</p>
+    <h1>{m.support_doc_title()}</h1>
+    <p class="sub">{m.support_doc_sub()}</p>
   </div>
 </Banner>
 
@@ -27,9 +28,11 @@
       </a>
     {/each}
   {:else if list.state.status === 'error'}
-    <p class="panel empty-note">Couldn't load the documentation. Try again in a bit.</p>
+    <p class="panel empty-note">{m.support_doc_error()}</p>
   {:else}
     <div class="panel"><span class="skel" style="width: 100%; height: 90px"></span></div>
   {/if}
-  <p class="docs-help">Can't find what you need? <a href="/discord">Ask on our Discord</a>.</p>
+  <p class="docs-help">
+    {m.support_doc_help()} <a href="/discord">{m.support_doc_help_link()}</a>.
+  </p>
 </main>

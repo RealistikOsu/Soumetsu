@@ -14,6 +14,7 @@
   import { flash } from '$lib/flash.svelte';
   import { number } from '$lib/format';
   import { allowed, readMode, relaxColours, slideTowards } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
   import { CountUp } from '@soumetsu/ui';
   import Avatar from './Avatar.svelte';
   import ClanBadge from './ClanBadge.svelte';
@@ -69,7 +70,7 @@
   async function leave() {
     try {
       await leaveClan(id);
-      flash.next('success', "You've left the clan.");
+      flash.next('success', m.clans_view_left());
       confirming = false;
       await session.start();
       await goto('/');
@@ -82,7 +83,9 @@
 
 <svelte:head>
   <title>
-    {info.state.status === 'ready' ? `${info.state.data.name}'s Clan Page` : 'Clan'} · RealistikOsu
+    {info.state.status === 'ready'
+      ? m.clans_view_page_title({ name: info.state.data.name })
+      : m.clans_view_title()} · RealistikOsu
   </title>
 </svelte:head>
 
@@ -99,11 +102,11 @@
       </div>
       {#if mine && !isOwner}
         <button class="btn leave-clan" type="button" onclick={() => (confirming = true)}>
-          <i class="fa-solid fa-right-from-bracket"></i>Leave clan
+          <i class="fa-solid fa-right-from-bracket"></i>{m.clans_leave_clan()}
         </button>
       {:else if isOwner}
         <a class="btn leave-clan" href="/clan/manage"
-          ><i class="fa-solid fa-pen-to-square"></i>Manage clan</a
+          ><i class="fa-solid fa-pen-to-square"></i>{m.clans_manage_clan()}</a
         >
       {/if}
     {:else}
@@ -123,30 +126,32 @@
         <div class="panel clan-stats {relaxColours[view.rx]}">
           {#if stats.state.status === 'ready'}
             <div class="clan-rank">
-              <span>Global rank</span><b><CountUp prefix="#" value={stats.state.data.rank} /></b>
+              <span>{m.clans_view_global_rank()}</span><b
+                ><CountUp prefix="#" value={stats.state.data.rank} /></b
+              >
             </div>
             <div class="clan-rank">
               <span>PP</span><b><CountUp value={stats.state.data.total_pp} /></b>
             </div>
             <dl class="stats">
               <div>
-                <dt>Ranked score</dt>
+                <dt>{m.clans_view_ranked_score()}</dt>
                 <dd>{number(stats.state.data.total_ranked_score)}</dd>
               </div>
               <div>
-                <dt>Total score</dt>
+                <dt>{m.clans_view_total_score()}</dt>
                 <dd>{number(stats.state.data.total_total_score)}</dd>
               </div>
             </dl>
           {:else if stats.state.status === 'error'}
-            <p class="empty-note">Couldn't load the stats. Try again in a bit.</p>
+            <p class="empty-note">{m.clans_view_stats_error()}</p>
           {:else}
             <span class="skel" style="width: 100%; height: 90px"></span>
           {/if}
         </div>
       </div>
       <aside>
-        <SectionTitle colour="c-orange" icon="fa-crown">Clan owner</SectionTitle>
+        <SectionTitle colour="c-orange" icon="fa-crown">{m.clans_view_owner()}</SectionTitle>
         {#if owner}
           <a class="member owner" href="/users/{owner.user_id}">
             <Avatar id={owner.user_id} />
@@ -154,7 +159,7 @@
               <b
                 ><Flag country={owner.country} />{owner.username}<i
                   class="fa-solid fa-crown"
-                  title="Clan owner"
+                  title={m.clans_view_owner()}
                 ></i></b
               >
               {#if ppOf(owner.user_id)}<span>{number(ppOf(owner.user_id) ?? 0)}pp</span>{/if}
@@ -165,7 +170,8 @@
     </div>
 
     <SectionTitle colour="c-blue" icon="fa-users">
-      Members {#if members.state.status === 'ready'}<small>{members.state.data.length}</small>{/if}
+      {m.clans_members()}
+      {#if members.state.status === 'ready'}<small>{members.state.data.length}</small>{/if}
     </SectionTitle>
     <div class="members">
       {#each ordered as member (member.user_id)}
@@ -181,13 +187,13 @@
   </main>
 
   <Dialog bind:open={confirming} class="pin-dialog">
-    <button class="dialog-close" aria-label="Close" onclick={() => (confirming = false)}>
+    <button class="dialog-close" aria-label={m.clans_close()} onclick={() => (confirming = false)}>
       <i class="fa-solid fa-xmark"></i>
     </button>
-    <h2>Leave this clan?</h2>
-    <p class="muted">You can join again later with an invite.</p>
+    <h2>{m.clans_view_leave_confirm()}</h2>
+    <p class="muted">{m.clans_view_leave_note()}</p>
     <div class="dialog-actions">
-      <button class="btn btn-red" type="button" onclick={leave}>Leave clan</button>
+      <button class="btn btn-red" type="button" onclick={leave}>{m.clans_leave_clan()}</button>
     </div>
   </Dialog>
 {/if}

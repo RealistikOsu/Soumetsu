@@ -7,6 +7,7 @@
   import Banner from '$lib/components/Banner.svelte';
   import NotFound from '$lib/components/NotFound.svelte';
   import { renderDoc } from '$lib/docs/render';
+  import { m } from '$lib/paraglide/messages';
 
   const slug = $derived(page.params.slug ?? '');
   const list = query((signal) => docs(signal));
@@ -26,7 +27,9 @@
 </script>
 
 <svelte:head>
-  <title>{meta ? `${meta.title} · Documentation` : 'Documentation'} · RealistikOsu</title>
+  <title
+    >{meta ? `${meta.title} · ${m.support_doc_title()}` : m.support_doc_title()} · RealistikOsu</title
+  >
 </svelte:head>
 
 {#if current.state.status === 'error'}
@@ -34,7 +37,7 @@
 {:else}
   <Banner image="docs.jpg">
     <div>
-      <a class="crumb" href="/doc"><i class="fa-solid fa-arrow-left"></i>Documentation</a>
+      <a class="crumb" href="/doc"><i class="fa-solid fa-arrow-left"></i>{m.support_doc_title()}</a>
       <h1>{meta?.title ?? '…'}</h1>
       <p class="sub">{meta?.description ?? ''}</p>
     </div>
@@ -53,7 +56,7 @@
       </nav>
       {#if rendered?.sections.length}
         <div class="doc-toc">
-          <span>On this page</span>
+          <span>{m.support_doc_on_this_page()}</span>
           {#each rendered.sections as section (section.id)}
             <a href="#{section.id}">{section.title}</a>
           {/each}

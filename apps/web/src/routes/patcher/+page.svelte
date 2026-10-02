@@ -3,45 +3,46 @@
   import { patcherVersion } from '$lib/api/v1';
   import Banner from '$lib/components/Banner.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const features = [
-    ['relax-misses', 'Enable relax misses', 'c-pink', 'fa-xmark'],
-    ['rate-changes', 'Rate changes', 'c-lblue', 'fa-forward'],
-    ['pp-counter', 'PP counter', 'c-yellow', 'fa-gauge'],
-    ['settings', 'Customisable feature set', 'c-green', 'fa-sliders']
+    ['relax-misses', m.support_patcher_feature_misses(), 'c-pink', 'fa-xmark'],
+    ['rate-changes', m.support_patcher_feature_rate(), 'c-lblue', 'fa-forward'],
+    ['pp-counter', m.support_patcher_feature_counter(), 'c-yellow', 'fa-gauge'],
+    ['settings', m.support_patcher_feature_settings(), 'c-green', 'fa-sliders']
   ];
 
   const patcherSettings = [
-    'Relax misses',
-    'Confirm pause on relax',
-    'Leaderboard PP',
-    'Leaderboard PP on vanilla',
-    'Half time like daycore',
-    'Show unstable rate',
-    'Disable nightcore beat',
-    'Enable coins',
-    'Show coins during play',
-    'Disable coin sounds'
+    m.support_patcher_opt_relax_misses(),
+    m.support_patcher_opt_confirm_pause(),
+    m.support_patcher_opt_leaderboard_pp(),
+    m.support_patcher_opt_leaderboard_pp_vanilla(),
+    m.support_patcher_opt_half_time(),
+    m.support_patcher_opt_unstable_rate(),
+    m.support_patcher_opt_nightcore_beat(),
+    m.support_patcher_opt_coins(),
+    m.support_patcher_opt_coins_play(),
+    m.support_patcher_opt_coin_sounds()
   ];
 
   const counterSettings = [
-    'Show PP counter',
-    'In-game PP counter scale',
-    'PP counter position in-game',
-    'PP counter decimals',
-    'Always show decimals'
+    m.support_patcher_opt_show_counter(),
+    m.support_patcher_opt_counter_scale(),
+    m.support_patcher_opt_counter_position(),
+    m.support_patcher_opt_counter_decimals(),
+    m.support_patcher_opt_always_decimals()
   ];
 
   const version = query((signal) => patcherVersion(signal));
 </script>
 
-<svelte:head><title>Patcher · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.support_patcher_title()} · RealistikOsu</title></svelte:head>
 
 <Banner image="patcher.jpg">
   <div>
-    <h1>Patcher</h1>
+    <h1>{m.support_patcher_title()}</h1>
     {#if version.state.status === 'ready' && version.state.data}
-      <p class="sub">Build {version.state.data}</p>
+      <p class="sub">{m.support_patcher_build({ version: version.state.data })}</p>
     {/if}
   </div>
 </Banner>
@@ -49,23 +50,24 @@
 <main class="wrap patcher">
   <div class="patcher-top">
     <div>
-      <p class="lead">
-        The RealistikOsu patcher makes relax play better. It brings back things like ranking panels,
-        and adds rate changes and a pp counter on top.
-      </p>
+      <p class="lead">{m.support_patcher_lead()}</p>
       <ol class="steps">
-        <li><b>Run the installer</b><span>It installs the patcher on your PC.</span></li>
         <li>
-          <b>Open the patcher</b><span>Start it whenever you want to play on RealistikOsu.</span>
+          <b>{m.support_patcher_step_install()}</b><span
+            >{m.support_patcher_step_install_text()}</span
+          >
+        </li>
+        <li>
+          <b>{m.support_patcher_step_open()}</b><span>{m.support_patcher_step_open_text()}</span>
         </li>
       </ol>
     </div>
     <div class="panel download-box c-green">
       <a class="action download" href="/api/v1/patcher/launcher/windows/download">
-        <i class="fa-brands fa-windows"></i>Download for Windows
+        <i class="fa-brands fa-windows"></i>{m.support_patcher_download_windows()}
       </a>
       <p>
-        Not your platform?
+        {m.support_patcher_other_platform()}
         <a href="/api/v1/patcher/launcher/linux/download"
           ><i class="fa-brands fa-linux"></i> Linux</a
         >
@@ -73,26 +75,30 @@
     </div>
   </div>
 
-  <SectionTitle colour="c-blue" icon="fa-star">Features</SectionTitle>
+  <SectionTitle colour="c-blue" icon="fa-star">{m.support_patcher_features()}</SectionTitle>
   <div class="features-grid">
     {#each features as [key, name, colour, icon] (key)}
       <figure class="panel feature {colour}">
-        <img src="/img/patcher/{key}.jpg" alt="{name} in game" loading="lazy" />
+        <img
+          src="/img/patcher/{key}.jpg"
+          alt={m.support_patcher_feature_alt({ name })}
+          loading="lazy"
+        />
         <figcaption><i class="fa-solid {icon}"></i>{name}</figcaption>
       </figure>
     {/each}
   </div>
 
-  <SectionTitle colour="c-green" icon="fa-sliders">Everything you can toggle</SectionTitle>
+  <SectionTitle colour="c-green" icon="fa-sliders">{m.support_patcher_toggles()}</SectionTitle>
   <div class="panel toggles c-green">
     <div>
-      <h3>Patcher settings</h3>
+      <h3>{m.support_patcher_settings()}</h3>
       <ul>
         {#each patcherSettings as name (name)}<li>{name}</li>{/each}
       </ul>
     </div>
     <div>
-      <h3>PP counter settings</h3>
+      <h3>{m.support_patcher_counter_settings()}</h3>
       <ul>
         {#each counterSettings as name (name)}<li>{name}</li>{/each}
       </ul>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { clanNamePattern, clanTagPattern } from '$lib/api/clans';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     name = $bindable(''),
@@ -20,21 +21,21 @@
 </script>
 
 <div class="field">
-  <label for="clan-name">Clan name</label>
+  <label for="clan-name">{m.clans_fields_name()}</label>
   <input id="clan-name" type="text" bind:value={name} required />
   <small class:error={nameBad}>
-    2 to 15 characters: letters, numbers, spaces and <code>'_[]-</code>
+    {m.clans_fields_name_hint()} <code>'_[]-</code>
   </small>
 </div>
 <div class="field">
-  <label for="clan-tag">Clan tag</label>
+  <label for="clan-tag">{m.clans_fields_tag()}</label>
   <input id="clan-tag" type="text" bind:value={tag} required />
-  <small class:error={tagBad}>
-    2 to 6 letters or numbers, shown in square brackets before members' names
-  </small>
+  <small class:error={tagBad}>{m.clans_fields_tag_hint()}</small>
 </div>
 <div class="field">
-  <label for="clan-description">Description <span class="faint">(optional)</span></label>
+  <label for="clan-description"
+    >{m.clans_fields_description()} <span class="faint">{m.clans_fields_optional()}</span></label
+  >
   {#if multiline}
     <textarea id="clan-description" rows="4" bind:value={description}></textarea>
   {:else}
@@ -42,17 +43,19 @@
       id="clan-description"
       type="text"
       bind:value={description}
-      placeholder="What your clan is about"
+      placeholder={m.clans_fields_description_placeholder()}
     />
   {/if}
 </div>
 <div class="field">
-  <label for="clan-icon">Logo <span class="faint">(optional)</span></label>
+  <label for="clan-icon"
+    >{m.clans_fields_logo()} <span class="faint">{m.clans_fields_optional()}</span></label
+  >
   <input
     id="clan-icon"
     type="file"
     accept="image/*"
     onchange={(event) => (icon = event.currentTarget.files?.[0] ?? null)}
   />
-  <small>A square image works best.</small>
+  <small>{m.clans_fields_logo_hint()}</small>
 </div>

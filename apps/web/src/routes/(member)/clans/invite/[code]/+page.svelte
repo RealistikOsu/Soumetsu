@@ -5,13 +5,14 @@
   import { describe } from '$lib/api/messages';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   // Opening an invite joins the clan, as it did on Hanayo, and lands on the clan's page.
   $effect(() => {
     const code = page.params.code ?? '';
     joinClan(code).then(
       async (joined) => {
-        flash.next('success', "You've joined the clan! Hooray!! \\(^o^)/");
+        flash.next('success', m.clans_invite_joined());
         await session.start();
         await goto(`/c/${joined.id}`, { replaceState: true });
       },
@@ -23,10 +24,11 @@
   });
 </script>
 
-<svelte:head><title>Joining a clan · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.clans_invite_title()} · RealistikOsu</title></svelte:head>
 
 <main class="wrap">
   <p class="panel empty-note">
-    <i class="fa-solid fa-circle-notch fa-spin"></i> Joining the clan...
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    {m.clans_invite_joining()}
   </p>
 </main>
