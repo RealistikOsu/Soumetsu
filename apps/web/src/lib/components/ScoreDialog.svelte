@@ -8,6 +8,7 @@
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
   import { modeNames } from '$lib/modes';
   import { modsText } from '$lib/mods';
+  import { m } from '$lib/paraglide/messages';
   import Dialog from './Dialog.svelte';
 
   let {
@@ -19,10 +20,17 @@
   } = $props();
 
   const hitLabels = [
-    ['300s', '100s', '50s', 'Gekis', 'Katus', 'Misses'],
-    ['GREATs', 'GOODs', '50s', 'GREATs (Gekis)', 'GOODs (Katus)', 'Misses'],
-    ['Fruits (300s)', 'Ticks (100s)', 'Droplets', 'Gekis', 'Droplet misses', 'Misses'],
-    ['300s', '200s', '50s', 'Max 300s', '100s', 'Misses']
+    ['300s', '100s', '50s', 'Gekis', 'Katus', m.profile_hits_misses()],
+    ['GREATs', 'GOODs', '50s', 'GREATs (Gekis)', 'GOODs (Katus)', m.profile_hits_misses()],
+    [
+      m.profile_hits_fruits(),
+      m.profile_hits_ticks(),
+      m.profile_hits_droplets(),
+      'Gekis',
+      m.profile_hits_droplet_misses(),
+      m.profile_hits_misses()
+    ],
+    ['300s', '200s', '50s', 'Max 300s', '100s', m.profile_hits_misses()]
   ];
 
   const map = query((signal) =>
@@ -60,7 +68,11 @@
         <a class="song" href="/beatmaps/{score.beatmap.beatmap_id}">{parts.song}</a>
         <span>{parts.diff}</span>
       </div>
-      <button class="dialog-close" aria-label="Close" onclick={() => (open = false)}>
+      <button
+        class="dialog-close"
+        aria-label={m.profile_dialog_close()}
+        onclick={() => (open = false)}
+      >
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -70,18 +82,18 @@
       </div>
       <dl class="detail-stats">
         <div>
-          <dt>Score</dt>
+          <dt>{m.profile_dialog_score()}</dt>
           <dd>{number(score.score)}</dd>
         </div>
         <div>
-          <dt>Max combo</dt>
+          <dt>{m.profile_dialog_max_combo()}</dt>
           <dd>
             {number(score.max_combo)}{maxCombo !== undefined ? `/${number(maxCombo)}` : ''}x
             {#if fullCombo}<span class="fc">FC</span>{/if}
           </dd>
         </div>
         <div>
-          <dt>Difficulty</dt>
+          <dt>{m.profile_dialog_difficulty()}</dt>
           <dd>
             <span
               class="stars"
@@ -94,8 +106,8 @@
           </dd>
         </div>
         <div>
-          <dt>Mods</dt>
-          <dd>{modsText(score.mods) || 'None'}</dd>
+          <dt>{m.profile_dialog_mods()}</dt>
+          <dd>{modsText(score.mods) || m.profile_dialog_no_mods()}</dd>
         </div>
       </dl>
       <ul class="detail-hits">
@@ -107,15 +119,17 @@
       </ul>
       <p class="detail-meta">
         <span class="tag {score.completed >= 1 ? 'tag-pass' : 'tag-fail'}">
-          {score.completed >= 1 ? 'Passed' : 'Failed'}
+          {score.completed >= 1 ? m.profile_dialog_passed() : m.profile_dialog_failed()}
         </span>
-        {#if score.completed === 3}<span class="tag tag-best">Personal best</span>{/if}
+        {#if score.completed === 3}<span class="tag tag-best"
+            >{m.profile_dialog_personal_best()}</span
+          >{/if}
         <span>{modeNames[score.play_mode]} · {timeAgo(score.submitted_at)}</span>
       </p>
       {#if score.completed === 3}
         <div class="dialog-actions">
           <a class="btn btn-blue" href={replayUrl(score.id)}>
-            <i class="fa-solid fa-download"></i>Download replay
+            <i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}
           </a>
         </div>
       {/if}

@@ -4,6 +4,7 @@
   import { number, songParts, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
   import { modsText } from '$lib/mods';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     score,
@@ -47,7 +48,7 @@
     </a>
     <div class="score-meta">
       {number(score.score)} · {number(score.max_combo)}x{score.count_misses
-        ? ` · ${score.count_misses} miss`
+        ? ` · ${m.profile_score_misses({ count: score.count_misses })}`
         : ''}
       {#if mods}<span class="mods">{mods}</span>{/if}
     </div>
@@ -55,10 +56,14 @@
   </div>
   <div class="score-pp">
     <b>{number(Math.round(score.pp))}pp</b><span>{number(score.accuracy, 2)}%</span>
-    {#if watched !== undefined}<span class="watched">watched {watched}×</span>{/if}
+    {#if watched !== undefined}<span class="watched"
+        >{m.profile_score_watched({ count: watched })}</span
+      >{/if}
   </div>
   <details class="score-menu" bind:this={menu}>
-    <summary aria-label="Score options"><i class="fa-solid fa-ellipsis-vertical"></i></summary>
+    <summary aria-label={m.profile_score_options()}
+      ><i class="fa-solid fa-ellipsis-vertical"></i></summary
+    >
     <div>
       <button
         type="button"
@@ -67,10 +72,12 @@
           ondetails();
         }}
       >
-        <i class="fa-solid fa-circle-info"></i>View details
+        <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
       </button>
       {#if score.completed === 3}
-        <a href={replayUrl(score.id)}><i class="fa-solid fa-download"></i>Download replay</a>
+        <a href={replayUrl(score.id)}
+          ><i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}</a
+        >
       {/if}
       {#if own && score.completed >= 2}
         <button
@@ -80,7 +87,9 @@
             onpin();
           }}
         >
-          <i class="fa-solid fa-thumbtack"></i>{pinned ? 'Unpin' : 'Pin'} score
+          <i class="fa-solid fa-thumbtack"></i>{pinned
+            ? m.profile_score_unpin()
+            : m.profile_score_pin()}
         </button>
       {/if}
     </div>

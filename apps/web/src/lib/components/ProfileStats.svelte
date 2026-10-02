@@ -3,6 +3,7 @@
   import type { UserStats } from '$lib/api/users';
   import { number } from '$lib/format';
   import { level } from '$lib/level';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     stats,
@@ -20,8 +21,8 @@
 </script>
 
 <div class="ranks">
-  <div title={peakRank ? `Peak rank: #${number(peakRank)}` : undefined}>
-    Global<b>
+  <div title={peakRank ? m.profile_stats_peak_rank({ rank: number(peakRank) }) : undefined}>
+    {m.profile_stats_global()}<b>
       {#if stats.global_rank}<CountUp prefix="#" value={stats.global_rank} />{:else}-{/if}
     </b>
   </div>
@@ -41,31 +42,31 @@
 
 <dl class="stats">
   <div>
-    <dt>Accuracy</dt>
+    <dt>{m.profile_stats_accuracy()}</dt>
     <dd>{number(stats.accuracy, 2)}%</dd>
   </div>
   <div>
-    <dt>Maximum combo</dt>
+    <dt>{m.profile_stats_max_combo()}</dt>
     <dd>{number(stats.max_combo)}</dd>
   </div>
   <div>
-    <dt>Ranked score</dt>
+    <dt>{m.profile_stats_ranked_score()}</dt>
     <dd>{number(stats.ranked_score)}</dd>
   </div>
   <div>
-    <dt>Total score</dt>
+    <dt>{m.profile_stats_total_score()}</dt>
     <dd>{number(stats.total_score)}</dd>
   </div>
   <div>
-    <dt>Playcount</dt>
+    <dt>{m.profile_stats_playcount()}</dt>
     <dd>{number(stats.playcount)}</dd>
   </div>
   <div>
-    <dt>Replay views</dt>
+    <dt>{m.profile_stats_replay_views()}</dt>
     <dd>{number(stats.replays_watched)}</dd>
   </div>
   <div>
-    <dt>Total hits</dt>
+    <dt>{m.profile_stats_total_hits()}</dt>
     <dd>{number(stats.total_hits)}</dd>
   </div>
 </dl>

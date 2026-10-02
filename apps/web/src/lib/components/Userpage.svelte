@@ -1,6 +1,7 @@
 <script lang="ts">
   import { bbcodeBoxes, bbcodeToHtml } from '$lib/bbcode';
   import { ms } from '$lib/motion';
+  import { m } from '$lib/paraglide/messages';
 
   let { content }: { content: string } = $props();
 
@@ -41,5 +42,7 @@
 
 <div class="userpage userpage-cut" bind:this={page} use:bbcodeBoxes>{@html html}</div>
 {#if overflowing}
-  <a class="more" href="#all" onclick={toggle}>{open ? 'Show less' : 'Show all'}</a>
+  <a class="more" href="#all" onclick={toggle}
+    >{open ? m.profile_userpage_show_less() : m.profile_userpage_show_all()}</a
+  >
 {/if}

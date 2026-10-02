@@ -1,6 +1,7 @@
 <script lang="ts">
   import { scale } from 'svelte/transition';
   import { ms } from '$lib/motion';
+  import { m } from '$lib/paraglide/messages';
 
   let { names }: { names: string[] } = $props();
 
@@ -31,8 +32,8 @@
 <div class="past-names" role="group" bind:this={root} onpointerenter={enter} onpointerleave={leave}>
   <button
     type="button"
-    title="Previous usernames"
-    aria-label="Previous usernames"
+    title={m.profile_past_names_label()}
+    aria-label={m.profile_past_names_label()}
     aria-expanded={open}
     onclick={() => (open = !open)}
   >
@@ -40,7 +41,7 @@
   </button>
   {#if open}
     <div transition:scale={{ start: 0.95, duration: ms(180) }} style="transform-origin: top left">
-      <span>Previously known as</span>
+      <span>{m.profile_past_names_heading()}</span>
       <ol>
         {#each names as name (name)}<li>{name}</li>{/each}
       </ol>

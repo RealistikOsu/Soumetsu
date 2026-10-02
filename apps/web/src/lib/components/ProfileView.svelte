@@ -12,7 +12,9 @@
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
+  import { intlLocale } from '$lib/i18n';
   import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import Comments from './Comments.svelte';
   import FriendButton from './FriendButton.svelte';
@@ -33,17 +35,17 @@
   let { id }: { id: number } = $props();
 
   const playStyles = [
-    'Mouse',
-    'Tablet',
-    'Keyboard',
-    'Touchscreen',
-    'Spoon',
+    m.profile_playstyle_mouse(),
+    m.profile_playstyle_tablet(),
+    m.profile_playstyle_keyboard(),
+    m.profile_playstyle_touchscreen(),
+    m.profile_playstyle_spoon(),
     'Leap motion',
     'Oculus rift',
-    'Dick',
-    'Eggplant'
+    m.profile_playstyle_dick(),
+    m.profile_playstyle_eggplant()
   ];
-  const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  const countryNames = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
   const extras = query((signal) => userExtras(id, signal));
   const page_ = query((signal) => userpage(id, signal));
@@ -109,6 +111,9 @@
   });
 
   const base = $derived(loaded[key] ?? Object.values(loaded)[0] ?? null);
+  const title = $derived(
+    base ? m.profile_head_title({ username: base.username }) : m.profile_head_title_fallback()
+  );
   const hidden = $derived(
     extra?.visibility === 'hidden' ||
       (extras.state.status === 'error' && isApiError(extras.state.error)) ||
@@ -139,12 +144,14 @@
 </script>
 
 <svelte:head>
-  <title>{base ? `${base.username}'s profile` : 'Profile'} · RealistikOsu</title>
+  <title>{title} · RealistikOsu</title>
   {#if base}
     <meta
       name="description"
-      content="{base.username} is a RealistikOsu player from {countryNames.of(base.country) ??
-        base.country}."
+      content={m.profile_head_description({
+        username: base.username,
+        country: countryNames.of(base.country) ?? base.country
+      })}
     />
   {/if}
 </svelte:head>
@@ -179,7 +186,7 @@
               {/each}
               {#if extra.customBadge}
                 {@const look = badgeIcon(extra.customBadge.icon)}
-                <span class="badge custom {look.colour}" title="Custom badge">
+                <span class="badge custom {look.colour}" title={m.profile_head_custom_badge()}>
                   <i class={look.icon}></i>{extra.customBadge.name}
                 </span>
               {/if}
@@ -190,18 +197,20 @@
               ><Flag country={base.country} /> {countryNames.of(base.country) ?? base.country}</span
             >
             <span class="status" class:on={extra?.online}
-              >{extra?.online ? 'Online' : 'Offline'}</span
+              >{extra?.online ? m.profile_head_online() : m.profile_head_offline()}</span
             >
-            {#if extra?.usernameAka}<span>Also known as: <b>{extra.usernameAka}</b></span>{/if}
+            {#if extra?.usernameAka}<span
+                >{m.profile_head_also_known_as()} <b>{extra.usernameAka}</b></span
+              >{/if}
           </div>
           <div class="meta">
             {#if base.registered_at > 0}<span
-                >Join date: <b>{monthYear(base.registered_at)}</b></span
+                >{m.profile_head_join_date()} <b>{monthYear(base.registered_at)}</b></span
               >{/if}
             {#if base.latest_activity > 0}
-              <span>Last seen: <b>{timeAgo(base.latest_activity)}</b></span>
+              <span>{m.profile_head_last_seen()} <b>{timeAgo(base.latest_activity)}</b></span>
             {/if}
-            {#if playing}<span>Playing with: <b>{playing}</b></span>{/if}
+            {#if playing}<span>{m.profile_head_playing_with()} <b>{playing}</b></span>{/if}
           </div>
           {#if base.discord?.username || extra?.bancho}
             <div class="accounts">
@@ -244,8 +253,11 @@
       <div class="notice alert profile-state c-red">
         <i class="fa-solid fa-comment-slash notice-icon"></i>
         <div>
-          <b>This player is silenced</b>
-          Reason: {extra.silence.reason}. The silence ends {fullDate(extra.silence.end)}.
+          <b>{m.profile_notice_silenced_title()}</b>
+          {m.profile_notice_silenced_body({
+            reason: extra.silence.reason,
+            end: fullDate(extra.silence.end)
+          })}
         </div>
       </div>
     </div>
@@ -255,8 +267,8 @@
       <div class="notice alert profile-state c-yellow">
         <i class="fa-solid fa-snowflake notice-icon"></i>
         <div>
-          <b>This player is frozen</b>
-          They have to provide a liveplay, or they'll be restricted automatically.
+          <b>{m.profile_notice_frozen_title()}</b>
+          {m.profile_notice_frozen_body()}
         </div>
       </div>
     </div>
@@ -266,8 +278,8 @@
       <div class="notice alert profile-state c-blue">
         <i class="fa-solid fa-robot notice-icon"></i>
         <div>
-          <b>This is a bot account</b>
-          It does not represent a player, but offers in-game functionality.
+          <b>{m.profile_notice_bot_title()}</b>
+          {m.profile_notice_bot_body()}
         </div>
       </div>
     </div>
@@ -282,8 +294,11 @@
               <div class="panel empty-mode c-blue">
                 <img src="/img/modes/mode-{pane.split('-')[0]}.png" alt="" />
                 <p>
-                  {loaded[pane].username} hasn't played {modeNames[Number(pane.split('-')[0])]} on
-                  {relaxNames[Number(pane.split('-')[1])].toLowerCase()} yet.
+                  {m.profile_empty_mode({
+                    username: loaded[pane].username,
+                    mode: modeNames[Number(pane.split('-')[0])],
+                    relax: relaxNames[Number(pane.split('-')[1])].toLowerCase()
+                  })}
                 </p>
               </div>
             {:else}
@@ -302,7 +317,7 @@
 
     <div>
       {#if page_.state.status === 'ready' && page_.state.data.content.trim()}
-        <SectionTitle colour="c-pink" icon="fa-heart">me!</SectionTitle>
+        <SectionTitle colour="c-pink" icon="fa-heart">{m.profile_userpage_title()}</SectionTitle>
         <div class="panel c-pink"><Userpage content={page_.state.data.content} /></div>
       {/if}
 
@@ -317,6 +332,7 @@
                 rx={paneRx}
                 {own}
                 firstPlaces={loaded[pane].stats.first_places}
+                current={{ rank: loaded[pane].stats.global_rank, pp: loaded[pane].stats.pp }}
                 pinned={pinned[pane] ?? null}
                 ondetails={(score) => {
                   detail = score;
@@ -335,7 +351,7 @@
       <Medals {id} />
 
       <SectionTitle colour="c-teal" icon="fa-comments">
-        Comments <small>{number(commentTotal)}</small>
+        {m.profile_comments_title()} <small>{number(commentTotal)}</small>
       </SectionTitle>
       <Comments
         profileId={id}

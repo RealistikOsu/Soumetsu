@@ -13,6 +13,7 @@
   import { coverUrl } from '$lib/assets';
   import type { GraphPoint } from '$lib/graph';
   import { songParts, number } from '$lib/format';
+  import { m } from '$lib/paraglide/messages';
   import { tabInk } from '@soumetsu/ui';
   import LoadMoreList from './LoadMoreList.svelte';
   import ProfileGraph from './ProfileGraph.svelte';
@@ -25,6 +26,7 @@
     rx,
     own,
     firstPlaces,
+    current,
     pinned,
     ondetails,
     onpin
@@ -34,6 +36,8 @@
     rx: number;
     own: boolean;
     firstPlaces: number;
+    // Today's rank and pp, so the graph ends where the profile says they are now.
+    current: { rank: number; pp: number };
     pinned: ScoreWithBeatmap[] | null;
     ondetails: (score: ScoreWithBeatmap) => void;
     onpin: (score: ScoreWithBeatmap) => void;
@@ -47,10 +51,12 @@
   const pps = query((signal) => ppHistory(id, mode, rx, signal));
 
   const pinnedIds = $derived(new Set((pinned ?? []).map((s) => s.id)));
+  let pinnedShown = $state(5);
 
-  function pointsOf(rows: { time: number; value: number | null }[]): GraphPoint[] {
+  // The history is captured once a day, so today's figure is added as the last point.
+  function pointsOf(rows: { time: number; value: number | null }[], now: number): GraphPoint[] {
     return (
-      rows
+      [...rows, { time: Date.now(), value: now }]
         .filter((r): r is GraphPoint => r.value !== null && r.value > 0 && !Number.isNaN(r.time))
         .sort((a, b) => a.time - b.time)
         // The history can hold two rows for a day, which would draw a vertical spike.
@@ -61,12 +67,14 @@
   const points = $derived.by(() => {
     if (graph === 'rank' && ranks.state.status === 'ready') {
       return pointsOf(
-        ranks.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.overall }))
+        ranks.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.overall })),
+        current.rank
       );
     }
     if (graph === 'pp' && pps.state.status === 'ready') {
       return pointsOf(
-        pps.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.pp }))
+        pps.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.pp })),
+        current.pp
       );
     }
     return null;
@@ -84,9 +92,9 @@
 {/snippet}
 
 <div class="section-title chart-head c-blue">
-  <h2><i class="fa-solid fa-chart-line"></i>Profile graph</h2>
+  <h2><i class="fa-solid fa-chart-line"></i>{m.profile_graph_title()}</h2>
   <nav class="tabs" use:tabInk>
-    {#each [['rank', 'Rank'], ['pp', 'PP']] as [key, label] (key)}
+    {#each [['rank', m.profile_graph_rank()], ['pp', 'PP']] as [key, label] (key)}
       <a
         class:active={graph === key}
         href="?graph={key}"
@@ -105,7 +113,7 @@
     <ProfileGraph {points} inverted={graph === 'rank'} unit={graph === 'pp' ? 'pp' : ''} />
   {/key}
 {:else if points}
-  <div class="panel c-blue"><p class="empty-note">No graph data found for this user.</p></div>
+  <div class="panel c-blue"><p class="empty-note">{m.profile_graph_empty()}</p></div>
 {:else}
   <div class="panel chart c-blue">
     <span class="skel" style="width: 100%; height: 160px"></span>
@@ -113,15 +121,27 @@
 {/if}
 
 {#if pinned && pinned.length > 0}
-  <SectionTitle colour="c-orange" icon="fa-thumbtack">Pinned scores</SectionTitle>
+  <SectionTitle colour="c-orange" icon="fa-thumbtack">{m.profile_section_pinned()}</SectionTitle>
   <div class="panel score-list c-orange">
-    {#each pinned as score (score.id)}
+    {#each pinned.slice(0, pinnedShown) as score (score.id)}
       {@render scoreRow(score)}
     {/each}
+    {#if pinned.length > pinnedShown}
+      <a
+        class="more"
+        href="#more"
+        onclick={(event) => {
+          event.preventDefault();
+          pinnedShown += 5;
+        }}
+      >
+        {m.profile_pinned_more()}
+      </a>
+    {/if}
   </div>
 {/if}
 
-<SectionTitle colour="c-yellow" icon="fa-star">Best scores</SectionTitle>
+<SectionTitle colour="c-yellow" icon="fa-star">{m.profile_section_best()}</SectionTitle>
 <LoadMoreList
   colour="c-yellow"
   key={(s: ScoreWithBeatmap) => s.id}
@@ -129,10 +149,10 @@
   load={(page, signal) => playerScores('best', id, mode, rx, page, 5, signal)}
 />
 
-<SectionTitle colour="c-green" icon="fa-play">Most played beatmaps</SectionTitle>
+<SectionTitle colour="c-green" icon="fa-play">{m.profile_section_most_played()}</SectionTitle>
 <LoadMoreList
   colour="c-green"
-  key={(m: MostPlayed) => m.beatmap.beatmap_id}
+  key={(item: MostPlayed) => item.beatmap.beatmap_id}
   load={(page, signal) => mostPlayed(id, mode, rx, page, 5, signal)}
 >
   {#snippet row(item: MostPlayed)}
@@ -146,12 +166,16 @@
         <a class="song" href="/beatmaps/{item.beatmap.beatmap_id}">{parts.song}</a>
         <div class="score-meta">{parts.diff}</div>
       </div>
-      <div class="score-pp"><b>{number(item.playcount)}</b><span>plays</span></div>
+      <div class="score-pp">
+        <b>{number(item.playcount)}</b><span
+          >{m.profile_most_played_plays({ count: item.playcount })}</span
+        >
+      </div>
     </div>
   {/snippet}
 </LoadMoreList>
 
-<SectionTitle colour="c-lblue" icon="fa-eye">Most watched replays</SectionTitle>
+<SectionTitle colour="c-lblue" icon="fa-eye">{m.profile_section_most_watched()}</SectionTitle>
 <LoadMoreList
   colour="c-lblue"
   key={(s: WatchedScore) => s.id}
@@ -170,14 +194,15 @@
 </LoadMoreList>
 
 <h2 class="section-title c-blue">
-  <i class="fa-solid fa-clock-rotate-left"></i>Recent scores
+  <i class="fa-solid fa-clock-rotate-left"></i>{m.profile_section_recent()}
   <label
     ><input
       class="hide-failed"
       type="checkbox"
       bind:checked={hideFailed}
       onchange={() => writeFlag(HIDE_FAILED, hideFailed)}
-    /> Hide failed scores</label
+    />
+    {m.profile_section_hide_failed()}</label
   >
 </h2>
 {#key hideFailed}
@@ -192,7 +217,7 @@
 {/key}
 
 <SectionTitle colour="c-red" icon="fa-trophy">
-  First places <small>{number(firstPlaces)}</small>
+  {m.profile_section_first_places()} <small>{number(firstPlaces)}</small>
 </SectionTitle>
 <LoadMoreList
   colour="c-red"

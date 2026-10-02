@@ -3,6 +3,8 @@
   import type { ChartPoint } from '@soumetsu/ui';
   import { number } from '$lib/format';
   import type { GraphPoint } from '$lib/graph';
+  import { intlLocale } from '$lib/i18n';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     points,
@@ -55,7 +57,7 @@
     while (cursor.getTime() < span.to) {
       labels.push({
         x: x(cursor.getTime()),
-        label: cursor.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+        label: cursor.toLocaleDateString(intlLocale(), { month: 'short', year: 'numeric' })
       });
       cursor.setMonth(cursor.getMonth() + 1);
     }
@@ -65,7 +67,10 @@
           const time = span.from + ((span.to - span.from) * i) / 3;
           return {
             x: x(time),
-            label: new Date(time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+            label: new Date(time).toLocaleDateString(intlLocale(), {
+              day: 'numeric',
+              month: 'short'
+            })
           };
         })
         .filter((l) => l.x > LEFT + 20 && l.x < W - 32);
@@ -101,7 +106,7 @@
       x: (x(p.time) / W) * area.width,
       y: (y(p.value) / H) * area.height,
       value: `${inverted ? '#' : ''}${number(p.value)}${unit}`,
-      label: new Date(p.time).toLocaleDateString('en-GB', {
+      label: new Date(p.time).toLocaleDateString(intlLocale(), {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
@@ -121,7 +126,7 @@
     bind:this={svg}
     viewBox="0 0 {W} {H}"
     role="img"
-    aria-label={inverted ? 'Rank over time' : 'pp over time'}
+    aria-label={inverted ? m.profile_graph_rank_label() : m.profile_graph_pp_label()}
     onpointermove={onMove}
     onpointerleave={onLeave}
   >
