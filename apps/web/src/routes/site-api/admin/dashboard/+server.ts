@@ -1,6 +1,6 @@
 import { Privilege } from '$lib/auth/privileges';
 import { requirePrivilege } from '$server/auth';
-import { counter } from '$server/admin/common';
+import { counter, serverTotals } from '$server/admin/common';
 import { db } from '$server/db';
 import { latestPlays } from '$server/admin/plays';
 import { handle, ok } from '$server/respond';
@@ -12,9 +12,7 @@ export const GET = handle(async ({ request }) => {
 
   const [
     registered,
-    plays,
-    scores,
-    totalPp,
+    totals,
     pending,
     oldest,
     frozen,
@@ -25,9 +23,7 @@ export const GET = handle(async ({ request }) => {
     latest
   ] = await Promise.all([
     counter('ripple:registered_users'),
-    counter('ripple:total_plays'),
-    counter('ripple:total_submitted_scores'),
-    counter('ripple:total_pp'),
+    serverTotals(),
     db.rank_requests.count({ where: { blacklisted: false } }),
     db.rank_requests.findFirst({
       where: { blacklisted: false },
@@ -54,7 +50,7 @@ export const GET = handle(async ({ request }) => {
   ]);
 
   return ok({
-    counters: { registered, plays, scores, totalPp },
+    counters: { registered, ...totals },
     pendingRequests: { total: pending, oldest: oldest?.time ?? null },
     frozen: { total: frozen, soonest: soonest ?? null },
     restrictions: {
