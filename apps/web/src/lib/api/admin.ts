@@ -271,3 +271,38 @@ export const banchoSettings = (signal?: AbortSignal) =>
   siteApi.get<BanchoSettings>('/admin/bancho', undefined, signal);
 
 export const saveBanchoSettings = (body: BanchoSettings) => siteApi.put('/admin/bancho', body);
+
+export interface Badge {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+export const badges = (signal?: AbortSignal) =>
+  siteApi.get<Badge[]>('/admin/badges', undefined, signal);
+export const createBadge = (body: { name: string; icon: string }) =>
+  siteApi.post('/admin/badges', body);
+export const saveBadge = (id: number, body: { name: string; icon: string }) =>
+  siteApi.put(`/admin/badges/${id}`, body);
+export const deleteBadge = (id: number) => siteApi.delete(`/admin/badges/${id}`);
+
+export interface PrivilegeGroup {
+  id: number;
+  name: string;
+  privileges: number;
+  colour: string;
+  tone: string;
+}
+
+export interface GroupBody {
+  name: string;
+  privileges: number;
+  colour: string;
+}
+
+export const privilegeGroups = (signal?: AbortSignal) =>
+  siteApi.get<PrivilegeGroup[]>('/admin/privileges', undefined, signal);
+export const createGroup = (body: GroupBody) => siteApi.post('/admin/privileges', body);
+export const saveGroup = (id: number, body: GroupBody) =>
+  siteApi.put(`/admin/privileges/${id}`, body);
+export const deleteGroup = (id: number) => siteApi.delete(`/admin/privileges/${id}`);

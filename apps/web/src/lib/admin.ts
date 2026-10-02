@@ -117,3 +117,36 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
     ]
   }
 ];
+
+export const permissions: [number, string][] = [
+  [Privilege.Public, 'Public'],
+  [Privilege.Normal, 'Normal'],
+  [Privilege.Donor, 'Supporter'],
+  [Privilege.AdminAccessRap, 'Access admin panel'],
+  [Privilege.AdminManageUsers, 'Manage users'],
+  [Privilege.AdminBanUsers, 'Ban users'],
+  [Privilege.AdminSilenceUsers, 'Silence users'],
+  [Privilege.AdminWipeUsers, 'Wipe users'],
+  [Privilege.AdminManageBeatmap, 'Manage beatmaps (all modes)'],
+  [Privilege.AdminManageStdBeatmaps, 'Manage beatmaps (osu!)'],
+  [Privilege.AdminManageTaikoBeatmaps, 'Manage beatmaps (taiko)'],
+  [Privilege.AdminManageCatchBeatmaps, 'Manage beatmaps (catch)'],
+  [Privilege.AdminManageManiaBeatmaps, 'Manage beatmaps (mania)'],
+  [Privilege.AdminManageServer, 'Manage servers'],
+  [Privilege.AdminManageSetting, 'Manage settings'],
+  [Privilege.AdminManageBetaKey, 'Manage beta keys'],
+  [Privilege.AdminManageReport, 'Manage reports'],
+  [Privilege.AdminManageDocs, 'Manage docs'],
+  [Privilege.AdminManageBadges, 'Manage badges'],
+  [Privilege.AdminViewRapLogs, 'View action logs'],
+  [Privilege.AdminManagePrivilege, 'Manage privileges'],
+  [Privilege.AdminSendAlerts, 'Send alerts'],
+  [Privilege.AdminChatMod, 'Chat moderator'],
+  [Privilege.AdminKickUsers, 'Kick users'],
+  [Privilege.PendingVerification, 'Pending verification'],
+  [Privilege.TournamentStaff, 'Tournament staff'],
+  [Privilege.PanelErrorLogs, 'View error logs'],
+  [Privilege.PanelManageClans, 'Manage clans'],
+  [Privilege.PanelViewIps, 'View IPs'],
+  [Privilege.Bot, 'Bot']
+];
