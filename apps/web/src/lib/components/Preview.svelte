@@ -12,11 +12,12 @@
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
   import { previewUrl } from '$lib/assets';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     setId,
     class: className = '',
-    label = 'Play preview',
+    label = m.beatmaps_preview_play(),
     children
   }: {
     setId: number;

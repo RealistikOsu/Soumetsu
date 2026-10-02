@@ -10,6 +10,7 @@
   import RelaxTabs from '$lib/components/RelaxTabs.svelte';
   import { number } from '$lib/format';
   import { readMode, slideTowards, allowed } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
 
   const view = $derived({
     ...readMode(page.url.searchParams),
@@ -52,16 +53,16 @@
   const offset = $derived((view.page - 1) * CLANBOARD_PAGE_SIZE);
 </script>
 
-<svelte:head><title>Clans · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.leaderboard_clans_title()} · RealistikOsu</title></svelte:head>
 
-<Banner image="clans.jpg"><h1>Clans</h1></Banner>
+<Banner image="clans.jpg"><h1>{m.leaderboard_clans_title()}</h1></Banner>
 
 <main class="wrap">
   <div class="filters mode-switch">
     <RelaxTabs mode={view.mode} rx={view.rx} onselect={(rx) => go({ rx })} />
     {#if session.user && !session.user.clan}
       <a class="btn btn-blue create-clan" href="/clans/create">
-        <i class="fa-solid fa-plus"></i>Create a clan
+        <i class="fa-solid fa-plus"></i>{m.leaderboard_clans_create()}
       </a>
     {/if}
     <div class="modes">
@@ -72,11 +73,11 @@
   <table class="board c-purple">
     <thead>
       <tr>
-        <th class="rank">Rank</th>
-        <th class="player">Clan</th>
-        <th>Performance</th>
-        <th class="hide-sm">Total score</th>
-        <th>Playcount</th>
+        <th class="rank">{m.leaderboard_col_rank()}</th>
+        <th class="player">{m.leaderboard_clans_col_clan()}</th>
+        <th>{m.leaderboard_clans_col_performance()}</th>
+        <th class="hide-sm">{m.leaderboard_clans_col_total_score()}</th>
+        <th>{m.leaderboard_col_playcount()}</th>
       </tr>
     </thead>
     <tbody class="swap">
@@ -105,7 +106,7 @@
   </table>
   {#if !loading && (rows === null || rows.length === 0)}
     <p class="board-empty">
-      {rows ? 'No clans here yet.' : "Couldn't load the clans. Try again in a bit."}
+      {rows ? m.leaderboard_clans_empty() : m.leaderboard_clans_error()}
     </p>
   {/if}
 

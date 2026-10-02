@@ -1,3 +1,26 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "leaderboard_title": "Ranking",
+  "leaderboard_sort_score": "Wynik",
+  "leaderboard_sort_coins": "Monety",
+  "leaderboard_heading_performance": "Performance",
+  "leaderboard_heading_ranked_score": "Wynik rankingowy",
+  "leaderboard_heading_coins": "Monety",
+  "leaderboard_countries_all": "Wszystkie",
+  "leaderboard_countries_more": "Więcej krajów",
+  "leaderboard_countries_pick": "Wybierz kraj",
+  "leaderboard_countries_close": "Zamknij",
+  "leaderboard_col_rank": "Miejsce",
+  "leaderboard_col_player": "Gracz",
+  "leaderboard_col_accuracy": "Celność",
+  "leaderboard_col_playcount": "Liczba gier",
+  "leaderboard_empty": "Na razie nikogo tu nie ma.",
+  "leaderboard_error": "Nie udało się załadować rankingu. Spróbuj za chwilę.",
+  "leaderboard_clans_title": "Klany",
+  "leaderboard_clans_create": "Załóż klan",
+  "leaderboard_clans_col_clan": "Klan",
+  "leaderboard_clans_col_performance": "Performance",
+  "leaderboard_clans_col_total_score": "Łączny wynik",
+  "leaderboard_clans_empty": "Na razie nie ma tu żadnych klanów.",
+  "leaderboard_clans_error": "Nie udało się załadować klanów. Spróbuj za chwilę."
 }

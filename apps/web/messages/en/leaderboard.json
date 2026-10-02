@@ -1,3 +1,26 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "leaderboard_title": "Leaderboard",
+  "leaderboard_sort_score": "Score",
+  "leaderboard_sort_coins": "Coins",
+  "leaderboard_heading_performance": "Performance",
+  "leaderboard_heading_ranked_score": "Ranked score",
+  "leaderboard_heading_coins": "Coins",
+  "leaderboard_countries_all": "All",
+  "leaderboard_countries_more": "More countries",
+  "leaderboard_countries_pick": "Pick a country",
+  "leaderboard_countries_close": "Close",
+  "leaderboard_col_rank": "Rank",
+  "leaderboard_col_player": "Player",
+  "leaderboard_col_accuracy": "Accuracy",
+  "leaderboard_col_playcount": "Playcount",
+  "leaderboard_empty": "Nobody here yet.",
+  "leaderboard_error": "Couldn't load the leaderboard. Try again in a bit.",
+  "leaderboard_clans_title": "Clans",
+  "leaderboard_clans_create": "Create a clan",
+  "leaderboard_clans_col_clan": "Clan",
+  "leaderboard_clans_col_performance": "Performance",
+  "leaderboard_clans_col_total_score": "Total score",
+  "leaderboard_clans_empty": "No clans here yet.",
+  "leaderboard_clans_error": "Couldn't load the clans. Try again in a bit."
 }

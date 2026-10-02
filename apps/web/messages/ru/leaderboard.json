@@ -1,3 +1,26 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "leaderboard_title": "Рейтинг",
+  "leaderboard_sort_score": "Очки",
+  "leaderboard_sort_coins": "Монеты",
+  "leaderboard_heading_performance": "Перформанс",
+  "leaderboard_heading_ranked_score": "Рейтинговые очки",
+  "leaderboard_heading_coins": "Монеты",
+  "leaderboard_countries_all": "Все",
+  "leaderboard_countries_more": "Другие страны",
+  "leaderboard_countries_pick": "Выбери страну",
+  "leaderboard_countries_close": "Закрыть",
+  "leaderboard_col_rank": "Место",
+  "leaderboard_col_player": "Игрок",
+  "leaderboard_col_accuracy": "Точность",
+  "leaderboard_col_playcount": "Плейкаунт",
+  "leaderboard_empty": "Тут пока никого нет.",
+  "leaderboard_error": "Не получилось загрузить рейтинг. Попробуй чуть позже.",
+  "leaderboard_clans_title": "Кланы",
+  "leaderboard_clans_create": "Создать клан",
+  "leaderboard_clans_col_clan": "Клан",
+  "leaderboard_clans_col_performance": "Перформанс",
+  "leaderboard_clans_col_total_score": "Всего очков",
+  "leaderboard_clans_empty": "Тут пока нет кланов.",
+  "leaderboard_clans_error": "Не получилось загрузить кланы. Попробуй чуть позже."
 }

@@ -26,6 +26,7 @@
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
   import { modeNames, allowed, relaxColours, relaxNames, slideTowards } from '$lib/modes';
   import { modsText } from '$lib/mods';
+  import { m } from '$lib/paraglide/messages';
 
   const id = $derived(Number(page.params.id));
 
@@ -182,18 +183,22 @@
 
   const bars = $derived(
     diff
-      ? [
-          ['Circle size', diff.cs],
-          ['HP drain', diff.hp],
-          ['Overall difficulty', diff.od],
-          ['Approach rate', diff.ar]
-        ].filter((bar): bar is [string, number] => bar[1] !== null)
+      ? (
+          [
+            [m.beatmaps_map_circle_size(), diff.cs],
+            [m.beatmaps_map_hp_drain(), diff.hp],
+            [m.beatmaps_map_overall_difficulty(), diff.od],
+            [m.beatmaps_map_approach_rate(), diff.ar]
+          ] as [string, number | null][]
+        ).filter((bar): bar is [string, number] => bar[1] !== null)
       : []
   );
 </script>
 
 <svelte:head>
-  <title>{loaded ? `${loaded.artist} - ${loaded.title}` : 'Beatmap'} · RealistikOsu</title>
+  <title
+    >{loaded ? `${loaded.artist} - ${loaded.title}` : m.beatmaps_map_title_fallback()} · RealistikOsu</title
+  >
 </svelte:head>
 
 {#if info.state.status === 'ready' && (!loaded || !diff)}
@@ -208,14 +213,17 @@
     <div>
       <h1>{loaded?.title ?? ''}&nbsp;</h1>
       <p class="sub">
-        {#if loaded}{loaded.artist}{loaded.creator ? ` · mapped by ${loaded.creator}` : ''}{/if}
+        {#if loaded}{loaded.artist}{loaded.creator
+            ? ` · ${m.beatmaps_mapped_by()} ${loaded.creator}`
+            : ''}{/if}
       </p>
     </div>
   </Banner>
 
   <main class="wrap map-page">
     <SectionTitle colour="c-purple" icon="fa-layer-group">
-      Difficulties {#if loaded}<small>{loaded.diffs.length}</small>{/if}
+      {m.beatmaps_map_difficulties()}
+      {#if loaded}<small>{loaded.diffs.length}</small>{/if}
     </SectionTitle>
     <nav class="panel diffs c-purple">
       {#each loaded?.diffs ?? [] as d (d.id)}
@@ -252,10 +260,12 @@
           </dl>
           <dl class="facts">
             <div>
-              <dt>Length</dt>
+              <dt>{m.beatmaps_map_length()}</dt>
               <dd>
                 {length(diff.length ?? diff.drain)}
-                {#if diff.length}<span class="faint">({length(diff.drain)} drain)</span>{/if}
+                {#if diff.length}<span class="faint"
+                    >({m.beatmaps_map_drain({ time: length(diff.drain) })})</span
+                  >{/if}
               </dd>
             </div>
             <div>
@@ -263,17 +273,17 @@
               <dd>{Math.round(diff.bpm * 100) / 100}</dd>
             </div>
             <div>
-              <dt>Max combo</dt>
+              <dt>{m.beatmaps_map_max_combo()}</dt>
               <dd>{number(diff.maxCombo)}x</dd>
             </div>
             {#if diff.passes !== null}
               <div>
-                <dt>Passes / plays</dt>
+                <dt>{m.beatmaps_map_passes_plays()}</dt>
                 <dd>{number(diff.passes)} / {number(diff.plays ?? 0)}</dd>
               </div>
             {/if}
             <div>
-              <dt>Source</dt>
+              <dt>{m.beatmaps_map_source()}</dt>
               <dd>
                 {#if loaded.source}{loaded.source}{:else}<span class="faint">-</span>{/if}
               </dd>
@@ -283,14 +293,14 @@
         <div class="map-actions">
           {#if isServerOnlySet(loaded.setId)}
             <a class="action download" href={downloadUrl(loaded.setId)}>
-              <i class="fa-solid fa-download"></i>Download
+              <i class="fa-solid fa-download"></i>{m.beatmaps_download()}
             </a>
           {:else}
             <a class="action osu-direct" href="osu://s/{loaded.setId}">
               <i class="fa-solid fa-download"></i>osu!direct
             </a>
             <a class="action download" href={downloadUrl(loaded.setId)}>
-              <i class="fa-solid fa-download"></i>Download
+              <i class="fa-solid fa-download"></i>{m.beatmaps_download()}
             </a>
             {#each mirrors as mirror (mirror.name)}
               <a class="action mirror" href={mirror.url(loaded.setId)}>
@@ -301,8 +311,8 @@
           <Preview setId={loaded.setId} class="action play">
             {#snippet children(playing)}
               <i class="fa-solid {playing ? 'fa-pause' : 'fa-play'}"></i>{playing
-                ? 'Pause preview'
-                : 'Play preview'}
+                ? m.beatmaps_preview_pause()
+                : m.beatmaps_preview_play()}
             {/snippet}
           </Preview>
         </div>
@@ -337,11 +347,13 @@
           <span class="skel" style="width: 100%; height: 70px"></span>
         </div>
       {:else if board === 'error'}
-        <p class="panel empty">Couldn't load the scores. Try again in a bit.</p>
+        <p class="panel empty">{m.beatmaps_scores_error()}</p>
       {:else if !top}
         <p class="panel empty">
-          Nobody has set a {relaxNames[view.rx].toLowerCase()}
-          {modeNames[view.mode]} score on this difficulty yet.
+          {m.beatmaps_scores_empty({
+            relax: relaxNames[view.rx].toLowerCase(),
+            mode: modeNames[view.mode]
+          })}
         </p>
       {:else}
         {@const grade = gradeOf(top)}
@@ -358,31 +370,33 @@
           </div>
           <dl class="top-play-stats">
             <div>
-              <dt>{byPp ? 'PP' : 'Score'}</dt>
+              <dt>{byPp ? 'PP' : m.beatmaps_scores_score()}</dt>
               <dd class="lead">{byPp ? `${number(Math.round(top.pp))}pp` : number(top.score)}</dd>
             </div>
             <div>
-              <dt>{byPp ? 'Score' : 'PP'}</dt>
+              <dt>{byPp ? m.beatmaps_scores_score() : 'PP'}</dt>
               <dd>{byPp ? number(top.score) : `${number(Math.round(top.pp))}pp`}</dd>
             </div>
             <div>
-              <dt>Accuracy</dt>
+              <dt>{m.beatmaps_scores_accuracy()}</dt>
               <dd>{number(top.accuracy, 2)}%</dd>
             </div>
             <div>
-              <dt>Combo</dt>
+              <dt>{m.beatmaps_scores_combo()}</dt>
               <dd>{top.max_combo}x</dd>
             </div>
             <div>
-              <dt>Mods</dt>
+              <dt>{m.beatmaps_scores_mods()}</dt>
               <dd>
                 {#if modsText(top.mods)}<span class="mods">{modsText(top.mods)}</span>{:else}<span
-                    class="faint">None</span
+                    class="faint">{m.beatmaps_scores_none()}</span
                   >{/if}
               </dd>
             </div>
           </dl>
-          <a class="btn" href={replayUrl(top.id)}><i class="fa-solid fa-download"></i>Replay</a>
+          <a class="btn" href={replayUrl(top.id)}
+            ><i class="fa-solid fa-download"></i>{m.beatmaps_scores_replay()}</a
+          >
         </div>
         {#if rest.length}
           <table class="panel scoreboard">
@@ -390,13 +404,13 @@
               <tr>
                 <th class="place"></th>
                 <th></th>
-                <th class="player">Player</th>
-                <th>Score</th>
-                <th>Accuracy</th>
-                <th class="hide-sm">Combo</th>
+                <th class="player">{m.beatmaps_scores_player()}</th>
+                <th>{m.beatmaps_scores_score()}</th>
+                <th>{m.beatmaps_scores_accuracy()}</th>
+                <th class="hide-sm">{m.beatmaps_scores_combo()}</th>
                 <th>PP</th>
-                <th class="hide-md">Mods</th>
-                <th class="hide-md">Time</th>
+                <th class="hide-md">{m.beatmaps_scores_mods()}</th>
+                <th class="hide-md">{m.beatmaps_scores_time()}</th>
                 <th class="hide-sm"></th>
               </tr>
             </thead>
@@ -421,7 +435,11 @@
                   <td class="hide-md"><span class="mods">{modsText(score.mods)}</span></td>
                   <td class="dim hide-md">{timeAgo(score.submitted_at)}</td>
                   <td class="hide-sm">
-                    <a class="replay" href={replayUrl(score.id)} title="Download replay">
+                    <a
+                      class="replay"
+                      href={replayUrl(score.id)}
+                      title={m.beatmaps_scores_download_replay()}
+                    >
                       <i class="fa-solid fa-download"></i>
                     </a>
                   </td>

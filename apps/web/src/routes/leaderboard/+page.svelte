@@ -19,12 +19,18 @@
   import Avatar from '$lib/components/Avatar.svelte';
   import Username from '$lib/components/Username.svelte';
   import { number } from '$lib/format';
+  import { intlLocale } from '$lib/i18n';
   import { allowed, modeSlugs, relaxSlugs, slideTowards } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
 
   const sorts: { key: LeaderboardSort; label: string; heading: string }[] = [
-    { key: 'pp', label: 'PP', heading: 'Performance' },
-    { key: 'score', label: 'Score', heading: 'Ranked score' },
-    { key: 'coins', label: 'Coins', heading: 'Coins' }
+    { key: 'pp', label: 'PP', heading: m.leaderboard_heading_performance() },
+    {
+      key: 'score',
+      label: m.leaderboard_sort_score(),
+      heading: m.leaderboard_heading_ranked_score()
+    },
+    { key: 'coins', label: m.leaderboard_sort_coins(), heading: m.leaderboard_heading_coins() }
   ];
 
   const view = $derived.by(() => {
@@ -94,7 +100,7 @@
   const top = query((signal) => countries(11, signal));
   let allCountries = $state.raw<string[] | null>(null);
   let chooser = $state(false);
-  const names = new Intl.DisplayNames(['en'], { type: 'region' });
+  const names = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
   async function openChooser() {
     chooser = true;
@@ -106,10 +112,10 @@
 </script>
 
 <svelte:head>
-  <title>Leaderboard · RealistikOsu</title>
+  <title>{m.leaderboard_title()} · RealistikOsu</title>
 </svelte:head>
 
-<Banner image="leaderboard.jpg"><h1>Leaderboard</h1></Banner>
+<Banner image="leaderboard.jpg"><h1>{m.leaderboard_title()}</h1></Banner>
 
 <main class="wrap leaderboard" class:is-coins={view.sort === 'coins'} class:is-loading={loading}>
   <div class="filters">
@@ -142,7 +148,7 @@
         go({ country: '' });
       }}
     >
-      All
+      {m.leaderboard_countries_all()}
     </a>
     {#each top.state.status === 'ready' ? top.state.data : [] as country (country)}
       <a
@@ -158,7 +164,7 @@
     {/each}
     <a
       href="#countries"
-      title="More countries"
+      title={m.leaderboard_countries_more()}
       onclick={(event) => {
         event.preventDefault();
         openChooser();
@@ -171,11 +177,11 @@
   <table class="board c-yellow">
     <thead>
       <tr>
-        <th class="rank">Rank</th>
-        <th class="player">Player</th>
+        <th class="rank">{m.leaderboard_col_rank()}</th>
+        <th class="player">{m.leaderboard_col_player()}</th>
         <th class="value-head">{heading}</th>
-        <th class="stat">Accuracy</th>
-        <th class="stat hide-sm">Playcount</th>
+        <th class="stat">{m.leaderboard_col_accuracy()}</th>
+        <th class="stat hide-sm">{m.leaderboard_col_playcount()}</th>
       </tr>
     </thead>
     <tbody class="swap">
@@ -232,7 +238,7 @@
     </tbody>
   </table>
   <p class="board-empty" hidden={loading || (rows !== null && rows.length > 0)}>
-    {rows ? 'Nobody here yet.' : "Couldn't load the leaderboard. Try again in a bit."}
+    {rows ? m.leaderboard_empty() : m.leaderboard_error()}
   </p>
 
   <Pager
@@ -243,10 +249,14 @@
 </main>
 
 <Dialog bind:open={chooser} class="country-dialog">
-  <button class="dialog-close" aria-label="Close" onclick={() => (chooser = false)}>
+  <button
+    class="dialog-close"
+    aria-label={m.leaderboard_countries_close()}
+    onclick={() => (chooser = false)}
+  >
     <i class="fa-solid fa-xmark"></i>
   </button>
-  <h2>Pick a country</h2>
+  <h2>{m.leaderboard_countries_pick()}</h2>
   <div class="country-grid">
     {#each allCountries ?? [] as country (country)}
       <a

@@ -7,10 +7,11 @@
   import Preview from '$lib/components/Preview.svelte';
   import { length } from '$lib/format';
   import { modeNames } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
 
   const PAGE_SIZE = 24;
   const statuses = [
-    { name: 'Any', code: '' },
+    { name: m.beatmaps_listing_any(), code: '' },
     { name: 'Ranked', code: '1' },
     { name: 'Qualified', code: '3' },
     { name: 'Loved', code: '4' },
@@ -67,14 +68,15 @@
 </script>
 
 <svelte:head>
-  <title>Beatmaps · RealistikOsu</title>
+  <title>{m.beatmaps_listing_title()} · RealistikOsu</title>
 </svelte:head>
 
 <Banner image="beatmaps.jpg">
   <div>
-    <h1>Beatmaps</h1>
+    <h1>{m.beatmaps_listing_title()}</h1>
     <p class="sub">
-      Find something to play, or a map to <a href="/rank-request">request for ranking</a>.
+      {m.beatmaps_listing_intro()}
+      <a href="/rank-request">{m.beatmaps_listing_intro_link()}</a>{m.beatmaps_listing_intro_end()}
     </p>
   </div>
 </Banner>
@@ -84,15 +86,15 @@
     <i class="fa-solid fa-magnifying-glass"></i>
     <input
       type="search"
-      placeholder="Search by title, artist, mapper or tags"
-      aria-label="Search beatmaps"
+      placeholder={m.beatmaps_listing_search_placeholder()}
+      aria-label={m.beatmaps_listing_search_label()}
       bind:value={text}
       oninput={onInput}
     />
   </div>
   <div class="filters">
     <nav class="tabs" use:tabInk>
-      {#each [['', 'Any'], ...modeNames.map((name, i) => [String(i), name])] as [code, name] (code)}
+      {#each [['', m.beatmaps_listing_any()], ...modeNames.map( (name, i) => [String(i), name] )] as [code, name] (code)}
         <a
           class:active={mode === code}
           href="?mode={code}"
@@ -136,13 +138,14 @@
           <span class="map-status {look.colour}"
             ><i class="fa-solid {look.icon}"></i>{look.name}</span
           >
-          {#if set.HasVideo}<i class="fa-solid fa-film" title="Has video"></i>{/if}
+          {#if set.HasVideo}<i class="fa-solid fa-film" title={m.beatmaps_listing_has_video()}
+            ></i>{/if}
         </a>
         <Preview setId={set.SetID} class="preview" />
         <div class="map-body">
           <a class="map-title" href="/beatmaps/{first?.BeatmapID}">{set.Title}</a>
           <div class="map-artist">{set.Artist}</div>
-          <div class="map-meta">mapped by <b>{set.Creator}</b></div>
+          <div class="map-meta">{m.beatmaps_mapped_by()} <b>{set.Creator}</b></div>
           <div class="map-diffs">
             <span class="dots">
               {#each diffs as d (d.BeatmapID)}
@@ -166,12 +169,18 @@
               <span><i class="fa-solid fa-drum"></i>{+first.BPM.toFixed(2)} BPM</span>
             {/if}
             {#if isServerOnlySet(set.SetID)}
-              <a class="downloads" href={downloadUrl(set.SetID)} title="Download from RealistikOsu">
-                <span class="summary"><i class="fa-solid fa-download"></i>Download</span>
+              <a
+                class="downloads"
+                href={downloadUrl(set.SetID)}
+                title={m.beatmaps_listing_download_from()}
+              >
+                <span class="summary"
+                  ><i class="fa-solid fa-download"></i>{m.beatmaps_download()}</span
+                >
               </a>
             {:else}
               <details class="downloads">
-                <summary><i class="fa-solid fa-download"></i>Download</summary>
+                <summary><i class="fa-solid fa-download"></i>{m.beatmaps_download()}</summary>
                 <div>
                   <a href={downloadUrl(set.SetID)}>RealistikOsu</a>
                   {#each mirrors as mirror (mirror.name)}
@@ -200,12 +209,12 @@
   </div>
   {#if !loading && (failed || sets.length === 0)}
     <p class="listing-note">
-      {failed ? "Couldn't load beatmaps. Try again in a bit." : 'No beatmaps match these filters.'}
+      {failed ? m.beatmaps_listing_error() : m.beatmaps_listing_empty()}
     </p>
   {/if}
   {#if more && !loading}
     <button class="btn load-more" type="button" onclick={() => ((offset += PAGE_SIZE), load(true))}>
-      Load more
+      {m.beatmaps_listing_load_more()}
     </button>
   {/if}
 </main>
