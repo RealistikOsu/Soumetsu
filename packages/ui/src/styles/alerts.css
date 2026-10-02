@@ -84,3 +84,18 @@
   gap: 10px;
   padding-top: 24px;
 }
+
+.toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: grid;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+}
+
+.toasts .notice.alert {
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}

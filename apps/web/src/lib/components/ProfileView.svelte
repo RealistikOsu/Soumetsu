@@ -17,6 +17,7 @@
   import { intlLocale } from '$lib/i18n';
   import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
+  import { playStyleNames } from '$lib/playstyles';
   import Avatar from './Avatar.svelte';
   import Comments from './Comments.svelte';
   import FriendButton from './FriendButton.svelte';
@@ -36,17 +37,7 @@
 
   let { id }: { id: number } = $props();
 
-  const playStyles = [
-    m.profile_playstyle_mouse(),
-    m.profile_playstyle_tablet(),
-    m.profile_playstyle_keyboard(),
-    m.profile_playstyle_touchscreen(),
-    m.profile_playstyle_spoon(),
-    'Leap motion',
-    'Oculus rift',
-    m.profile_playstyle_dick(),
-    m.profile_playstyle_eggplant()
-  ];
+  const playStyles = playStyleNames();
   const countryNames = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
   const extras = query((signal) => userExtras(id, signal));

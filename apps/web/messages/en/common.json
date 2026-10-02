@@ -215,5 +215,14 @@
   "common_decoration_staff_glitch": "Glitch",
   "common_decoration_staff_prism": "Prism",
   "common_decoration_staff_eclipse": "Eclipse",
-  "common_decoration_staff_pulse": "Inverse Pulse"
+  "common_decoration_staff_pulse": "Inverse Pulse",
+  "common_playstyle_mouse": "Mouse",
+  "common_playstyle_tablet": "Tablet",
+  "common_playstyle_keyboard": "Keyboard",
+  "common_playstyle_touchscreen": "Touchscreen",
+  "common_playstyle_spoon": "Spoon",
+  "common_playstyle_leap_motion": "Leap Motion",
+  "common_playstyle_oculus_rift": "Oculus Rift",
+  "common_playstyle_dick": "Dick",
+  "common_playstyle_eggplant": "Eggplant"
 }

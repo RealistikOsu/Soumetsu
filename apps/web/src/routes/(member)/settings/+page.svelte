@@ -8,18 +8,9 @@
   import { getLocale, languageNames, locales, setLocale, type Locale } from '$lib/i18n';
   import { modeNames } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
+  import { playStyleNames } from '$lib/playstyles';
 
-  const playStyles = [
-    m.settings_playstyle_mouse(),
-    m.settings_playstyle_tablet(),
-    m.settings_playstyle_keyboard(),
-    m.settings_playstyle_touchscreen(),
-    m.settings_playstyle_spoon(),
-    m.settings_playstyle_leap_motion(),
-    m.settings_playstyle_oculus_rift(),
-    m.settings_playstyle_dick(),
-    m.settings_playstyle_eggplant()
-  ];
+  const playStyles = playStyleNames();
 
   const loaded = query((signal) => settings(signal));
 

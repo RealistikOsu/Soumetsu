@@ -11,8 +11,11 @@ class FlashStore {
   items = $state<Flash[]>([]);
   #next = 0;
 
+  // Successes go away on their own; errors and warnings stay until dismissed so they can be read.
   show(kind: FlashKind, text: string) {
-    this.items.push({ id: this.#next++, kind, text, carry: false });
+    const id = this.#next++;
+    this.items.push({ id, kind, text, carry: false });
+    if (kind === 'success') setTimeout(() => this.dismiss(id), 5000);
   }
 
   // Shown on the page the next navigation lands on, like Hanayo's messages across a redirect.

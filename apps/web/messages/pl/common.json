@@ -215,5 +215,14 @@
   "common_decoration_staff_glitch": "Glitch",
   "common_decoration_staff_prism": "Pryzmat",
   "common_decoration_staff_eclipse": "Zaćmienie",
-  "common_decoration_staff_pulse": "Odwrócony puls"
+  "common_decoration_staff_pulse": "Odwrócony puls",
+  "common_playstyle_mouse": "Myszka",
+  "common_playstyle_tablet": "Tablet",
+  "common_playstyle_keyboard": "Klawiatura",
+  "common_playstyle_touchscreen": "Ekran dotykowy",
+  "common_playstyle_spoon": "Łyżka",
+  "common_playstyle_leap_motion": "Leap Motion",
+  "common_playstyle_oculus_rift": "Oculus Rift",
+  "common_playstyle_dick": "Kutas",
+  "common_playstyle_eggplant": "Bakłażan"
 }

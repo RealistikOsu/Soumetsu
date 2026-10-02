@@ -7,6 +7,7 @@
   import Header from '$lib/components/Header.svelte';
   import UserCards from '$lib/components/UserCards.svelte';
   import LoadBar from '$lib/components/LoadBar.svelte';
+  import Toasts from '$lib/components/Toasts.svelte';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
   import { getLocale } from '$lib/i18n';
@@ -55,4 +56,5 @@
 <Footer />
 <LoadBar />
 <FloatTip />
+<Toasts />
 <UserCards />

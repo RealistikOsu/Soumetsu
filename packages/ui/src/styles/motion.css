@@ -442,3 +442,7 @@
 .motion .global-rank:is(:hover, :focus-visible) .peak-spark circle {
   animation: dot-in 0.3s cubic-bezier(0.2, 0, 0, 1.4) 0.45s forwards;
 }
+
+.motion .toasts .alert {
+  animation-name: rise;
+}
