@@ -306,3 +306,39 @@ export const createGroup = (body: GroupBody) => siteApi.post('/admin/privileges'
 export const saveGroup = (id: number, body: GroupBody) =>
   siteApi.put(`/admin/privileges/${id}`, body);
 export const deleteGroup = (id: number) => siteApi.delete(`/admin/privileges/${id}`);
+
+export interface ClanRow {
+  id: number;
+  name: string;
+  description: string;
+  tag: string;
+}
+
+export const adminClans = (page: number, q: string, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; total: number; clans: ClanRow[] }>(
+    '/admin/clans',
+    { page, q },
+    signal
+  );
+
+export interface AdminClan {
+  id: number;
+  name: string;
+  tag: string;
+  description: string;
+  limit: number;
+  members: { id: number; username: string; country: string; registered: number; owner: boolean }[];
+}
+
+export const adminClan = (id: number, signal?: AbortSignal) =>
+  siteApi.get<AdminClan>(`/admin/clans/${id}`, undefined, signal);
+
+export const saveAdminClan = (
+  id: number,
+  body: { name: string; tag: string; description: string; limit: number }
+) => siteApi.put(`/admin/clans/${id}`, body);
+
+export const deleteAdminClan = (id: number) => siteApi.delete(`/admin/clans/${id}`);
+
+export const kickMember = (id: number, userId: number) =>
+  siteApi.post(`/admin/clans/${id}/kick`, { userId });
