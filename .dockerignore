@@ -6,7 +6,7 @@ apps/web/src/server/generated
 .env
 .env.*
 !.env.example
-screenshots
+/screenshots
 playwright-report
 test-results
 PLAN.md

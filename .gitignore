@@ -7,7 +7,7 @@ build
 .DS_Store
 playwright-report
 test-results
-screenshots
+/screenshots
 PLAN.md
 GAPS.md
 apps/web/src/server/generated
