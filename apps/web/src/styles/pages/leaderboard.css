@@ -24,8 +24,9 @@
 .countries a {
   display: grid;
   place-items: center;
-  width: 48px;
+  min-width: 48px;
   height: 34px;
+  padding: 0 12px;
   color: var(--muted);
   font-size: 13px;
 }
