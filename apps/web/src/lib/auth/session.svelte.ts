@@ -1,17 +1,19 @@
 import { onUnauthorised } from '$lib/api/client';
 import { isApiError } from '$lib/api/errors';
+import { userExtras } from '$lib/api/site';
 import { login, logout, me, type UserProfile } from '$lib/api/users';
 import { flash } from '$lib/flash.svelte';
 import { clearToken, getToken, setToken } from './token';
 
 class Session {
   user = $state.raw<UserProfile | null>(null);
+  frozen = $state(false);
   ready = $state(false);
 
   async start() {
     if (getToken()) {
       try {
-        this.user = await me();
+        await this.#load();
       } catch (error) {
         // A 401 has already cleared the token. Anything else (API down) leaves it alone so a refresh can recover.
         if (!isApiError(error)) throw error;
@@ -23,7 +25,7 @@ class Session {
   async login(username: string, password: string, captcha?: string) {
     const result = await login(username, password, captcha);
     setToken(result.token);
-    this.user = await me();
+    await this.#load();
   }
 
   async logout() {
@@ -34,6 +36,13 @@ class Session {
   expire() {
     clearToken();
     this.user = null;
+    this.frozen = false;
+  }
+
+  async #load() {
+    const user = await me();
+    this.frozen = (await userExtras(user.id)).frozen;
+    this.user = user;
   }
 }
 

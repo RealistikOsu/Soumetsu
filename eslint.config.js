@@ -14,7 +14,9 @@ export default ts.config(
     },
     rules: {
       semi: ['error', 'always'],
-      'svelte/no-navigation-without-resolve': 'off'
+      'svelte/no-navigation-without-resolve': 'off',
+      // Every {@html} goes through lib/sanitise first.
+      'svelte/no-at-html-tags': 'off'
     }
   },
   {

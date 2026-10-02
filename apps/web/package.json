@@ -6,13 +6,15 @@
   "author": "Aochi <me@aochi.uk>",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "prisma generate && vite build",
     "start": "bun ./build/index.js",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "postinstall": "prisma generate"
   },
   "devDependencies": {
     "@sveltejs/kit": "2",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "prisma": "7.10.0",
     "svelte": "5.57.1",
     "svelte-adapter-bun": "1.0.1",
     "svelte-check": "4.7.6",
@@ -20,6 +22,10 @@
     "vite": "8.3.2"
   },
   "dependencies": {
-    "@soumetsu/ui": "workspace:*"
+    "@prisma/adapter-mariadb": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "@soumetsu/ui": "workspace:*",
+    "dompurify": "3.4.16",
+    "ioredis": "6.0.0"
   }
 }

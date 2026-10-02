@@ -69,6 +69,24 @@ export async function request<T>(
 
 const v2 = (path: string, params?: Params) => apiUrl(`/api/v2${path}`, params);
 
+const siteUrl = (path: string, params?: Params) => {
+  const url = new URL(`/site-api${path}`, location.origin);
+  for (const [key, value] of Object.entries(params ?? {})) {
+    if (value !== null && value !== undefined && value !== '')
+      url.searchParams.set(key, String(value));
+  }
+  return url;
+};
+
+// The site's own server layer, on the same origin, with the same envelope and bearer token.
+export const siteApi = {
+  get: <T>(path: string, params?: Params, signal?: AbortSignal) =>
+    request<T>('GET', siteUrl(path, params), { signal }),
+  post: <T = null>(path: string, body?: unknown) => request<T>('POST', siteUrl(path), { body }),
+  put: <T = null>(path: string, body?: unknown) => request<T>('PUT', siteUrl(path), { body }),
+  delete: <T = null>(path: string) => request<T>('DELETE', siteUrl(path))
+};
+
 export const api = {
   get: <T>(path: string, params?: Params, signal?: AbortSignal) =>
     request<T>('GET', v2(path, params), { signal }),

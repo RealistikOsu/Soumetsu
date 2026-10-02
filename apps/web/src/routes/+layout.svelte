@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fadeImages } from '@soumetsu/ui';
   import { onMount, type Snippet } from 'svelte';
   import { afterNavigate, onNavigate } from '$app/navigation';
   import Footer from '$lib/components/Footer.svelte';
@@ -7,11 +8,21 @@
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
   import { reducedMotion } from '$lib/motion';
+  import { site } from '$lib/site.svelte';
   import '../styles/index.css';
 
   let { children }: { children: Snippet } = $props();
 
-  onMount(() => session.start());
+  onMount(() => {
+    session.start();
+    site.load();
+    const refresh = setInterval(() => site.load(), 60_000);
+    const stopFading = fadeImages();
+    return () => {
+      clearInterval(refresh);
+      stopFading();
+    };
+  });
 
   afterNavigate(() => flash.navigated());
 

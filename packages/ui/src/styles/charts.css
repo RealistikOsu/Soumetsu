@@ -1,0 +1,52 @@
+/* chart tooltips */
+
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-2);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12px));
+}
+
+.chart-tip.below {
+  transform: translate(-50%, 12px);
+}
+
+.chart-tip b {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chart-tip span {
+  color: var(--muted);
+}
+
+.chart-guide {
+  position: absolute;
+  width: 1px;
+  background: rgb(255 255 255 / 0.2);
+  pointer-events: none;
+}
+
+.chart-marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  background: var(--mark, var(--blue));
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+:is(.chart-tip, .chart-guide, .chart-marker)[hidden] {
+  display: none;
+}

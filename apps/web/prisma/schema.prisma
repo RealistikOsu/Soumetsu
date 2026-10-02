@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/server/generated"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model beatmaps {
+  beatmap_id             Int                      @id @default(0)
+  beatmapset_id          Int                      @default(0)
+  beatmap_md5            String                   @unique(map: "beatmap_md5") @default("") @db.VarChar(32)
+  song_name              String                   @db.Text
+  diff_name              String                   @default("") @db.VarChar(255)
+  ar                     Float                    @default(0) @db.Float
+  cs                     Float                    @default(0) @db.Float
+  hp                     Float                    @default(0) @db.Float
+  od                     Float                    @default(0) @db.Float
+  mode                   Int                      @default(0)
+  rating                 Int                      @default(10)
+  difficulty_std         Float                    @default(0) @db.Float
+  difficulty_taiko       Float                    @default(0) @db.Float
+  difficulty_ctb         Float                    @default(0) @db.Float
+  difficulty_mania       Float                    @default(0) @db.Float
+  max_combo              Int                      @default(0)
+  hit_length             Int                      @default(0)
+  total_length           Int                      @default(0)
+  bpm                    Int                      @default(0)
+  playcount              Int                      @default(0)
+  passcount              Int                      @default(0)
+  ranked                 Int                      @default(0) @db.TinyInt
+  latest_update          Int                      @default(0)
+  ranked_status_freezed  Boolean                  @default(false)
+  pp_100                 Int                      @default(0)
+  pp_99                  Int                      @default(0)
+  pp_98                  Int                      @default(0)
+  pp_95                  Int                      @default(0)
+  disable_pp             Int                      @default(0) @db.TinyInt
+  count_circles          Int                      @default(0)
+  count_sliders          Int                      @default(0)
+  count_spinners         Int                      @default(0)
+  file_name              String?                  @db.LongText
+  rankedby               String                   @default("IDK") @db.VarChar(16)
+  priv_crawler           Boolean                  @default(false)
+  mapper_id              Int                      @default(-1)
+
+  @@index([beatmapset_id], map: "beatmapset_id")
+  @@index([mode], map: "mode")
+  @@index([ranked], map: "ranked")
+  @@index([ranked_status_freezed], map: "ranked_status_freezed")
+}
+
+model freekassa_payments {
+  order_id     String    @id @db.VarChar(255)
+  processed_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model identity_tokens {
+  userid Int    @unique(map: "userid")
+  token  String @db.VarChar(64)
+
+  @@index([token], map: "token")
+}
+
+model ip_user {
+  userid      Int
+  ip          String @db.Text
+  occurencies Int
+
+  @@id([userid, ip(length: 128)])
+}
+
+model osu_official_links {
+  ppy_user_id  BigInt @id
+  ppy_username String @db.VarChar(30)
+  osu_user_id  Int    @unique(map: "uq_osu_official_links_osu_user")
+  created_at   Int    @default(0)
+  users        users  @relation(fields: [osu_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_osu_official_links_user")
+}
+
+model password_recovery {
+  id Int      @id @default(autoincrement())
+  k  String   @db.VarChar(80)
+  u  String   @db.VarChar(30)
+  t  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model profile_backgrounds {
+  uid   Int    @id
+  time  Int
+  type  Int
+  value String @db.Text
+}
+
+model system_settings {
+  id           Int    @id @default(autoincrement())
+  name         String @db.VarChar(32)
+  value_int    Int    @default(0)
+  value_string String @db.VarChar(512)
+
+  @@index([name], map: "name")
+}
+
+model twitch_excluded_users {
+  twitch_id         BigInt
+  excluded_username String       @db.VarChar(50)
+  twitch_links      twitch_links @relation(fields: [twitch_id], references: [twitch_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_twitch_excluded_link")
+
+  @@id([twitch_id, excluded_username])
+}
+
+model twitch_links {
+  twitch_id             BigInt                  @id
+  twitch_username       String                  @unique(map: "uq_twitch_links_username") @db.VarChar(50)
+  osu_user_id           Int                     @unique(map: "uq_twitch_links_osu_user")
+  created_at            Int                     @default(0)
+  twitch_excluded_users twitch_excluded_users[]
+  users                 users                   @relation(fields: [osu_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_twitch_links_user")
+  twitch_settings       twitch_settings?
+}
+
+model twitch_settings {
+  twitch_id    BigInt       @id
+  enabled      Boolean      @default(true)
+  echo         Boolean      @default(true)
+  sub_only     Boolean      @default(false)
+  points_only  Boolean      @default(false)
+  cooldown     Int          @default(30)
+  sr_min       Float        @default(0) @db.Float
+  sr_max       Float        @default(-1) @db.Float
+  twitch_links twitch_links @relation(fields: [twitch_id], references: [twitch_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_twitch_settings_link")
+}
+
+model user_name_history {
+  id          Int    @id @default(autoincrement())
+  user_id     Int
+  username    String @db.VarChar(30)
+  replaced_at Int
+
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  id                                                            Int                             @id @default(autoincrement())
+  osuver                                                        String?                         @db.VarChar(256)
+  username                                                      String                          @db.VarChar(30)
+  username_safe                                                 String                          @db.VarChar(30)
+  ban_datetime                                                  String                          @default("0") @db.VarChar(30)
+  password_md5                                                  String                          @db.VarChar(127)
+  salt                                                          String                          @db.VarChar(32)
+  email                                                         String                          @db.VarChar(254)
+  register_datetime                                             Int
+  rank                                                          Boolean                         @default(true)
+  allowed                                                       Boolean                         @default(true)
+  latest_activity                                               Int                             @default(0)
+  silence_end                                                   Int                             @default(0)
+  silence_reason                                                String                          @default("") @db.VarChar(127)
+  password_version                                              Int                             @default(1) @db.TinyInt
+  privileges                                                    BigInt
+  donor_expire                                                  Int                             @default(0)
+  flags                                                         Int                             @default(0)
+  achievements_version                                          Int                             @default(4)
+  achievements_0                                                Int                             @default(1)
+  achievements_1                                                Int                             @default(1)
+  notes                                                         String?                         @db.Text
+  frozen                                                        Int                             @default(0)
+  freezedate                                                    Int                             @default(0)
+  firstloginafterfrozen                                         Int                             @default(0)
+  bypass_hwid                                                   Boolean                         @default(false)
+  ban_reason                                                    String                          @default("") @db.VarChar(128)
+  disabled_comments                                             Int                             @default(0) @db.TinyInt
+  country                                                       String                          @default("XX") @db.VarChar(2)
+  api_key                                                       String                          @db.Char(64)
+  coins                                                         Int                             @default(100)
+  name_decoration                                               String?                         @db.VarChar(32)
+  osu_official_links                                            osu_official_links?
+  twitch_links                                                  twitch_links?
+
+  @@index([username], map: "username")
+}
+
