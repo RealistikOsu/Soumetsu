@@ -1,0 +1,22 @@
+{
+  "name": "@soumetsu/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "author": "Aochi <me@aochi.uk>",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "bun ./build/index.js",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "2",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "svelte": "5.57.1",
+    "svelte-adapter-bun": "1.0.1",
+    "svelte-check": "4.7.6",
+    "typescript": "5",
+    "vite": "8.3.2"
+  }
+}

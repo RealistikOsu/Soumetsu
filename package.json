@@ -1,0 +1,28 @@
+{
+  "name": "soumetsu",
+  "private": true,
+  "type": "module",
+  "author": "Aochi <me@aochi.uk>",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun --cwd apps/web run dev",
+    "build": "bun --cwd apps/web run build",
+    "start": "bun --cwd apps/web run start",
+    "check": "bun --cwd apps/web run check && bun --cwd packages/ui run check",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.11.0",
+    "eslint-plugin-svelte": "3.23.0",
+    "globals": "17.13.0",
+    "prettier": "3.9.9",
+    "prettier-plugin-svelte": "4.1.1",
+    "svelte-eslint-parser": "1.8.1",
+    "typescript-eslint": "8.71.0"
+  }
+}
