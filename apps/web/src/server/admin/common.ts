@@ -1,3 +1,4 @@
+import { Failure } from '$server/respond';
 import { redis } from '$server/redis';
 
 export const PAGE_SIZE = 50;
@@ -9,3 +10,13 @@ export async function counter(key: string) {
 }
 
 export const MODE_NAMES = ['osu!', 'Taiko', 'Catch', 'Mania'];
+
+export async function bodyOf<T>(request: Request) {
+  return ((await request.json().catch(() => null)) ?? {}) as Partial<T>;
+}
+
+export const idOf = (params: { id?: string }) => {
+  const id = Number(params.id);
+  if (!Number.isInteger(id) || id < 1) throw new Failure(404, 'users.user_not_found');
+  return id;
+};

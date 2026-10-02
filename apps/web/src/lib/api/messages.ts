@@ -98,5 +98,7 @@ const byStatus: Record<number, string> = {
 
 export function describe(error: unknown): string {
   if (!(error instanceof ApiError)) return fallback;
+  // Staff-facing routes answer with a sentence rather than an error name.
+  if (error.code.includes(' ')) return error.code;
   return messages[error.code] ?? byStatus[error.status] ?? fallback;
 }

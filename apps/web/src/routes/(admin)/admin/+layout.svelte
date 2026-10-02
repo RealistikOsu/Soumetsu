@@ -22,9 +22,9 @@
       }))
       .filter((section) => section.pages.length)
   );
-  const here = $derived(
-    adminSections.flatMap((s) => s.pages).find((p) => p.href === page.url.pathname)
-  );
+  const isHere = (href: string) =>
+    href === '/admin' ? page.url.pathname === href : page.url.pathname.startsWith(href);
+  const here = $derived(adminSections.flatMap((s) => s.pages).find((p) => isHere(p.href)));
   const allowed = $derived(!here || (!!user && hasPrivilege(user.privileges, here.needs)));
 
   // Logged-out visitors are sent to log in. Everyone else without staff access sees a plain not-found page,
@@ -54,10 +54,7 @@
       {#each sections as section (section.name)}
         <span>{section.name}</span>
         {#each section.pages as item (item.href)}
-          <a
-            class="{item.colour} {item.href === page.url.pathname ? 'active' : ''}"
-            href={item.href}
-          >
+          <a class="{item.colour} {isHere(item.href) ? 'active' : ''}" href={item.href}>
             <i class="fa-solid {item.icon}"></i>{item.label}
           </a>
         {/each}

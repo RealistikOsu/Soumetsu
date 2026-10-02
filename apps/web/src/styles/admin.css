@@ -721,7 +721,8 @@
   font-weight: 600;
 }
 
-.card-dialog header form {
+.card-dialog header form,
+.card-dialog header .dialog-close {
   margin-left: auto;
 }
 

@@ -22,6 +22,8 @@ export const config = {
   performanceUrl: (optional('PERFORMANCE_URL') || 'https://performance.ussr.pl').replace(/\/$/, ''),
   adminLogWebhook: optional('ADMIN_LOG_WEBHOOK_URL'),
   rankedWebhook: optional('RANKED_WEBHOOK_URL'),
+  avatarsPath: optional('AVATARS_PATH'),
+  serverName: optional('SERVER_NAME') || 'RealistikOsu!',
   donorBadgeId: Number(optional('DONOR_BADGE_ID') || 1002),
   hcaptchaSecret: optional('HCAPTCHA_SECRET_KEY'),
   brevoApiKey: optional('BREVO_API_KEY'),
