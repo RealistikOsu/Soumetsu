@@ -3,7 +3,7 @@ import { config } from '$server/config';
 import { db } from '$server/db';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
-import { postWebhook, rapLog } from './log';
+import { avatarOf, postWebhook, rapLog } from './log';
 
 export const STATUSES = { ranked: 2, loved: 5, unranked: 0 } as const;
 export type StatusName = keyof typeof STATUSES;
@@ -143,7 +143,7 @@ async function announce(
         author: {
           name: `${name} was just ${title}`,
           url: `${config.appBaseUrl}/beatmaps/${beatmapId}`,
-          icon_url: `https://a.ussr.pl/${by.id}`
+          icon_url: avatarOf(by.id)
         },
         footer: { text: 'via Soumetsu' },
         image: { url: coverOf(setId) }

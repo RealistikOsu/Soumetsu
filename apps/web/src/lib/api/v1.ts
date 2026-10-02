@@ -1,7 +1,17 @@
 import { apiUrl } from './client';
 
+export interface StatsTopScore {
+  user_id: number;
+  username: string;
+  pp_val: number;
+  beatmap_id: number;
+  beatmapset_id: number;
+}
+
+// top_scores has one entry per mode: vanilla 0-3, relax 4-6, autopilot 7.
 interface Homepage {
   online_history: number[];
+  top_scores: (StatsTopScore | null)[];
 }
 
 // Both live on the old API, which nginx still routes on the same domain, and use its { code, ... } envelope.
@@ -21,10 +31,15 @@ export async function patcherVersion(signal?: AbortSignal) {
   );
 }
 
-export async function onlineHistory(signal?: AbortSignal) {
+export async function homepage(signal?: AbortSignal) {
   const body = await v1<{ data: Homepage }>('/statistics/homepage', signal);
-  return body.data.online_history;
+  return body.data;
 }
+
+export const onlineHistory = async (signal?: AbortSignal) =>
+  (await homepage(signal)).online_history;
+
+export const topScoreIndex = (mode: number, rx: number) => (rx === 2 ? 7 : mode + rx * 4);
 
 // The statistics service keeps daily captures and adds today's figure itself. It refuses players who are
 // restricted or haven't played in 60 days, since their captures stop changing.

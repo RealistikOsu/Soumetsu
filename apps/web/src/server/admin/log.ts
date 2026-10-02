@@ -1,6 +1,10 @@
 import { config } from '$server/config';
 import { db } from '$server/db';
 
+// Discord fetches the image itself, so it needs the public address the API serves avatars on.
+export const avatarOf = (userId: number) =>
+  `${config.appBaseUrl}/api/v2/assets/avatars/${userId}.png`;
+
 export async function postWebhook(url: string, body: unknown) {
   if (!url) return;
   await fetch(url, {
@@ -23,10 +27,11 @@ export async function rapLog(userId: number, text: string) {
       {
         description: `${name} ${text}`,
         color: 242424,
-        footer: { text: 'Admin logs' },
+        footer: { text: 'Soumetsu Admin Logs' },
         author: {
           name: `New action done by ${name}!`,
-          url: `${config.appBaseUrl}/users/${userId}`
+          url: `${config.appBaseUrl}/users/${userId}`,
+          icon_url: avatarOf(userId)
         }
       }
     ]

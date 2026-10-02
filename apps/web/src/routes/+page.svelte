@@ -1,9 +1,8 @@
 <script lang="ts">
   import { CountUp, tabInk } from '@soumetsu/ui';
   import { query } from '$lib/api/query.svelte';
-  import { onlineHistory } from '$lib/api/v1';
+  import { homepage, topScoreIndex } from '$lib/api/v1';
   import { stats } from '$lib/api/stats';
-  import { topScoresMixed, type TopScore } from '$lib/api/scores';
   import { session } from '$lib/auth/session.svelte';
   import { coverUrl } from '$lib/assets';
   import AlertStack from '$lib/components/AlertStack.svelte';
@@ -11,6 +10,7 @@
   import Features from '$lib/components/Features.svelte';
   import OnlineGraph from '$lib/components/OnlineGraph.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
+  import TopMap from '$lib/components/TopMap.svelte';
   import Username from '$lib/components/Username.svelte';
   import { number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
@@ -54,13 +54,10 @@
   ];
 
   const counts = query((signal) => stats(signal));
-  const tops = query((signal) => topScoresMixed(signal));
-  const history = query((signal) => onlineHistory(signal));
+  // The statistics service keeps the online graph and the best play per mode.
+  const home = query((signal) => homepage(signal));
 
   let active = $state('std');
-
-  const find = (scores: TopScore[], mode: number, custom: number) =>
-    scores.find((s) => s.play_mode === mode && s.custom_mode === custom);
 </script>
 
 <svelte:head>
@@ -87,8 +84,8 @@
       </div>
       <img class="mascot" src="/img/mascot.webp" alt="" />
     </div>
-    {#if history.state.status === 'ready' && history.state.data.length > 1}
-      <OnlineGraph values={history.state.data} spanMinutes={2100} />
+    {#if home.state.status === 'ready' && home.state.data.online_history.length > 1}
+      <OnlineGraph values={home.state.data.online_history} spanMinutes={2100} />
     {/if}
   </section>
 
@@ -152,28 +149,26 @@
       </div>
       {#each modes as mode (mode.key)}
         <div class="top-scores" id="top-{mode.key}" hidden={active !== mode.key}>
-          {#if tops.state.status === 'ready'}
+          {#if home.state.status === 'ready'}
             {#each mode.cards as card (card.custom)}
-              {@const score = find(tops.state.data, mode.mode, card.custom)}
+              {@const score = home.state.data.top_scores[topScoreIndex(mode.mode, card.custom)]}
               {#if score}
                 <div
                   class="top-score {card.colour}"
-                  style="background-image: url({coverUrl(score.beatmap.beatmapset_id, 'card')})"
+                  style="background-image: url({coverUrl(score.beatmapset_id, 'card')})"
                 >
                   <span class="label">{card.label}</span>
-                  <b>{number(Math.round(score.pp))}pp</b>
-                  <a class="by" href="/users/{score.player_id}">
+                  <b>{number(score.pp_val)}pp</b>
+                  <a class="by" href="/users/{score.user_id}">
                     {m.home_top_done_by()}
-                    <Avatar id={score.player_id} />
-                    <Username id={score.player_id} name={score.username} />
+                    <Avatar id={score.user_id} />
+                    <Username id={score.user_id} name={score.username} />
                   </a>
-                  <a class="map" href="/beatmaps/{score.beatmap.beatmap_id}">
-                    {score.beatmap.song_name}
-                  </a>
+                  <TopMap id={score.beatmap_id} />
                 </div>
               {/if}
             {/each}
-          {:else if tops.state.status === 'loading'}
+          {:else if home.state.status === 'loading'}
             {#each mode.cards as card (card.custom)}
               <div class="top-score {card.colour}" aria-hidden="true">
                 <span class="skel" style="width: 40%"></span>
