@@ -1,9 +1,5 @@
 import { apiUrl } from './client';
 
-interface PatcherVersion {
-  version: string;
-}
-
 interface Homepage {
   online_history: number[];
 }
@@ -15,8 +11,15 @@ async function v1<T>(path: string, signal?: AbortSignal): Promise<T> {
   return response.json();
 }
 
-export const patcherVersion = (signal?: AbortSignal) =>
-  v1<PatcherVersion>('/patcher/launcher/version', signal);
+// The version is read from whichever field the patcher service uses, and the page copes without it.
+export async function patcherVersion(signal?: AbortSignal) {
+  const body = await v1<unknown>('/patcher/launcher/version', signal);
+  if (typeof body === 'string') return body;
+  const found = body as { version?: string; data?: { version?: string } | string };
+  return (
+    found.version ?? (typeof found.data === 'string' ? found.data : found.data?.version) ?? null
+  );
+}
 
 export async function onlineHistory(signal?: AbortSignal) {
   const body = await v1<{ data: Homepage }>('/statistics/homepage', signal);
