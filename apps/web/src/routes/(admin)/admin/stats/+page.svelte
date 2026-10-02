@@ -5,7 +5,7 @@
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import PlayTable from '$lib/components/admin/PlayTable.svelte';
-  import { CountUp } from '@soumetsu/ui';
+  import { CountUp, inView } from '@soumetsu/ui';
 
   const minPp = $derived(Math.max(0, Number(page.url.searchParams.get('minpp')) || 0));
   const stats = query((signal) => adminStats(minPp, signal));
@@ -68,7 +68,7 @@
 <h2 class="section-title c-blue">
   <i class="fa-solid fa-chart-column"></i>Registrations <small>last 7 days</small>
 </h2>
-<div class="panel bars c-blue">
+<div class="panel bars c-blue" use:inView>
   {#if stats.state.status === 'ready'}
     {#each stats.state.data.days as day, i (day.end)}
       <div class="reg-bar" style="--h:{(day.registered / peak) * 100}%;--i:{i}">
