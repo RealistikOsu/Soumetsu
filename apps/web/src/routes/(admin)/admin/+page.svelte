@@ -5,14 +5,11 @@
   import { onlineHistory } from '$lib/api/v1';
   import { session } from '$lib/auth/session.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
-  import AdminTag from '$lib/components/admin/AdminTag.svelte';
+  import PlayTable from '$lib/components/admin/PlayTable.svelte';
   import Sparkline from '$lib/components/admin/Sparkline.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
-  import Flag from '$lib/components/Flag.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
-  import Username from '$lib/components/Username.svelte';
-  import { number, songParts, timeAgo } from '$lib/format';
-  import { modsText } from '$lib/mods';
+  import { timeAgo } from '$lib/format';
 
   const data = query((signal) => dashboard(signal));
   const status = query((signal) => serviceStatus(signal));
@@ -30,20 +27,6 @@
     ['c-purple', 'fa-file-lines', 'scores', 'Submitted scores'],
     ['c-yellow', 'fa-trophy', 'totalPp', 'Total pp']
   ] as const;
-
-  const modeTags = [
-    ['Vanilla', 'c-yellow'],
-    ['Relax', 'c-pink'],
-    ['Autopilot', 'c-purple']
-  ];
-
-  const when = (unix: number) =>
-    new Date(unix * 1000).toLocaleString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
 </script>
 
 <AdminHead
@@ -148,49 +131,10 @@
       </div>
 
       <SectionTitle colour="c-purple" icon="fa-clock-rotate-left">Latest plays</SectionTitle>
-      <div class="table-wrap">
-        <table class="board admin-table c-purple">
-          <thead>
-            <tr>
-              <th>When</th>
-              <th class="player">Player</th>
-              <th>Play</th>
-              <th>Mode</th>
-              <th>PP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#if data.state.status === 'ready'}
-              {#each data.state.data.latest as play (`${play.custom}-${play.id}`)}
-                {@const parts = songParts(play.song_name)}
-                <tr>
-                  <td class="dim">{when(play.time)}</td>
-                  <td class="player">
-                    <a class="who" href="/users/{play.userid}">
-                      <Flag country={play.country} /><Avatar id={play.userid} /><Username
-                        id={play.userid}
-                        name={play.username}
-                      />
-                    </a>
-                  </td>
-                  <td class="song-cell">
-                    <a href="/beatmaps/{play.beatmap_id}"
-                      >{parts.song} <span>[{parts.diff}]</span></a
-                    >
-                    {#if modsText(play.mods)}<span class="mods">{modsText(play.mods)}</span>{/if}
-                  </td>
-                  <td
-                    ><AdminTag colour={modeTags[play.custom][1]}
-                      >{modeTags[play.custom][0]}</AdminTag
-                    ></td
-                  >
-                  <td class="pp">{number(Math.round(play.pp))}pp</td>
-                </tr>
-              {/each}
-            {/if}
-          </tbody>
-        </table>
-      </div>
+      <PlayTable
+        plays={data.state.status === 'ready' ? data.state.data.latest : []}
+        loading={data.state.status === 'loading'}
+      />
     </div>
 
     <aside>

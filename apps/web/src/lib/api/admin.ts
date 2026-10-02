@@ -1,3 +1,4 @@
+import type { GradeName } from '$lib/grades';
 import type { Mod } from '$lib/mods';
 import { siteApi } from './site';
 
@@ -7,15 +8,13 @@ export interface DashboardPlay {
   userid: number;
   country: string;
   time: number;
-  score: number;
   pp: number;
-  play_mode: number;
   mods: Mod[];
   accuracy: number;
   song_name: string;
   beatmap_id: number;
   custom: number;
-  completed: number;
+  grade: GradeName;
 }
 
 export interface Dashboard {
@@ -190,3 +189,13 @@ export interface ConsoleRow {
 
 export const consoleLogs = (page: number, signal?: AbortSignal) =>
   siteApi.get<{ pages: number; rows: ConsoleRow[] }>('/console', { page }, signal);
+
+export interface StatsData {
+  days: { end: number; registered: number }[];
+  active: number;
+  restricted: number;
+  plays: DashboardPlay[];
+}
+
+export const adminStats = (minPp: number, signal?: AbortSignal) =>
+  siteApi.get<StatsData>('/admin/stats', { minpp: minPp }, signal);
