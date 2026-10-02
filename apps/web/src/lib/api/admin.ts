@@ -247,3 +247,27 @@ export const rankRequests = (page: number, signal?: AbortSignal) =>
   siteApi.get<{ pages: number; requests: RankRequest[] }>('/admin/requests', { page }, signal);
 
 export const dismissRequest = (id: number) => siteApi.delete(`/admin/requests/${id}`);
+
+export interface SystemSettings {
+  websiteMaintenance: boolean;
+  gameMaintenance: boolean;
+  registrations: boolean;
+  globalAlert: string;
+  homeAlert: string;
+}
+
+export const systemSettings = (signal?: AbortSignal) =>
+  siteApi.get<SystemSettings>('/admin/settings', undefined, signal);
+
+export const saveSystemSettings = (body: SystemSettings) => siteApi.put('/admin/settings', body);
+
+export interface BanchoSettings {
+  maintenance: boolean;
+  menuIcon: string;
+  loginNotification: string;
+}
+
+export const banchoSettings = (signal?: AbortSignal) =>
+  siteApi.get<BanchoSettings>('/admin/bancho', undefined, signal);
+
+export const saveBanchoSettings = (body: BanchoSettings) => siteApi.put('/admin/bancho', body);
