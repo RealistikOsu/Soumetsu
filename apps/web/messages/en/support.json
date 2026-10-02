@@ -158,5 +158,14 @@
   "support_doc_error": "Couldn't load the documentation. Try again in a bit.",
   "support_doc_help": "Can't find what you need?",
   "support_doc_help_link": "Ask on our Discord",
-  "support_doc_on_this_page": "On this page"
+  "support_doc_on_this_page": "On this page",
+  "support_doc_outdated_before": "This translation is out of date. Check the ",
+  "support_doc_outdated_link": "original version",
+  "support_doc_outdated_after": " for the most accurate information (and update the translation yourself if you want to help)!",
+  "support_doc_outdated_title": "Outdated translation",
+  "support_doc_callout_note": "Note",
+  "support_doc_callout_tip": "Tip",
+  "support_doc_callout_important": "Important",
+  "support_doc_callout_warning": "Warning",
+  "support_doc_callout_caution": "Caution"
 }

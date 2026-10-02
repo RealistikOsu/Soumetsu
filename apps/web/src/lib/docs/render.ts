@@ -1,17 +1,18 @@
 import { Marked } from 'marked';
 import markedFootnote from 'marked-footnote';
 import { bbcodeToHtml } from '$lib/bbcode';
+import { m } from '$lib/paraglide/messages';
 import { sanitise } from '$lib/sanitise';
 
 // Plain markdown works on its own. The extras are all optional and read as ordinary markdown elsewhere:
 // GitHub callouts, tone and column comments, tables, and bbcode-example fences. See website-docs/README.md.
 
-const callouts: Record<string, [string, string, string]> = {
-  NOTE: ['c-blue', 'fa-circle-info', 'Note'],
-  TIP: ['c-green', 'fa-lightbulb', 'Tip'],
-  IMPORTANT: ['c-purple', 'fa-circle-exclamation', 'Important'],
-  WARNING: ['c-yellow', 'fa-triangle-exclamation', 'Warning'],
-  CAUTION: ['c-red', 'fa-hand', 'Caution']
+const callouts: Record<string, [string, string, () => string]> = {
+  NOTE: ['c-blue', 'fa-circle-info', m.support_doc_callout_note],
+  TIP: ['c-green', 'fa-lightbulb', m.support_doc_callout_tip],
+  IMPORTANT: ['c-purple', 'fa-circle-exclamation', m.support_doc_callout_important],
+  WARNING: ['c-yellow', 'fa-triangle-exclamation', m.support_doc_callout_warning],
+  CAUTION: ['c-red', 'fa-hand', m.support_doc_callout_caution]
 };
 
 const escapeHtml = (text: string) =>
@@ -21,7 +22,7 @@ const slug = (text: string) =>
   text
     .replace(/<[^>]+>/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
     .replace(/^-|-$/g, '');
 
 // Heading html reduced to its text, with entities like &amp; decoded.
@@ -33,7 +34,7 @@ function withCallouts(html: string) {
     /<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*([\s\S]*?)<\/blockquote>/g,
     (_, kind: string, rest: string) => {
       const [colour, icon, label] = callouts[kind];
-      return `<div class="callout ${colour}"><p class="callout-title"><i class="fa-solid ${icon}"></i>${label}</p><p>${rest}</div>`;
+      return `<div class="callout ${colour}"><p class="callout-title"><i class="fa-solid ${icon}"></i>${label()}</p><p>${rest}</div>`;
     }
   );
 }

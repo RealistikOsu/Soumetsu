@@ -13,5 +13,10 @@ export interface DocMeta {
 export const docs = (signal?: AbortSignal) =>
   siteApi.get<DocMeta[]>('/docs', { lang: getLocale() }, signal);
 
-export const doc = (slug: string, signal?: AbortSignal) =>
-  siteApi.get<{ meta: DocMeta; body: string }>(`/docs/${slug}`, { lang: getLocale() }, signal);
+// lang overrides the reader's language, so an out-of-date translation can link to the English page.
+export const doc = (slug: string, signal?: AbortSignal, lang: string = getLocale()) =>
+  siteApi.get<{ meta: DocMeta; body: string; outdated: boolean }>(
+    `/docs/${slug}`,
+    { lang },
+    signal
+  );

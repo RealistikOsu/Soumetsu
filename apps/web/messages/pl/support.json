@@ -162,5 +162,14 @@
   "support_doc_error": "Nie udało się załadować dokumentacji. Spróbuj za chwilę.",
   "support_doc_help": "Nie możesz znaleźć tego, czego szukasz?",
   "support_doc_help_link": "Zapytaj na naszym Discordzie",
-  "support_doc_on_this_page": "Na tej stronie"
+  "support_doc_on_this_page": "Na tej stronie",
+  "support_doc_outdated_before": "Tłumaczenie tego artykułu jest nieaktualne. Sprawdź ",
+  "support_doc_outdated_link": "oryginalną wersję",
+  "support_doc_outdated_after": " dla najdokładniejszych informacji (oraz zaktualizuj tłumaczenie samodzielnie, jeśli chcesz pomóc)!",
+  "support_doc_outdated_title": "Nieaktualne tłumaczenie",
+  "support_doc_callout_note": "Uwaga",
+  "support_doc_callout_tip": "Wskazówka",
+  "support_doc_callout_important": "Ważne",
+  "support_doc_callout_warning": "Ostrzeżenie",
+  "support_doc_callout_caution": "Ostrożnie"
 }

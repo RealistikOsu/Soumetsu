@@ -1,6 +1,6 @@
 # Writing docs
 
-Each file in `en/` is one page at `/doc/<file name>`. To translate a page, put a file with the same name in the language's folder (`ru/`, `pl/`); readers in that language get it, and everyone else keeps the English one. They're plain markdown, so you can drop a file in or edit one at any time. Everything below is optional, and a file that uses none of it still works.
+Each file in `en/` is one page at `/doc/<file name>`. They're plain markdown, so you can drop a file in or edit one at any time. Everything below is optional, and a file that uses none of it still works.
 
 The extras are picked so the file still reads normally anywhere else (GitHub, an editor preview, the current site): they're either standard markdown, GitHub's own syntax, or HTML comments that other renderers hide.
 
@@ -21,7 +21,19 @@ colour: red
 - `icon` is a [Font Awesome](https://fontawesome.com/search?o=r&m=free&s=solid) solid icon name, without the `fa-`.
 - `colour` sets the page's accent: `red`, `orange`, `yellow`, `green`, `teal`, `lblue`, `blue`, `purple` or `pink`.
 
-`old_id` and `reference_version` work as before.
+`old_id` keeps the numeric links from the old site (`/doc/9`) working.
+
+## Translations
+
+A page in a language's folder (`ru/rules.md`, `pl/rules.md`) is shown to readers in that language. Pages that haven't been translated fall back to English.
+
+Give a translation a `reference_version` in its front matter: the MD5 of the English file it was translated from. When the English page changes later, the translation gets a banner saying it's out of date, with a link to the English version. Get the value with:
+
+```sh
+bun -e "const t = await Bun.file('website-docs/en/rules.md').text(); console.log(new Bun.CryptoHasher('md5').update(t.replace(/^\uFEFF/, '').replaceAll('\r\n', '\n')).digest('hex'))"
+```
+
+Line endings don't affect it. After updating a translation, set its `reference_version` to the English file's current value.
 
 ## Callouts
 

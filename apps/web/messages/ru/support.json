@@ -162,5 +162,14 @@
   "support_doc_error": "Не получилось загрузить документацию. Попробуй чуть позже.",
   "support_doc_help": "Не можешь найти, что нужно?",
   "support_doc_help_link": "Спроси в нашем Discord",
-  "support_doc_on_this_page": "На этой странице"
+  "support_doc_on_this_page": "На этой странице",
+  "support_doc_outdated_before": "Перевод этой статьи устарел. Загляни в ",
+  "support_doc_outdated_link": "оригинал",
+  "support_doc_outdated_after": ", там самая точная инфа (а если хочешь помочь, обнови перевод сам)!",
+  "support_doc_outdated_title": "Перевод устарел",
+  "support_doc_callout_note": "Заметка",
+  "support_doc_callout_tip": "Совет",
+  "support_doc_callout_important": "Важно",
+  "support_doc_callout_warning": "Внимание",
+  "support_doc_callout_caution": "Осторожно"
 }

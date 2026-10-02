@@ -11,7 +11,8 @@
 
   const slug = $derived(page.params.slug ?? '');
   const list = query((signal) => docs(signal));
-  const current = query((signal) => doc(slug, signal));
+  const forced = $derived(page.url.searchParams.get('lang') ?? undefined);
+  const current = query((signal) => doc(slug, signal, forced));
 
   // The numeric ids the old site used (/doc/9) still open their page.
   $effect(() => {
@@ -64,6 +65,18 @@
       {/if}
     </aside>
     <article class="panel doc-body c-{meta?.colour ?? 'blue'}" use:bbcodeBoxes>
+      {#if current.state.status === 'ready' && current.state.data.outdated}
+        <div class="callout c-yellow">
+          <p class="callout-title">
+            <i class="fa-solid fa-language"></i>{m.support_doc_outdated_title()}
+          </p>
+          <p>
+            {m.support_doc_outdated_before()}<a href="/doc/{slug}?lang=en"
+              >{m.support_doc_outdated_link()}</a
+            >{m.support_doc_outdated_after()}
+          </p>
+        </div>
+      {/if}
       {#if rendered}
         {@html rendered.html}
       {:else}
