@@ -202,3 +202,34 @@
   color: var(--muted);
   text-align: center;
 }
+
+.country-dialog {
+  width: min(720px, calc(100vw - 32px));
+  padding: 20px;
+}
+
+.country-dialog h2 {
+  margin-bottom: 14px;
+  font-size: 18px;
+}
+
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 2px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.country-grid a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.country-grid a:hover {
+  background: var(--active);
+}
