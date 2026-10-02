@@ -2,7 +2,13 @@
 
 The website for [RealistikOsu](https://ussr.pl), an osu! private server. Profiles, leaderboards, beatmaps, clans, supporter perks, docs and the RealistikPanel admin panel, all in one SvelteKit app.
 
-It's the frontend for [soumetsu-api](https://github.com/RealistikOsu/soumetsu-api).
+It's the frontend for [soumetsu-api](https://github.com/RealistikOsu/soumetsu-api), live at [ussr.pl](https://ussr.pl).
+
+![Home page](.github/screenshots/home.webp)
+
+| Profile | Leaderboard | Beatmaps |
+| --- | --- | --- |
+| ![Profile](.github/screenshots/profile.webp) | ![Leaderboard](.github/screenshots/leaderboard.webp) | ![Beatmaps](.github/screenshots/beatmaps.webp) |
 
 ## Quick Start
 
