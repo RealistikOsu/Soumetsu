@@ -37,7 +37,7 @@ const countryOf = (code: string) =>
 const site: Preview = {
   title: 'RealistikOsu',
   description:
-    'RealistikOsu is a private server for the rhythm game osu! It features ranked Relax and Autopilot among countless other unique features!',
+    'RealistikOsu is a private server for the rhythm game osu! It features ranked Relax, Autopilot and rate changes among countless other unique features!',
   image: `${config.appBaseUrl}/img/logo.png`
 };
 
