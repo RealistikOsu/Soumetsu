@@ -41,7 +41,7 @@
   let link = $state('');
   let sending = $state(false);
   let preview = $state.raw<MirrorSet | null>(null);
-  let status = $state.raw(query((signal) => rankRequestStatus(signal)));
+  const status = query((signal) => rankRequestStatus(signal));
 
   const value = $derived(link.trim());
   const hit = $derived.by(() => {
@@ -79,7 +79,7 @@
       await submitRankRequest(value);
       flash.show('success', 'Your request has been sent!');
       link = '';
-      status = query((signal) => rankRequestStatus(signal));
+      status.reload();
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -146,7 +146,9 @@
                   ></span>
                 {/each}
               </span>
-              <span class="faint">{sorted.length} {sorted.length === 1 ? 'difficulty' : 'difficulties'}</span>
+              <span class="faint"
+                >{sorted.length} {sorted.length === 1 ? 'difficulty' : 'difficulties'}</span
+              >
             </span>
           </div>
           <span class="map-status {look.colour}"

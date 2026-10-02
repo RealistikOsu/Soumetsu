@@ -3,8 +3,10 @@ export type QueryState<T> =
 
 export function query<T>(load: (signal: AbortSignal) => Promise<T>) {
   let state = $state.raw<QueryState<T>>({ status: 'loading' });
+  let version = $state(0);
 
   $effect(() => {
+    void version;
     const controller = new AbortController();
     state = { status: 'loading' };
     load(controller.signal).then(
@@ -21,6 +23,9 @@ export function query<T>(load: (signal: AbortSignal) => Promise<T>) {
   return {
     get state() {
       return state;
+    },
+    reload() {
+      version++;
     }
   };
 }

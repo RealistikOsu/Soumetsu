@@ -41,7 +41,7 @@
     </thead>
     <tbody>
       {#if logs.state.status === 'ready'}
-        {#each logs.state.data.rows as row (`${row.ts}-${row.to_id}-${row.from_id}-${row.summary}`)}
+        {#each logs.state.data.rows as row, i (i)}
           {@const tag = tags[row.summary] ?? [row.summary, 'c-grey']}
           <tr>
             <td class="player">
