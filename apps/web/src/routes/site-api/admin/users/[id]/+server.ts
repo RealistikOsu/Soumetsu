@@ -79,7 +79,7 @@ export const GET = handle(async ({ request, params }) => {
       banReason: user.ban_reason.trim(),
       frozen: user.frozen !== 0,
       freezeDate: user.freezedate,
-      whitelisted: !!whitelisted,
+      whitelistModes: whitelisted?.modes ?? 0,
       online,
       ip: ip?.ip ?? null,
       previousNames: history.map((h) => h.username),

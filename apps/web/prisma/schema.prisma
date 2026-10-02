@@ -484,5 +484,6 @@ model users_stats {
 
 model whitelist {
   user_id Int @unique(map: "user_id")
+  modes   Int @default(511) @db.UnsignedInt
 }
 

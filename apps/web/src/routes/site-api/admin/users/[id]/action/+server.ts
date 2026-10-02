@@ -9,6 +9,20 @@ import { db } from '$server/db';
 import { redis } from '$server/redis';
 import { Failure, handle, ok } from '$server/respond';
 
+// Vanilla has all four modes, relax has no mania and autopilot is osu! only.
+const WHITELIST_MODES = 0b1_0111_1111;
+const RELAX_NAMES = ['vanilla', 'relax', 'autopilot'];
+const MODE_NAMES = ['osu!', 'taiko', 'catch', 'mania'];
+
+const describeModes = (modes: number) =>
+  [0, 1, 2]
+    .flatMap((rx) =>
+      [0, 1, 2, 3]
+        .filter((mode) => modes & (1 << (mode + rx * 4)))
+        .map((mode) => `${RELAX_NAMES[rx]} ${MODE_NAMES[mode]}`)
+    )
+    .join(', ');
+
 interface Body {
   action: string;
   reason: string;
@@ -21,6 +35,7 @@ interface Body {
   types: string[];
   confirm: string;
   bypass: boolean;
+  whitelist: number;
 }
 
 // What each action needs, matching the privilege the old panel's route for it asked for.
@@ -109,13 +124,18 @@ export const POST = handle(async ({ request, params }) => {
       }
       break;
     case 'whitelist': {
-      const listed = await db.whitelist.findUnique({ where: { user_id: id } });
-      if (listed) {
-        await db.whitelist.delete({ where: { user_id: id } });
-        await rapLog(caller.id, `removed ${id} from the whitelist`);
+      // One bit per mode the score server may skip its checks in: bit (mode + relax * 4).
+      const modes = Number(body.whitelist) & WHITELIST_MODES;
+      if (modes === 0) {
+        await db.whitelist.deleteMany({ where: { user_id: id } });
+        await rapLog(caller.id, `removed ${who} from the whitelist`);
       } else {
-        await db.whitelist.create({ data: { user_id: id } });
-        await rapLog(caller.id, `added ${id} to the whitelist`);
+        await db.whitelist.upsert({
+          where: { user_id: id },
+          create: { user_id: id, modes },
+          update: { modes }
+        });
+        await rapLog(caller.id, `set ${who}'s whitelist to ${describeModes(modes)}`);
       }
       break;
     }

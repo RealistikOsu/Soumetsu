@@ -16,6 +16,7 @@
   import { countries } from '$lib/countries';
   import { flash } from '$lib/flash.svelte';
   import { fullDate, timeAgo } from '$lib/format';
+  import { allowed, modeNames, relaxNames } from '$lib/modes';
 
   const id = $derived(Number(page.params.id));
   let version = $state(0);
@@ -27,6 +28,7 @@
   let form = $state<UserEdit | null>(null);
   let reason = $state('');
   let bypass = $state(false);
+  let whitelist = $state(0);
   let dialog = $state<string | null>(null);
   let hwidOpen = $state(false);
   let ipOpen = $state(false);
@@ -46,6 +48,7 @@
       badges: [...user.badges]
     };
     bypass = user.bypassHwid;
+    whitelist = user.whitelistModes;
   });
 
   const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -82,6 +85,14 @@
   }
 
   const slots = [0, 1, 2, 3, 4, 5];
+
+  const whitelistCount = (modes: number) =>
+    [0, 1, 2].reduce(
+      (total, rx) =>
+        total +
+        [0, 1, 2, 3].filter((mode) => allowed(mode, rx) && modes & (1 << (mode + rx * 4))).length,
+      0
+    );
 </script>
 
 {#if detail.state.status === 'error'}
@@ -131,7 +142,12 @@
         {#if supporter && user.donorExpire}
           <AdminTag colour="c-yellow">Supporter until {fullDate(user.donorExpire)}</AdminTag>
         {/if}
-        {#if user.whitelisted}<AdminTag colour="c-green">Whitelisted</AdminTag>{/if}
+        {#if whitelistCount(user.whitelistModes)}
+          <AdminTag colour="c-green">
+            Whitelisted in {whitelistCount(user.whitelistModes)}
+            {whitelistCount(user.whitelistModes) === 1 ? 'mode' : 'modes'}
+          </AdminTag>
+        {/if}
       </div>
     </div>
     <a class="btn" href="/users/{user.id}">
@@ -331,22 +347,37 @@
 
       <SectionTitle colour="c-green" icon="fa-shield">Whitelist</SectionTitle>
       <div class="panel whitelist c-green">
-        <p class="muted">Skips the automatic checks for this account.</p>
-        <label class="check">
-          <span class="switch">
-            <input
-              type="checkbox"
-              checked={user.whitelisted}
-              onchange={() =>
-                run(
-                  { action: 'whitelist' },
-                  user.whitelisted ? 'Removed from the whitelist.' : 'Added to the whitelist.'
-                )}
-            />
-            <span></span>
-          </span>
-          Whitelisted
-        </label>
+        <p class="muted">Skips the automatic checks for the modes you turn on.</p>
+        <div class="whitelist-grid">
+          <span></span>
+          {#each modeNames as name, mode (mode)}
+            <span><img src="/img/modes/mode-{mode}.png" alt={name} title={name} /></span>
+          {/each}
+          {#each relaxNames as rxName, rx (rx)}
+            <span class="row-label">{rxName}</span>
+            {#each modeNames as name, mode (mode)}
+              {#if allowed(mode, rx)}
+                <label class="switch" title="{rxName} {name}">
+                  <input
+                    type="checkbox"
+                    checked={!!(whitelist & (1 << (mode + rx * 4)))}
+                    onchange={() => (whitelist ^= 1 << (mode + rx * 4))}
+                  />
+                  <span></span>
+                </label>
+              {:else}
+                <span class="none"></span>
+              {/if}
+            {/each}
+          {/each}
+        </div>
+        <button
+          class="btn"
+          type="button"
+          onclick={() => run({ action: 'whitelist', whitelist }, 'Whitelist saved.')}
+        >
+          Save
+        </button>
       </div>
 
       <SectionTitle colour="c-teal" icon="fa-microchip">Hardware</SectionTitle>

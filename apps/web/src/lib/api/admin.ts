@@ -78,7 +78,8 @@ export interface AdminUserDetail {
     banReason: string;
     frozen: boolean;
     freezeDate: number;
-    whitelisted: boolean;
+    // One bit per mode: bit (mode + relax * 4); 0 when not whitelisted at all.
+    whitelistModes: number;
     online: boolean;
     ip: string | null;
     previousNames: string[];
