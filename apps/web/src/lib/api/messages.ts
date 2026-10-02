@@ -68,6 +68,21 @@ const messages: Record<string, string> = {
   'beatmaps.invalid_url': "That doesn't look like a beatmap link.",
   'beatmaps.already_ranked': 'That beatmap is already ranked.',
 
+  'site.forbidden': "You don't have permission to do that.",
+  'site.supporter_only': 'This feature is restricted to RealistikOsu supporters only.',
+  'site.invalid_colour': 'Colour is invalid',
+  'site.invalid_request': 'Something about that request was not right. Check it and try again.',
+  'site.registrations_closed':
+    "Sorry, it's not possible to register at the moment. Please try again later.",
+  'site.reset_key_not_found': 'That key could not be found. Perhaps it expired?',
+  'site.not_linked': 'You have no account linked.',
+  'site.already_linked': 'That account is already linked to another player.',
+  'site.not_configured': 'This is not set up on this server.',
+  'site.oauth_state_invalid': 'The authorisation could not be verified. Please try again.',
+  'site.oauth_rejected': 'The authorisation was rejected. Please try again.',
+  'site.oauth_profile_failed': 'Could not read your profile. Please try again.',
+  'site.mirror_unreachable': "Couldn't reach the beatmap mirror. Try again in a bit.",
+
   network_error: "Couldn't reach the server. Check your connection and try again."
 };
 

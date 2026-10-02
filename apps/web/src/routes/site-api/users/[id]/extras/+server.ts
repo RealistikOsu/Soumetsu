@@ -15,6 +15,14 @@ interface StatsExtras {
   can_custom_badge: number;
 }
 
+// Only supporters have a banner. An uploaded picture is the default for them, a solid colour when they
+// chose one, and nothing when they chose none.
+function bannerOf(privileges: number, row: { type: number; value: string } | null) {
+  if ((privileges & 4) === 0) return null;
+  if (!row || row.type === 1) return { type: 1, value: null };
+  return row.type === 2 ? { type: 2, value: row.value } : null;
+}
+
 export const GET = handle(async ({ params, request }) => {
   const id = Number(params.id);
   if (!Number.isInteger(id)) throw new Failure(404, 'users.user_not_found');
@@ -77,10 +85,7 @@ export const GET = handle(async ({ params, request }) => {
       extras && extras.show_custom_badge
         ? { icon: extras.custom_badge_icon ?? '', name: extras.custom_badge_name ?? '' }
         : null,
-    banner:
-      banner && (privileges & 4) !== 0 && banner.type !== 0
-        ? { type: banner.type, value: banner.type === 2 ? banner.value : null }
-        : null,
+    banner: bannerOf(privileges, banner),
     bancho: bancho ? { id: Number(bancho.ppy_user_id), username: bancho.ppy_username } : null,
     pastNames: names.map((n) => n.username),
     badges,

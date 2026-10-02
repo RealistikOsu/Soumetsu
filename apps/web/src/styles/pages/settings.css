@@ -495,3 +495,28 @@
 .notice.profile-state {
   margin-top: 24px;
 }
+
+.supporter-only {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+}
+
+.supporter-only > i {
+  color: var(--blue);
+  font-size: 22px;
+}
+
+.supporter-only p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.supporter-only a {
+  color: var(--link);
+}
+
+.swatch.locked {
+  opacity: 0.4;
+}
