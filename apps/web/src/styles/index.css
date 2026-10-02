@@ -1,6 +1,7 @@
 @import '@soumetsu/ui/styles/index.css';
 @import './header.css';
 @import './footer.css';
+@import './language.css';
 @import './pages/scores.css';
 @import './pages/score-dialog.css';
 @import './pages/home.css';

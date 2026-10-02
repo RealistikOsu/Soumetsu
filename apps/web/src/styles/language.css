@@ -1,0 +1,96 @@
+/* language picker, in the footer and on settings */
+
+.lang-pick {
+  position: relative;
+  display: inline-block;
+}
+
+.lang-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lang-current:hover,
+.lang-current[aria-expanded='true'] {
+  border-color: var(--blue);
+  color: var(--text);
+}
+
+.lang-current .fa-chevron-down {
+  font-size: 10px;
+}
+
+.lang-current[aria-expanded='true'] .fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+.lang-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  list-style: none;
+  text-align: left;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}
+
+.lang-pick.up .lang-list {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.lang-list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.lang-list button:hover {
+  background: var(--active);
+}
+
+.lang-list .fa-check {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--blue);
+}
+
+.settings .lang-current {
+  padding: 9px 12px;
+  color: var(--text);
+}
+
+.field .lang-pick {
+  justify-self: start;
+}
+
+/* panels clip their corners, which would cut the open list off */
+.panel:has(.lang-list) {
+  overflow: visible;
+}

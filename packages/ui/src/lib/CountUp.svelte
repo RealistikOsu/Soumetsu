@@ -10,8 +10,12 @@
   let shown = $state(0);
   let visible = $state(false);
 
+  // The app sets <html lang> to the chosen language, which this package can't import.
   const format = (n: number) =>
-    n.toLocaleString('en', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    n.toLocaleString(document.documentElement.lang || 'en', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
 
   $effect(() => {
     if (!visible || reducedMotion()) {

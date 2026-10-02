@@ -37,6 +37,6 @@ Every setting comes from the environment, and `apps/web/.env.example` lists them
 
 ## Translating
 
-The site is in English, Russian and Polish. Strings live in `apps/web/messages/<language>/`. To add a language, copy the `en` folder, translate it, and add the language code to `apps/web/project.inlang/settings.json`.
+The site is in English, Russian, Polish and Hungarian. Strings live in `apps/web/messages/<language>/`. To add a language, copy the `en` folder, translate it, and add the language code to `apps/web/project.inlang/settings.json`.
 
 Doc pages live in `website-docs`. Put a translated copy in a language folder, e.g. `website-docs/ru`.

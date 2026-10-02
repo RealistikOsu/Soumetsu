@@ -192,7 +192,15 @@
 }
 
 /* menus grow out of the corner they hang from */
-.motion :is(.nav-drop, .me-menu, .score-menu > div, details.downloads > div, .search-results) {
+.motion
+  :is(
+    .nav-drop,
+    .me-menu,
+    .score-menu > div,
+    details.downloads > div,
+    .search-results,
+    .lang-list
+  ) {
   animation: menu-in 0.18s cubic-bezier(0.2, 0, 0, 1);
 }
 
@@ -445,4 +453,8 @@
 
 .motion .toasts .alert {
   animation-name: rise;
+}
+
+.motion .lang-current .fa-chevron-down {
+  transition: transform 0.18s ease;
 }

@@ -5,8 +5,8 @@
   import { session } from '$lib/auth/session.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { getLocale, languageNames, locales, setLocale, type Locale } from '$lib/i18n';
   import { modeNames } from '$lib/modes';
+  import LanguagePicker from '$lib/components/LanguagePicker.svelte';
   import { m } from '$lib/paraglide/messages';
   import { playStyleNames } from '$lib/playstyles';
 
@@ -104,15 +104,7 @@
       </div>
       <div class="field">
         <label for="language">{m.settings_language()}</label>
-        <select
-          id="language"
-          value={getLocale()}
-          onchange={(event) => setLocale(event.currentTarget.value as Locale)}
-        >
-          {#each locales as locale (locale)}
-            <option value={locale}>{languageNames[locale]}</option>
-          {/each}
-        </select>
+        <LanguagePicker id="language" />
         <small>{m.settings_language_hint()}</small>
       </div>
     </div>
