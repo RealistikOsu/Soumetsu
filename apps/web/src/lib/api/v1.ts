@@ -25,3 +25,44 @@ export async function onlineHistory(signal?: AbortSignal) {
   const body = await v1<{ data: Homepage }>('/statistics/homepage', signal);
   return body.data.online_history;
 }
+
+// The statistics service keeps daily captures and adds today's figure itself. It refuses players who are
+// restricted or haven't played in 60 days, since their captures stop changing.
+export type ProfileHistory =
+  | { status: 'ready'; points: { time: number; value: number }[] }
+  | { status: 'inactive' | 'missing' };
+
+export async function profileHistory(
+  kind: 'rank' | 'pp',
+  userId: number,
+  mode: number,
+  rx: number,
+  signal?: AbortSignal
+): Promise<ProfileHistory> {
+  const body = await v1<{
+    status: string;
+    error?: string;
+    data?: { captures: { captured_at: string; overall?: number; pp?: number }[] };
+  }>(`/profile-history/${kind}?user_id=${userId}&mode=${mode + rx * 4}`, signal);
+
+  if (body.status !== 'success' || !body.data) {
+    return { status: body.error === 'users.is_not_active' ? 'inactive' : 'missing' };
+  }
+  return {
+    status: 'ready',
+    points: body.data.captures.map((capture) => ({
+      time: Date.parse(capture.captured_at),
+      value: (kind === 'rank' ? capture.overall : capture.pp) ?? 0
+    }))
+  };
+}
+
+export async function peakRank(userId: number, mode: number, rx: number, signal?: AbortSignal) {
+  const body = await v1<{ status: string; data?: { rank: number; captured_at: string } }>(
+    `/profile-history/peak-rank?user_id=${userId}&mode=${mode + rx * 4}`,
+    signal
+  );
+  return body.status === 'success' && body.data?.rank
+    ? { rank: body.data.rank, time: Date.parse(body.data.captured_at) }
+    : null;
+}

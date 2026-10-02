@@ -2,7 +2,8 @@
   import { fade } from 'svelte/transition';
   import { ms } from '$lib/motion';
   import { readFlag, writeFlag } from '$lib/preferences';
-  import { mostPlayed, ppHistory, rankHistory, type MostPlayed } from '$lib/api/users';
+  import { mostPlayed, type MostPlayed } from '$lib/api/users';
+  import { profileHistory } from '$lib/api/v1';
   import { query } from '$lib/api/query.svelte';
   import {
     playerScores,
@@ -26,7 +27,6 @@
     rx,
     own,
     firstPlaces,
-    current,
     pinned,
     ondetails,
     onpin
@@ -36,8 +36,6 @@
     rx: number;
     own: boolean;
     firstPlaces: number;
-    // Today's rank and pp, so the graph ends where the profile says they are now.
-    current: { rank: number; pp: number };
     pinned: ScoreWithBeatmap[] | null;
     ondetails: (score: ScoreWithBeatmap) => void;
     onpin: (score: ScoreWithBeatmap) => void;
@@ -47,38 +45,27 @@
   const HIDE_FAILED = 'soumetsu.hide-failed';
   let hideFailed = $state(readFlag(HIDE_FAILED));
 
-  const ranks = query((signal) => rankHistory(id, mode, rx, signal));
-  const pps = query((signal) => ppHistory(id, mode, rx, signal));
+  const ranks = query((signal) => profileHistory('rank', id, mode, rx, signal));
+  const pps = query((signal) => profileHistory('pp', id, mode, rx, signal));
 
   const pinnedIds = $derived(new Set((pinned ?? []).map((s) => s.id)));
   let pinnedShown = $state(5);
 
-  // The history is captured once a day, so today's figure is added as the last point.
-  function pointsOf(rows: { time: number; value: number | null }[], now: number): GraphPoint[] {
-    return (
-      [...rows, { time: Date.now(), value: now }]
-        .filter((r): r is GraphPoint => r.value !== null && r.value > 0 && !Number.isNaN(r.time))
-        .sort((a, b) => a.time - b.time)
-        // The history can hold two rows for a day, which would draw a vertical spike.
-        .filter((p, i, all) => i === all.length - 1 || all[i + 1].time !== p.time)
-    );
+  // Several captures can land on one day, which draws spikes, so each day keeps its last one.
+  const day = (time: number) => Math.floor(time / 86_400_000);
+  function pointsOf(rows: GraphPoint[]): GraphPoint[] {
+    return rows
+      .filter((p) => p.value > 0 && !Number.isNaN(p.time))
+      .sort((a, b) => a.time - b.time)
+      .filter((p, i, all) => i === all.length - 1 || day(all[i + 1].time) !== day(p.time));
   }
 
-  const points = $derived.by(() => {
-    if (graph === 'rank' && ranks.state.status === 'ready') {
-      return pointsOf(
-        ranks.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.overall })),
-        current.rank
-      );
-    }
-    if (graph === 'pp' && pps.state.status === 'ready') {
-      return pointsOf(
-        pps.state.data.map((p) => ({ time: Date.parse(p.captured_at), value: p.pp })),
-        current.pp
-      );
-    }
-    return null;
-  });
+  const history = $derived(graph === 'rank' ? ranks.state : pps.state);
+  const points = $derived(
+    history.status === 'ready' && history.data.status === 'ready'
+      ? pointsOf(history.data.points)
+      : null
+  );
 </script>
 
 {#snippet scoreRow(score: ScoreWithBeatmap)}
@@ -112,7 +99,9 @@
   {#key graph}
     <ProfileGraph {points} inverted={graph === 'rank'} unit={graph === 'pp' ? 'pp' : ''} />
   {/key}
-{:else if points}
+{:else if history.status === 'ready' && history.data.status === 'inactive'}
+  <div class="panel c-blue"><p class="empty-note">{m.profile_graph_inactive()}</p></div>
+{:else if history.status !== 'loading'}
   <div class="panel c-blue"><p class="empty-note">{m.profile_graph_empty()}</p></div>
 {:else}
   <div class="panel chart c-blue">

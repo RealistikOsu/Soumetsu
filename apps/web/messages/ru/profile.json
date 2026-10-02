@@ -42,8 +42,13 @@
   "profile_section_first_places": "Первые места",
   "profile_most_played_plays": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
-      "selectors": ["countPlural"],
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
       "match": {
         "countPlural=one": "игра",
         "countPlural=few": "игры",
@@ -52,7 +57,7 @@
       }
     }
   ],
-  "profile_stats_peak_rank": "Лучший ранк: #{rank}",
+  "profile_stats_peak_rank": "Лучший ранк: #{rank} ({date})",
   "profile_stats_global": "В мире",
   "profile_stats_accuracy": "Точность",
   "profile_stats_max_combo": "Макс. комбо",
@@ -63,8 +68,13 @@
   "profile_stats_total_hits": "Всего попаданий",
   "profile_score_misses": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
-      "selectors": ["countPlural"],
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
       "match": {
         "countPlural=one": "{count} мисс",
         "countPlural=few": "{count} мисса",
@@ -100,5 +110,6 @@
   "profile_past_names_label": "Прошлые ники",
   "profile_past_names_heading": "Ранее известен как",
   "profile_pinned_more": "Показать ещё",
-  "profile_staff_edit": "Открыть в админке"
+  "profile_staff_edit": "Открыть в админке",
+  "profile_graph_inactive": "Графика нет: игрок не заходил больше 60 дней."
 }

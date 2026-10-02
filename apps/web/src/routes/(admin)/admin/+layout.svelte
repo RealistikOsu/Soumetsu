@@ -41,31 +41,33 @@
 {#if user && !staff}
   <NotFound />
 {:else if user}
-  <Banner url="/img/admin/banner.jpg" class="admin-banner">
-    <div>
-      <span class="admin-eyebrow"><i class="fa-solid fa-shield-halved"></i>Admin</span>
-      <h1>RealistikPanel</h1>
-      <p class="sub">Signed in as {user.username}</p>
-    </div>
-  </Banner>
+  <div class="admin">
+    <Banner url="/img/admin/banner.jpg" class="admin-banner">
+      <div>
+        <span class="admin-eyebrow"><i class="fa-solid fa-shield-halved"></i>Admin</span>
+        <h1>RealistikPanel</h1>
+        <p class="sub">Signed in as {user.username}</p>
+      </div>
+    </Banner>
 
-  <main class="wrap admin-layout">
-    <nav class="settings-menu admin-sections">
-      {#each sections as section (section.name)}
-        <span>{section.name}</span>
-        {#each section.pages as item (item.href)}
-          <a class="{item.colour} {isHere(item.href) ? 'active' : ''}" href={item.href}>
-            <i class="fa-solid {item.icon}"></i>{item.label}
-          </a>
+    <main class="wrap admin-layout">
+      <nav class="settings-menu admin-sections">
+        {#each sections as section (section.name)}
+          <span>{section.name}</span>
+          {#each section.pages as item (item.href)}
+            <a class="{item.colour} {isHere(item.href) ? 'active' : ''}" href={item.href}>
+              <i class="fa-solid {item.icon}"></i>{item.label}
+            </a>
+          {/each}
         {/each}
-      {/each}
-    </nav>
-    <div class="admin-content">
-      {#if allowed}
-        {@render children()}
-      {:else}
-        <p class="panel empty-note">You do not have sufficient privileges to visit this area!</p>
-      {/if}
-    </div>
-  </main>
+      </nav>
+      <div class="admin-content">
+        {#if allowed}
+          {@render children()}
+        {:else}
+          <p class="panel empty-note">You do not have sufficient privileges to visit this area!</p>
+        {/if}
+      </div>
+    </main>
+  </div>
 {/if}

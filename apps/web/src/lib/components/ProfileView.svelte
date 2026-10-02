@@ -6,7 +6,8 @@
   import { query } from '$lib/api/query.svelte';
   import { playerScores, type ScoreWithBeatmap } from '$lib/api/scores';
   import { userExtras } from '$lib/api/site';
-  import { profile, rankHistory, userpage, type UserProfile } from '$lib/api/users';
+  import { profile, userpage, type UserProfile } from '$lib/api/users';
+  import { peakRank } from '$lib/api/v1';
   import { Privilege } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { bannerUrl } from '$lib/assets';
@@ -76,7 +77,7 @@
   let loaded = $state.raw<Record<string, UserProfile>>({});
   let visited = $state.raw<string[]>([]);
   let failure = $state<unknown>(null);
-  let peak = $state.raw<Record<string, number | null>>({});
+  let peak = $state.raw<Record<string, { rank: number; time: number } | null>>({});
   let pinned = $state.raw<Record<string, ScoreWithBeatmap[]>>({});
   let refresh = $state(0);
 
@@ -90,11 +91,8 @@
         (result) => (loaded = { ...loaded, [current]: result }),
         (error) => (failure = error)
       );
-      rankHistory(id, mode, rx).then(
-        (rows) => {
-          const ranks = rows.map((r) => r.overall).filter((r) => r > 0);
-          peak = { ...peak, [current]: ranks.length ? Math.min(...ranks) : null };
-        },
+      peakRank(id, mode, rx).then(
+        (found) => (peak = { ...peak, [current]: found }),
         () => null
       );
     });
@@ -345,7 +343,6 @@
                 rx={paneRx}
                 {own}
                 firstPlaces={loaded[pane].stats.first_places}
-                current={{ rank: loaded[pane].stats.global_rank, pp: loaded[pane].stats.pp }}
                 pinned={pinned[pane] ?? null}
                 ondetails={(score) => {
                   detail = score;

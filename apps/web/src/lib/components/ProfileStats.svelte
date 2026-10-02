@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CountUp } from '@soumetsu/ui';
   import type { UserStats } from '$lib/api/users';
-  import { number } from '$lib/format';
+  import { fullDate, number } from '$lib/format';
   import { level } from '$lib/level';
   import { m } from '$lib/paraglide/messages';
 
@@ -12,7 +12,7 @@
   }: {
     stats: UserStats;
     country: string;
-    peakRank: number | null;
+    peakRank: { rank: number; time: number } | null;
   } = $props();
 
   const value = $derived(level(stats.total_score));
@@ -21,7 +21,14 @@
 </script>
 
 <div class="ranks">
-  <div title={peakRank ? m.profile_stats_peak_rank({ rank: number(peakRank) }) : undefined}>
+  <div
+    title={peakRank
+      ? m.profile_stats_peak_rank({
+          rank: number(peakRank.rank),
+          date: fullDate(peakRank.time / 1000)
+        })
+      : undefined}
+  >
     {m.profile_stats_global()}<b>
       {#if stats.global_rank}<CountUp prefix="#" value={stats.global_rank} />{:else}-{/if}
     </b>

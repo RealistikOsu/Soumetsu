@@ -42,8 +42,13 @@
   "profile_section_first_places": "Pierwsze miejsca",
   "profile_most_played_plays": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
-      "selectors": ["countPlural"],
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
       "match": {
         "countPlural=one": "zagranie",
         "countPlural=few": "zagrania",
@@ -52,7 +57,7 @@
       }
     }
   ],
-  "profile_stats_peak_rank": "Najwyższy ranking: #{rank}",
+  "profile_stats_peak_rank": "Najwyższy ranking: #{rank} ({date})",
   "profile_stats_global": "Świat",
   "profile_stats_accuracy": "Celność",
   "profile_stats_max_combo": "Maksymalne combo",
@@ -63,8 +68,13 @@
   "profile_stats_total_hits": "Łączne trafienia",
   "profile_score_misses": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
-      "selectors": ["countPlural"],
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
       "match": {
         "countPlural=one": "{count} miss",
         "countPlural=few": "{count} missy",
@@ -100,5 +110,6 @@
   "profile_past_names_label": "Poprzednie nicki",
   "profile_past_names_heading": "Wcześniej znany jako",
   "profile_pinned_more": "Pokaż więcej",
-  "profile_staff_edit": "Edytuj w panelu admina"
+  "profile_staff_edit": "Edytuj w panelu admina",
+  "profile_graph_inactive": "Brak wykresu: gracz nie grał od ponad 60 dni."
 }
