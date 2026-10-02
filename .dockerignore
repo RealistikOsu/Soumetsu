@@ -1,0 +1,13 @@
+**/node_modules
+**/build
+**/.svelte-kit
+apps/web/src/server/generated
+.git
+.env
+.env.*
+!.env.example
+screenshots
+playwright-report
+test-results
+PLAN.md
+GAPS.md
