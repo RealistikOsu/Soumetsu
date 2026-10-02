@@ -126,7 +126,8 @@
   color: var(--rank-c);
 }
 
-.grade-d {
+.grade-d,
+.grade-f {
   color: var(--rank-d);
 }
 

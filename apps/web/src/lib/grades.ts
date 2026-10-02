@@ -1,9 +1,10 @@
 import type { Score } from '$lib/api/scores';
 import { hasMod } from '$lib/mods';
 
-export type GradeName = 'SS' | 'SSH' | 'S' | 'SH' | 'A' | 'B' | 'C' | 'D';
+export type GradeName = 'SS' | 'SSH' | 'S' | 'SH' | 'A' | 'B' | 'C' | 'D' | 'F';
 
-// The classes are the colour keys in the stylesheet: gold, silver, then one per letter.
+// The classes are the colour keys in the stylesheet: gold, silver, then one per letter. The H grades are the
+// silver ones (HD or FL); they show as a plain S or SS in silver.
 export const gradeClass: Record<GradeName, string> = {
   SS: 'x',
   SSH: 'xh',
@@ -12,7 +13,8 @@ export const gradeClass: Record<GradeName, string> = {
   A: 'a',
   B: 'b',
   C: 'c',
-  D: 'd'
+  D: 'd',
+  F: 'f'
 };
 
 export const gradeLabel = (grade: GradeName) => grade.replace('H', '');
@@ -30,7 +32,7 @@ export function gradeOf(
     | 'accuracy'
   >
 ): GradeName {
-  if (score.completed < 1) return 'D';
+  if (score.completed < 1) return 'F';
   const silver = hasMod(score.mods, 'HD') || hasMod(score.mods, 'FL');
   const named = (name: 'SS' | 'S') => (silver ? (`${name}H` as GradeName) : name);
 

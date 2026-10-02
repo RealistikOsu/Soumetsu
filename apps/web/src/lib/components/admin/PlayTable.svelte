@@ -64,7 +64,7 @@
               </a>
             </td>
             <td class="song-cell">
-              <span class="grade grade-{gradeClass[play.grade]}" title={play.grade}>
+              <span class="grade grade-{gradeClass[play.grade]}">
                 {gradeLabel(play.grade)}
               </span>
               <a href="/beatmaps/{play.beatmap_id}">{parts.song} <span>[{parts.diff}]</span></a>

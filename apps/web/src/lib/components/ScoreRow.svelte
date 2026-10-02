@@ -40,7 +40,7 @@
   style="--cover: url({coverUrl(score.beatmap.beatmapset_id, 'card')})"
 >
   <div class="score-bg"></div>
-  <span class="grade grade-{gradeClass[grade]}" title={grade}>{gradeLabel(grade)}</span>
+  <span class="grade grade-{gradeClass[grade]}">{gradeLabel(grade)}</span>
   <div class="score-info">
     <a class="song" href="/beatmaps/{score.beatmap.beatmap_id}">
       {parts.song}
