@@ -314,10 +314,11 @@
         {#each relaxNames as name, i (name)}
           <a
             class="{relaxColours[i]} {i === view.rx ? 'active' : ''}"
+            class:disabled={!allowed(view.mode, i)}
             href="?rx={i}"
             onclick={(event) => {
               event.preventDefault();
-              go({ rx: i });
+              if (allowed(view.mode, i)) go({ rx: i });
             }}
           >
             {name}

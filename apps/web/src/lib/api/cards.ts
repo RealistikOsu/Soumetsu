@@ -13,6 +13,7 @@ export interface Card {
 }
 
 export interface CardExtras {
+  online: boolean;
   decoration: string | null;
   lastSeen: number;
   clan: { id: number; tag: string; name: string } | null;

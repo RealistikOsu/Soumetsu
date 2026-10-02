@@ -1,11 +1,13 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { api } from '$lib/api/client';
+  import { Privilege } from '$lib/auth/privileges';
   import Avatar from './Avatar.svelte';
 
   interface Result {
     id: number;
     username: string;
+    privileges: number;
   }
 
   let value = $state('');
@@ -36,6 +38,11 @@
     active = -1;
   }
 
+  // Restricted players only come back for staff, and have no public profile, so they open in the panel.
+  const restricted = (user: Result) => !(user.privileges & Privilege.Public);
+  const hrefOf = (user: Result) =>
+    restricted(user) ? `/admin/users/${user.id}` : `/users/${user.id}`;
+
   function close() {
     sequence++;
     results = null;
@@ -54,7 +61,7 @@
       move(event.key === 'ArrowDown' ? 1 : -1);
     } else if (event.key === 'Enter') {
       const pick = results?.[Math.max(active, 0)];
-      goto(`/users/${pick ? pick.id : encodeURIComponent(value.trim())}`);
+      goto(pick ? hrefOf(pick) : `/users/${encodeURIComponent(value.trim())}`);
       close();
     } else if (event.key === 'Escape') {
       close();
@@ -102,8 +109,9 @@
       <p>Nobody found.</p>
     {:else}
       {#each results ?? [] as user, i (user.id)}
-        <a href="/users/{user.id}" class:active={i === active} onclick={close}>
+        <a href={hrefOf(user)} class:active={i === active} onclick={close}>
           <Avatar id={user.id} /><b>{user.username}</b>
+          {#if restricted(user)}<small class="restricted">Restricted</small>{/if}
         </a>
       {/each}
     {/if}

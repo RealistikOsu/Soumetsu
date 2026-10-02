@@ -58,7 +58,7 @@
 
 <main class="wrap">
   <div class="filters mode-switch">
-    <RelaxTabs rx={view.rx} onselect={(rx) => go({ rx })} />
+    <RelaxTabs mode={view.mode} rx={view.rx} onselect={(rx) => go({ rx })} />
     {#if session.user && !session.user.clan}
       <a class="btn btn-blue create-clan" href="/clans/create">
         <i class="fa-solid fa-plus"></i>Create a clan

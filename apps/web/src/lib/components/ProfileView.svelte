@@ -189,8 +189,8 @@
             <span
               ><Flag country={base.country} /> {countryNames.of(base.country) ?? base.country}</span
             >
-            <span class="status" class:on={base.is_online}
-              >{base.is_online ? 'Online' : 'Offline'}</span
+            <span class="status" class:on={extra?.online}
+              >{extra?.online ? 'Online' : 'Offline'}</span
             >
             {#if extra?.usernameAka}<span>Also known as: <b>{extra.usernameAka}</b></span>{/if}
           </div>
@@ -233,7 +233,7 @@
 
   <div class="mode-bar mode-switch">
     <div class="wrap">
-      <RelaxTabs rx={view.rx} onselect={(rx) => go({ rx })} />
+      <RelaxTabs mode={view.mode} rx={view.rx} onselect={(rx) => go({ rx })} />
       <ModeTabs mode={view.mode} rx={view.rx} onselect={(mode) => go({ mode })} />
     </div>
   </div>

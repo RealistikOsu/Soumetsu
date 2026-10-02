@@ -1,4 +1,5 @@
 import { optionalCaller } from '$server/auth';
+import { isOnline } from '$server/admin/bancho';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
 
@@ -75,6 +76,7 @@ export const GET = handle(async ({ params, request }) => {
 
   return ok({
     visibility: 'visible',
+    online: await isOnline(id),
     nameDecoration: user.name_decoration || null,
     frozen: user.frozen !== 0,
     silence: user.silence_end > now ? { end: user.silence_end, reason: user.silence_reason } : null,

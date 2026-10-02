@@ -138,9 +138,10 @@
 
 .pager {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   padding: 24px 0 48px;
 }
 
@@ -166,9 +167,16 @@
   font-weight: 600;
 }
 
-.pager span {
-  color: var(--muted);
-  font-size: 13px;
+.pager .gap {
+  padding: 0 4px;
+  color: var(--faint);
+}
+
+@media (max-width: 600px) {
+  .pager-label,
+  .pager a.far {
+    display: none;
+  }
 }
 
 .pager a.disabled {

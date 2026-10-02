@@ -17,6 +17,7 @@ export interface SiteInfo {
 
 export interface UserExtras {
   visibility: 'visible' | 'hidden';
+  online: boolean;
   nameDecoration: string | null;
   frozen: boolean;
   silence: { end: number; reason: string } | null;

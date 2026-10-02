@@ -156,10 +156,10 @@
         <a class="card-name" href="/users/{card.id}">
           <b class={decorationClass(extras?.decoration)}>{card.username}</b>
         </a>
-        <div class="card-status" class:online={card.is_online}>
+        <div class="card-status" class:online={extras?.online}>
           <i></i>
           <span>
-            {card.is_online
+            {extras?.online
               ? 'Online'
               : extras?.lastSeen
                 ? `Last seen ${timeAgo(extras.lastSeen)}`

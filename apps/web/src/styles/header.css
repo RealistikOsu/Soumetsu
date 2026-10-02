@@ -285,3 +285,9 @@
   color: var(--muted);
   text-align: center;
 }
+
+.search-results .restricted {
+  margin-left: auto;
+  color: var(--orange);
+  font-size: 11px;
+}

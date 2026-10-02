@@ -127,7 +127,7 @@
         </a>
       {/each}
     </nav>
-    <RelaxTabs rx={view.rx} onselect={(rx) => go({ rx })} />
+    <RelaxTabs mode={view.mode} rx={view.rx} onselect={(rx) => go({ rx })} />
     <div class="modes">
       <ModeTabs mode={view.mode} rx={view.rx} onselect={(mode) => go({ mode })} />
     </div>

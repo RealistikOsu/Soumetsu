@@ -6,6 +6,19 @@
 
   let open = $state(false);
   let root: HTMLElement;
+  let leaving: ReturnType<typeof setTimeout>;
+
+  // A mouse opens it by hovering, with a short grace period for crossing the gap to the list;
+  // touch has no hover, so tapping still toggles it.
+  const enter = (event: PointerEvent) => {
+    if (event.pointerType !== 'mouse') return;
+    clearTimeout(leaving);
+    open = true;
+  };
+  const leave = (event: PointerEvent) => {
+    if (event.pointerType !== 'mouse') return;
+    leaving = setTimeout(() => (open = false), 150);
+  };
 </script>
 
 <svelte:window
@@ -15,7 +28,7 @@
   onkeydown={(event) => event.key === 'Escape' && (open = false)}
 />
 
-<div class="past-names" bind:this={root}>
+<div class="past-names" role="group" bind:this={root} onpointerenter={enter} onpointerleave={leave}>
   <button
     type="button"
     title="Previous usernames"
