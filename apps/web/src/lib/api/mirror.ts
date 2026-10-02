@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/public';
 import { ApiError } from './errors';
 
 export interface MirrorBeatmap {
@@ -75,7 +76,7 @@ async function mirror<T>(
   params: Record<string, string | number> = {},
   signal?: AbortSignal
 ) {
-  const url = new URL(`/site-api/mirror/${path}`, location.origin);
+  const url = new URL(`${env.PUBLIC_MIRROR_URL || 'https://mirror.ussr.pl'}/${path}`);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, String(value));
 
   let response: Response;
