@@ -17,6 +17,12 @@ export const config = {
   docsPath: optional('DOCS_PATH') || '../../website-docs',
   // Only behind a proxy that sets X-Real-IP itself; otherwise anyone could claim any address.
   trustProxy: optional('TRUST_PROXY') === 'true',
+  banchoUrl: (optional('BANCHO_URL') || 'https://c.ussr.pl').replace(/\/$/, ''),
+  scoreServiceUrl: optional('SCORE_SERVICE_URL') || 'https://osu.ussr.pl/web',
+  performanceUrl: (optional('PERFORMANCE_URL') || 'https://performance.ussr.pl').replace(/\/$/, ''),
+  adminLogWebhook: optional('ADMIN_LOG_WEBHOOK_URL'),
+  rankedWebhook: optional('RANKED_WEBHOOK_URL'),
+  donorBadgeId: Number(optional('DONOR_BADGE_ID') || 1002),
   hcaptchaSecret: optional('HCAPTCHA_SECRET_KEY'),
   brevoApiKey: optional('BREVO_API_KEY'),
   brevoFrom: optional('BREVO_FROM'),

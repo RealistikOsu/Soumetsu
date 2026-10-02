@@ -8,6 +8,7 @@ datasource db {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model beatmaps {
   beatmap_id             Int                      @id @default(0)
   beatmapset_id          Int                      @default(0)
@@ -134,10 +135,11 @@ model twitch_settings {
 }
 
 model user_name_history {
-  id          Int    @id @default(autoincrement())
-  user_id     Int
-  username    String @db.VarChar(30)
-  replaced_at Int
+  id            Int     @id @default(autoincrement())
+  user_id       Int
+  username      String  @db.VarChar(30)
+  replaced_at   Int
+  username_safe String? @db.VarChar(30)
 
   @@index([user_id], map: "user_id")
 }
@@ -179,5 +181,308 @@ model users {
   twitch_links                                                  twitch_links?
 
   @@index([username], map: "username")
+}
+
+model ap_stats {
+  id                    Int    @id @default(autoincrement())
+  username              String @db.VarChar(30)
+  username_aka          String @default("") @db.VarChar(32)
+  user_color            String @default("black") @db.VarChar(16)
+  user_style            String @default("") @db.VarChar(128)
+  favourite_mode        Int    @default(0)
+  level_std             Int    @default(1)
+  level_taiko           Int    @default(1)
+  level_mania           Int    @default(1)
+  level_ctb             Int    @default(1)
+  total_score_std       Int    @default(0)
+  total_score_taiko     Int    @default(0)
+  total_score_mania     Int    @default(0)
+  total_score_ctb       Int    @default(0)
+  total_hits_std        Int    @default(0)
+  total_hits_taiko      Int    @default(0)
+  total_hits_ctb        Int    @default(0)
+  total_hits_mania      Int    @default(0)
+  playtime_std          Int    @default(0)
+  playtime_taiko        Int    @default(0)
+  playtime_mania        Int    @default(0)
+  playtime_ctb          Int    @default(0)
+  ranked_score_std      BigInt @default(0)
+  ranked_score_taiko    Int    @default(0)
+  ranked_score_mania    Int    @default(0)
+  ranked_score_ctb      Int    @default(0)
+  avg_accuracy_std      Float  @default(0)
+  avg_accuracy_taiko    Float  @default(0)
+  avg_accuracy_mania    Float  @default(0)
+  avg_accuracy_ctb      Float  @default(0)
+  playcount_std         Int    @default(0)
+  playcount_taiko       Int    @default(0)
+  playcount_mania       Int    @default(0)
+  playcount_ctb         Int    @default(0)
+  pp_std                Int    @default(0)
+  pp_mania              Int    @default(0)
+  pp_ctb                Int    @default(0)
+  pp_taiko              Int    @default(0)
+  country               String @default("XX") @db.Char(2)
+  unrestricted_pp       Int    @default(0)
+  ppboard               Int    @default(1)
+  replays_watched_std   Int    @default(0)
+  replays_watched_taiko Int    @default(0)
+  replays_watched_ctb   Int    @default(0)
+  replays_watched_mania Int    @default(0)
+  achievements          BigInt @default(0)
+  max_combo_std         Int    @default(0)
+  max_combo_taiko       Int    @default(0)
+  max_combo_ctb         Int    @default(0)
+  max_combo_mania       Int    @default(0)
+}
+
+model badges {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(21485)
+  icon String @db.VarChar(32)
+}
+
+model ban_logs {
+  id      Int      @id @default(autoincrement())
+  from_id Int
+  to_id   Int
+  ts      DateTime @default(now()) @db.DateTime(0)
+  summary String   @db.VarChar(256)
+  detail  String   @db.VarChar(2048)
+
+  @@index([to_id], map: "to_id")
+}
+
+model bancho_settings {
+  id           Int    @id @default(autoincrement())
+  name         String @db.VarChar(32)
+  value_int    Int    @default(0)
+  value_string String @db.VarChar(512)
+
+  @@index([name], map: "name")
+}
+
+model clans {
+  id          Int    @id @default(autoincrement())
+  name        String @db.Text
+  description String @db.Text
+  icon        String @db.Text
+  tag         String @db.VarChar(6)
+  mlimit      Int    @default(16)
+}
+
+model clans_invites {
+  id     Int    @id @default(autoincrement())
+  clan   Int
+  invite String @db.VarChar(8)
+}
+
+model hw_user {
+  id          Int     @id @default(autoincrement())
+  userid      Int
+  mac         String  @db.VarChar(32)
+  unique_id   String  @db.VarChar(32)
+  disk_id     String  @db.VarChar(32)
+  client_hash String  @default("") @db.VarChar(32)
+  occurencies Int     @default(0)
+  activated   Boolean @default(false)
+
+  @@index([userid], map: "userid")
+}
+
+model privileges_groups {
+  id         Int    @id @default(autoincrement())
+  name       String @db.VarChar(32)
+  privileges Int
+  color      String @db.VarChar(32)
+
+  @@index([privileges], map: "privileges")
+}
+
+model rank_requests {
+  id          Int     @id @default(autoincrement())
+  userid      Int
+  bid         Int     @unique(map: "bid")
+  type        String  @db.VarChar(8)
+  time        Int
+  blacklisted Boolean
+}
+
+model rap_logs {
+  id       Int    @id @default(autoincrement())
+  userid   Int
+  text     String @db.Text
+  datetime Int
+  through  String @db.Text
+}
+
+model rx_stats {
+  id                    Int    @id @default(autoincrement())
+  username              String @db.VarChar(30)
+  username_aka          String @default("") @db.VarChar(32)
+  user_color            String @default("black") @db.VarChar(16)
+  user_style            String @default("") @db.VarChar(128)
+  favourite_mode        Int    @default(0)
+  level_std             Int    @default(1)
+  level_taiko           Int    @default(1)
+  level_mania           Int    @default(1)
+  level_ctb             Int    @default(1)
+  total_score_std       BigInt @default(0)
+  total_score_taiko     Int    @default(0)
+  total_score_mania     Int    @default(0)
+  total_score_ctb       Int    @default(0)
+  total_hits_std        Int    @default(0)
+  total_hits_taiko      Int    @default(0)
+  total_hits_ctb        Int    @default(0)
+  total_hits_mania      Int    @default(0)
+  playtime_std          Int    @default(0)
+  playtime_taiko        Int    @default(0)
+  playtime_mania        Int    @default(0)
+  playtime_ctb          Int    @default(0)
+  ranked_score_std      BigInt @default(0)
+  ranked_score_taiko    Int    @default(0)
+  ranked_score_mania    Int    @default(0)
+  ranked_score_ctb      Int    @default(0)
+  avg_accuracy_std      Float  @default(0)
+  avg_accuracy_taiko    Float  @default(0)
+  avg_accuracy_mania    Float  @default(0)
+  avg_accuracy_ctb      Float  @default(0)
+  playcount_std         Int    @default(0)
+  playcount_taiko       Int    @default(0)
+  playcount_mania       Int    @default(0)
+  playcount_ctb         Int    @default(0)
+  pp_std                Int    @default(0)
+  pp_mania              Int    @default(0)
+  pp_ctb                Int    @default(0)
+  pp_taiko              Int    @default(0)
+  country               String @default("XX") @db.Char(2)
+  unrestricted_pp       Int    @default(0)
+  ppboard               Int    @default(1)
+  replays_watched_std   Int    @default(0)
+  replays_watched_taiko Int    @default(0)
+  replays_watched_ctb   Int    @default(0)
+  replays_watched_mania Int    @default(0)
+  achievements          BigInt @default(0)
+  max_combo_std         Int?   @default(0)
+  max_combo_taiko       Int    @default(0)
+  max_combo_ctb         Int    @default(0)
+  max_combo_mania       Int    @default(0)
+}
+
+model tokens {
+  id           Int    @id @default(autoincrement())
+  user         String @db.VarChar(31)
+  privileges   Int
+  description  String @db.VarChar(255)
+  token        String @db.VarChar(127)
+  private      Int    @db.TinyInt
+  last_updated Int    @default(0)
+
+  @@index([token], map: "token")
+  @@index([user], map: "user")
+}
+
+model user_badges {
+  id    Int @id @default(autoincrement())
+  user  Int
+  badge Int
+
+  @@index([user], map: "user")
+}
+
+model user_clans {
+  id    Int @id @default(autoincrement())
+  user  Int
+  clan  Int
+  perms Int
+
+  @@index([clan], map: "clan")
+  @@index([user], map: "user")
+}
+
+model user_comments {
+  id           Int    @id @default(autoincrement())
+  op           Int
+  prof         Int
+  msg          String @db.VarChar(400)
+  comment_date String @default("0") @db.VarChar(30)
+
+  @@index([prof], map: "prof")
+}
+
+model user_pinned {
+  userid   Int
+  scoreid  Int    @unique(map: "scoreid")
+  pin_date String @default("0") @db.VarChar(30)
+
+  @@index([userid], map: "userid")
+}
+
+model users_stats {
+  id                    Int     @id @default(autoincrement())
+  username              String  @db.VarChar(30)
+  username_aka          String  @default("") @db.VarChar(64)
+  user_color            String  @default("black") @db.VarChar(16)
+  user_style            String  @default("") @db.VarChar(128)
+  ranked_score_std      BigInt? @default(0)
+  playcount_std         Int     @default(0)
+  total_score_std       BigInt? @default(0)
+  replays_watched_std   Int     @default(0) @db.UnsignedInt
+  ranked_score_taiko    BigInt? @default(0)
+  playcount_taiko       Int     @default(0)
+  total_score_taiko     BigInt? @default(0)
+  replays_watched_taiko Int     @default(0)
+  ranked_score_ctb      BigInt? @default(0)
+  playcount_ctb         Int     @default(0)
+  total_score_ctb       BigInt? @default(0)
+  replays_watched_ctb   Int     @default(0)
+  ranked_score_mania    BigInt? @default(0)
+  playcount_mania       Int     @default(0)
+  total_score_mania     BigInt? @default(0)
+  replays_watched_mania Int     @default(0) @db.UnsignedInt
+  total_hits_std        Int     @default(0)
+  total_hits_taiko      Int     @default(0)
+  total_hits_ctb        Int     @default(0)
+  total_hits_mania      Int     @default(0)
+  country               String  @default("XX") @db.Char(2)
+  unrestricted_pp       Int     @default(0)
+  ppboard               Int     @default(0)
+  show_country          Int     @default(1) @db.TinyInt
+  level_std             Int     @default(1)
+  level_taiko           Int     @default(1)
+  level_ctb             Int     @default(1)
+  level_mania           Int     @default(1)
+  playtime_std          Int     @default(0)
+  playtime_taiko        Int     @default(0)
+  playtime_ctb          Int     @default(0)
+  playtime_mania        Int     @default(0)
+  avg_accuracy_std      Float   @default(0.000000000000) @db.Float
+  avg_accuracy_taiko    Float   @default(0.000000000000) @db.Float
+  avg_accuracy_ctb      Float   @default(0.000000000000) @db.Float
+  avg_accuracy_mania    Float   @default(0.000000000000) @db.Float
+  pp_std                Int     @default(0)
+  pp_taiko              Int     @default(0)
+  pp_ctb                Int     @default(0)
+  pp_mania              Int     @default(0)
+  badges_shown          String  @default("1,0,0,0,0,0") @db.VarChar(24)
+  safe_title            Int     @default(0) @db.TinyInt
+  userpage_content      String? @db.MediumText
+  play_style            Int     @default(0) @db.SmallInt
+  favourite_mode        Int     @default(0) @db.TinyInt
+  prefer_relax          Int     @default(0)
+  custom_badge_icon     String  @default("") @db.VarChar(32)
+  custom_badge_name     String  @default("") @db.VarChar(256)
+  can_custom_badge      Boolean @default(false)
+  show_custom_badge     Boolean @default(false)
+  current_status        String  @default("Offline") @db.VarChar(20000)
+  achievements          BigInt  @default(0)
+  max_combo_std         Int     @default(0)
+  max_combo_taiko       Int     @default(0)
+  max_combo_ctb         Int     @default(0)
+  max_combo_mania       Int     @default(0)
+}
+
+model whitelist {
+  user_id Int @unique(map: "user_id")
 }
 

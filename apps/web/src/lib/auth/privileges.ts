@@ -20,7 +20,17 @@ export const Privilege = {
   AdminSendAlerts: 1 << 17,
   AdminChatMod: 1 << 18,
   AdminKickUsers: 1 << 19,
-  PendingVerification: 1 << 20
+  PendingVerification: 1 << 20,
+  TournamentStaff: 1 << 21,
+  Bot: 1 << 22,
+  PanelViewTopScores: 1 << 23,
+  AdminManageStdBeatmaps: 1 << 24,
+  AdminManageTaikoBeatmaps: 1 << 25,
+  AdminManageCatchBeatmaps: 1 << 26,
+  AdminManageManiaBeatmaps: 1 << 27,
+  PanelErrorLogs: 1 << 28,
+  PanelManageClans: 1 << 29,
+  PanelViewIps: 1 << 30
 } as const;
 
 export const hasPrivilege = (privileges: number, flag: number) => (privileges & flag) === flag;

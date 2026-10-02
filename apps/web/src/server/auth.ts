@@ -35,3 +35,10 @@ export async function requireCaller(request: Request): Promise<Caller> {
   if (!caller) throw new Failure(401, 'auth.unauthenticated');
   return caller;
 }
+
+// Staff routes check the same bit the panel's requires_privilege did, read fresh from the database.
+export async function requirePrivilege(request: Request, flag: number) {
+  const caller = await requireCaller(request);
+  if ((caller.privileges & flag) !== flag) throw new Failure(403, 'site.forbidden');
+  return caller;
+}
