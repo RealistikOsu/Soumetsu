@@ -146,7 +146,7 @@
                   ></span>
                 {/each}
               </span>
-              <span class="faint">{sorted.length} difficulties</span>
+              <span class="faint">{sorted.length} {sorted.length === 1 ? 'difficulty' : 'difficulties'}</span>
             </span>
           </div>
           <span class="map-status {look.colour}"
