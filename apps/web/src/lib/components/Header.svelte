@@ -4,6 +4,7 @@
   import { isStaff } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import PlayerSearch from './PlayerSearch.svelte';
 
@@ -27,7 +28,7 @@
 
   const menus: Menu[] = $derived([
     {
-      label: 'Clan',
+      label: m.common_header_clan(),
       colour: 'c-purple',
       icon: 'fa-shield-halved',
       prefixes: ['/clanboard', '/c/', '/clan/', '/clans/'],
@@ -35,37 +36,49 @@
         ...(user
           ? [
               ...(user.clan
-                ? [{ href: `/c/${user.clan.id}`, icon: 'fa-flag', text: 'My clan' }]
-                : [{ href: '/clans/create', icon: 'fa-plus', text: 'Create a clan' }]),
-              { href: '/clan/manage', icon: 'fa-pen-to-square', text: 'Manage clan' }
+                ? [{ href: `/c/${user.clan.id}`, icon: 'fa-flag', text: m.common_header_my_clan() }]
+                : [
+                    { href: '/clans/create', icon: 'fa-plus', text: m.common_header_create_clan() }
+                  ]),
+              {
+                href: '/clan/manage',
+                icon: 'fa-pen-to-square',
+                text: m.common_header_manage_clan()
+              }
             ]
           : []),
-        { href: '/clanboard', icon: 'fa-trophy', text: 'Leaderboard' }
+        { href: '/clanboard', icon: 'fa-trophy', text: m.common_header_clan_leaderboard() }
       ]
     },
     {
-      label: 'Support',
+      label: m.common_header_support(),
       colour: 'c-green',
       icon: 'fa-life-ring',
       prefixes: ['/doc', '/connect', '/patcher', '/team'],
       items: [
-        { href: '/doc/rules', icon: 'fa-scale-balanced', text: 'Rules' },
-        { href: '/doc', icon: 'fa-book', text: 'Documentation' },
-        { href: '/connect', icon: 'fa-plug', text: 'Connection guide' },
-        { href: '/patcher', icon: 'fa-screwdriver-wrench', text: 'Patcher' },
+        { href: '/doc/rules', icon: 'fa-scale-balanced', text: m.common_header_rules() },
+        { href: '/doc', icon: 'fa-book', text: m.common_nav_documentation() },
+        { href: '/connect', icon: 'fa-plug', text: m.common_header_connection_guide() },
+        { href: '/patcher', icon: 'fa-screwdriver-wrench', text: m.common_header_patcher() },
         { href: '/discord', icon: 'fa-discord', text: 'Discord', brand: true },
-        { href: '/team', icon: 'fa-users', text: 'Our team' }
+        { href: '/team', icon: 'fa-users', text: m.common_header_team() }
       ]
     },
     {
-      label: 'Beatmaps',
+      label: m.common_nav_beatmaps(),
       colour: 'c-lblue',
       icon: 'fa-music',
       prefixes: ['/beatmap_listing', '/beatmaps/', '/rank-request'],
       items: [
-        { href: '/beatmap_listing', icon: 'fa-list', text: 'Beatmap listing' },
+        { href: '/beatmap_listing', icon: 'fa-list', text: m.common_header_beatmap_listing() },
         ...(user
-          ? [{ href: '/rank-request', icon: 'fa-paper-plane', text: 'Request beatmap' }]
+          ? [
+              {
+                href: '/rank-request',
+                icon: 'fa-paper-plane',
+                text: m.common_header_request_beatmap()
+              }
+            ]
           : [])
       ]
     }
@@ -100,7 +113,7 @@
   async function logOut(event: MouseEvent) {
     event.preventDefault();
     await session.logout();
-    flash.next('success', 'Successfully logged out.');
+    flash.next('success', m.common_header_logged_out());
     await goto('/');
   }
 </script>
@@ -112,7 +125,7 @@
     <a class="logo" href="/"><img src="/img/logo.png" alt="RealistikOsu" /></a>
     <nav class="nav">
       <a class="c-yellow" class:active={path.startsWith('/leaderboard')} href="/leaderboard">
-        <i class="fa-solid fa-trophy"></i>Leaderboard
+        <i class="fa-solid fa-trophy"></i>{m.common_nav_leaderboard()}
       </a>
       {#each menus as menu (menu.label)}
         <div
@@ -143,32 +156,34 @@
     <div class="top-right">
       {#if user}
         <a class="support-us c-pink" class:active={path.startsWith('/donate')} href="/donate">
-          <i class="fa-solid fa-heart"></i><span>Support us</span>
+          <i class="fa-solid fa-heart"></i><span>{m.common_header_support_us()}</span>
         </a>
         <details class="me" bind:open={meOpen}>
           <summary title={user.username}><Avatar id={user.id} /></summary>
           <nav class="me-menu">
-            <a href="/users/{user.id}"><i class="fa-solid fa-user"></i>Profile</a>
-            <a href="/friends"><i class="fa-solid fa-user-group"></i>Friends</a>
-            <a href="/settings"><i class="fa-solid fa-gear"></i>Settings</a>
+            <a href="/users/{user.id}"
+              ><i class="fa-solid fa-user"></i>{m.common_header_profile()}</a
+            >
+            <a href="/friends"><i class="fa-solid fa-user-group"></i>{m.common_header_friends()}</a>
+            <a href="/settings"><i class="fa-solid fa-gear"></i>{m.common_header_settings()}</a>
             {#if isStaff(user.privileges)}
               <a href="/admin">
-                <i class="fa-solid fa-screwdriver-wrench"></i>Admin panel
+                <i class="fa-solid fa-screwdriver-wrench"></i>{m.common_header_admin_panel()}
               </a>
             {/if}
             <a href="/logout" onclick={logOut}>
-              <i class="fa-solid fa-right-from-bracket"></i>Log out
+              <i class="fa-solid fa-right-from-bracket"></i>{m.common_header_log_out()}
             </a>
           </nav>
         </details>
       {:else if session.ready}
-        <a class="guest" href="/login">Log in</a>
-        <a class="guest" href="/register">Register</a>
+        <a class="guest" href="/login">{m.common_header_log_in()}</a>
+        <a class="guest" href="/register">{m.common_header_register()}</a>
       {/if}
       <button
         class="menu-toggle"
         type="button"
-        aria-label="Menu"
+        aria-label={m.common_header_menu()}
         aria-expanded={mobileOpen}
         onclick={() => (mobileOpen = !mobileOpen)}
       >

@@ -8,7 +8,9 @@
   import { decorationClass } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
   import { timeAgo } from '$lib/format';
+  import { intlLocale } from '$lib/i18n';
   import { ms } from '$lib/motion';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import Flag from './Flag.svelte';
 
@@ -22,6 +24,13 @@
     'Chat Moderator': 'c-yellow',
     BAT: 'c-pink',
     Supporter: 'c-purple'
+  };
+  const groupNames: Record<string, () => string> = {
+    Developer: m.common_group_developer,
+    Administrator: m.common_group_administrator,
+    'Community Manager': m.common_group_community_manager,
+    'Chat Moderator': m.common_group_chat_moderator,
+    Supporter: m.common_group_supporter
   };
 
   interface Loaded {
@@ -116,7 +125,7 @@
     }
   }
 
-  const rank = (value: number) => (value ? `#${value.toLocaleString('en')}` : '-');
+  const rank = (value: number) => (value ? `#${value.toLocaleString(intlLocale())}` : '-');
 </script>
 
 <svelte:window
@@ -150,7 +159,9 @@
             </a>
           {/if}
           {#if extras?.group}
-            <span class="card-group {groupColours[extras.group]}">{extras.group}</span>
+            <span class="card-group {groupColours[extras.group]}">
+              {groupNames[extras.group]?.() ?? extras.group}
+            </span>
           {/if}
         </div>
         <a class="card-name" href="/users/{card.id}">
@@ -160,10 +171,10 @@
           <i></i>
           <span>
             {extras?.online
-              ? 'Online'
+              ? m.common_card_online()
               : extras?.lastSeen
-                ? `Last seen ${timeAgo(extras.lastSeen)}`
-                : 'Offline'}
+                ? m.common_card_last_seen({ time: timeAgo(extras.lastSeen) })
+                : m.common_card_offline()}
           </span>
         </div>
       </div>
@@ -173,8 +184,8 @@
             class="card-action"
             class:is-friend={friend}
             type="button"
-            title={friend ? 'Friends' : 'Add friend'}
-            aria-label={friend ? 'Friends' : 'Add friend'}
+            title={friend ? m.common_friend_is_friend() : m.common_friend_add()}
+            aria-label={friend ? m.common_friend_is_friend() : m.common_friend_add()}
             onclick={toggleFriend}
           >
             <i class="fa-solid {friend ? 'fa-user-check' : 'fa-user-plus'}"></i>
@@ -183,10 +194,10 @@
       {/if}
     </div>
     <div class="card-stats">
-      <div><b>{rank(card.global_rank)}</b><span>Global</span></div>
-      <div><b>{rank(card.country_rank)}</b><span>Country</span></div>
-      <div><b>{card.pp.toLocaleString('en')}</b><span>pp</span></div>
-      <div><b>{card.accuracy.toFixed(2)}%</b><span>Accuracy</span></div>
+      <div><b>{rank(card.global_rank)}</b><span>{m.common_card_global()}</span></div>
+      <div><b>{rank(card.country_rank)}</b><span>{m.common_card_country()}</span></div>
+      <div><b>{card.pp.toLocaleString(intlLocale())}</b><span>pp</span></div>
+      <div><b>{card.accuracy.toFixed(2)}%</b><span>{m.common_card_accuracy()}</span></div>
     </div>
   </div>
 {/if}

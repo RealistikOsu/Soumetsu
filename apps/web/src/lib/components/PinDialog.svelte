@@ -2,6 +2,7 @@
   import { describe } from '$lib/api/messages';
   import { pinScore, unpinScore, type ScoreWithBeatmap } from '$lib/api/scores';
   import { songParts } from '$lib/format';
+  import { m } from '$lib/paraglide/messages';
   import Dialog from './Dialog.svelte';
 
   let {
@@ -42,10 +43,10 @@
 </script>
 
 <Dialog bind:open class="pin-dialog">
-  <button class="dialog-close" aria-label="Close" onclick={() => (open = false)}>
+  <button class="dialog-close" aria-label={m.common_close()} onclick={() => (open = false)}>
     <i class="fa-solid fa-xmark"></i>
   </button>
-  <h2>{pinned ? 'Unpin this score?' : 'Pin this score?'}</h2>
+  <h2>{pinned ? m.common_pin_title_unpin() : m.common_pin_title_pin()}</h2>
   {#if score}
     {@const parts = songParts(score.beatmap.song_name)}
     <p class="muted">{parts.song} [{parts.diff}]</p>
@@ -58,7 +59,7 @@
       disabled={busy}
       onclick={confirm}
     >
-      {pinned ? 'Unpin score' : 'Pin score'}
+      {pinned ? m.common_pin_unpin() : m.common_pin_pin()}
     </button>
   </div>
 </Dialog>

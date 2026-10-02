@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { m } from '$lib/paraglide/messages';
+
   let {
     page,
     hasNext,
@@ -33,13 +35,15 @@
   };
 </script>
 
-<nav class="pager" aria-label="Pages">
+<nav class="pager" aria-label={m.common_pager_label()}>
   <a
     class:disabled={page <= 1}
     href="?p={page - 1}"
     onclick={(event) => page > 1 && go(event, page - 1)}
   >
-    <i class="fa-solid fa-chevron-left"></i><span class="pager-label">Previous</span>
+    <i class="fa-solid fa-chevron-left"></i><span class="pager-label"
+      >{m.common_pager_previous()}</span
+    >
   </a>
   {#each numbers as n, i (n ?? `gap-${i}`)}
     {#if n === null}
@@ -61,6 +65,7 @@
     href="?p={page + 1}"
     onclick={(event) => hasNext && go(event, page + 1)}
   >
-    <span class="pager-label">Next</span><i class="fa-solid fa-chevron-right"></i>
+    <span class="pager-label">{m.common_pager_next()}</span><i class="fa-solid fa-chevron-right"
+    ></i>
   </a>
 </nav>

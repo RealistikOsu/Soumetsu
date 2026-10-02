@@ -6,6 +6,7 @@
   import { session } from '$lib/auth/session.svelte';
   import { fullDate } from '$lib/format';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
 
   let {
@@ -81,7 +82,7 @@
 
 {#if disabled}
   <div class="panel c-teal">
-    <p class="empty-note"><i class="fa-solid fa-lock"></i> This user has disabled comments!</p>
+    <p class="empty-note"><i class="fa-solid fa-lock"></i> {m.common_comments_disabled()}</p>
   </div>
 {:else}
   <div class="panel c-teal">
@@ -90,14 +91,16 @@
         <input
           type="text"
           bind:value={text}
-          placeholder="Write a comment"
-          aria-label="Comment"
+          placeholder={m.common_comments_placeholder()}
+          aria-label={m.common_comments_label()}
           maxlength="380"
         />
-        <button class="btn btn-blue" type="submit" disabled={posting || !text.trim()}>Post</button>
+        <button class="btn btn-blue" type="submit" disabled={posting || !text.trim()}>
+          {m.common_comments_post()}
+        </button>
       </form>
     {:else}
-      <p class="empty-note"><i class="fa-solid fa-lock"></i> Please log in to submit a comment!</p>
+      <p class="empty-note"><i class="fa-solid fa-lock"></i> {m.common_comments_log_in()}</p>
     {/if}
     <ul class="comments">
       {#each items as comment (comment.id)}
@@ -110,7 +113,7 @@
               <button
                 class="comment-delete"
                 type="button"
-                title="Delete comment"
+                title={m.common_comments_delete()}
                 onclick={() => remove(comment)}
               >
                 <i class="fa-solid fa-trash"></i>
@@ -124,11 +127,11 @@
     {#if loading}
       <p class="empty-note"><span class="skel" style="width: 120px"></span></p>
     {:else if failed}
-      <p class="empty-note">Couldn't load the comments. Try again in a bit.</p>
+      <p class="empty-note">{m.common_comments_load_failed()}</p>
     {:else if items.length === 0}
-      <p class="empty-note">No comments yet.</p>
+      <p class="empty-note">{m.common_comments_empty()}</p>
     {:else if more}
-      <button class="btn load-more" type="button" onclick={load}>Load more</button>
+      <button class="btn load-more" type="button" onclick={load}>{m.common_load_more()}</button>
     {/if}
   </div>
 {/if}

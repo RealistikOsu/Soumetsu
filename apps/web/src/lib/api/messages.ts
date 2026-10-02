@@ -1,104 +1,103 @@
+import { m } from '$lib/paraglide/messages';
 import { ApiError } from './errors';
 
-const fallback = 'Something went wrong on our end. Try again in a bit.';
+type Message = () => string;
 
-const messages: Record<string, string> = {
-  'auth.unauthenticated': 'You need to log in first.',
-  'auth.user_not_found': 'No account with that username or email.',
-  'auth.invalid_credentials': 'Wrong password.',
-  'auth.account_restricted':
-    'You are not allowed to log in. This means your account is either banned or locked.',
-  'auth.account_pending': 'You will need to verify your account first.',
-  'auth.password_version_old':
-    "Your password is so old that we don't even know how to deal with it any more. Could you please change it?",
-  'auth.username_taken': 'A user with that username already exists!',
-  'auth.email_taken': 'A user with that email address already exists!',
-  'auth.username_reserved': 'This username has been reserved by another user.',
-  'auth.invalid_captcha': 'Captcha check failed, please try again.',
-  'auth.validation_error': 'Some of what you entered is not allowed. Check it and try again.',
+const messages: Record<string, Message> = {
+  'auth.unauthenticated': m.common_error_unauthenticated,
+  'auth.user_not_found': m.common_error_account_not_found,
+  'auth.invalid_credentials': m.common_error_wrong_password,
+  'auth.account_restricted': m.common_error_account_restricted,
+  'auth.account_pending': m.common_error_account_pending,
+  'auth.password_version_old': m.common_error_password_version_old,
+  'auth.username_taken': m.common_error_username_taken,
+  'auth.email_taken': m.common_error_email_taken,
+  'auth.username_reserved': m.common_error_username_reserved,
+  'auth.invalid_captcha': m.common_error_invalid_captcha,
+  'auth.validation_error': m.common_error_validation,
 
-  'users.user_not_found': 'That user could not be found.',
-  'users.user_restricted': 'That user could not be found.',
-  'users.forbidden': 'You do not have sufficient privileges to do that.',
-  'users.username_taken': 'A user with that username already exists!',
-  'users.username_reserved': 'This username has been reserved by another user.',
-  'users.no_discord_linked': 'You have no Discord account linked.',
-  'users.discord_already_linked': 'That Discord account is already linked to another user.',
-  'users.discord_oauth_failed': 'Discord linking failed. Please try again.',
-  'users.invalid_password': 'Wrong password.',
-  'users.weak_password': 'Your password is too weak.',
-  'users.upload_failed': 'We were not able to save that file.',
-  'users.invalid_file_format': 'The file you uploaded is not a valid image.',
-  'users.file_too_large': 'That file is too large.',
+  'users.user_not_found': m.common_error_user_not_found,
+  'users.user_restricted': m.common_error_user_not_found,
+  'users.forbidden': m.common_error_insufficient_privileges,
+  'users.username_taken': m.common_error_username_taken,
+  'users.username_reserved': m.common_error_username_reserved,
+  'users.no_discord_linked': m.common_error_no_discord_linked,
+  'users.discord_already_linked': m.common_error_discord_already_linked,
+  'users.discord_oauth_failed': m.common_error_discord_oauth_failed,
+  'users.invalid_password': m.common_error_wrong_password,
+  'users.weak_password': m.common_error_weak_password,
+  'users.upload_failed': m.common_error_upload_failed,
+  'users.invalid_file_format': m.common_error_invalid_file_format,
+  'users.file_too_large': m.common_error_file_too_large,
 
-  'clans.clan_not_found': 'That clan could not be found.',
-  'clans.not_owner': 'Only the clan owner can do that.',
-  'clans.not_member': "You're not in that clan.",
-  'clans.already_in_clan': "Seems like you're already in a clan.",
-  'clans.clan_full': "Ow, I'm sorry, this clan is already full ;w;",
-  'clans.invalid_invite': 'That invite is not valid.',
-  'clans.name_taken': 'Someone already took that clan name... oof.',
-  'clans.tag_taken': 'Someone already took that tag!',
-  'clans.cannot_kick_owner': "You can't kick the clan owner.",
-  'clans.user_not_in_clan': "That user isn't in your clan.",
-  'clans.file_too_large': 'That file is too large.',
-  'clans.invalid_file_format': 'The file you uploaded is not a valid image.',
-  'clans.upload_failed': 'We were not able to save that file.',
-  'clans.icon_not_found': 'This clan has no icon.',
+  'clans.clan_not_found': m.common_error_clan_not_found,
+  'clans.not_owner': m.common_error_not_clan_owner,
+  'clans.not_member': m.common_error_not_clan_member,
+  'clans.already_in_clan': m.common_error_already_in_clan,
+  'clans.clan_full': m.common_error_clan_full,
+  'clans.invalid_invite': m.common_error_invalid_invite,
+  'clans.name_taken': m.common_error_clan_name_taken,
+  'clans.tag_taken': m.common_error_clan_tag_taken,
+  'clans.cannot_kick_owner': m.common_error_cannot_kick_owner,
+  'clans.user_not_in_clan': m.common_error_user_not_in_clan,
+  'clans.file_too_large': m.common_error_file_too_large,
+  'clans.invalid_file_format': m.common_error_invalid_file_format,
+  'clans.upload_failed': m.common_error_upload_failed,
+  'clans.icon_not_found': m.common_error_clan_icon_not_found,
 
-  'comments.comment_not_found': 'That comment could not be found.',
-  'comments.user_not_found': 'That user could not be found.',
-  'comments.forbidden': 'You do not have permission to do that.',
-  'comments.comments_disabled': 'This user has turned comments off.',
+  'comments.comment_not_found': m.common_error_comment_not_found,
+  'comments.user_not_found': m.common_error_user_not_found,
+  'comments.forbidden': m.common_error_comment_forbidden,
+  'comments.comments_disabled': m.common_error_comments_disabled,
 
-  'friends.already_friends': "You've already added this user.",
-  'friends.not_friends': "You haven't added this user.",
-  'friends.cannot_add_self': "You can't add yourself.",
-  'friends.user_not_found': 'That user could not be found.',
-  'friends.user_restricted': 'That user could not be found.',
+  'friends.already_friends': m.common_error_already_friends,
+  'friends.not_friends': m.common_error_not_friends,
+  'friends.cannot_add_self': m.common_error_cannot_add_self,
+  'friends.user_not_found': m.common_error_user_not_found,
+  'friends.user_restricted': m.common_error_user_not_found,
 
-  'scores.score_not_found': 'That score could not be found.',
-  'scores.already_pinned': 'That score is already pinned.',
-  'scores.not_pinned': "That score isn't pinned.",
-  'scores.not_your_score': 'You can only pin your own scores.',
+  'scores.score_not_found': m.common_error_score_not_found,
+  'scores.already_pinned': m.common_error_already_pinned,
+  'scores.not_pinned': m.common_error_not_pinned,
+  'scores.not_your_score': m.common_error_not_your_score,
 
-  'beatmaps.beatmap_not_found': 'That beatmap could not be found.',
-  'beatmaps.already_requested': 'That beatmap has already been requested.',
-  'beatmaps.daily_limit_reached': "You've used all of your requests for today.",
-  'beatmaps.invalid_url': "That doesn't look like a beatmap link.",
-  'beatmaps.already_ranked': 'That beatmap is already ranked.',
+  'beatmaps.beatmap_not_found': m.common_error_beatmap_not_found,
+  'beatmaps.already_requested': m.common_error_already_requested,
+  'beatmaps.daily_limit_reached': m.common_error_daily_limit_reached,
+  'beatmaps.invalid_url': m.common_error_invalid_beatmap_url,
+  'beatmaps.already_ranked': m.common_error_already_ranked,
 
-  'site.forbidden': "You don't have permission to do that.",
-  'site.supporter_only': 'This feature is restricted to RealistikOsu supporters only.',
-  'site.invalid_colour': 'Colour is invalid',
-  'site.invalid_request': 'Something about that request was not right. Check it and try again.',
-  'site.registrations_closed':
-    "Sorry, it's not possible to register at the moment. Please try again later.",
-  'site.reset_key_not_found': 'That key could not be found. Perhaps it expired?',
-  'site.not_linked': 'You have no account linked.',
-  'site.already_linked': 'That account is already linked to another player.',
-  'site.not_configured': 'This is not set up on this server.',
-  'site.oauth_state_invalid': 'The authorisation could not be verified. Please try again.',
-  'site.oauth_rejected': 'The authorisation was rejected. Please try again.',
-  'site.oauth_profile_failed': 'Could not read your profile. Please try again.',
-  'site.payments_unavailable': 'Payments are currently unavailable. Please try again later.',
-  'site.doc_not_found': 'That page could not be found.',
-  'site.mirror_unreachable': "Couldn't reach the beatmap mirror. Try again in a bit.",
+  'site.forbidden': m.common_error_forbidden,
+  'site.supporter_only': m.common_error_supporter_only,
+  'site.invalid_colour': m.common_error_invalid_colour,
+  'site.invalid_request': m.common_error_invalid_request,
+  'site.registrations_closed': m.common_error_registrations_closed,
+  'site.reset_key_not_found': m.common_error_reset_key_not_found,
+  'site.not_linked': m.common_error_not_linked,
+  'site.already_linked': m.common_error_already_linked,
+  'site.not_configured': m.common_error_not_configured,
+  'site.oauth_state_invalid': m.common_error_oauth_state_invalid,
+  'site.oauth_rejected': m.common_error_oauth_rejected,
+  'site.oauth_profile_failed': m.common_error_oauth_profile_failed,
+  'site.payments_unavailable': m.common_error_payments_unavailable,
+  'site.doc_not_found': m.common_error_page_not_found,
+  'site.mirror_unreachable': m.common_error_mirror_unreachable,
 
-  network_error: "Couldn't reach the server. Check your connection and try again."
+  network_error: m.common_error_network
 };
 
-const byStatus: Record<number, string> = {
-  401: 'Your session has expired. Please log in again.',
-  403: "You don't have permission to do that.",
-  404: 'That could not be found.',
-  413: 'That file is too large.',
-  429: "You're doing that too often. Try again in a bit."
+const byStatus: Record<number, Message> = {
+  401: m.common_error_session_expired,
+  403: m.common_error_forbidden,
+  404: m.common_error_not_found,
+  413: m.common_error_file_too_large,
+  429: m.common_error_rate_limited
 };
 
 export function describe(error: unknown): string {
-  if (!(error instanceof ApiError)) return fallback;
+  if (!(error instanceof ApiError)) return m.common_error_generic();
   // Staff-facing routes answer with a sentence rather than an error name.
   if (error.code.includes(' ')) return error.code;
-  return messages[error.code] ?? byStatus[error.status] ?? fallback;
+  const message = messages[error.code] ?? byStatus[error.status] ?? m.common_error_generic;
+  return message();
 }

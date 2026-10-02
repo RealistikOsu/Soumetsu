@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { api } from '$lib/api/client';
   import { Privilege } from '$lib/auth/privileges';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
 
   interface Result {
@@ -92,8 +93,8 @@
     bind:value
     class="search"
     type="search"
-    placeholder="Looking for someone?"
-    aria-label="Find a player"
+    placeholder={m.common_search_placeholder()}
+    aria-label={m.common_search_label()}
     autocomplete="off"
     oninput={onInput}
     onkeydown={onKeydown}
@@ -106,12 +107,13 @@
         </span>
       {/each}
     {:else if results?.length === 0}
-      <p>Nobody found.</p>
+      <p>{m.common_search_nobody_found()}</p>
     {:else}
       {#each results ?? [] as user, i (user.id)}
         <a href={hrefOf(user)} class:active={i === active} onclick={close}>
           <Avatar id={user.id} /><b>{user.username}</b>
-          {#if restricted(user)}<small class="restricted">Restricted</small>{/if}
+          {#if restricted(user)}<small class="restricted">{m.common_search_restricted()}</small
+            >{/if}
         </a>
       {/each}
     {/if}

@@ -4,13 +4,18 @@
   import { isPublic } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { ms } from '$lib/motion';
+  import { m } from '$lib/paraglide/messages';
   import { sanitise } from '$lib/sanitise';
   import { site } from '$lib/site.svelte';
 
   const kinds: Record<FlashKind, { colour: string; icon: string; heading: string }> = {
-    error: { colour: 'c-red', icon: 'fa-fire', heading: 'Uh oh... There has been an error!' },
-    success: { colour: 'c-green', icon: 'fa-check', heading: 'Action completed successfully!' },
-    warning: { colour: 'c-orange', icon: 'fa-exclamation', heading: 'Warning!' }
+    error: { colour: 'c-red', icon: 'fa-fire', heading: m.common_alert_error_heading() },
+    success: { colour: 'c-green', icon: 'fa-check', heading: m.common_alert_success_heading() },
+    warning: {
+      colour: 'c-orange',
+      icon: 'fa-exclamation',
+      heading: m.common_alert_warning_heading()
+    }
   };
 
   const restricted = $derived(session.user !== null && !isPublic(session.user.privileges));
@@ -31,11 +36,10 @@
       <div class="notice alert c-red" role="alert">
         <i class="fa-solid fa-ban notice-icon"></i>
         <div>
-          <b>You have been restricted!</b>
-          Your account is currently in restricted mode. You will not be able to do certain actions, and
-          your profile can only be seen by you and by RealistikOsu's staff. If you believe we have mistaken
-          putting you in restricted mode, or a month has passed since you first saw this, you can send
-          an appeal on the <a href="/discord">Discord server</a>.
+          <b>{m.common_alert_restricted_title()}</b>
+          {m.common_alert_restricted_before()}
+          <a href="/discord">{m.common_alert_restricted_link()}</a
+          >{m.common_alert_restricted_after()}
         </div>
       </div>
     {/if}
@@ -43,10 +47,9 @@
       <div class="notice alert c-yellow" role="alert">
         <i class="fa-solid fa-snowflake notice-icon"></i>
         <div>
-          <b>You have been frozen!</b>
-          Your account has been frozen due to suspicion from the staff team! You have 5 days to provide
-          a valid liveplay or else your account will be automatically restricted! You may provide a liveplay
-          to the RealistikOsu staff team via the <a href="/discord">RealistikOsu Discord server</a>.
+          <b>{m.common_alert_frozen_title()}</b>
+          {m.common_alert_frozen_before()}
+          <a href="/discord">{m.common_alert_frozen_link()}</a>{m.common_alert_frozen_after()}
         </div>
       </div>
     {/if}
@@ -54,7 +57,7 @@
       <div class="notice alert c-blue" role="alert">
         <i class="fa-solid fa-circle-info notice-icon"></i>
         <div>
-          <b>Something interesting for you about RealistikOsu...</b>
+          <b>{m.common_alert_global_title()}</b>
           {@html sanitise(info.globalAlert)}
         </div>
       </div>
@@ -63,9 +66,8 @@
       <div class="notice alert c-orange" role="alert">
         <i class="fa-solid fa-screwdriver-wrench notice-icon"></i>
         <div>
-          <b>We are currently working on our score submission server...</b>
-          RealistikOsu's score submission is currently in maintenance mode. You will not be allowed to
-          submit scores for the time being.
+          <b>{m.common_alert_game_maintenance_title()}</b>
+          {m.common_alert_game_maintenance_text()}
         </div>
       </div>
     {/if}
@@ -73,9 +75,8 @@
       <div class="notice alert c-orange" role="alert">
         <i class="fa-solid fa-screwdriver-wrench notice-icon"></i>
         <div>
-          <b>We are currently working on our website...</b>
-          The RealistikOsu website is currently in maintenance mode. Only staff members are allowed to
-          access the entire website.
+          <b>{m.common_alert_web_maintenance_title()}</b>
+          {m.common_alert_web_maintenance_text()}
         </div>
       </div>
     {/if}
@@ -87,7 +88,7 @@
         <button
           class="alert-close"
           type="button"
-          aria-label="Dismiss"
+          aria-label={m.common_alert_dismiss()}
           onclick={() => flash.dismiss(item.id)}
         >
           <i class="fa-solid fa-xmark"></i>

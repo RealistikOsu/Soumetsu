@@ -3,6 +3,7 @@
   import { addFriend, followers, isFriend, removeFriend } from '$lib/api/users';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let { id }: { id: number } = $props();
 
@@ -49,9 +50,9 @@
     onclick={toggle}
   >
     <i class="fa-solid {friend ? 'fa-user-minus' : 'fa-user-plus'}"></i>
-    {friend ? 'Remove friend' : 'Add friend'}
+    {friend ? m.common_friend_remove() : m.common_friend_add()}
     {#if count !== null}
-      <span title="Followers"><i class="fa-solid fa-users"></i>{count}</span>
+      <span title={m.common_people_followers()}><i class="fa-solid fa-users"></i>{count}</span>
     {/if}
   </button>
 </div>

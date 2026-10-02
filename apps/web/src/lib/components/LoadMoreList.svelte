@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
   import { untrack, type Snippet } from 'svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let {
     load,
@@ -48,10 +49,10 @@
 
 {#if status === 'error' && items.length === 0}
   <div class="panel {colour}">
-    <p class="empty-note">Couldn't load this. Try again in a bit.</p>
+    <p class="empty-note">{m.common_load_failed()}</p>
   </div>
 {:else if status === 'ready' && items.length === 0}
-  <div class="panel {colour}"><p class="empty-note">Nothing here yet.</p></div>
+  <div class="panel {colour}"><p class="empty-note">{m.common_nothing_here()}</p></div>
 {:else}
   <div class="panel score-list {colour} {className}">
     {#each items as item (key(item))}
@@ -74,7 +75,7 @@
           next();
         }}
       >
-        Load more
+        {m.common_load_more()}
       </a>
     {/if}
   </div>

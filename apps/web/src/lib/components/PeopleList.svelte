@@ -7,6 +7,8 @@
   import { isSupporter } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { intlLocale } from '$lib/i18n';
+  import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import Banner from './Banner.svelte';
   import Flag from './Flag.svelte';
@@ -39,7 +41,7 @@
     const list =
       kind === 'friends' ? data.friends : data.followers.filter((f) => !friendIds.has(f.user_id));
     return list.toSorted((a, b) =>
-      a.username.localeCompare(b.username, 'en', { sensitivity: 'base' })
+      a.username.localeCompare(b.username, intlLocale(), { sensitivity: 'base' })
     );
   });
 
@@ -56,7 +58,9 @@
     }
   }
 
-  const title = $derived(kind === 'friends' ? 'Friends' : 'Followers');
+  const title = $derived(
+    kind === 'friends' ? m.common_people_friends() : m.common_people_followers()
+  );
 </script>
 
 <svelte:head><title>{title} · RealistikOsu</title></svelte:head>
@@ -65,9 +69,7 @@
   <div>
     <h1>{title}</h1>
     <p class="sub">
-      {kind === 'friends'
-        ? "Everyone you've added. A heart means they added you back."
-        : "People who added you that you haven't added back."}
+      {kind === 'friends' ? m.common_people_friends_sub() : m.common_people_followers_sub()}
     </p>
   </div>
 </Banner>
@@ -75,24 +77,25 @@
 <main class="wrap friends">
   <nav class="tabs tinted friends-tabs" use:tabInk>
     <a class="c-green {kind === 'friends' ? 'active' : ''}" href="/friends">
-      <i class="fa-solid fa-user-group"></i>Friends
+      <i class="fa-solid fa-user-group"></i>{m.common_people_friends()}
       {#if data}<span class="count">{data.friends.length}</span>{/if}
     </a>
     <a class="c-yellow {kind === 'followers' ? 'active' : ''}" href="/followers">
-      <i class="fa-solid fa-users"></i>Followers
-      <span class="supporter">Supporter</span>
+      <i class="fa-solid fa-users"></i>{m.common_people_followers()}
+      <span class="supporter">{m.common_people_supporter()}</span>
     </a>
   </nav>
 
   {#if kind === 'followers' && !supporter}
     <div class="panel c-yellow">
       <p class="empty-note">
-        <i class="fa-solid fa-heart"></i> Seeing your followers is a supporter perk.
-        <a href="/donate">Support RealistikOsu</a> to unlock it.
+        <i class="fa-solid fa-heart"></i>
+        {m.common_people_perk()}
+        <a href="/donate">{m.common_people_perk_link()}</a>{m.common_people_perk_after()}
       </p>
     </div>
   {:else if relationships.state.status === 'error'}
-    <div class="panel"><p class="empty-note">Couldn't load this. Try again in a bit.</p></div>
+    <div class="panel"><p class="empty-note">{m.common_load_failed()}</p></div>
   {:else if relationships.state.status === 'loading'}
     <div class="people">
       {#each [0, 1, 2, 3, 4, 5] as n (n)}
@@ -104,7 +107,7 @@
   {:else if people.length === 0}
     <div class="panel">
       <p class="empty-note">
-        {kind === 'friends' ? "You haven't added anyone yet." : 'Nobody is following you yet.'}
+        {kind === 'friends' ? m.common_people_no_friends() : m.common_people_no_followers()}
       </p>
     </div>
   {:else}
@@ -133,7 +136,13 @@
                   ? 'fa-user-minus'
                   : 'fa-user-plus'}"
             ></i>
-            <span>{isMutual(person) ? 'Mutual' : friend ? 'Remove' : 'Add'}</span>
+            <span>
+              {isMutual(person)
+                ? m.common_people_mutual()
+                : friend
+                  ? m.common_people_remove()
+                  : m.common_people_add()}
+            </span>
           </button>
         </div>
       {/each}
