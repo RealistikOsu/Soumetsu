@@ -45,9 +45,13 @@
   const pinnedIds = $derived(new Set((pinned ?? []).map((s) => s.id)));
 
   function pointsOf(rows: { time: number; value: number | null }[]): GraphPoint[] {
-    return rows
-      .filter((r): r is GraphPoint => r.value !== null && r.value > 0 && !Number.isNaN(r.time))
-      .sort((a, b) => a.time - b.time);
+    return (
+      rows
+        .filter((r): r is GraphPoint => r.value !== null && r.value > 0 && !Number.isNaN(r.time))
+        .sort((a, b) => a.time - b.time)
+        // The history can hold two rows for a day, which would draw a vertical spike.
+        .filter((p, i, all) => i === all.length - 1 || all[i + 1].time !== p.time)
+    );
   }
 
   const points = $derived.by(() => {

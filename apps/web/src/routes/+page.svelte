@@ -179,7 +179,11 @@
             {/each}
           {:else if tops.state.status === 'loading'}
             {#each mode.cards as card (card.custom)}
-              <div class="top-score {card.colour} skel-block"></div>
+              <div class="top-score {card.colour}" aria-hidden="true">
+                <span class="skel" style="width: 40%"></span>
+                <span class="skel" style="width: 60%; height: 28px"></span>
+                <span class="skel" style="width: 50%"></span>
+              </div>
             {/each}
           {:else}
             <p class="panel empty-note">Couldn't load the top scores. Try again in a bit.</p>

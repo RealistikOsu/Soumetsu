@@ -8,7 +8,7 @@
   import { userExtras } from '$lib/api/site';
   import { profile, rankHistory, userpage, type UserProfile } from '$lib/api/users';
   import { session } from '$lib/auth/session.svelte';
-  import { bannerUrl, coverUrl } from '$lib/assets';
+  import { bannerUrl } from '$lib/assets';
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { decorationClass } from '$lib/decorations';
   import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
@@ -113,20 +113,12 @@
       (isApiError(failure) && failure.status >= 400 && failure.status < 500)
   );
 
-  const bestCover = query(async (signal) => {
-    const rows = await playerScores('best', id, view.mode, view.rx, 1, 1, signal).catch(() => []);
-    return rows[0]?.beatmap.beatmapset_id ?? null;
-  });
-
-  // An uploaded banner sits over the best score's cover, which shows if the file is missing.
-  const heading = $derived.by(() => {
-    const layers: string[] = [];
-    if (extra?.banner?.type === 1) layers.push(`url(${bannerUrl(id)})`);
-    if (bestCover.state.status === 'ready' && bestCover.state.data) {
-      layers.push(`url(${coverUrl(bestCover.state.data, 'cover')})`);
-    }
-    return layers.length ? layers.join(', ') : null;
-  });
+  // An uploaded banner sits over the default one, which shows if the file is missing.
+  const heading = $derived(
+    extra?.banner?.type === 1
+      ? `url(${bannerUrl(id)}), url(/img/banner-default.png)`
+      : 'url(/img/banner-default.png)'
+  );
 
   const playing = $derived(
     playStyles.filter((_, i) => (extra?.playStyle ?? 0) & (1 << i)).join(', ')
@@ -162,9 +154,7 @@
     class="profile-head"
     style={extra?.banner?.type === 2
       ? `background-color: ${extra.banner.value}`
-      : heading
-        ? `background-image: ${heading}`
-        : ''}
+      : `background-image: ${heading}`}
   >
     <div class="wrap">
       <Avatar {id} />

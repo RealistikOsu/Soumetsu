@@ -289,6 +289,8 @@
 
 .chart .line {
   fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   stroke: var(--blue);
   stroke-width: 2;
 }

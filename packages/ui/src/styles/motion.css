@@ -417,3 +417,8 @@
   width: 24px;
   height: 24px;
 }
+
+/* rows added by "Load more" settle in instead of popping */
+.motion .score-list > .score-row {
+  animation: rise 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+}

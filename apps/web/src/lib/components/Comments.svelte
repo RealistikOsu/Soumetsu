@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { describe } from '$lib/api/messages';
   import { comments, deleteComment, postComment, type Comment } from '$lib/api/users';
   import { canManageUsers } from '$lib/auth/privileges';
@@ -43,7 +44,7 @@
   }
 
   $effect(() => {
-    if (!disabled) load();
+    if (!disabled) untrack(load);
   });
 
   async function post(event: SubmitEvent) {

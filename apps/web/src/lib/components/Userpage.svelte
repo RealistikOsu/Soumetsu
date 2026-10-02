@@ -22,12 +22,20 @@
     return () => observer.disconnect();
   });
 
+  // The cut height is animated to the content's height and then released, so boxes opened inside keep growing it.
   function toggle(event: MouseEvent) {
     event.preventDefault();
     open = !open;
     if (!page) return;
     page.style.transitionDuration = `${ms(450)}ms`;
-    page.style.maxHeight = open ? `${page.scrollHeight}px` : '';
+    if (open) {
+      page.style.maxHeight = `${page.scrollHeight}px`;
+      setTimeout(() => open && (page!.style.maxHeight = 'none'), ms(450));
+    } else {
+      page.style.maxHeight = `${page.scrollHeight}px`;
+      page.getBoundingClientRect();
+      page.style.maxHeight = '';
+    }
   }
 </script>
 

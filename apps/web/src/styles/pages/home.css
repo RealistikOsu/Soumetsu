@@ -268,3 +268,14 @@
 .top-score .by b {
   font: inherit;
 }
+
+.top-score.skel-card,
+.top-score[aria-hidden='true'] {
+  gap: 10px;
+  min-height: 118px;
+  background: var(--panel-2);
+}
+
+.top-score[aria-hidden='true']::before {
+  display: none;
+}

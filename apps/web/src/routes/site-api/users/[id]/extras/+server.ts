@@ -19,7 +19,8 @@ interface StatsExtras {
 // chose one, and nothing when they chose none.
 function bannerOf(privileges: number, row: { type: number; value: string } | null) {
   if ((privileges & 4) === 0) return null;
-  if (!row || row.type === 1) return { type: 1, value: null };
+  if (!row) return null;
+  if (row.type === 1) return { type: 1, value: null };
   return row.type === 2 ? { type: 2, value: row.value } : null;
 }
 

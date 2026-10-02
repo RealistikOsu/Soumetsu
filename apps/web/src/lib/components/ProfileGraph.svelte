@@ -46,15 +46,32 @@
     })
   );
 
+  // One label per month at most, thinned out to fit, and the ends are anchored so nothing is clipped.
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a throwaway date, not reactive state
   const ticks = $derived.by(() => {
-    const count = Math.min(5, points.length);
-    return Array.from({ length: count }, (_, i) => {
-      const time = span.from + ((span.to - span.from) * i) / Math.max(count - 1, 1);
-      return {
-        x: x(time),
-        label: new Date(time).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-      };
-    });
+    const labels: { x: number; label: string }[] = [];
+    const first = new Date(span.from);
+    const cursor = new Date(first.getFullYear(), first.getMonth() + 1, 1);
+    while (cursor.getTime() < span.to) {
+      labels.push({
+        x: x(cursor.getTime()),
+        label: cursor.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+      });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    if (labels.length < 3) {
+      return [0, 1, 2, 3]
+        .map((i) => {
+          const time = span.from + ((span.to - span.from) * i) / 3;
+          return {
+            x: x(time),
+            label: new Date(time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+          };
+        })
+        .filter((l) => l.x > LEFT + 20 && l.x < W - 32);
+    }
+    const step = Math.ceil(labels.length / 5);
+    return labels.filter((l, i) => i % step === 0 && l.x < W - 32 && l.x > LEFT + 20);
   });
 
   function compact(value: number) {
