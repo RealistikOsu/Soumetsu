@@ -54,13 +54,13 @@
   "support_donate_bonus": "+10% czasu",
   "support_donate_bonus_months": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
+      "declarations": ["input count", "input formatted", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": ": dostajesz {count} miesiąc",
-        "countPlural=few": ": dostajesz {count} miesiące",
-        "countPlural=many": ": dostajesz {count} miesięcy",
-        "countPlural=other": ": dostajesz {count} miesiąca"
+        "countPlural=one": ": dostajesz {formatted} miesiąc",
+        "countPlural=few": ": dostajesz {formatted} miesiące",
+        "countPlural=many": ": dostajesz {formatted} miesięcy",
+        "countPlural=other": ": dostajesz {formatted} miesiąca"
       }
     }
   ],

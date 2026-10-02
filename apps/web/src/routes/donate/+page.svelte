@@ -78,6 +78,8 @@
 
   // Pounds for a number of months, the same curve the server charges by.
   const price = $derived(Math.pow(months * 3, 0.84).toFixed(2));
+  // Stripe adds 10% to the time bought.
+  const bonusMonths = $derived(Math.round(months * 1.1 * 10) / 10);
   const payee = $derived(
     target ?? (session.user ? { id: session.user.id, username: session.user.username } : null)
   );
@@ -236,17 +238,14 @@
               >
               <small>
                 <b>{m.support_donate_bonus()}</b>{m.support_donate_bonus_months({
-                  count: +(months * 1.1).toFixed(1)
+                  count: bonusMonths,
+                  formatted: bonusMonths.toLocaleString(intlLocale(), { maximumFractionDigits: 1 })
                 })}
               </small>
             </button>
           {/if}
           {#if methods?.paypal && payee}
-            <form
-              action="https://www.paypal.com/cgi-bin/webscr"
-              method="post"
-              class="pay paypal-form"
-            >
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="paypal-form">
               <input type="hidden" name="cmd" value="_xclick" />
               <input type="hidden" name="business" value={methods.paypal} />
               <input

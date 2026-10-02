@@ -54,13 +54,13 @@
   "support_donate_bonus": "+10% времени",
   "support_donate_bonus_months": [
     {
-      "declarations": ["input count", "local countPlural = count: plural"],
+      "declarations": ["input count", "input formatted", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": ": получишь {count} месяц",
-        "countPlural=few": ": получишь {count} месяца",
-        "countPlural=many": ": получишь {count} месяцев",
-        "countPlural=other": ": получишь {count} месяца"
+        "countPlural=one": ": получишь {formatted} месяц",
+        "countPlural=few": ": получишь {formatted} месяца",
+        "countPlural=many": ": получишь {formatted} месяцев",
+        "countPlural=other": ": получишь {formatted} месяца"
       }
     }
   ],
