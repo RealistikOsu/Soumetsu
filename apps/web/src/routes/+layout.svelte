@@ -5,6 +5,7 @@
   import FloatTip from '$lib/components/FloatTip.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import Header from '$lib/components/Header.svelte';
+  import UserCards from '$lib/components/UserCards.svelte';
   import LoadBar from '$lib/components/LoadBar.svelte';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -52,3 +53,4 @@
 <Footer />
 <LoadBar />
 <FloatTip />
+<UserCards />
