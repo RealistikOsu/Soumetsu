@@ -14,3 +14,11 @@ export const countries = [
     .map((code) => ({ code: code.toUpperCase(), name: names.of(code.toUpperCase()) ?? code }))
     .sort((a, b) => a.name.localeCompare(b.name, intlLocale()))
 ];
+
+// Old accounts can have '' or '0' as their country, which Intl rejects with a RangeError.
+export const isCountry = (code: string) => /^[a-z]{2}$/i.test(code) && code.toUpperCase() !== 'XX';
+
+export function countryName(code: string, locale = intlLocale()) {
+  if (!isCountry(code)) return m.common_country_unknown();
+  return new Intl.DisplayNames([locale], { type: 'region' }).of(code.toUpperCase()) ?? code;
+}

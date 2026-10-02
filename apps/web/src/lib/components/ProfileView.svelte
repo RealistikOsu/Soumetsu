@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { countryName } from '$lib/countries';
   import { untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -14,7 +15,6 @@
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
-  import { intlLocale } from '$lib/i18n';
   import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
   import { playStyleNames } from '$lib/playstyles';
@@ -38,7 +38,6 @@
   let { id }: { id: number } = $props();
 
   const playStyles = playStyleNames();
-  const countryNames = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
   const extras = query((signal) => userExtras(id, signal));
   const page_ = query((signal) => userpage(id, signal));
@@ -145,7 +144,7 @@
       name="description"
       content={m.profile_head_description({
         username: base.username,
-        country: countryNames.of(base.country) ?? base.country
+        country: countryName(base.country)
       })}
     />
   {/if}
@@ -188,9 +187,7 @@
             </div>
           {/if}
           <div class="meta">
-            <span
-              ><Flag country={base.country} /> {countryNames.of(base.country) ?? base.country}</span
-            >
+            <span><Flag country={base.country} /> {countryName(base.country)}</span>
             <span class="status" class:on={extra?.online}
               >{extra?.online ? m.profile_head_online() : m.profile_head_offline()}</span
             >
@@ -311,7 +308,7 @@
             {:else}
               <ProfileStats
                 stats={loaded[pane].stats}
-                country={countryNames.of(loaded[pane].country) ?? loaded[pane].country}
+                country={countryName(loaded[pane].country)}
                 peakRank={peak[pane] ?? null}
                 history={rankHistory[pane]?.status === 'ready' ? rankHistory[pane].points : []}
               />

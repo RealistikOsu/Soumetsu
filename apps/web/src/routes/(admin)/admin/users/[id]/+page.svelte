@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { countryName } from '$lib/countries';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { adminUser, saveAdminUser, userAction } from '$lib/api/admin';
@@ -51,7 +52,6 @@
     whitelist = user.whitelistModes;
   });
 
-  const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
   const now = () => Date.now() / 1000;
 
   async function run(body: { action: string } & Record<string, unknown>, success: string) {
@@ -119,7 +119,7 @@
         {#if user.online}<span class="online-dot" title="Online"></span>{/if}
       </h1>
       <div class="meta">
-        <span><Flag country={user.country} /> {countryNames.of(user.country) ?? user.country}</span>
+        <span><Flag country={user.country} /> {countryName(user.country, 'en')}</span>
         <span><i class="fa-solid fa-hashtag"></i>{user.id}</span>
         <span>
           <i class="fa-solid fa-clock"></i>

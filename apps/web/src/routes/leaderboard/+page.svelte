@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { countryName } from '$lib/countries';
   import { tabInk } from '@soumetsu/ui';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -19,7 +20,6 @@
   import Avatar from '$lib/components/Avatar.svelte';
   import Username from '$lib/components/Username.svelte';
   import { number } from '$lib/format';
-  import { intlLocale } from '$lib/i18n';
   import { allowed, modeSlugs, relaxSlugs, slideTowards } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
 
@@ -100,7 +100,6 @@
   const top = query((signal) => countries(11, signal));
   let allCountries = $state.raw<string[] | null>(null);
   let chooser = $state(false);
-  const names = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
   async function openChooser() {
     chooser = true;
@@ -267,7 +266,7 @@
           go({ country });
         }}
       >
-        <Flag {country} />{names.of(country) ?? country}
+        <Flag {country} />{countryName(country)}
       </a>
     {/each}
   </div>

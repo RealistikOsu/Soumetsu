@@ -4,6 +4,7 @@
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
+  import SetCreator from '$lib/components/admin/SetCreator.svelte';
 
   const suggested = query((signal) => suggestions(signal));
 
@@ -46,7 +47,7 @@
       <a class="panel suggest" href="/admin/ranking/{map.beatmapId}">
         <span class="suggest-cover" style="background-image:url({map.cover})"></span>
         <b>{map.song}</b>
-        <span class="muted">[{map.diff}]{map.creator ? ` · ${map.creator}` : ''}</span>
+        <span class="muted">[{map.diff}]<SetCreator setId={map.setId} before=" · " /></span>
         <span class="suggest-foot">
           {#each map.modes as mode (mode)}<img src="/img/modes/mode-{mode}.png" alt="" />{/each}
           <span>{map.difficulties} {map.difficulties === 1 ? 'difficulty' : 'difficulties'}</span>

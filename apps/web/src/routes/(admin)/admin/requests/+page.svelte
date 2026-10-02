@@ -9,6 +9,7 @@
   import Avatar from '$lib/components/Avatar.svelte';
   import Flag from '$lib/components/Flag.svelte';
   import Pager from '$lib/components/Pager.svelte';
+  import SetCreator from '$lib/components/admin/SetCreator.svelte';
   import { flash } from '$lib/flash.svelte';
   import { timeAgo } from '$lib/format';
 
@@ -61,7 +62,10 @@
                 <span>
                   <b>{request.song}</b>
                   <small>
-                    {request.creator ? `${request.creator} · ` : ''}{request.difficulties}
+                    {#if request.setId}<SetCreator
+                        setId={request.setId}
+                        after=" · "
+                      />{/if}{request.difficulties}
                     {request.difficulties === 1 ? 'difficulty' : 'difficulties'}
                   </small>
                 </span>

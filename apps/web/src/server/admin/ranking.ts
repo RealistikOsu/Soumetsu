@@ -52,6 +52,23 @@ export async function creatorOf(setId: number) {
   return body?.creator ?? null;
 }
 
+// How many difficulties each set has and in which modes, for a whole page of sets in one query.
+export async function setSummaries(setIds: number[]) {
+  const rows = await db.beatmaps.findMany({
+    where: { beatmapset_id: { in: [...new Set(setIds)] } },
+    select: { beatmapset_id: true, mode: true }
+  });
+  const sets = new Map<number, { difficulties: number; modes: number[] }>();
+  for (const row of rows) {
+    const set = sets.get(row.beatmapset_id) ?? { difficulties: 0, modes: [] };
+    set.difficulties++;
+    if (!set.modes.includes(row.mode)) set.modes.push(row.mode);
+    sets.set(row.beatmapset_id, set);
+  }
+  for (const set of sets.values()) set.modes.sort();
+  return sets;
+}
+
 interface Row {
   beatmap_id: number;
   beatmapset_id: number;
@@ -163,8 +180,14 @@ const clearRequests = (setId: number, beatmapIds: number[]) =>
     }
   });
 
+export const SUGGESTIONS_KEY = 'soumetsu:admin:suggestions';
+
+// The game servers reload the maps, and the cached suggestions may list one that is no longer unranked.
 const refresh = (md5s: string[]) =>
-  Promise.all(md5s.map((md5) => redis.publish('ussr:refresh_bmap', md5)));
+  Promise.all([
+    ...md5s.map((md5) => redis.publish('ussr:refresh_bmap', md5)),
+    redis.del(SUGGESTIONS_KEY)
+  ]);
 
 export async function rankSet(by: Ranker, setId: number, status: number) {
   const present = await db.beatmaps.findMany({

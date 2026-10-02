@@ -205,9 +205,9 @@ export type RankStatus = 'ranked' | 'loved' | 'unranked';
 
 export interface Suggestion {
   beatmapId: number;
+  setId: number;
   song: string;
   diff: string;
-  creator: string | null;
   cover: string;
   difficulties: number;
   modes: number[];
@@ -238,7 +238,6 @@ export interface RankRequest {
   setId: number | null;
   song: string;
   cover: string | null;
-  creator: string | null;
   difficulties: number;
   modes: number[];
   requester: { id: number; username: string; country: string };
