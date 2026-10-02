@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { ms } from '$lib/motion';
+  import { readFlag, writeFlag } from '$lib/preferences';
   import { mostPlayed, ppHistory, rankHistory, type MostPlayed } from '$lib/api/users';
   import { query } from '$lib/api/query.svelte';
   import {
@@ -39,7 +40,8 @@
   } = $props();
 
   let graph = $state<'rank' | 'pp'>('rank');
-  let hideFailed = $state(false);
+  const HIDE_FAILED = 'soumetsu.hide-failed';
+  let hideFailed = $state(readFlag(HIDE_FAILED));
 
   const ranks = query((signal) => rankHistory(id, mode, rx, signal));
   const pps = query((signal) => ppHistory(id, mode, rx, signal));
@@ -170,7 +172,12 @@
 <h2 class="section-title c-blue">
   <i class="fa-solid fa-clock-rotate-left"></i>Recent scores
   <label
-    ><input class="hide-failed" type="checkbox" bind:checked={hideFailed} /> Hide failed scores</label
+    ><input
+      class="hide-failed"
+      type="checkbox"
+      bind:checked={hideFailed}
+      onchange={() => writeFlag(HIDE_FAILED, hideFailed)}
+    /> Hide failed scores</label
   >
 </h2>
 {#key hideFailed}
