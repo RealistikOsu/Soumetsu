@@ -7,6 +7,7 @@
   import { playerScores, type ScoreWithBeatmap } from '$lib/api/scores';
   import { userExtras } from '$lib/api/site';
   import { profile, rankHistory, userpage, type UserProfile } from '$lib/api/users';
+  import { Privilege } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { bannerUrl } from '$lib/assets';
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
@@ -236,7 +237,19 @@
           <h1>…</h1>
         {/if}
       </div>
-      {#if !own && base}<FriendButton {id} />{/if}
+      <div class="head-actions">
+        {#if !own && base}<FriendButton {id} />{/if}
+        {#if session.user && session.user.privileges & Privilege.AdminManageUsers}
+          <a
+            class="btn staff-edit"
+            href="/admin/users/{id}"
+            title={m.profile_staff_edit()}
+            aria-label={m.profile_staff_edit()}
+          >
+            <i class="fa-solid fa-pen-to-square"></i>
+          </a>
+        {/if}
+      </div>
     </div>
   </section>
 

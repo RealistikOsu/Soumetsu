@@ -99,5 +99,6 @@
   "profile_achievements_empty": "Достижений пока нет.",
   "profile_past_names_label": "Прошлые ники",
   "profile_past_names_heading": "Ранее известен как",
-  "profile_pinned_more": "Показать ещё"
+  "profile_pinned_more": "Показать ещё",
+  "profile_staff_edit": "Открыть в админке"
 }

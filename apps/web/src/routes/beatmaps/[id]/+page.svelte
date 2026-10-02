@@ -27,6 +27,8 @@
   import { modeNames, allowed, relaxColours, relaxNames, slideTowards } from '$lib/modes';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
+  import { canRankBeatmaps } from '$lib/auth/privileges';
+  import { session } from '$lib/auth/session.svelte';
 
   const id = $derived(Number(page.params.id));
 
@@ -137,6 +139,7 @@
   });
 
   const loaded = $derived(info.state.status === 'ready' ? info.state.data : null);
+  const canRank = $derived(!!session.user && canRankBeatmaps(session.user.privileges));
   const diff = $derived(loaded?.diffs.find((d) => d.id === id) ?? null);
 
   const view = $derived.by(() => {
@@ -315,6 +318,11 @@
                 : m.beatmaps_preview_play()}
             {/snippet}
           </Preview>
+          {#if canRank}
+            <a class="action staff-rank" href="/admin/ranking/{loaded.setId}">
+              <i class="fa-solid fa-angles-up"></i>{m.beatmaps_staff_rank()}
+            </a>
+          {/if}
         </div>
       </div>
     {/if}

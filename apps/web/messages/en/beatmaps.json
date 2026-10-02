@@ -66,5 +66,6 @@
   "beatmaps_request_queue_error": "Couldn't load the queue. Try again in a bit.",
   "beatmaps_request_formats_title": "Links we take",
   "beatmaps_request_formats_or": "or",
-  "beatmaps_request_formats_note": "The whole set gets sent and checked. A difficulty link still sends its whole set, and staff check every difficulty in it."
+  "beatmaps_request_formats_note": "The whole set gets sent and checked. A difficulty link still sends its whole set, and staff check every difficulty in it.",
+  "beatmaps_staff_rank": "Rank in admin panel"
 }

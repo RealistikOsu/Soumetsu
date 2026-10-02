@@ -128,6 +128,24 @@
   gap: 12px;
 }
 
+.staff-edit {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-height: 40px;
+  aspect-ratio: 1;
+  padding: 0;
+  border-color: color-mix(in srgb, var(--red) 60%, transparent);
+  background: rgb(0 0 0 / 0.45);
+  color: #ff8a8a;
+}
+
+.staff-edit:hover {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
 .friend {
   display: flex;
   align-items: center;

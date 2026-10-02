@@ -42,17 +42,15 @@
   }
 </script>
 
-<div class="head-actions">
-  <button
-    class="btn btn-blue friend"
-    type="button"
-    disabled={!enabled || friend === null}
-    onclick={toggle}
-  >
-    <i class="fa-solid {friend ? 'fa-user-minus' : 'fa-user-plus'}"></i>
-    {friend ? m.common_friend_remove() : m.common_friend_add()}
-    {#if count !== null}
-      <span title={m.common_people_followers()}><i class="fa-solid fa-users"></i>{count}</span>
-    {/if}
-  </button>
-</div>
+<button
+  class="btn btn-blue friend"
+  type="button"
+  disabled={!enabled || friend === null}
+  onclick={toggle}
+>
+  <i class="fa-solid {friend ? 'fa-user-minus' : 'fa-user-plus'}"></i>
+  {friend ? m.common_friend_remove() : m.common_friend_add()}
+  {#if count !== null}
+    <span title={m.common_people_followers()}><i class="fa-solid fa-users"></i>{count}</span>
+  {/if}
+</button>

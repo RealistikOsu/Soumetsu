@@ -95,5 +95,6 @@
   "profile_achievements_empty": "No achievements yet.",
   "profile_past_names_label": "Previous usernames",
   "profile_past_names_heading": "Previously known as",
-  "profile_pinned_more": "Load more"
+  "profile_pinned_more": "Load more",
+  "profile_staff_edit": "Edit in the admin panel"
 }

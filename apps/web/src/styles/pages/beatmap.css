@@ -367,3 +367,8 @@
 .replay:hover {
   color: var(--link);
 }
+
+.staff-rank {
+  background: var(--panel-2);
+  box-shadow: inset 3px 0 var(--red);
+}

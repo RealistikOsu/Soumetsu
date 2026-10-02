@@ -40,3 +40,14 @@ export const isSupporter = (privileges: number) => hasPrivilege(privileges, Priv
 export const isStaff = (privileges: number) => hasPrivilege(privileges, Privilege.AdminAccessRap);
 export const canManageUsers = (privileges: number) =>
   hasPrivilege(privileges, Privilege.AdminManageUsers);
+
+// The panel lets staff rank if they can manage beatmaps in general or in at least one mode.
+export const canRankBeatmaps = (privileges: number) =>
+  hasPrivilege(privileges, Privilege.AdminAccessRap) &&
+  [
+    Privilege.AdminManageBeatmap,
+    Privilege.AdminManageStdBeatmaps,
+    Privilege.AdminManageTaikoBeatmaps,
+    Privilege.AdminManageCatchBeatmaps,
+    Privilege.AdminManageManiaBeatmaps
+  ].some((bit) => hasPrivilege(privileges, bit));

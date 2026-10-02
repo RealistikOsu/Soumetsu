@@ -68,5 +68,6 @@
   "beatmaps_request_queue_error": "Nie udało się załadować kolejki. Spróbuj za chwilę.",
   "beatmaps_request_formats_title": "Jakie linki przyjmujemy",
   "beatmaps_request_formats_or": "albo",
-  "beatmaps_request_formats_note": "Wysyłany i sprawdzany jest cały set. Link do jednego diffa i tak wysyła cały set, a staff sprawdza w nim każdy diff."
+  "beatmaps_request_formats_note": "Wysyłany i sprawdzany jest cały set. Link do jednego diffa i tak wysyła cały set, a staff sprawdza w nim każdy diff.",
+  "beatmaps_staff_rank": "Rankuj w panelu admina"
 }
