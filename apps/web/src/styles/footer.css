@@ -1,0 +1,23 @@
+/* footer */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 12px;
+  border-top: 1px solid var(--line);
+  padding: 20px 16px 32px;
+  color: var(--faint);
+  font-size: 13px;
+  text-align: center;
+}
+
+.foot a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.foot a:hover {
+  color: var(--text);
+}

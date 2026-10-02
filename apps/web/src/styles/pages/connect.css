@@ -1,0 +1,183 @@
+/* connection guide */
+
+.connect {
+  padding: 32px 16px 48px;
+}
+
+.methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.method {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.method header {
+  display: flex;
+  gap: 14px;
+}
+
+.method header > i {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.method h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.method header p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.needs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.needs i {
+  color: var(--accent);
+}
+
+.method .steps {
+  margin: 0;
+}
+
+.method .steps li::before {
+  color: var(--accent);
+}
+
+.method .steps span a {
+  color: var(--link);
+}
+
+.target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.target-label {
+  flex: none;
+  color: var(--muted);
+}
+
+.target code {
+  overflow-x: auto;
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  white-space: nowrap;
+}
+
+.target mark {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--blue-2) 30%, transparent);
+  color: #fff;
+}
+
+.tip {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--orange) 10%, transparent);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.tip > i {
+  margin-top: 3px;
+  color: var(--orange);
+}
+
+.steps .tip span {
+  color: inherit;
+  font-size: inherit;
+}
+
+.tip code {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--bg);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+}
+
+.copy {
+  justify-self: start;
+  display: inline-flex;
+  line-height: 1;
+  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.copy code {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.copy.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.btn-green {
+  justify-self: start;
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.btn-green:hover {
+  border-color: #16ab39;
+  background: #16ab39;
+}
+
+.btn-green i {
+  margin-right: 8px;
+}
+
+.no-account {
+  margin-top: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.no-account a {
+  color: var(--link);
+}

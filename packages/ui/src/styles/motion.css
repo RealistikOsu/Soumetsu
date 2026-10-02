@@ -1,0 +1,419 @@
+/* motion for the site and the panel. Everything here is behind .motion, which the page only sets when
+   the visitor hasn't asked for reduced motion, so the static styles in main.css stay the fallback */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes rise-up {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes pulse-bg {
+  50% {
+    background-color: #353537;
+  }
+}
+
+/* small things that change on hover or when picked */
+
+.motion
+  :is(
+    .btn,
+    .tabs a,
+    .nav a,
+    .nav-menu > button,
+    .admin-nav a,
+    .settings-menu a,
+    .countries a,
+    .pager a,
+    .more,
+    .me-menu a,
+    .nav-drop a,
+    .action-list button,
+    .score-row .score-bg::after
+  ) {
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.motion :is(.map-card, .suggest, .attention a, .perk, .staff-card, .trending) {
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.15s;
+}
+
+.motion :is(.map-card, .suggest, .attention a, .perk, .staff-card, .trending):hover {
+  transform: translateY(-2px);
+}
+
+.motion .nav-menu > button .fa-chevron-down {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.nav-menu.open > button .fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+.motion .chart-tip {
+  animation: fade 0.12s;
+}
+
+.motion .chart-tip,
+.motion .chart-guide,
+.motion .chart-marker {
+  transition:
+    left 0.08s,
+    top 0.08s;
+}
+
+/* the page settling in, then cards and panels rising as they scroll into view */
+
+.motion :is(main, .admin-main) > :nth-child(-n + 8) {
+  animation: rise 0.4s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.motion :is(main, .admin-main) > :nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.motion :is(main, .admin-main) > :nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.motion :is(main, .admin-main) > :nth-child(n + 4) {
+  animation-delay: 120ms;
+}
+
+@supports (animation-timeline: view()) {
+  .motion
+    :is(
+      .map-card,
+      .person,
+      .staff-card,
+      .perk,
+      .badge-card,
+      .suggest,
+      .score-row,
+      .feature-row,
+      .log-list li,
+      .member-list li,
+      .board tbody tr
+    ):not(dialog *) {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: cover 0px cover 120px;
+  }
+}
+
+/* menus, popups and things that open */
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+/* menus grow out of the corner they hang from */
+.motion :is(.nav-drop, .me-menu, .score-menu > div, details.downloads > div, .search-results) {
+  animation: menu-in 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion :is(.nav-drop, .search-results) {
+  transform-origin: top left;
+}
+
+.motion :is(.me-menu, .score-menu > div, details.downloads > div) {
+  transform-origin: top right;
+}
+
+.motion .me summary img {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.15s;
+}
+
+.motion .me[open] summary img {
+  outline-color: var(--blue);
+}
+
+.motion .match-wrap {
+  transition: grid-template-rows 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion .match-wrap > div {
+  transition:
+    opacity 0.25s,
+    padding-bottom 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion :is(.danger-zone, .traceback, .more-matches)[open] > :not(summary) {
+  animation: drop 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion dialog[open] {
+  animation: dialog-in 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion dialog[open]::backdrop {
+  animation: fade 0.22s;
+}
+
+.motion .alert {
+  animation: drop 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translate(
+      calc(var(--slide, 0) * 28px),
+      calc((1 - var(--slide, 0) * var(--slide, 0)) * 10px)
+    );
+  }
+}
+
+.motion :is([data-pane], .top-scores):not([hidden]) {
+  animation: pane-in 0.32s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion .board tbody.swap tr,
+.motion .map-grid.swap .map-card {
+  animation: pane-in 0.32s cubic-bezier(0.2, 0, 0, 1) calc(var(--n, 0) * 22ms) both;
+}
+
+/* the highlight behind the active tab */
+
+.tabs.has-ink {
+  position: relative;
+  isolation: isolate;
+}
+
+.tab-ink {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  background: var(--active);
+}
+
+.tabs.has-ink > a.active {
+  background: none;
+}
+
+.motion .tabs.ink-ready .tab-ink {
+  transition:
+    left 0.3s cubic-bezier(0.2, 0, 0, 1),
+    width 0.3s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.3s;
+}
+
+.motion .top.open :is(.nav, .search-box) {
+  animation: drop 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion .nav-open .admin-nav {
+  animation: drop 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.userpage-cut {
+  transition: max-height 0.45s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* charts and bars play when they first come into view */
+
+.motion .chart .line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.motion .chart.in-view .line {
+  animation: draw 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.motion .chart .dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.motion .chart.in-view .dot {
+  animation: dot-in 0.3s cubic-bezier(0.2, 0, 0, 1.4) calc(0.4s + var(--i, 0) * 50ms) forwards;
+}
+
+.motion :is(.online-graph, .spark):not(.in-view) svg {
+  clip-path: inset(0 100% 0 0);
+}
+
+.motion :is(.online-graph, .spark).in-view svg {
+  animation: sweep 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.motion :is(.level-bar, .bar) span {
+  transform-origin: left;
+}
+
+.motion :is(.level-bar, .bar):not(.in-view) span {
+  transform: scaleX(0);
+}
+
+.motion :is(.level-bar, .bar).in-view span {
+  animation: grow-x 0.9s cubic-bezier(0.2, 0, 0, 1) 0.1s both;
+}
+
+.motion .bars:not(.in-view) .reg-bar b {
+  clip-path: inset(100% 0 0 0);
+}
+
+.motion .bars.in-view .reg-bar b {
+  animation: rise-up 0.6s cubic-bezier(0.2, 0, 0, 1) calc(var(--i, 0) * 60ms) both;
+}
+
+/* placeholders while something loads */
+
+.skel {
+  display: inline-block;
+  height: 0.85em;
+  border-radius: 4px;
+  background: var(--panel-2);
+  vertical-align: middle;
+}
+
+.skel-avatar {
+  display: inline-block;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  vertical-align: middle;
+}
+
+.skel-block {
+  background: var(--panel-2);
+}
+
+.motion :is(.skel, .skel-avatar, .skel-block) {
+  animation: pulse-bg 1.2s ease-in-out infinite;
+}
+
+.motion img.avatar:not(.loaded) {
+  animation: pulse-bg 1.2s ease-in-out 3;
+}
+
+.motion img:is([loading='lazy'], .avatar) {
+  transition: opacity 0.3s;
+}
+
+.motion img:is([loading='lazy'], .avatar):not(.loaded) {
+  opacity: 0;
+}
+
+.motion .map-cover {
+  animation: pulse-bg 1.2s ease-in-out 2;
+}
+
+.skel-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skel-card .map-body {
+  display: grid;
+  gap: 10px;
+}
+
+.skel-card .skel {
+  display: block;
+}
+
+.motion .skel-card .skel-block {
+  animation: pulse-bg 1.2s ease-in-out infinite;
+}
+
+.skel-result {
+  pointer-events: none;
+}
+
+.search-results .skel-avatar {
+  width: 24px;
+  height: 24px;
+}

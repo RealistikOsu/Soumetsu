@@ -1,0 +1,440 @@
+/* documentation */
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #cfcfcf;
+  font-size: 13px;
+}
+
+.crumb:hover {
+  color: #fff;
+}
+
+.docs-index {
+  display: grid;
+  gap: 12px;
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.doc-card {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+}
+
+.doc-card > i {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 20px;
+}
+
+.doc-card b {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.doc-card:hover b {
+  color: var(--link);
+}
+
+.doc-card p {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.doc-sections {
+  display: block;
+  margin-top: 8px;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.docs-help {
+  margin-top: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.docs-help a {
+  color: var(--link);
+}
+
+.doc {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.doc-side {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  gap: 20px;
+}
+
+.docs-menu {
+  margin-top: 0;
+}
+
+.doc-toc {
+  display: grid;
+  gap: 2px;
+  padding-left: 14px;
+  border-left: 2px solid var(--line);
+  font-size: 13px;
+}
+
+.doc-toc span {
+  margin-bottom: 4px;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.doc-toc a {
+  padding: 3px 0;
+  color: var(--muted);
+}
+
+.doc-toc a:hover {
+  color: var(--text);
+}
+
+.doc-body {
+  padding: 8px 32px 32px;
+  line-height: 1.7;
+}
+
+.doc-body h1,
+.doc-body h2,
+.doc-body h3 {
+  margin: 28px 0 10px;
+  line-height: 1.3;
+  scroll-margin-top: 16px;
+}
+
+.doc-body h1 {
+  font-size: 24px;
+}
+
+.doc-body h2 {
+  font-size: 19px;
+}
+
+.doc-body h3 {
+  font-size: 16px;
+}
+
+.doc-body p,
+.doc-body ul,
+.doc-body ol {
+  margin: 10px 0;
+}
+
+.doc-body ul ul {
+  margin: 4px 0;
+}
+
+.doc-body li::marker {
+  color: var(--accent);
+}
+
+.doc-body hr {
+  margin: 28px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.doc-body a {
+  color: var(--link);
+}
+
+.doc-body :not(pre) > code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--panel-2);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.doc-body strong {
+  font-weight: 600;
+}
+
+.doc-body sup a {
+  text-decoration: none;
+}
+
+.doc-body .footnotes {
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tone-red {
+  --accent: var(--red);
+}
+
+.tone-orange {
+  --accent: var(--orange);
+}
+
+.tone-yellow {
+  --accent: var(--yellow);
+}
+
+.tone-green {
+  --accent: var(--green);
+}
+
+.tone-teal {
+  --accent: var(--teal);
+}
+
+.tone-lblue {
+  --accent: var(--lblue);
+}
+
+.tone-blue {
+  --accent: var(--blue-2);
+}
+
+.tone-purple {
+  --accent: var(--purple);
+}
+
+.tone-pink {
+  --accent: var(--pink);
+}
+
+.tone > :is(h2, h3, h4):first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tone > :is(h2, h3, h4):first-child::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.doc-body ul.columns {
+  columns: 3 200px;
+  column-gap: 32px;
+}
+
+.doc-body ul.columns li {
+  break-inside: avoid;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+}
+
+.callout p {
+  margin: 0;
+}
+
+.callout .callout-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.doc-body table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.doc-body th,
+.doc-body td {
+  padding: 9px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.doc-body th {
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.doc-body td {
+  border-top: 1px solid var(--line);
+}
+
+.doc-body td:first-child {
+  width: 110px;
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.doc-bbcode-example {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  margin: 14px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.doc-bbcode-example-source {
+  overflow-x: auto;
+  margin: 0;
+  padding: 14px;
+  background: var(--bg);
+  color: #cfcfcf;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.doc-bbcode-example-preview {
+  overflow: auto;
+  padding: 14px;
+  border-left: 1px solid var(--line);
+}
+
+.doc-bbcode-example-preview::before {
+  content: 'Preview';
+  display: block;
+  margin-bottom: 6px;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.bbcode-container {
+  line-height: 1.6;
+}
+
+.bbcode-blockquote {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--line);
+  background: var(--bg);
+}
+
+.bbcode-blockquote h4 {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bbcode-notice {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--yellow) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--yellow) 10%, transparent);
+}
+
+.bbcode-spoiler {
+  background: #000;
+  color: #000;
+}
+
+.bbcode-spoiler::selection {
+  color: #fff;
+}
+
+.bbcode-box {
+  margin: 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.bbcode-box-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.bbcode-box-icon {
+  transition: transform 0.15s;
+}
+
+.bbcode-box.open .bbcode-box-icon {
+  transform: rotate(90deg);
+}
+
+.bbcode-box-content {
+  padding: 0 10px 8px;
+}
+
+.bbcode-hidden {
+  display: none;
+}
+
+.bbcode-code {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: var(--bg);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.bbcode-emoji {
+  display: inline;
+  height: 1.4em;
+  vertical-align: middle;
+}
+
+.bbcode-imagemap {
+  position: relative;
+  display: inline-block;
+}
+
+.bbcode-imagemap-image {
+  max-height: 260px;
+  width: auto;
+}
+
+.bbcode-imagemap-tooltip {
+  position: absolute;
+}
+
+.bbcode-imagemap-tooltip:hover {
+  outline: 2px solid var(--link);
+  background: rgb(104 173 242 / 0.15);
+}

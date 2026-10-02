@@ -1,0 +1,86 @@
+/* notice bar, as on prod */
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: 1px solid #276f86;
+  border-radius: var(--radius);
+  background: var(--panel);
+  font-size: 13px;
+}
+
+.notice b {
+  display: block;
+  color: #a9d5de;
+  font-weight: 600;
+}
+
+.notice a {
+  color: var(--link);
+}
+
+.notice-icon {
+  color: var(--blue);
+  font-size: 26px;
+}
+
+.notice.warning {
+  margin: 0 0 12px;
+  border-color: #a5673f;
+}
+
+.notice.warning .notice-icon {
+  color: var(--orange);
+  font-size: 20px;
+}
+
+.notice.alert {
+  margin: 0;
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+
+.alert .notice-icon {
+  flex: none;
+  width: 22px;
+  color: var(--accent);
+  font-size: 20px;
+  text-align: center;
+}
+
+.alert b {
+  color: var(--text);
+}
+
+.alert div {
+  color: var(--muted);
+}
+
+.alert-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  align-self: start;
+  width: 28px;
+  height: 28px;
+  margin: -4px -8px 0 auto;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.alert-close:hover {
+  background: var(--active);
+  color: var(--text);
+}
+
+.site-alerts {
+  display: grid;
+  gap: 10px;
+  padding-top: 24px;
+}

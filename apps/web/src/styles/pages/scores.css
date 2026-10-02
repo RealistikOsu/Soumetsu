@@ -1,0 +1,206 @@
+/* profile score rows, over the blurred beatmap cover like prod */
+
+.score-list {
+  display: grid;
+  overflow: visible;
+}
+
+.score-list .more {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.score-row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto 32px;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 8px 8px 8px 12px;
+}
+
+.score-row + .score-row {
+  border-top: 1px solid var(--line);
+}
+
+.score-row:has(.score-menu[open]) {
+  z-index: 2;
+}
+
+.score-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--panel-2);
+}
+
+.score-bg::before,
+.score-bg::after {
+  content: '';
+  position: absolute;
+}
+
+.score-bg::before {
+  inset: -12px;
+  background: var(--cover) center / cover;
+  filter: blur(4px);
+}
+
+.score-bg::after {
+  inset: 0;
+  background: rgb(26 26 27 / 0.82);
+  transition: background 0.15s;
+}
+
+.score-row:hover .score-bg::after {
+  background: rgb(26 26 27 / 0.72);
+}
+
+.score-row.is-failed .score-bg::before {
+  filter: blur(4px) grayscale(1);
+}
+
+.score-row.is-failed .score-bg::after {
+  background: rgb(70 24 24 / 0.82);
+}
+
+.hide-failed-rows .is-failed {
+  display: none;
+}
+
+.score-row .grade {
+  justify-self: center;
+  font-size: 24px;
+}
+
+.score-info {
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.score-info .song {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-info .song span {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.score-info a.song:hover {
+  color: var(--link);
+}
+
+.score-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-meta .mods {
+  margin-left: 4px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.score-info time {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.score-pp {
+  display: grid;
+  justify-items: end;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.score-pp b {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.score-pp span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.score-row.played {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 56px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.score-menu {
+  position: relative;
+  justify-self: center;
+}
+
+.score-menu summary {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  color: var(--muted);
+  list-style: none;
+  cursor: pointer;
+}
+
+.score-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.score-menu summary:hover,
+.score-menu[open] summary {
+  background: var(--active);
+  color: var(--text);
+}
+
+.score-menu > div {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  min-width: 180px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.score-menu > div > * {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.score-menu > div > *:hover {
+  background: var(--active);
+}
+
+.score-menu i {
+  width: 14px;
+  color: var(--muted);
+  text-align: center;
+}

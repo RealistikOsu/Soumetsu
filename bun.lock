@@ -18,6 +18,9 @@
     "apps/web": {
       "name": "@soumetsu/web",
       "version": "0.1.0",
+      "dependencies": {
+        "@soumetsu/ui": "workspace:*",
+      },
       "devDependencies": {
         "@sveltejs/kit": "2",
         "@sveltejs/vite-plugin-svelte": "7.3.1",

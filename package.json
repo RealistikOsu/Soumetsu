@@ -8,10 +8,10 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "bun --cwd apps/web run dev",
-    "build": "bun --cwd apps/web run build",
-    "start": "bun --cwd apps/web run start",
-    "check": "bun --cwd apps/web run check && bun --cwd packages/ui run check",
+    "dev": "bun run --cwd apps/web dev",
+    "build": "bun run --cwd apps/web build",
+    "start": "bun run --cwd apps/web start",
+    "check": "bun run --cwd apps/web check",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write ."
   },

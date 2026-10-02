@@ -1,0 +1,146 @@
+/* shared bits */
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 32px 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.section-title i {
+  color: var(--accent, var(--muted));
+  font-size: 15px;
+}
+
+.section-title small {
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.section-title a,
+.section-title label {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.section-title a:hover {
+  color: var(--link);
+}
+
+.panel {
+  overflow: hidden;
+  border-top: 2px solid var(--accent, var(--panel));
+  border-radius: var(--top-radius, var(--radius)) var(--top-radius, var(--radius)) var(--radius)
+    var(--radius);
+  background: var(--panel);
+}
+
+.btn {
+  display: inline-block;
+  padding: 9px 16px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #888;
+}
+
+.btn-blue {
+  border-color: var(--button);
+  background: var(--button);
+  color: #fff;
+}
+
+.btn-blue:hover {
+  border-color: #1678c2;
+  background: #1678c2;
+}
+
+.more {
+  display: block;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.more:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+
+.flag {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.avatar {
+  border-radius: 4px;
+  background: var(--panel-2);
+  object-fit: cover;
+  flex: none;
+}
+
+.clan {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.grade {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.grade-x {
+  color: var(--rank-x);
+}
+
+.grade-xh {
+  color: var(--rank-xh);
+}
+
+.grade-a {
+  color: var(--rank-a);
+}
+
+.grade-b {
+  color: var(--rank-b);
+}
+
+.grade-c {
+  color: var(--rank-c);
+}
+
+.grade-d {
+  color: var(--rank-d);
+}
+
+.mods {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.faint {
+  color: var(--faint);
+}

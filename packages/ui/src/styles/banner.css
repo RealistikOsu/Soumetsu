@@ -1,0 +1,27 @@
+/* page banners */
+
+.banner {
+  position: relative;
+  background: #000 center / cover no-repeat;
+}
+
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.banner .wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 150px;
+  padding-bottom: 22px;
+}
+
+.banner h1 {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.1;
+}

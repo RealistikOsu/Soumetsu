@@ -1,0 +1,147 @@
+/* team */
+
+.team {
+  padding-bottom: 48px;
+}
+
+.team-group {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.team-about h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.team-about i {
+  color: var(--accent);
+}
+
+.team-about p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.staff-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.staff-list.small {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.staff-card {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 12px;
+  align-content: center;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.staff-card:hover {
+  background: var(--panel-2);
+}
+
+.staff-card .avatar {
+  grid-row: span 3;
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+}
+
+.staff-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.staff-name b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.staff-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.staff-meta i {
+  width: 12px;
+  color: var(--faint);
+  font-size: 11px;
+  text-align: center;
+}
+
+.staff-list.small .avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.staff-list.small .staff-card {
+  grid-template-columns: 48px minmax(0, 1fr);
+}
+
+.credits {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 20px 24px 20px 40px;
+}
+
+.credits li::marker {
+  color: var(--accent);
+}
+
+.credits a {
+  color: var(--link);
+}
+
+.supporter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.supporter-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 4px;
+  background: var(--panel);
+  font-size: 13px;
+}
+
+.supporter-chip:hover {
+  background: var(--panel-2);
+}
+
+.supporter-chip img {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.supporter-chip b {
+  font-weight: 500;
+}

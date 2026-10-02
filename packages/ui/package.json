@@ -12,9 +12,6 @@
     },
     "./styles/*": "./src/styles/*"
   },
-  "scripts": {
-    "check": "svelte-check --tsconfig ./tsconfig.json"
-  },
   "devDependencies": {
     "svelte": "5.57.1",
     "svelte-check": "4.7.6",

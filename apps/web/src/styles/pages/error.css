@@ -1,0 +1,68 @@
+/* error pages */
+
+.error-banner .wrap {
+  min-height: 190px;
+}
+
+.error-code {
+  display: block;
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.error {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.error-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.error-links a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 2px solid var(--accent);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--panel);
+  font-weight: 600;
+}
+
+.error-links a:hover {
+  background: var(--panel-2);
+}
+
+.error-links i {
+  color: var(--accent);
+}
+
+.error .avatar-actions {
+  margin: 4px 0 8px;
+}
+
+.password-rules {
+  margin: 0;
+  list-style: none;
+}
+
+.password-rules li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.password-rules i {
+  width: 16px;
+  color: var(--accent);
+  text-align: center;
+}

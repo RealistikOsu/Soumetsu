@@ -1,0 +1,70 @@
+/* accent colours, the same set prod uses for its coloured segment lines */
+
+.c-blue,
+.c-lblue,
+.c-orange,
+.c-yellow,
+.c-pink,
+.c-purple,
+.c-green,
+.c-red,
+.c-teal,
+.c-discord {
+  --top-radius: 0;
+}
+
+.c-blue {
+  --accent: var(--blue-2);
+}
+
+.c-lblue {
+  --accent: var(--lblue);
+}
+
+.c-orange {
+  --accent: var(--orange);
+}
+
+.c-yellow {
+  --accent: var(--yellow);
+}
+
+.c-pink {
+  --accent: var(--pink);
+}
+
+.c-purple {
+  --accent: var(--purple);
+}
+
+.c-green {
+  --accent: var(--green);
+}
+
+.c-red {
+  --accent: var(--red);
+}
+
+.c-teal {
+  --accent: var(--teal);
+}
+
+.c-discord {
+  --accent: #5865f2;
+}
+
+.s-ranked {
+  --accent: var(--ranked);
+}
+
+.s-approved {
+  --accent: var(--approved);
+}
+
+.s-loved {
+  --accent: var(--loved);
+}
+
+.s-pending {
+  --accent: var(--pending);
+}

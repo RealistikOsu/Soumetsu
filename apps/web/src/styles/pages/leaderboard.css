@@ -1,0 +1,204 @@
+/* leaderboard */
+
+.filters {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  padding: 20px 0 8px;
+}
+
+.filters .modes {
+  grid-column: span 2;
+}
+
+.countries {
+  display: flex;
+  overflow: hidden;
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-bottom: 16px;
+  background: var(--panel);
+}
+
+.countries a {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 34px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.countries a:hover,
+.countries a.active {
+  background: var(--active);
+  color: #fff;
+}
+
+.board {
+  width: 100%;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  border-top: 2px solid var(--accent);
+  background: var(--panel);
+}
+
+.board th {
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+}
+
+.board td {
+  padding: 7px 14px;
+  text-align: right;
+  border-top: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.board tbody tr:first-child td {
+  border-top: 0;
+}
+
+.board tr:hover td {
+  background: var(--panel-2);
+}
+
+.board .rank {
+  width: 64px;
+  text-align: left;
+  color: var(--muted);
+}
+
+.board tr.place-1 {
+  --place: #f5c542;
+}
+
+.board tr.place-2 {
+  --place: #c3ccd6;
+}
+
+.board tr.place-3 {
+  --place: #d98c55;
+}
+
+.board tr[class^='place-'] td {
+  background: color-mix(in srgb, var(--place) 6%, transparent);
+}
+
+.board tr[class^='place-'] .rank {
+  color: var(--place);
+  font-weight: 600;
+}
+
+.board tr[class^='place-']:hover td {
+  background: var(--panel-2);
+}
+
+.board .player {
+  width: 100%;
+  max-width: 0;
+  text-align: left;
+}
+
+.board .player a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.board .player img.avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.board .player b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.board .player a:hover b {
+  text-decoration: underline;
+}
+
+.board .pp {
+  font-weight: 600;
+}
+
+.board .dim {
+  color: var(--muted);
+}
+
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0 48px;
+}
+
+.pager a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 38px;
+  border-radius: 4px;
+  padding: 7px 14px;
+  background: var(--panel);
+  color: var(--muted);
+  text-align: center;
+}
+
+.pager a:hover {
+  color: var(--text);
+}
+
+.pager a.active {
+  background: var(--active);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pager span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pager a.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.tabs a.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.leaderboard .board tbody {
+  transition: opacity 0.15s;
+}
+
+.leaderboard.is-loading .board tbody {
+  opacity: 0.5;
+}
+
+.leaderboard.is-coins .stat,
+.leaderboard.is-coins .tabs:not(.sort-tabs),
+.leaderboard.is-coins .modes {
+  display: none;
+}
+
+.board-empty {
+  padding: 32px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--panel);
+  color: var(--muted);
+  text-align: center;
+}

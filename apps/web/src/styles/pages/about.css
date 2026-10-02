@@ -1,0 +1,75 @@
+/* about */
+
+.about-banner .wrap {
+  min-height: 240px;
+}
+
+.about {
+  padding-top: 12px;
+  padding-bottom: 48px;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 40px;
+  align-items: center;
+  padding: 24px 0;
+}
+
+.feature-row img {
+  width: 100%;
+  border-top: 2px solid var(--accent);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.feature-row:nth-of-type(even) {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+
+.feature-row:nth-of-type(even) img {
+  order: 2;
+}
+
+.feature-row h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.feature-row h2 i {
+  color: var(--accent);
+}
+
+.feature-row p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.feature-row a {
+  color: var(--link);
+}
+
+.feature-row code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.about-more {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.about-more h2 {
+  font-size: 20px;
+  font-weight: 600;
+}

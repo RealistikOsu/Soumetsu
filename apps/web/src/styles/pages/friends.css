@@ -1,0 +1,117 @@
+/* friends */
+
+.friends {
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+
+.friends-tabs {
+  margin-bottom: 20px;
+}
+
+.friends-tabs .supporter {
+  margin-left: 4px;
+}
+
+.people {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.person .avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+}
+
+.person-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.person-info a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.person-info a b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.person-info a:hover b {
+  text-decoration: underline;
+}
+
+.person-info span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.friend-button {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.friend-button.is-mutual {
+  border-color: color-mix(in srgb, var(--pink) 50%, transparent);
+  background: color-mix(in srgb, var(--pink) 14%, transparent);
+  color: #f48fc4;
+}
+
+.friend-button.is-friend:hover,
+.friend-button.is-mutual:hover {
+  border-color: color-mix(in srgb, var(--red) 55%, transparent);
+  background: color-mix(in srgb, var(--red) 14%, transparent);
+  color: #f28b8b;
+}
+
+.friend-button.is-mutual:hover i::before {
+  content: '\f503';
+}
+
+.friend-button.is-mutual:hover span {
+  display: none;
+}
+
+.friend-button.is-mutual:hover::after {
+  content: 'Remove';
+}
+
+.friend-button.is-follower {
+  border-color: color-mix(in srgb, var(--green) 55%, transparent);
+  background: color-mix(in srgb, var(--green) 14%, transparent);
+  color: #7ee29a;
+}
+
+.friend-button.is-follower:hover {
+  background: color-mix(in srgb, var(--green) 26%, transparent);
+}

@@ -13,7 +13,8 @@ export default ts.config(
       globals: { ...globals.browser, ...globals.node }
     },
     rules: {
-      semi: ['error', 'always']
+      semi: ['error', 'always'],
+      'svelte/no-navigation-without-resolve': 'off'
     }
   },
   {

@@ -1,0 +1,153 @@
+/* creating and managing a clan */
+
+.clan-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
+  align-items: start;
+  padding-bottom: 48px;
+}
+
+.clan-form .field input,
+.clan-form .field textarea {
+  max-width: none;
+}
+
+.clan-form aside > .faint {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.clan-banner .sub a:hover {
+  text-decoration: underline;
+}
+
+.clan-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+}
+
+.clan-preview .clan-icon.large {
+  width: 72px;
+  height: 72px;
+  font-size: 22px;
+}
+
+.clan-preview > div {
+  min-width: 0;
+}
+
+.clan-preview b {
+  display: block;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clan-preview p {
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.roster {
+  display: grid;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+
+.roster li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+}
+
+.roster li + li {
+  border-top: 1px solid var(--line);
+}
+
+.roster .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.roster a {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.roster a:hover {
+  text-decoration: underline;
+}
+
+.roster span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.roster .kick {
+  padding: 5px 10px;
+  border-color: var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.roster .kick:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.roster .kick i,
+.invite .btn i,
+.clan-form .form-actions .btn i {
+  margin-right: 6px;
+}
+
+.invite .copy {
+  padding: 9px 16px;
+  font-size: 14px;
+}
+
+.invite {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  padding: 18px;
+}
+
+.invite small {
+  font-size: 12px;
+}
+
+.invite-link {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+}
+
+.btn-red {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-red:hover {
+  border-color: #c21a1a;
+  background: #c21a1a;
+}

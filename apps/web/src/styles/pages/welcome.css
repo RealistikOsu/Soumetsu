@@ -1,0 +1,413 @@
+/* welcome, banned and stop pages */
+
+.welcome {
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.welcome-box {
+  padding: 20px;
+}
+
+.welcome .perks {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+a.perk:hover {
+  background: var(--panel-2);
+}
+
+a.perk:hover b {
+  color: var(--accent);
+}
+
+.banned-box {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+}
+
+.banned-box > i {
+  color: var(--red);
+  font-size: 36px;
+}
+
+.banned-box h2 {
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.banned-box p + p {
+  margin-top: 10px;
+}
+
+.banned-box a,
+.stop-box ul a {
+  color: var(--link);
+}
+
+.stop-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 32px;
+  align-items: start;
+  padding: 24px;
+}
+
+.stop-box > div {
+  display: grid;
+  gap: 14px;
+}
+
+.stop-box ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.stop-box li::marker {
+  color: var(--red);
+}
+
+.stop-box img {
+  width: 100%;
+  border-radius: 4px;
+}
+
+.camouflaged {
+  color: #3a3a3b;
+  font-size: 12px;
+}
+
+.camouflaged:hover {
+  color: var(--faint);
+}
+
+@media (max-width: 960px) {
+  .perks,
+  .welcome .perks,
+  .error-links,
+  .map-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .request-preview {
+    flex-wrap: wrap;
+  }
+
+  .request-preview > div {
+    flex: 1;
+  }
+
+  .request-preview .map-status {
+    order: -1;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .doc-bbcode-example {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stop-box,
+  .team-group,
+  .feature-row,
+  .feature-row:nth-of-type(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .team-group,
+  .feature-row {
+    gap: 16px;
+  }
+
+  .feature-row:nth-of-type(even) img {
+    order: 0;
+  }
+
+  .stop-box img {
+    order: -1;
+    justify-self: center;
+    width: 160px;
+  }
+
+  .doc-bbcode-example-preview {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .doc,
+  .clan-form,
+  .request,
+  .home,
+  .profile,
+  .map-info,
+  .patcher-top,
+  .clan-top,
+  .settings,
+  .auth,
+  .mode-bar .wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mascot,
+  .search-box,
+  .hide-md {
+    display: none;
+  }
+
+  .support-us span {
+    display: none;
+  }
+
+  .top-right {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .top .wrap {
+    flex-wrap: wrap;
+    gap: 0 12px;
+    height: auto;
+    min-height: 54px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    height: 54px;
+  }
+
+  .top-right {
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .menu-toggle {
+    display: grid;
+    place-items: center;
+  }
+
+  .nav,
+  .top .search-box {
+    display: none;
+  }
+
+  .top.open .nav {
+    order: 3;
+    display: grid;
+    width: 100%;
+    height: auto;
+    padding: 4px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .top.open .nav a {
+    padding: 12px 4px;
+    border-radius: 4px;
+  }
+
+  .top.open .nav a.active {
+    padding-left: 10px;
+    box-shadow: inset 2px 0 var(--accent);
+  }
+
+  .top.open .nav-menu {
+    display: grid;
+  }
+
+  .top.open .nav-menu > button {
+    padding: 12px 4px 4px;
+    background: none;
+    box-shadow: none;
+    color: var(--faint);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  .top.open .nav-menu > button .fa-chevron-down {
+    display: none;
+  }
+
+  .top.open .nav-drop {
+    position: static;
+    display: grid;
+    min-width: 0;
+    padding: 0 0 0 22px;
+    border: 0;
+    background: none;
+  }
+
+  .top.open .nav .nav-drop a {
+    padding: 10px 4px;
+  }
+
+  .top.open .search-box {
+    order: 4;
+    display: block;
+    width: 100%;
+    margin: 0 0 14px;
+  }
+
+  .top.open .search {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .guest {
+    padding: 7px 10px;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hero-inner {
+    padding: 0 16px;
+  }
+
+  .banned-box {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .score-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto 28px;
+    gap: 10px;
+    padding-left: 8px;
+  }
+
+  .score-row .grade {
+    font-size: 20px;
+  }
+
+  .score-pp b {
+    font-size: 15px;
+  }
+
+  .score-menu summary {
+    width: 28px;
+  }
+
+  .staff-list.small {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .staff-list.small .staff-card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    row-gap: 2px;
+  }
+
+  .staff-list.small .avatar {
+    grid-row: auto;
+    margin-bottom: 6px;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .counters,
+  .features,
+  .features-grid,
+  .toggles,
+  .clan-stats,
+  .methods,
+  .perks,
+  .welcome .perks,
+  .checkout,
+  .map-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .clan-banner .wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-top: 24px;
+  }
+
+  .create-clan {
+    justify-self: start;
+  }
+
+  .avatar-panel,
+  .link-card.linked {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .link-card.linked .btn {
+    margin-left: 0;
+  }
+
+  .top-scores {
+    grid-auto-flow: row;
+  }
+
+  .filters,
+  .map-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .map-stats h2 {
+    grid-column: auto;
+    flex-wrap: wrap;
+  }
+
+  .top-play {
+    flex-wrap: wrap;
+  }
+
+  .top-play-stats {
+    flex-basis: 100%;
+    margin: 0;
+  }
+
+  .scoreboard th,
+  .scoreboard td {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .filters .modes {
+    grid-column: auto;
+  }
+
+  .profile-head .wrap {
+    flex-wrap: wrap;
+    padding-top: 40px;
+  }
+
+  .profile-head .avatar {
+    width: 88px;
+    height: 88px;
+  }
+
+  .who-block {
+    flex-basis: 100%;
+  }
+
+  .tabs a {
+    padding: 8px 10px;
+  }
+
+  .board th,
+  .board td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .board .clan,
+  .hide-sm {
+    display: none;
+  }
+}

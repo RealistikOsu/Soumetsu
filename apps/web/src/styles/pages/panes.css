@@ -1,0 +1,23 @@
+/* per-mode profile panes */
+
+.empty-note {
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-mode {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding: 40px 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-mode img {
+  width: 40px;
+  height: 40px;
+  opacity: 0.6;
+}

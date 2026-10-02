@@ -1,0 +1,170 @@
+/* clans */
+
+.clan-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--purple) 28%, var(--panel-2));
+  color: #e4c3f2;
+  font-weight: 600;
+  object-fit: cover;
+}
+
+.clan-icon.small {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+}
+
+.clan-icon.large {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  font-size: 30px;
+}
+
+.board .player .clan {
+  flex: none;
+}
+
+.create-clan {
+  justify-self: end;
+}
+
+.create-clan i {
+  margin-right: 8px;
+}
+
+.clan-banner .wrap {
+  align-items: flex-end;
+  gap: 24px;
+  min-height: 190px;
+}
+
+.clan-tag {
+  color: #e4c3f2;
+  font-weight: 600;
+}
+
+.leave-clan {
+  margin-left: auto;
+  border-color: rgb(255 255 255 / 0.25);
+  background: rgb(0 0 0 / 0.35);
+}
+
+.leave-clan:hover {
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.leave-clan i {
+  margin-right: 8px;
+}
+
+.clan-page {
+  padding-bottom: 48px;
+}
+
+.clan-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+.clan-top aside .section-title {
+  margin-top: 20px;
+}
+
+.clan-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.clan-stats[hidden] {
+  display: none;
+}
+
+.clan-rank span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.clan-rank b {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.clan-rank:nth-child(2) b {
+  color: var(--link);
+}
+
+.clan-stats .stats {
+  margin: 0;
+}
+
+.clan-stats .stats div:first-child {
+  border-top: 0;
+}
+
+.members {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.member:hover {
+  background: var(--panel-2);
+}
+
+.member .avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+}
+
+.member div {
+  min-width: 0;
+}
+
+.member b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.member span {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.member .fa-crown {
+  color: var(--orange);
+  font-size: 12px;
+}
+
+.member.owner {
+  border-top: 2px solid var(--orange);
+  border-radius: 0 0 var(--radius) var(--radius);
+}

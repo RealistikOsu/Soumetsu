@@ -1,0 +1,48 @@
+/* segmented menus (modes, leaderboard type) */
+
+.tabs {
+  display: flex;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.tabs a {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tabs a:hover {
+  color: var(--text);
+}
+
+.tabs a.active {
+  color: #fff;
+  background: var(--active);
+  font-weight: 600;
+}
+
+.tabs.tinted a:hover {
+  color: var(--accent);
+}
+
+.tabs.tinted a.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.tabs img {
+  width: 16px;
+  height: 16px;
+}
+
+.tabs a:not(.active) img {
+  opacity: 0.6;
+}

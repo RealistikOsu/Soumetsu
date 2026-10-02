@@ -1,0 +1,285 @@
+/* beatmap listing */
+
+.banner .sub a {
+  color: var(--link);
+}
+
+.listing {
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+
+.listing-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.listing-search i {
+  color: var(--faint);
+}
+
+.listing-search input {
+  flex: 1;
+  padding: 13px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.listing-search:focus-within {
+  border-color: var(--blue);
+}
+
+.listing .filters {
+  grid-template-columns: 1fr;
+  padding-bottom: 16px;
+}
+
+.listing .filters .modes {
+  grid-column: auto;
+}
+
+.status-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.status-tabs a:hover {
+  color: var(--accent, var(--text));
+}
+
+.status-tabs a.active {
+  background: color-mix(in srgb, var(--accent, #fff) 16%, transparent);
+  color: var(--accent, #fff);
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.map-card {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.map-cover {
+  position: relative;
+  display: block;
+  height: 120px;
+  background: var(--panel-2) center / cover no-repeat;
+}
+
+.map-cover .map-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.65);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.map-cover > .fa-film {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.65);
+  color: #fff;
+  font-size: 11px;
+}
+
+.preview {
+  position: absolute;
+  top: 98px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.preview:hover {
+  filter: brightness(1.1);
+}
+
+.preview.playing i::before {
+  content: '\f04c';
+}
+
+.map-body {
+  padding: 14px 16px 12px;
+}
+
+.map-title {
+  display: block;
+  overflow: hidden;
+  padding-right: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.map-title:hover {
+  color: var(--link);
+}
+
+.map-artist,
+.map-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.map-meta b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.map-diffs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.dots span {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 50%;
+}
+
+.map-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.map-foot i {
+  margin-right: 5px;
+  color: var(--faint);
+}
+
+.downloads {
+  position: relative;
+  margin-left: auto;
+}
+
+.downloads summary,
+.downloads .summary {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--text);
+  list-style: none;
+  cursor: pointer;
+}
+
+.downloads summary::-webkit-details-marker {
+  display: none;
+}
+
+.downloads summary:hover,
+.downloads[open] summary,
+.downloads:hover .summary {
+  background: color-mix(in srgb, var(--green) 35%, var(--panel-2));
+}
+
+.downloads summary i,
+.downloads .summary i {
+  color: inherit;
+}
+
+.downloads div {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  display: grid;
+  min-width: 140px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.downloads div a {
+  padding: 7px 10px;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.downloads div a:hover {
+  background: var(--active);
+}
+
+.map-card {
+  overflow: visible;
+}
+
+.map-cover {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.load-more {
+  display: block;
+  margin: 24px auto 0;
+}
+
+.btn[hidden] {
+  display: none;
+}
+
+.listing .map-grid {
+  transition: opacity 0.15s;
+}
+
+.listing.is-loading .map-grid {
+  opacity: 0.5;
+}
+
+.listing-note {
+  padding: 32px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--muted);
+  text-align: center;
+}

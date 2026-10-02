@@ -8,3 +8,5 @@ build
 playwright-report
 test-results
 screenshots
+PLAN.md
+GAPS.md

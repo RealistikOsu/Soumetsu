@@ -1,0 +1,348 @@
+/* Copied from old-frontend static/realistikosu.css; keys match core/decorations.go. */
+
+.deco-violet {
+  color: #9b59b6;
+}
+.deco-red {
+  color: #ff3b3b;
+}
+.deco-orange {
+  color: #ff8c00;
+}
+.deco-yellow {
+  color: #ffd700;
+}
+.deco-green {
+  color: #22c55e;
+}
+.deco-cyan {
+  color: #06b6d4;
+}
+.deco-blue {
+  color: #3b82f6;
+}
+.deco-purple {
+  color: #a855f7;
+}
+.deco-pink {
+  color: #ec4899;
+}
+
+.deco-sunset,
+.deco-ocean,
+.deco-amethyst,
+.deco-trans,
+.deco-pride,
+.deco-lesbian,
+.deco-gay,
+.deco-bisexual,
+.deco-pansexual,
+.deco-nonbinary,
+.deco-asexual,
+.deco-aurora,
+.deco-holo,
+.deco-galaxy,
+.deco-fire,
+.deco-ice,
+.deco-staff-rainbow,
+.deco-staff-chrome,
+.deco-staff-gold,
+.deco-staff-aurora,
+.deco-beer,
+.deco-vaporwave,
+.deco-sakura,
+.deco-staff-claude {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.deco-sunset {
+  background-image: linear-gradient(90deg, #ff8c42, #ff3cac);
+}
+.deco-ocean {
+  background-image: linear-gradient(90deg, #2193b0, #6dd5ed);
+}
+.deco-amethyst {
+  background-image: linear-gradient(90deg, #9d50bb, #ff69b4);
+}
+.deco-trans {
+  background-image: linear-gradient(90deg, #5bcefa, #f5a9b8, #ffffff, #f5a9b8, #5bcefa);
+}
+.deco-pride {
+  background-image: linear-gradient(90deg, #e40303, #ff8c00, #ffed00, #008026, #004dff, #750787);
+}
+.deco-lesbian {
+  background-image: linear-gradient(90deg, #d62900, #ff9b55, #ffffff, #d462a6, #a50062);
+}
+.deco-gay {
+  background-image: linear-gradient(90deg, #078d70, #98e8c1, #ffffff, #7bade2, #3d1a78);
+}
+.deco-bisexual {
+  background-image: linear-gradient(90deg, #d60270, #d60270, #9b4f96, #0038a8, #0038a8);
+}
+.deco-pansexual {
+  background-image: linear-gradient(90deg, #ff218c, #ffd800, #21b1ff);
+}
+.deco-nonbinary {
+  background-image: linear-gradient(90deg, #fcf434, #ffffff, #9c59d1, #000000);
+}
+.deco-asexual {
+  background-image: linear-gradient(90deg, #000000, #a4a4a4, #ffffff, #810081);
+}
+
+.deco-aurora {
+  background-image: linear-gradient(90deg, #43cea2, #185a9d, #6a11cb, #43cea2);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 6s ease infinite;
+}
+@keyframes deco-aurora-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+.deco-ember {
+  color: #ff4500;
+  animation: deco-ember-pulse 2s ease-in-out infinite;
+}
+@keyframes deco-ember-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 4px rgba(255, 69, 0, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(255, 69, 0, 0.95),
+      0 0 20px rgba(255, 140, 0, 0.6);
+  }
+}
+
+.deco-holo {
+  background-image: linear-gradient(120deg, #a1c4fd, #c2e9fb, #fbc2eb, #a1c4fd);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 8s ease infinite;
+}
+
+.deco-galaxy {
+  background-image: linear-gradient(90deg, #0f0c29, #302b63, #6a11cb, #302b63, #0f0c29);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 10s ease infinite;
+}
+
+.deco-fire {
+  background-image: linear-gradient(90deg, #ff0000, #ff7a00, #ffd500, #ff0000);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 3s ease infinite;
+}
+
+.deco-ice {
+  background-image: linear-gradient(90deg, #83eaf1, #63a4ff, #ffffff, #63a4ff, #83eaf1);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 7s ease infinite;
+}
+
+.deco-beer {
+  background-image: linear-gradient(90deg, #c68e17, #ffd700, #fff8e1, #ffd700, #c68e17);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 3.5s ease infinite;
+}
+
+.deco-vaporwave {
+  background-image: linear-gradient(90deg, #ff6ec7, #7873f5, #00f5ff, #ff6ec7);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 6s ease infinite;
+}
+
+.deco-sakura {
+  background-image: linear-gradient(90deg, #ffb7c5, #ffffff, #ffb7c5);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 14s ease infinite;
+}
+
+.deco-staff-claude {
+  background-image: linear-gradient(90deg, #cc785c, #e8c4a0, #cc785c);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 6s ease infinite;
+  position: relative;
+  padding: 0 1em;
+}
+.deco-staff-claude::before,
+.deco-staff-claude::after {
+  content: '\2728';
+  position: absolute;
+  font-size: 0.7em;
+  color: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+  -webkit-background-clip: initial;
+  background-image: none;
+}
+.deco-staff-claude::before {
+  left: 0;
+}
+.deco-staff-claude::after {
+  right: 0;
+}
+
+.deco-staff-rainbow {
+  background-image: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff9900,
+    #ffee00,
+    #33ff00,
+    #00ffee,
+    #0033ff,
+    #9900ff,
+    #ff0000
+  );
+  background-size: 400% 100%;
+  animation: deco-staff-rainbow-shift 4s linear infinite;
+}
+@keyframes deco-staff-rainbow-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 400% 50%;
+  }
+}
+
+.deco-staff-chrome {
+  background-image: linear-gradient(90deg, #8e9eab, #eef2f3, #8e9eab, #545c64, #8e9eab);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 5s ease infinite;
+}
+
+.deco-staff-gold {
+  background-image: linear-gradient(90deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 5s ease infinite;
+}
+
+.deco-staff-aurora {
+  background-image: linear-gradient(90deg, #00ff87, #60efff, #8a2be2, #00ff87);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 6s ease infinite;
+}
+
+.deco-staff-pulse {
+  color: #f0f8ff;
+  animation: deco-staff-pulse 2.5s ease-in-out infinite;
+}
+@keyframes deco-staff-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 4px rgba(240, 248, 255, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(240, 248, 255, 0.95),
+      0 0 22px rgba(135, 206, 250, 0.7);
+  }
+}
+
+.deco-staff-halo {
+  color: #ffd700;
+  animation: deco-staff-halo 3s ease-in-out infinite;
+}
+@keyframes deco-staff-halo {
+  0%,
+  100% {
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgba(255, 215, 0, 0.9),
+      0 0 26px rgba(255, 245, 190, 0.6);
+  }
+}
+
+.deco-staff-voltage {
+  color: #e0f7ff;
+  animation: deco-staff-voltage 0.9s steps(2, end) infinite;
+}
+@keyframes deco-staff-voltage {
+  0%,
+  100% {
+    text-shadow: 0 0 4px rgba(120, 220, 255, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 16px rgba(120, 220, 255, 1),
+      0 0 28px rgba(255, 255, 255, 0.8);
+  }
+}
+
+.deco-staff-glitch {
+  color: #ffffff;
+  animation: deco-staff-glitch 1.2s steps(1, end) infinite;
+}
+@keyframes deco-staff-glitch {
+  0%,
+  100% {
+    text-shadow:
+      2px 0 #ff00c1,
+      -2px 0 #00fff9;
+  }
+  20% {
+    text-shadow:
+      -2px 0 #ff00c1,
+      2px 0 #00fff9;
+  }
+  40% {
+    text-shadow:
+      1px 1px #ff00c1,
+      -1px -1px #00fff9;
+  }
+  60% {
+    text-shadow:
+      -1px -1px #ff00c1,
+      1px 1px #00fff9;
+  }
+  80% {
+    text-shadow:
+      2px -1px #ff00c1,
+      -2px 1px #00fff9;
+  }
+}
+
+.deco-staff-prism {
+  color: #ffffff;
+  text-shadow:
+    1px 0 0 rgba(255, 0, 0, 0.6),
+    -1px 0 0 rgba(0, 255, 255, 0.6),
+    0 1px 0 rgba(255, 255, 0, 0.5),
+    0 -1px 0 rgba(255, 0, 255, 0.5);
+  animation: deco-staff-prism 4s ease-in-out infinite;
+}
+@keyframes deco-staff-prism {
+  0%,
+  100% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(45deg);
+  }
+}
+
+.deco-staff-eclipse {
+  color: #e8e8e8;
+  animation: deco-staff-eclipse 4s ease-in-out infinite;
+}
+@keyframes deco-staff-eclipse {
+  0%,
+  100% {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    color: #a0a0a0;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+  }
+}
