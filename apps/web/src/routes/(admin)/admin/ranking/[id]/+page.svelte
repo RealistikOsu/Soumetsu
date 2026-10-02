@@ -81,11 +81,13 @@
     <div>
       <h1>{data.title}</h1>
       <p>
-        {#if data.creator}mapped by <b>{data.creator}</b> ·
-        {/if}set {data.setId}
+        {#if data.creator}mapped by <b>{data.creator}</b> ·&nbsp;{/if}set {data.setId}
       </p>
     </div>
     <div class="set-actions">
+      <a class="btn" href="/beatmaps/{data.difficulties[0].id}">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>View beatmap
+      </a>
       <button class="btn btn-blue" type="button" onclick={() => (dialog = 'ranked')}>
         <i class="fa-solid fa-angles-up"></i>Rank set
       </button>
@@ -121,11 +123,9 @@
             {@const status = statusOf(diff.ranked)}
             <tr>
               <td
-                ><img
-                  class="mode-icon"
-                  src="/img/modes/mode-{diff.mode}.png"
-                  alt=""
-                />{diff.name}</td
+                ><img class="mode-icon" src="/img/modes/mode-{diff.mode}.png" alt="" /><a
+                  href="/beatmaps/{diff.id}">{diff.name}</a
+                ></td
               >
               <td><Stars value={diff.stars} /></td>
               <td>

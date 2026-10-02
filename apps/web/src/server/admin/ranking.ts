@@ -152,6 +152,17 @@ async function announce(
   });
 }
 
+// A request is answered once someone changes the status of its set or difficulty, so it leaves the queue.
+const clearRequests = (setId: number, beatmapIds: number[]) =>
+  db.rank_requests.deleteMany({
+    where: {
+      OR: [
+        { type: 's', bid: setId },
+        { type: 'b', bid: { in: beatmapIds } }
+      ]
+    }
+  });
+
 const refresh = (md5s: string[]) =>
   Promise.all(md5s.map((md5) => redis.publish('ussr:refresh_bmap', md5)));
 
@@ -171,6 +182,10 @@ export async function rankSet(by: Ranker, setId: number, status: number) {
     where: { beatmapset_id: setId, mode: { in: modes } },
     data: { ranked: status, ranked_status_freezed: true }
   });
+  await clearRequests(
+    setId,
+    present.map((row) => row.beatmap_id)
+  );
   await announce(by, setId, present[0].beatmap_id, splitName(present[0].song_name).song, status);
   await refresh(present.map((row) => row.beatmap_md5));
   await rapLog(by.id, `${verb[status]} the beatmap set ${setId}`);
@@ -190,6 +205,7 @@ export async function rankDifficulty(by: Ranker, beatmapId: number, status: numb
     where: { beatmap_id: beatmapId },
     data: { ranked: status, ranked_status_freezed: true }
   });
+  await clearRequests(row.beatmapset_id, [beatmapId]);
   await announce(by, row.beatmapset_id, beatmapId, row.song_name, status);
   await refresh([row.beatmap_md5]);
   await rapLog(by.id, `${verb[status]} the beatmap ${row.song_name} (${beatmapId})`);
