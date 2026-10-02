@@ -69,3 +69,15 @@ export function starColour(stars: number) {
 export const starTextColour = (stars: number) => (stars >= 6.5 ? '#ffd966' : '#000');
 
 export const modeKeys = ['std', 'taiko', 'ctb', 'mania'] as const;
+
+const byName: Record<string, Status> = {
+  ranked: statuses[2],
+  approved: statuses[3],
+  qualified: statuses[4],
+  loved: statuses[5],
+  wip: { ...pending, name: 'WIP' },
+  graveyard: { ...pending, name: 'Graveyard' }
+};
+
+// The v2 mirror names the status instead of numbering it.
+export const mirrorStatusKey = (name: string) => byName[name.toLowerCase()] ?? pending;

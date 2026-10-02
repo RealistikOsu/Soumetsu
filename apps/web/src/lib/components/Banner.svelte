@@ -4,18 +4,21 @@
 
   let {
     image,
+    url,
     class: className = '',
     alerts = true,
     children
   }: {
-    image: string;
+    // A file under /img/headers, or a full url (a beatmap's cover) instead.
+    image?: string;
+    url?: string;
     class?: string;
     alerts?: boolean;
     children: Snippet;
   } = $props();
 </script>
 
-<section class="banner {className}" style="background-image: url(/img/headers/{image})">
+<section class="banner {className}" style="background-image: url({url ?? `/img/headers/${image}`})">
   <div class="wrap">{@render children()}</div>
 </section>
 {#if alerts}
