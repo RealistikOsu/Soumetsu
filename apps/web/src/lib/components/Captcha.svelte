@@ -1,5 +1,6 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { getLocale } from '$lib/i18n';
 
   interface HCaptcha {
     render: (
@@ -28,7 +29,7 @@
       const existing = (window as unknown as { hcaptcha?: HCaptcha }).hcaptcha;
       if (existing) return resolve(existing);
       const script = document.createElement('script');
-      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+      script.src = `https://js.hcaptcha.com/1/api.js?render=explicit&hl=${getLocale()}`;
       script.async = true;
       script.onload = () => resolve((window as unknown as { hcaptcha: HCaptcha }).hcaptcha);
       document.head.append(script);

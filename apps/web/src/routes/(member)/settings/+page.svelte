@@ -5,18 +5,20 @@
   import { session } from '$lib/auth/session.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { getLocale, languageNames, locales, setLocale, type Locale } from '$lib/i18n';
   import { modeNames } from '$lib/modes';
+  import { m } from '$lib/paraglide/messages';
 
   const playStyles = [
-    'Mouse',
-    'Tablet',
-    'Keyboard',
-    'Touchscreen',
-    'Spoon',
-    'Leap motion',
-    'Oculus rift',
-    'Dick',
-    'Eggplant'
+    m.settings_playstyle_mouse(),
+    m.settings_playstyle_tablet(),
+    m.settings_playstyle_keyboard(),
+    m.settings_playstyle_touchscreen(),
+    m.settings_playstyle_spoon(),
+    m.settings_playstyle_leap_motion(),
+    m.settings_playstyle_oculus_rift(),
+    m.settings_playstyle_dick(),
+    m.settings_playstyle_eggplant()
   ];
 
   const loaded = query((signal) => settings(signal));
@@ -55,7 +57,7 @@
           ? { custom_badge: { show: badge.show, icon: badge.icon, name: badge.name } }
           : {})
       });
-      flash.show('success', 'Your settings have been saved.');
+      flash.show('success', m.settings_saved());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -65,36 +67,41 @@
 </script>
 
 {#if loaded.state.status === 'error'}
-  <p class="panel empty-note">Couldn't load your settings. Try again in a bit.</p>
+  <p class="panel empty-note">{m.settings_load_failed()}</p>
 {:else if ready}
   <form onsubmit={save}>
-    <SectionTitle colour="c-blue" icon="fa-user">General</SectionTitle>
+    <SectionTitle colour="c-blue" icon="fa-user">{m.settings_general()}</SectionTitle>
     <div class="panel form-panel c-blue">
       <div class="field">
-        <label for="username">Username</label>
+        <label for="username">{m.settings_username()}</label>
         <input id="username" type="text" value={session.user?.username} disabled />
         <small
-          >Supporters can change it under <a href="/settings/change-username">Change username</a
-          >.</small
+          >{m.settings_username_hint_start()}
+          <a href="/settings/change-username">{m.settings_tab_username()}</a
+          >{m.settings_username_hint_end()}</small
         >
       </div>
       <div class="field">
-        <label for="email">Email address</label>
+        <label for="email">{m.settings_email()}</label>
         <input
           id="email"
           type="email"
           value={loaded.state.status === 'ready' ? loaded.state.data.email : ''}
           disabled
         />
-        <small>Change it from the <a href="/settings/password">Password</a> page.</small>
+        <small
+          >{m.settings_email_hint_start()}
+          <a href="/settings/password">{m.settings_tab_password()}</a
+          >{m.settings_email_hint_end()}</small
+        >
       </div>
       <div class="field">
-        <label for="aka">Alternative username</label>
-        <input id="aka" type="text" bind:value={aka} placeholder="Also known as..." />
-        <small>Shown on your profile. It can't be used to log in.</small>
+        <label for="aka">{m.settings_aka()}</label>
+        <input id="aka" type="text" bind:value={aka} placeholder={m.settings_aka_placeholder()} />
+        <small>{m.settings_aka_hint()}</small>
       </div>
       <div class="field">
-        <span class="label">Favourite mode</span>
+        <span class="label">{m.settings_favourite_mode()}</span>
         <div class="choice">
           {#each modeNames as name, i (name)}
             <label>
@@ -104,9 +111,22 @@
           {/each}
         </div>
       </div>
+      <div class="field">
+        <label for="language">{m.settings_language()}</label>
+        <select
+          id="language"
+          value={getLocale()}
+          onchange={(event) => setLocale(event.currentTarget.value as Locale)}
+        >
+          {#each locales as locale (locale)}
+            <option value={locale}>{languageNames[locale]}</option>
+          {/each}
+        </select>
+        <small>{m.settings_language_hint()}</small>
+      </div>
     </div>
 
-    <SectionTitle colour="c-purple" icon="fa-gamepad">Playstyle</SectionTitle>
+    <SectionTitle colour="c-purple" icon="fa-gamepad">{m.settings_playstyle()}</SectionTitle>
     <div class="panel form-panel c-purple">
       <div class="chips">
         {#each playStyles as name, i (name)}
@@ -123,33 +143,36 @@
     </div>
 
     {#if badge.allowed}
-      <SectionTitle colour="c-yellow" icon="fa-certificate">Custom badge</SectionTitle>
+      <SectionTitle colour="c-yellow" icon="fa-certificate">{m.settings_badge()}</SectionTitle>
       <div class="panel form-panel c-yellow">
         <label class="switch">
-          <input type="checkbox" bind:checked={badge.show} /><span></span>Show my custom badge
+          <input type="checkbox" bind:checked={badge.show} /><span></span>{m.settings_badge_show()}
         </label>
         <div class="field">
-          <label for="badge-icon">Icon</label>
+          <label for="badge-icon">{m.settings_badge_icon()}</label>
           <input id="badge-icon" type="text" bind:value={badge.icon} placeholder="fa-star" />
-          <small>A Font Awesome icon name, like <code>fa-star</code>.</small>
+          <small
+            >{m.settings_badge_icon_hint_start()}
+            <code>fa-star</code>{m.settings_badge_icon_hint_end()}</small
+          >
         </div>
         <div class="field">
-          <label for="badge-name">Name</label>
+          <label for="badge-name">{m.settings_badge_name()}</label>
           <input id="badge-name" type="text" bind:value={badge.name} />
         </div>
       </div>
     {/if}
 
-    <SectionTitle colour="c-teal" icon="fa-comments">Comments</SectionTitle>
+    <SectionTitle colour="c-teal" icon="fa-comments">{m.settings_comments()}</SectionTitle>
     <div class="panel form-panel c-teal">
       <label class="switch">
-        <input type="checkbox" bind:checked={commentsOff} /><span></span>Disable comments on my
-        profile
+        <input type="checkbox" bind:checked={commentsOff} /><span
+        ></span>{m.settings_comments_disable()}
       </label>
     </div>
 
     <div class="form-actions">
-      <button class="btn btn-blue" type="submit" disabled={busy}>Save</button>
+      <button class="btn btn-blue" type="submit" disabled={busy}>{m.settings_save()}</button>
     </div>
   </form>
 {:else}

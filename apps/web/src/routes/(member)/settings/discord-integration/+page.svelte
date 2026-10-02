@@ -5,6 +5,7 @@
   import { describe } from '$lib/api/messages';
   import { discordLink, linkDiscord, unlinkDiscord, type DiscordLink } from '$lib/api/settings';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const STATE_KEY = 'soumetsu.discord-state';
 
@@ -29,13 +30,13 @@
     sessionStorage.removeItem(STATE_KEY);
     goto('/settings/discord-integration', { replaceState: true });
     if (!expected || state !== expected) {
-      flash.show('error', 'An error occurred. Please try linking Discord again.');
+      flash.show('error', m.settings_discord_state_error());
       return;
     }
     linkDiscord(code, redirectUri).then(
       (result) => {
         link = result;
-        flash.show('success', 'Your Discord account has been linked.');
+        flash.show('success', m.settings_discord_linked());
       },
       (error) => {
         failed = true;
@@ -61,7 +62,7 @@
     try {
       await unlinkDiscord();
       link = { discord_id: null };
-      flash.show('success', 'Your Discord account has been unlinked.');
+      flash.show('success', m.settings_discord_unlinked());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -72,26 +73,31 @@
   const linked = $derived(!!link?.discord_id);
 </script>
 
-<h2 class="section-title c-discord"><i class="fa-brands fa-discord"></i>Discord linking</h2>
+<h2 class="section-title c-discord">
+  <i class="fa-brands fa-discord"></i>{m.settings_tab_discord()}
+</h2>
 <div class="panel link-card {linked ? 'linked' : ''} c-discord">
   <span class="link-icon"><i class="fa-brands fa-discord"></i></span>
   {#if failed}
-    <div><p>Couldn't load your Discord link. Try again in a bit.</p></div>
+    <div><p>{m.settings_discord_load_failed()}</p></div>
   {:else if link === null}
     <div><span class="skel" style="width: 160px"></span></div>
   {:else if linked}
     <div>
-      <h2>{link.discord_username ? `@${link.discord_username}` : 'Discord account'}</h2>
-      <p>Logged in with Discord. It shows on your profile.</p>
+      <h2>
+        {link.discord_username ? `@${link.discord_username}` : m.settings_discord_account()}
+      </h2>
+      <p>{m.settings_discord_linked_note()}</p>
     </div>
-    <button class="btn" type="button" disabled={busy} onclick={unlink}>Unlink account</button>
+    <button class="btn" type="button" disabled={busy} onclick={unlink}>{m.settings_unlink()}</button
+    >
   {:else}
     <div>
-      <h2>Not linked</h2>
-      <p>Link your Discord account to show it on your profile.</p>
+      <h2>{m.settings_not_linked()}</h2>
+      <p>{m.settings_discord_link_prompt()}</p>
     </div>
     <button class="btn btn-blue" type="button" onclick={connect}>
-      <i class="fa-brands fa-discord"></i>Link Discord
+      <i class="fa-brands fa-discord"></i>{m.settings_discord_link()}
     </button>
   {/if}
 </div>

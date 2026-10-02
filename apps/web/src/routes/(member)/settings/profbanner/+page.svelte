@@ -7,6 +7,7 @@
   import { bannerUrl } from '$lib/assets';
   import SupporterOnly from '$lib/components/SupporterOnly.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let type = $state<0 | 1 | 2>(1);
   let colour = $state('#548aca');
@@ -29,7 +30,7 @@
         version = Date.now();
       }
       await saveBanner(type, type === 2 ? colour : undefined);
-      flash.show('success', 'Your profile banner has been saved.');
+      flash.show('success', m.settings_banner_saved());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -38,34 +39,37 @@
   }
 </script>
 
-<h2 class="section-title c-green"><i class="fa-solid fa-panorama"></i>Profile banner</h2>
+<h2 class="section-title c-green"><i class="fa-solid fa-panorama"></i>{m.settings_tab_banner()}</h2>
 {#if !supporter}
   <SupporterOnly />
 {:else}
   <form onsubmit={save}>
     <div class="panel form-panel c-green">
       <div class="field">
-        <span class="label">Banner type</span>
+        <span class="label">{m.settings_banner_type()}</span>
         <div class="choice">
-          <label><input type="radio" bind:group={type} value={0} /><span>None</span></label>
+          <label
+            ><input type="radio" bind:group={type} value={0} /><span>{m.settings_none()}</span
+            ></label
+          >
           <label>
             <input type="radio" bind:group={type} value={1} />
-            <span><i class="fa-solid fa-image"></i>Image</span>
+            <span><i class="fa-solid fa-image"></i>{m.settings_banner_image()}</span>
           </label>
           <label>
             <input type="radio" bind:group={type} value={2} />
-            <span><i class="fa-solid fa-fill-drip"></i>Solid colour</span>
+            <span><i class="fa-solid fa-fill-drip"></i>{m.settings_banner_solid()}</span>
           </label>
         </div>
       </div>
 
       {#if type === 1}
         <div class="banner-preview" style="background-image: url({preview ?? current})">
-          {#if !preview}Your current banner{/if}
+          {#if !preview}{m.settings_banner_current()}{/if}
         </div>
         <div class="avatar-actions">
           <label class="btn" for="banner-file"
-            ><i class="fa-solid fa-folder-open"></i>Open file</label
+            ><i class="fa-solid fa-folder-open"></i>{m.settings_open_file()}</label
           >
           <input
             id="banner-file"
@@ -78,14 +82,14 @@
       {:else if type === 2}
         <div class="banner-preview" style="background-color: {colour}"></div>
         <div class="field">
-          <label for="banner-colour">Colour</label>
+          <label for="banner-colour">{m.settings_banner_colour()}</label>
           <input id="banner-colour" type="color" bind:value={colour} />
         </div>
       {/if}
     </div>
     <div class="form-actions">
       <button class="btn btn-blue" type="submit" disabled={busy}>
-        <i class="fa-solid fa-floppy-disk"></i>Save
+        <i class="fa-solid fa-floppy-disk"></i>{m.settings_save()}
       </button>
     </div>
   </form>

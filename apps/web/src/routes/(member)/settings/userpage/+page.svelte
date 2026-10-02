@@ -3,6 +3,7 @@
   import { describe } from '$lib/api/messages';
   import { myUserpage, saveUserpage } from '$lib/api/settings';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let content = $state('');
   let ready = $state(false);
@@ -33,7 +34,7 @@
     busy = true;
     try {
       await saveUserpage(content);
-      flash.show('success', 'Your userpage has been saved.');
+      flash.show('success', m.settings_userpage_saved());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -43,12 +44,12 @@
 </script>
 
 {#if failed}
-  <p class="panel empty-note">Couldn't load your userpage. Try again in a bit.</p>
+  <p class="panel empty-note">{m.settings_userpage_load_failed()}</p>
 {:else}
   <form onsubmit={save}>
     <h2 class="section-title c-pink">
-      <i class="fa-solid fa-file-lines"></i>Userpage
-      <a href="/doc/bbcode">BBCode syntax reference</a>
+      <i class="fa-solid fa-file-lines"></i>{m.settings_tab_userpage()}
+      <a href="/doc/bbcode">{m.settings_userpage_bbcode()}</a>
     </h2>
     <div class="userpage-editor">
       <div class="panel c-pink">
@@ -57,16 +58,18 @@
           oninput={onInput}
           name="data"
           spellcheck="false"
-          aria-label="Userpage"
+          aria-label={m.settings_tab_userpage()}
           disabled={!ready}></textarea>
       </div>
       <div class="panel">
-        <div class="preview-label">Preview</div>
+        <div class="preview-label">{m.settings_userpage_preview()}</div>
         <div class="userpage" use:bbcodeBoxes>{@html preview}</div>
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn btn-blue" type="submit" disabled={busy || !ready}>Save</button>
+      <button class="btn btn-blue" type="submit" disabled={busy || !ready}
+        >{m.settings_save()}</button
+      >
     </div>
   </form>
 {/if}

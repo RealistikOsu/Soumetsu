@@ -5,6 +5,7 @@
   import Banner from '$lib/components/Banner.svelte';
   import ConnectMethods from '$lib/components/ConnectMethods.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const id = $derived(Number(page.url.searchParams.get('u')));
 
@@ -24,7 +25,7 @@
         if (status === 'pending') return void (timer = setTimeout(poll, 4000));
         goto(`/register/welcome?u=${user}`, { replaceState: true });
       } catch {
-        leave('Nope.');
+        leave(m.auth_nope());
       }
     }
     let timer = setTimeout(poll, 0);
@@ -35,12 +36,12 @@
   });
 </script>
 
-<svelte:head><title>Almost there · RealistikOsu</title></svelte:head>
+<svelte:head><title>{m.auth_verify_title()} · RealistikOsu</title></svelte:head>
 
 <Banner image="register.jpg">
   <div>
-    <h1>Almost there...</h1>
-    <p class="sub">Your account is made. Now connect and log in once from the osu! client.</p>
+    <h1>{m.auth_verify_heading()}</h1>
+    <p class="sub">{m.auth_verify_sub()}</p>
   </div>
 </Banner>
 
@@ -48,9 +49,8 @@
   <div class="notice">
     <i class="fa-solid fa-envelope-circle-check notice-icon"></i>
     <div>
-      <b>We won't send you a verification email.</b>
-      Your account verifies itself the first time you log in with the osu! client. Pick a way to connect
-      below, log in with the account you just made, and this page updates on its own.
+      <b>{m.auth_verify_no_email()}</b>
+      {m.auth_verify_explain()}
     </div>
   </div>
 
@@ -58,6 +58,6 @@
 
   <div class="panel waiting c-blue">
     <i class="fa-solid fa-circle-notch fa-spin"></i>
-    Waiting for your first login...
+    {m.auth_verify_waiting()}
   </div>
 </main>

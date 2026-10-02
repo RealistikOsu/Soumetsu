@@ -1,12 +1,14 @@
+import { m } from '$lib/paraglide/messages';
+
 // Prod's rules for a new password: at least 8 characters, and not one of the 10,000 most common.
 // The list is large, so it is only loaded on pages with a new-password field.
 export async function passwordProblem(password: string) {
   if (password.length < 8) {
-    return 'Your password is too short! It must be at least 8 characters long.';
+    return m.auth_password_too_short();
   }
   const { default: common } = await import('./top.json');
   if ((common as string[]).includes(password)) {
-    return "Your password is one of the most common passwords on the entire internet. No way we're letting you use that!";
+    return m.auth_password_common();
   }
   return null;
 }
@@ -16,10 +18,10 @@ export const usernamePattern = new RegExp(String.raw`^[A-Za-z0-9 _\[\]\-]{2,15}$
 
 export function usernameProblem(username: string) {
   if (!usernamePattern.test(username)) {
-    return 'Your username must contain alphanumerical characters, spaces, or any of _[]-';
+    return m.auth_username_invalid();
   }
   if (username.includes('_') && username.includes(' ')) {
-    return "A username can't contain both underscores and spaces.";
+    return m.auth_username_mixed();
   }
   return null;
 }

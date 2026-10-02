@@ -10,6 +10,7 @@
   } from '$lib/api/linking';
   import { describe } from '$lib/api/messages';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let data = $state.raw<BanchoLink | null>(null);
   let failed = $state(false);
@@ -27,7 +28,7 @@
       );
 
     if (refused) {
-      flash.show('warning', 'osu! authorisation was cancelled.');
+      flash.show('warning', m.settings_bancho_cancelled());
       goto('/settings/bancho', { replaceState: true });
       return void load();
     }
@@ -36,7 +37,7 @@
     goto('/settings/bancho', { replaceState: true });
     finishBancho(code, state).then(
       () => {
-        flash.show('success', 'Your osu! account has been linked.');
+        flash.show('success', m.settings_bancho_linked());
         return load();
       },
       (error) => {
@@ -61,7 +62,7 @@
     try {
       await unlinkBancho();
       data = data && { ...data, link: null };
-      flash.show('success', 'Your osu! account has been unlinked.');
+      flash.show('success', m.settings_bancho_unlinked());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -70,11 +71,11 @@
   }
 </script>
 
-<h2 class="section-title c-lblue"><i class="fa-solid fa-link"></i>Bancho linking</h2>
+<h2 class="section-title c-lblue"><i class="fa-solid fa-link"></i>{m.settings_tab_bancho()}</h2>
 <div class="panel link-card {data?.link ? 'linked' : ''} c-lblue">
   <span class="link-icon"><i class="fa-solid fa-link"></i></span>
   {#if failed}
-    <div><p>Couldn't load your osu! link. Try again in a bit.</p></div>
+    <div><p>{m.settings_bancho_load_failed()}</p></div>
   {:else if !data}
     <div><span class="skel" style="width: 160px"></span></div>
   {:else if data.link}
@@ -84,16 +85,17 @@
           {data.link.username}
         </a>
       </h2>
-      <p>osu! account linked. It shows on your profile.</p>
+      <p>{m.settings_bancho_linked_note()}</p>
     </div>
-    <button class="btn" type="button" disabled={busy} onclick={unlink}>Unlink account</button>
+    <button class="btn" type="button" disabled={busy} onclick={unlink}>{m.settings_unlink()}</button
+    >
   {:else}
     <div>
-      <h2>Not linked</h2>
-      <p>Link your osu! account to show it on your profile.</p>
+      <h2>{m.settings_not_linked()}</h2>
+      <p>{m.settings_bancho_link_prompt()}</p>
     </div>
     <button class="btn btn-blue" type="button" disabled={busy} onclick={connect}>
-      <i class="fa-solid fa-link"></i>Link osu!
+      <i class="fa-solid fa-link"></i>{m.settings_bancho_link()}
     </button>
   {/if}
 </div>

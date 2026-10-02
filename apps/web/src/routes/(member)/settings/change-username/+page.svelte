@@ -5,6 +5,7 @@
   import { session } from '$lib/auth/session.svelte';
   import SupporterOnly from '$lib/components/SupporterOnly.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
   import { usernameProblem } from '$lib/passwords';
 
   let username = $state('');
@@ -17,13 +18,12 @@
     const name = username.trim();
     const problem = usernameProblem(name);
     if (problem) return flash.show('error', problem);
-    if (name === session.user?.username)
-      return flash.show('error', 'You already have this username.');
+    if (name === session.user?.username) return flash.show('error', m.settings_username_same());
 
     busy = true;
     try {
       await changeUsername(name);
-      flash.show('success', 'Your username has been changed.');
+      flash.show('success', m.settings_username_changed());
       username = '';
       await session.start();
     } catch (error) {
@@ -34,32 +34,31 @@
   }
 </script>
 
-<h2 class="section-title c-red"><i class="fa-solid fa-pen"></i>Change username</h2>
+<h2 class="section-title c-red"><i class="fa-solid fa-pen"></i>{m.settings_tab_username()}</h2>
 {#if !supporter}
   <SupporterOnly />
 {:else}
   <form onsubmit={save}>
     <div class="notice warning">
       <i class="fa-solid fa-triangle-exclamation notice-icon"></i>
-      <div>
-        Do not use inappropriate or abusive names. Doing so may result in your account's
-        restriction.
-      </div>
+      <div>{m.settings_username_warning()}</div>
     </div>
     <div class="panel form-panel c-red">
       <div class="field">
-        <label for="new-username">New username</label>
+        <label for="new-username">{m.settings_username_new()}</label>
         <input
           id="new-username"
           type="text"
           bind:value={username}
           placeholder={session.user?.username}
         />
-        <small>You can change your username once every 7 days.</small>
+        <small>{m.settings_username_cooldown()}</small>
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn btn-blue" type="submit" disabled={busy}>Change</button>
+      <button class="btn btn-blue" type="submit" disabled={busy}
+        >{m.settings_username_change()}</button
+      >
     </div>
   </form>
 {/if}

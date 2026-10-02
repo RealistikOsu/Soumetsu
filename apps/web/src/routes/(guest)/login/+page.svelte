@@ -10,6 +10,7 @@
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import StackedCounters from '$lib/components/StackedCounters.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let username = $state('');
   let password = $state('');
@@ -26,10 +27,7 @@
     busy = true;
     try {
       await session.login(username.trim(), password);
-      flash.next(
-        'success',
-        `Welcome back ${session.user?.username}! You have been logged into RealistikOsu!`
-      );
+      flash.next('success', m.auth_login_welcome({ name: session.user?.username ?? '' }));
       await goto(redirect);
     } catch (error) {
       await handle(error);
@@ -42,7 +40,7 @@
     const code = isApiError(error) ? error.code : '';
     if (code === 'auth.account_pending') {
       const id = await resumeVerification(username.trim(), password).catch(() => null);
-      flash.next('warning', 'You will need to verify your account first.');
+      flash.next('warning', m.auth_login_verify_first());
       return goto(id ? `/register/verify?u=${id}` : '/');
     }
     if (code === 'auth.password_version_old') {
@@ -55,28 +53,30 @@
 
 <AuthLayout
   image="login.jpg"
-  heading="Log in"
-  sub="Welcome back."
+  heading={m.auth_log_in()}
+  sub={m.auth_login_sub()}
   colour="c-blue"
   icon="fa-right-to-bracket"
-  title="Your account"
+  title={m.auth_login_title()}
 >
   {#snippet card()}
     <form class="auth-form" onsubmit={submit}>
       <div class="field">
-        <label for="username">Username or email</label>
+        <label for="username">{m.auth_username_or_email()}</label>
         <input
           id="username"
           type="text"
           bind:value={username}
-          placeholder="eg. RealistikBot"
+          placeholder={m.auth_username_placeholder()}
           autocomplete="username"
           required
         />
       </div>
       <div class="field">
         <span class="label-row"
-          ><label for="password">Password</label><a href="/pwreset">Forgot it?</a></span
+          ><label for="password">{m.auth_password()}</label><a href="/pwreset"
+            >{m.auth_login_forgot()}</a
+          ></span
         >
         <input
           id="password"
@@ -86,17 +86,19 @@
           required
         />
       </div>
-      <button class="btn btn-blue" type="submit" disabled={busy}>Log in</button>
+      <button class="btn btn-blue" type="submit" disabled={busy}>{m.auth_log_in()}</button>
     </form>
   {/snippet}
   {#snippet aside()}
-    <SectionTitle colour="c-green" icon="fa-seedling">New here?</SectionTitle>
+    <SectionTitle colour="c-green" icon="fa-seedling">{m.auth_login_new_here()}</SectionTitle>
     <div class="panel new-here c-green">
       <Journey current={0} />
-      <p>Make an account, connect with the osu! client and you're on the leaderboards.</p>
+      <p>{m.auth_login_new_here_text()}</p>
       <div class="avatar-actions">
-        <a class="btn btn-green" href="/register"><i class="fa-solid fa-user-plus"></i>Register</a>
-        <a class="btn" href="/connect">How to connect</a>
+        <a class="btn btn-green" href="/register"
+          ><i class="fa-solid fa-user-plus"></i>{m.auth_register()}</a
+        >
+        <a class="btn" href="/connect">{m.auth_login_how_to_connect()}</a>
       </div>
     </div>
     <StackedCounters />

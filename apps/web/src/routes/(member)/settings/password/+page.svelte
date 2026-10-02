@@ -3,6 +3,7 @@
   import { changePassword, myEmail } from '$lib/api/settings';
   import { emailPattern, passwordProblem } from '$lib/passwords';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   let email = $state('');
   let original = '';
@@ -18,8 +19,7 @@
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
-    if (!emailPattern.test(email.trim()))
-      return flash.show('error', 'Please pass a valid email address.');
+    if (!emailPattern.test(email.trim())) return flash.show('error', m.settings_invalid_email());
     if (newPassword) {
       const problem = await passwordProblem(newPassword);
       if (problem) return flash.show('error', problem);
@@ -34,7 +34,7 @@
       });
       original = email.trim();
       newPassword = current = '';
-      flash.show('success', 'Your settings have been saved.');
+      flash.show('success', m.settings_saved());
     } catch (error) {
       flash.show('error', describe(error));
     } finally {
@@ -44,24 +44,26 @@
 </script>
 
 <form onsubmit={save}>
-  <h2 class="section-title c-orange"><i class="fa-solid fa-key"></i>Password and email</h2>
+  <h2 class="section-title c-orange">
+    <i class="fa-solid fa-key"></i>{m.settings_password_title()}
+  </h2>
   <div class="panel form-panel c-orange">
     <div class="field">
-      <label for="email">Email</label>
-      <input id="email" type="email" bind:value={email} placeholder="Email address" />
+      <label for="email">{m.settings_password_email()}</label>
+      <input id="email" type="email" bind:value={email} placeholder={m.settings_email()} />
     </div>
     <div class="field">
-      <label for="new-password">New password</label>
+      <label for="new-password">{m.settings_password_new()}</label>
       <input
         id="new-password"
         type="password"
         bind:value={newPassword}
         autocomplete="new-password"
       />
-      <small>Leave it blank if you don't want to change it.</small>
+      <small>{m.settings_password_new_hint()}</small>
     </div>
     <div class="field">
-      <label for="current-password">Current password</label>
+      <label for="current-password">{m.settings_password_current()}</label>
       <input
         id="current-password"
         type="password"
@@ -72,6 +74,6 @@
     </div>
   </div>
   <div class="form-actions">
-    <button class="btn btn-blue" type="submit" disabled={busy}>Save</button>
+    <button class="btn btn-blue" type="submit" disabled={busy}>{m.settings_save()}</button>
   </div>
 </form>

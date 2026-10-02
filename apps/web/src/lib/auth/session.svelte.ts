@@ -3,6 +3,7 @@ import { isApiError } from '$lib/api/errors';
 import { userExtras } from '$lib/api/site';
 import { login, logout, me, type UserProfile } from '$lib/api/users';
 import { flash } from '$lib/flash.svelte';
+import { m } from '$lib/paraglide/messages';
 import { clearToken, getToken, setToken } from './token';
 
 class Session {
@@ -50,5 +51,5 @@ export const session = new Session();
 
 onUnauthorised(() => {
   session.expire();
-  flash.show('warning', 'Your session has expired. Please log in again.');
+  flash.show('warning', m.auth_session_expired());
 });

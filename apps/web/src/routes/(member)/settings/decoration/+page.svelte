@@ -2,8 +2,9 @@
   import { describe } from '$lib/api/messages';
   import { decoration, saveDecoration } from '$lib/api/linking';
   import { query } from '$lib/api/query.svelte';
-  import { decorations } from '$lib/decorations';
+  import { decorations, type Decoration } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
+  import { m } from '$lib/paraglide/messages';
 
   const loaded = query((signal) => decoration(signal));
 
@@ -17,9 +18,15 @@
     ready = true;
   });
 
+  const groupNames: Record<Decoration['category'], () => string> = {
+    Default: m.settings_decoration_group_default,
+    Supporter: m.settings_decoration_group_supporter,
+    Staff: m.settings_decoration_group_staff
+  };
+
   const unlocked = $derived(loaded.state.status === 'ready' ? loaded.state.data.unlocked : []);
   const groups = $derived(
-    ['Default', 'Supporter', 'Staff']
+    (['Default', 'Supporter', 'Staff'] as const)
       .map((category) => ({
         category,
         items: decorations.filter((d) => d.category === category)
@@ -37,9 +44,7 @@
       await saveDecoration(chosen);
       flash.show(
         'success',
-        chosen
-          ? 'Your username decoration has been saved.'
-          : 'Your username decoration has been cleared.'
+        chosen ? m.settings_decoration_saved() : m.settings_decoration_cleared()
       );
     } catch (error) {
       flash.show('error', describe(error));
@@ -50,20 +55,24 @@
 </script>
 
 <h2 class="section-title c-yellow">
-  <i class="fa-solid fa-palette"></i>Pick a username decoration
+  <i class="fa-solid fa-palette"></i>{m.settings_decoration_title()}
 </h2>
 {#if loaded.state.status === 'error'}
-  <p class="panel empty-note">Couldn't load your decorations. Try again in a bit.</p>
+  <p class="panel empty-note">{m.settings_decoration_load_failed()}</p>
 {:else}
   <form onsubmit={save}>
     <div class="panel form-panel c-yellow">
       <div class="swatches">
         <label class="swatch">
-          <input type="radio" name="decoration" value="" bind:group={chosen} /><span>None</span>
+          <input type="radio" name="decoration" value="" bind:group={chosen} /><span
+            >{m.settings_none()}</span
+          >
         </label>
       </div>
       {#each groups as group (group.category)}
-        <h3 class="swatch-group">{group.category} <small>{group.items.length}</small></h3>
+        <h3 class="swatch-group">
+          {groupNames[group.category]()} <small>{group.items.length}</small>
+        </h3>
         <div class="swatches">
           {#each group.items as item (item.key)}
             {@const locked = !unlocked.includes(item.key)}
@@ -81,13 +90,16 @@
         </div>
         {#if group.category === 'Supporter' && group.items.some((d) => !unlocked.includes(d.key))}
           <p class="faint">
-            <a href="/donate"><b>Become a supporter</b></a> to unlock these decorations.
+            <a href="/donate"><b>{m.settings_decoration_unlock_link()}</b></a
+            >{m.settings_decoration_unlock_end()}
           </p>
         {/if}
       {/each}
     </div>
     <div class="form-actions">
-      <button class="btn btn-blue" type="submit" disabled={busy || !ready}>Save settings</button>
+      <button class="btn btn-blue" type="submit" disabled={busy || !ready}
+        >{m.settings_save_settings()}</button
+      >
     </div>
   </form>
 {/if}

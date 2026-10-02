@@ -87,6 +87,21 @@
   outline: none;
 }
 
+.settings .field select {
+  max-width: 420px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.settings .field select:focus {
+  border-color: var(--blue);
+  outline: none;
+}
+
 .field input:disabled {
   color: var(--muted);
   background: var(--panel-2);
