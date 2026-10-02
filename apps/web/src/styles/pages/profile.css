@@ -467,6 +467,10 @@
   padding: 16px;
 }
 
+.medals .empty-note {
+  grid-column: 1 / -1;
+}
+
 .medals img {
   width: 48px;
   height: 48px;

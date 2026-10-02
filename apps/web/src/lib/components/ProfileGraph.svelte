@@ -23,12 +23,22 @@
   const TOP = 10;
   const BOTTOM = 24;
 
+  // Grid lines sit on round numbers (1, 2 or 5 times a power of ten), about three gaps across the data.
+  function niceStep(range: number) {
+    const raw = Math.max(range / 3, 1);
+    const magnitude = 10 ** Math.floor(Math.log10(raw));
+    const scaled = raw / magnitude;
+    return (scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10) * magnitude;
+  }
+
   const bounds = $derived.by(() => {
     const values = points.map((p) => p.value);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const pad = (max - min || 1) * 0.1;
-    return { lo: min - pad, hi: max + pad };
+    const step = niceStep(max - min);
+    const lo = Math.floor(min / step) * step;
+    const hi = Math.max(Math.ceil(max / step) * step, lo + step);
+    return { lo, hi, step };
   });
   const span = $derived({
     from: points[0].time,
@@ -41,14 +51,15 @@
     return TOP + (inverted ? t : 1 - t) * (H - TOP - BOTTOM);
   };
 
-  // A narrow range rounds several lines to the same label, so repeats are dropped.
+  // There is no rank 0, so a line that lands on it is labelled as #1.
   const grid = $derived(
-    [0, 1, 2, 3]
-      .map((i) => {
-        const value = bounds.lo + ((bounds.hi - bounds.lo) * i) / 3;
-        return { y: y(value), label: compact(value) };
-      })
-      .filter((line, i, all) => all.findIndex((other) => other.label === line.label) === i)
+    Array.from({ length: Math.round((bounds.hi - bounds.lo) / bounds.step) + 1 }, (_, i) => {
+      const value = bounds.lo + i * bounds.step;
+      return {
+        y: y(value),
+        label: inverted ? `#${compact(Math.max(1, value))}` : compact(value)
+      };
+    })
   );
 
   // One label per month at most, thinned out to fit, and the ends are anchored so nothing is clipped.
@@ -82,8 +93,11 @@
     return labels.filter((l, i) => i % step === 0 && l.x < W - 32 && l.x > LEFT + 20);
   });
 
+  // Thousands are shortened only when the lines are at least a thousand apart, so they stay distinct.
   function compact(value: number) {
-    return Math.abs(value) >= 10_000 ? `${Math.round(value / 1000)}k` : String(Math.round(value));
+    return bounds.step >= 1000 && Math.abs(value) >= 10_000
+      ? `${Math.round(value / 1000)}k`
+      : number(value);
   }
 
   const line = $derived(
