@@ -71,5 +71,6 @@
   "beatmaps_delete": "Delete map",
   "beatmaps_delete_confirm": "Delete this map?",
   "beatmaps_delete_warning": "This deletes every difficulty in the set and every score set on it. There's no undo.",
-  "beatmaps_deleted": "Map deleted."
+  "beatmaps_deleted": "Map deleted.",
+  "beatmaps_listing_local_only": "Only on RealistikOsu"
 }

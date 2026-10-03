@@ -71,5 +71,6 @@
   "beatmaps_delete": "Map törlése",
   "beatmaps_delete_confirm": "Biztos törlöd ezt a mapet?",
   "beatmaps_delete_warning": "Ez törli a set összes nehézségét és az összes rajta elért eredményt. Nem lehet visszavonni.",
-  "beatmaps_deleted": "Map törölve."
+  "beatmaps_deleted": "Map törölve.",
+  "beatmaps_listing_local_only": "Csak RealistikOsu-n"
 }

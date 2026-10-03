@@ -23,6 +23,7 @@
   let text = $state('');
   let mode = $state('0');
   let status = $state('1');
+  let local = $state(false);
   let sets = $state.raw<SearchedSet[]>([]);
   let offset = $state(0);
   let loading = $state(true);
@@ -37,7 +38,14 @@
     loading = true;
     try {
       const found =
-        (await searchSets({ query: text.trim(), offset, amount: PAGE_SIZE, mode, status })) ?? [];
+        (await searchSets({
+          query: text.trim(),
+          offset,
+          amount: PAGE_SIZE,
+          mode,
+          status,
+          local
+        })) ?? [];
       if (mine !== sequence) return;
       sets = append ? [...sets, ...found] : found;
       more = found.length === PAGE_SIZE;
@@ -51,10 +59,11 @@
     }
   }
 
-  // Mode and status reload at once; typing waits for a pause.
+  // Filters reload at once; typing waits for a pause.
   $effect(() => {
     void mode;
     void status;
+    void local;
     load(false);
   });
 
@@ -122,6 +131,9 @@
         </a>
       {/each}
     </nav>
+    <label class="switch local-only">
+      <input type="checkbox" bind:checked={local} /><span></span>{m.beatmaps_listing_local_only()}
+    </label>
   </div>
 
   <div class="map-grid swap">

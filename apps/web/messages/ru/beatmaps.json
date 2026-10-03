@@ -73,5 +73,6 @@
   "beatmaps_delete": "Удалить карту",
   "beatmaps_delete_confirm": "Удалить эту карту?",
   "beatmaps_delete_warning": "Удалятся все сложности сета и все скоры на них. Отменить это нельзя.",
-  "beatmaps_deleted": "Карта удалена."
+  "beatmaps_deleted": "Карта удалена.",
+  "beatmaps_listing_local_only": "Только на RealistikOsu"
 }

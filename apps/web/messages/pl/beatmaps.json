@@ -73,5 +73,6 @@
   "beatmaps_delete": "Usuń mapę",
   "beatmaps_delete_confirm": "Usunąć tę mapę?",
   "beatmaps_delete_warning": "To usunie wszystkie poziomy trudności w secie i wszystkie wyniki na nich. Nie da się tego cofnąć.",
-  "beatmaps_deleted": "Mapa usunięta."
+  "beatmaps_deleted": "Mapa usunięta.",
+  "beatmaps_listing_local_only": "Tylko na RealistikOsu"
 }

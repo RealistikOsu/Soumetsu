@@ -97,7 +97,15 @@ export const mirrorBeatmap = (id: number, signal?: AbortSignal) =>
   mirror<MirrorBeatmapDetail>(`api/v2/beatmaps/${id}`, {}, signal);
 
 export const searchSets = (
-  params: { query: string; offset: number; amount: number; mode?: string; status?: string },
+  params: {
+    query: string;
+    offset: number;
+    amount: number;
+    mode?: string;
+    status?: string;
+    // Only sets uploaded to RealistikOsu.
+    local?: boolean;
+  },
   signal?: AbortSignal
 ) => {
   const query: Record<string, string | number> = {
@@ -107,5 +115,6 @@ export const searchSets = (
   };
   if (params.mode) query.mode = params.mode;
   if (params.status) query.status = params.status;
+  if (params.local) query.local = 'true';
   return mirror<SearchedSet[] | null>('api/search', query, signal);
 };
