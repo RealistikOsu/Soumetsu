@@ -392,6 +392,8 @@
 }
 
 .chart svg {
+  /* sideways drags scrub the chart, up and down still scrolls the page */
+  touch-action: pan-y;
   display: block;
   width: 100%;
   height: auto;

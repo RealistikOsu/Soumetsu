@@ -43,13 +43,19 @@
   }
 </script>
 
+<!-- A touch has no hover, so a tapped point stays until the next tap somewhere else. -->
+<svelte:window
+  onpointerdown={(event) => box && !box.contains(event.target as Node) && (point = null)}
+/>
+
 <div class="spark" bind:this={box} use:inView>
   <svg
     bind:this={svg}
     viewBox="0 0 {W} {H}"
     preserveAspectRatio="none"
+    onpointerdown={onMove}
     onpointermove={onMove}
-    onpointerleave={() => (point = null)}
+    onpointerleave={(event) => event.pointerType === 'mouse' && (point = null)}
     role="img"
     aria-label="Players online"
   >

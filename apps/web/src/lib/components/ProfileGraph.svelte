@@ -138,14 +138,18 @@
   }
 </script>
 
+<!-- A touch has no hover, so a tapped point stays until the next tap somewhere else. -->
+<svelte:window onpointerdown={(event) => box && !box.contains(event.target as Node) && onLeave()} />
+
 <div class="panel chart c-blue" bind:this={box} use:inView>
   <svg
     bind:this={svg}
     viewBox="0 0 {W} {H}"
     role="img"
     aria-label={inverted ? m.profile_graph_rank_label() : m.profile_graph_pp_label()}
+    onpointerdown={onMove}
     onpointermove={onMove}
-    onpointerleave={onLeave}
+    onpointerleave={(event) => event.pointerType === 'mouse' && onLeave()}
   >
     {#each grid as g (g.y)}
       <line class="grid-line" x1={LEFT} x2={W} y1={g.y} y2={g.y} />

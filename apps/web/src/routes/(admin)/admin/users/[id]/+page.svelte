@@ -281,6 +281,7 @@
         <textarea
           id="reason"
           rows="2"
+          maxlength="2048"
           placeholder="Reason, shown in the ban log"
           aria-label="Reason"
           bind:value={reason}></textarea>

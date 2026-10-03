@@ -44,14 +44,20 @@
   }
 </script>
 
+<!-- A touch has no hover, so a tapped point stays until the next tap somewhere else. -->
+<svelte:window
+  onpointerdown={(event) => box && !box.contains(event.target as Node) && (point = null)}
+/>
+
 <div class="online-graph" bind:this={box} use:inView>
   <span>{m.home_graph_peak({ peak, hours: Math.round(spanMinutes / 60) })}</span>
   <svg
     bind:this={svg}
     viewBox="0 0 1000 40"
     preserveAspectRatio="none"
+    onpointerdown={onMove}
     onpointermove={onMove}
-    onpointerleave={() => (point = null)}
+    onpointerleave={(event) => event.pointerType === 'mouse' && (point = null)}
     role="img"
     aria-label={m.home_graph_aria()}
   >

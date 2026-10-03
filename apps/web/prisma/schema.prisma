@@ -171,7 +171,7 @@ model users {
   freezedate                                                    Int                             @default(0)
   firstloginafterfrozen                                         Int                             @default(0)
   bypass_hwid                                                   Boolean                         @default(false)
-  ban_reason                                                    String                          @default("") @db.VarChar(128)
+  ban_reason                                                    String                          @default("") @db.VarChar(2048)
   disabled_comments                                             Int                             @default(0) @db.TinyInt
   country                                                       String                          @default("XX") @db.VarChar(2)
   api_key                                                       String                          @db.Char(64)
