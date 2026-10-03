@@ -112,5 +112,7 @@
   "profile_peak_since": "Od {date}",
   "profile_peak_now": "Teraz",
   "profile_peak_below": "{count} poniżej szczytu",
-  "profile_peak_at": "na szczycie"
+  "profile_peak_at": "na szczycie",
+  "profile_notice_restricted_title": "Ten gracz jest zrestrictowany",
+  "profile_notice_restricted_body": "Ten profil widzi tylko staff. Reszta dostaje „Nie znaleziono gracza”."
 }

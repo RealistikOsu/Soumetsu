@@ -106,5 +106,7 @@
   "profile_peak_since": "{date} óta",
   "profile_peak_now": "Most",
   "profile_peak_below": "{count} hellyel a csúcs alatt",
-  "profile_peak_at": "a csúcson"
+  "profile_peak_at": "a csúcson",
+  "profile_notice_restricted_title": "Ez a játékos korlátozva van",
+  "profile_notice_restricted_body": "Ezt a profilt csak a staff látja. Mindenki más „Felhasználó nem található” üzenetet kap."
 }

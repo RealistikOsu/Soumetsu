@@ -133,6 +133,8 @@
     playStyles.filter((_, i) => (extra?.playStyle ?? 0) & (1 << i)).join(', ')
   );
   const isBot = $derived(((base?.privileges ?? 0) & 41943043) === 41943043);
+  // Only staff get this far on a restricted profile; the player sees the site-wide restricted notice instead.
+  const restrictedToStaff = $derived(!!base && (base.privileges & Privilege.Public) === 0 && !own);
 
   let detail = $state<ScoreWithBeatmap | null>(null);
   let detailOpen = $state(false);
@@ -281,6 +283,17 @@
         <div>
           <b>{m.profile_notice_frozen_title()}</b>
           {m.profile_notice_frozen_body()}
+        </div>
+      </div>
+    </div>
+  {/if}
+  {#if restrictedToStaff}
+    <div class="wrap">
+      <div class="notice alert profile-state c-red">
+        <i class="fa-solid fa-user-lock notice-icon"></i>
+        <div>
+          <b>{m.profile_notice_restricted_title()}</b>
+          {m.profile_notice_restricted_body()}
         </div>
       </div>
     </div>

@@ -106,5 +106,7 @@
   "profile_peak_since": "Since {date}",
   "profile_peak_now": "Now",
   "profile_peak_below": "{count} below peak",
-  "profile_peak_at": "at their peak"
+  "profile_peak_at": "at their peak",
+  "profile_notice_restricted_title": "This player is restricted",
+  "profile_notice_restricted_body": "Only staff can see this profile. Everyone else gets \"User not found\"."
 }

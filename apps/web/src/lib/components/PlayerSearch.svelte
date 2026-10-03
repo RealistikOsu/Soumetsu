@@ -41,8 +41,6 @@
 
   // Restricted players only come back for staff, and have no public profile, so they open in the panel.
   const restricted = (user: Result) => !(user.privileges & Privilege.Public);
-  const hrefOf = (user: Result) =>
-    restricted(user) ? `/admin/users/${user.id}` : `/users/${user.id}`;
 
   function close() {
     sequence++;
@@ -62,7 +60,7 @@
       move(event.key === 'ArrowDown' ? 1 : -1);
     } else if (event.key === 'Enter') {
       const pick = results?.[Math.max(active, 0)];
-      goto(pick ? hrefOf(pick) : `/users/${encodeURIComponent(value.trim())}`);
+      goto(pick ? `/users/${pick.id}` : `/users/${encodeURIComponent(value.trim())}`);
       close();
     } else if (event.key === 'Escape') {
       close();
@@ -110,7 +108,7 @@
       <p>{m.common_search_nobody_found()}</p>
     {:else}
       {#each results ?? [] as user, i (user.id)}
-        <a href={hrefOf(user)} class:active={i === active} onclick={close}>
+        <a href="/users/{user.id}" class:active={i === active} onclick={close}>
           <Avatar id={user.id} /><b>{user.username}</b>
           {#if restricted(user)}<small class="restricted">{m.common_search_restricted()}</small
             >{/if}
