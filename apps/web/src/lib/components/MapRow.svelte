@@ -52,9 +52,12 @@
           ></span>
         {/each}
       </span>
-      <span class="faint">
-        {stars(diffs[0].stars)}{#if diffs.length > 1}–{stars(diffs[diffs.length - 1].stars)}{/if}★
-      </span>
+      <!-- Maps uploaded here have no star rating until one is calculated. -->
+      {#if diffs[diffs.length - 1].stars > 0}
+        <span class="faint">
+          {stars(diffs[0].stars)}{#if diffs.length > 1}–{stars(diffs[diffs.length - 1].stars)}{/if}★
+        </span>
+      {/if}
     </div>
   </div>
   <div class="map-when">
