@@ -10,6 +10,7 @@
 
   let username = $state('');
   let captcha = $state('');
+  let captchaWidget = $state<Captcha>();
   let busy = $state(false);
 
   async function submit(event: SubmitEvent) {
@@ -21,6 +22,7 @@
       await goto('/');
     } catch (error) {
       flash.show('error', describe(error));
+      captchaWidget?.reset();
     } finally {
       busy = false;
     }
@@ -48,7 +50,7 @@
           required
         />
       </div>
-      <Captcha bind:token={captcha} />
+      <Captcha bind:this={captchaWidget} bind:token={captcha} />
       <button class="btn btn-orange" type="submit" disabled={busy}>{m.auth_pwreset_submit()}</button
       >
     </form>

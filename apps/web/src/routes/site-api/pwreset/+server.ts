@@ -15,15 +15,16 @@ export const POST = handle(async (event) => {
   } | null;
   const identifier = body?.username?.trim();
   if (!identifier) throw new Failure(400, 'site.invalid_request');
+  // Before the lookup, so the reply can't be used to find out which accounts exist without solving it.
+  if (!(await captchaPasses(body?.captcha, clientIp(event)))) {
+    throw new Failure(400, 'auth.invalid_captcha');
+  }
 
   const user = await db.users.findFirst({
     where: identifier.includes('@') ? { email: identifier } : { username: identifier },
     select: { username: true, email: true }
   });
   if (!user) throw new Failure(404, 'users.user_not_found');
-  if (!(await captchaPasses(body?.captcha, clientIp(event)))) {
-    throw new Failure(400, 'auth.invalid_captcha');
-  }
 
   const key = randomBytes(25).toString('hex');
   await db.password_recovery.create({ data: { k: key, u: SAFE(user.username) } });

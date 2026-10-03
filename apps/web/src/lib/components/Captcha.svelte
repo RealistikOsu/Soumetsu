@@ -22,6 +22,14 @@
     token = value;
   };
   let node = $state<HTMLElement>();
+  let widget: { hcaptcha: HCaptcha; id: string } | undefined;
+
+  // A token works once, so a form that failed after it was checked needs the captcha solved again.
+  export function reset() {
+    if (!widget) return;
+    widget.hcaptcha.reset(widget.id);
+    token = '';
+  }
 
   // The hCaptcha script is loaded once, the first time a form that needs it is shown.
   function load() {
@@ -40,12 +48,13 @@
     if (!siteKey || !node) return;
     const target = node;
     load().then((hcaptcha) => {
-      hcaptcha.render(target, {
+      const id = hcaptcha.render(target, {
         sitekey: siteKey,
         theme: 'dark',
         callback: (value) => setToken(value),
         'expired-callback': () => setToken('')
       });
+      widget = { hcaptcha, id };
     });
   });
 </script>

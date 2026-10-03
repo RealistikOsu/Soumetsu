@@ -27,6 +27,7 @@
   let password = $state('');
   let confirm = $state('');
   let captcha = $state('');
+  let captchaWidget = $state<Captcha>();
   let busy = $state(false);
 
   // Someone already registered from this address or browser sees the multiaccount warning first.
@@ -67,6 +68,7 @@
       await goto(`/register/verify?u=${created.user_id}`);
     } catch (error) {
       flash.show('error', describe(error));
+      captchaWidget?.reset();
     } finally {
       busy = false;
     }
@@ -138,7 +140,7 @@
           />
           {#if mismatch}<small class="error">{m.auth_register_mismatch()}</small>{/if}
         </div>
-        <Captcha bind:token={captcha} />
+        <Captcha bind:this={captchaWidget} bind:token={captcha} />
         <button class="btn btn-green" type="submit" disabled={busy}>{m.auth_register()}</button>
       </form>
       <p class="auth-switch">
