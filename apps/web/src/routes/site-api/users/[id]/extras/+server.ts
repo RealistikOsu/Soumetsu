@@ -78,7 +78,7 @@ export const GET = handle(async ({ params, request }) => {
       WHERE r.user_id = ${id}`,
       db.$queryRaw<{ total: bigint }[]>`
       SELECT COUNT(DISTINCT beatmapset_id) AS total FROM beatmaps
-      WHERE beatmapset_id >= 1000000000 AND mapper_id = ${id}`
+      WHERE beatmapset_id >= 1000000000 AND mapper_id = ${id} AND ranked != -1`
     ]);
   const extras = stats[0];
   const now = Math.floor(Date.now() / 1000);

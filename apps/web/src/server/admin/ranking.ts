@@ -118,7 +118,7 @@ export async function loadSet(id: number, privileges: number) {
 
   const all = await db.$queryRaw<Row[]>`
     SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, ranked, max_combo
-    FROM beatmaps WHERE beatmapset_id = ${setId}`;
+    FROM beatmaps WHERE beatmapset_id = ${setId} AND ranked != -1`;
   if (!all.length) throw new Failure(404, 'Beatmap not found.');
 
   const modes = rankableModes(privileges);
