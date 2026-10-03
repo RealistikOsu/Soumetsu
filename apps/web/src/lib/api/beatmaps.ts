@@ -1,5 +1,5 @@
 import type { Mod } from '$lib/mods';
-import { api } from './client';
+import { api, siteApi } from './client';
 
 export interface Beatmap {
   beatmap_id: number;
@@ -80,3 +80,6 @@ export const rankRequestStatus = (signal?: AbortSignal) =>
 
 export const submitRankRequest = (url: string) =>
   api.post<{ request_id: number }>('/beatmaps/rank-requests', { url });
+
+// Only for sets uploaded here, by their mapper or a moderator, while nothing in them is ranked or loved.
+export const deleteUploadedSet = (setId: number) => siteApi.delete(`/beatmapsets/${setId}`);

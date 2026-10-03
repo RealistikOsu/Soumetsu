@@ -47,7 +47,7 @@ No test suite. To check UI, drive the dev server with Playwright. A throwaway sc
 | Statistics service `/api/v1` | `lib/api/v1.ts` | Online count, profile rank/pp history, peak rank. Only exists behind nginx, so it's empty in dev. Refuses players restricted or inactive for over 60 days (`users.is_not_active`). |
 | Beatmap mirror | `lib/api/mirror.ts` | Called directly from the browser via `PUBLIC_MIRROR_URL`. It must send CORS headers. |
 | Bancho, score service, performance service | `src/server/*` | Server only. Online status is `GET {BANCHO_URL}/api/status/{id}` (200 means online). |
-| Game servers | Redis pub/sub | `peppy:disconnect`, `peppy:ban`, `peppy:refresh_privs`, `peppy:change_username`, `ussr:refresh_bmap`, `rosu:clan_update`. |
+| Game servers, mirror | Redis pub/sub | `peppy:disconnect`, `peppy:ban`, `peppy:refresh_privs`, `peppy:change_username`, `ussr:refresh_bmap`, `rosu:clan_update`, and `beatmap:delete` (set ID) for the mirror when an uploaded set is deleted. |
 
 Data fetching in components goes through `query()` (`lib/api/query.svelte.ts`). It aborts on rerun and exposes `reload()`. Never create a `query()` inside an event handler: it sets up an effect, which throws outside component init.
 

@@ -69,5 +69,9 @@
   "beatmaps_request_formats_title": "Какие ссылки подходят",
   "beatmaps_request_formats_or": "или",
   "beatmaps_request_formats_note": "Отправляется и проверяется весь сет. Даже если кинешь ссылку на одну сложность, уйдёт весь сет, и стафф проверит каждую сложность в нём.",
-  "beatmaps_staff_rank": "Ранкнуть в админке"
+  "beatmaps_staff_rank": "Ранкнуть в админке",
+  "beatmaps_delete": "Удалить карту",
+  "beatmaps_delete_confirm": "Удалить эту карту?",
+  "beatmaps_delete_warning": "Удалятся все сложности сета и все скоры на них. Отменить это нельзя.",
+  "beatmaps_deleted": "Карта удалена."
 }

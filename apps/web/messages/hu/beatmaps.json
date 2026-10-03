@@ -67,5 +67,9 @@
   "beatmaps_request_formats_title": "Elfogadott linkek",
   "beatmaps_request_formats_or": "vagy",
   "beatmaps_request_formats_note": "Mindig az egész set kerül beküldésre és ellenőrzésre. Egy nehézség linkje is az egész setet küldi be, és a staff minden benne lévő nehézséget átnéz.",
-  "beatmaps_staff_rank": "Rankelés az admin panelben"
+  "beatmaps_staff_rank": "Rankelés az admin panelben",
+  "beatmaps_delete": "Map törlése",
+  "beatmaps_delete_confirm": "Biztos törlöd ezt a mapet?",
+  "beatmaps_delete_warning": "Ez törli a set összes nehézségét és az összes rajta elért eredményt. Nem lehet visszavonni.",
+  "beatmaps_deleted": "Map törölve."
 }

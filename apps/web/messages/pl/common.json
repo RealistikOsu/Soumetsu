@@ -224,5 +224,7 @@
   "common_playstyle_leap_motion": "Leap Motion",
   "common_playstyle_oculus_rift": "Oculus Rift",
   "common_playstyle_dick": "Chuj",
-  "common_playstyle_eggplant": "Bakłażan"
+  "common_playstyle_eggplant": "Bakłażan",
+  "common_error_beatmap_delete_forbidden": "Możesz usuwać tylko własne wrzucone mapy.",
+  "common_error_beatmap_delete_ranked": "Map ranked, qualified i loved nie da się usunąć."
 }

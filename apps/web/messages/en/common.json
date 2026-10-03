@@ -224,5 +224,7 @@
   "common_playstyle_leap_motion": "Leap Motion",
   "common_playstyle_oculus_rift": "Oculus Rift",
   "common_playstyle_dick": "Dick",
-  "common_playstyle_eggplant": "Eggplant"
+  "common_playstyle_eggplant": "Eggplant",
+  "common_error_beatmap_delete_forbidden": "You can only delete maps you uploaded.",
+  "common_error_beatmap_delete_ranked": "Ranked, qualified and loved maps can't be deleted."
 }

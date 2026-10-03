@@ -69,5 +69,9 @@
   "beatmaps_request_formats_title": "Jakie linki przyjmujemy",
   "beatmaps_request_formats_or": "albo",
   "beatmaps_request_formats_note": "Wysyłany i sprawdzany jest cały set. Link do jednego diffa i tak wysyła cały set, a staff sprawdza w nim każdy diff.",
-  "beatmaps_staff_rank": "Rankuj w panelu admina"
+  "beatmaps_staff_rank": "Rankuj w panelu admina",
+  "beatmaps_delete": "Usuń mapę",
+  "beatmaps_delete_confirm": "Usunąć tę mapę?",
+  "beatmaps_delete_warning": "To usunie wszystkie poziomy trudności w secie i wszystkie wyniki na nich. Nie da się tego cofnąć.",
+  "beatmaps_deleted": "Mapa usunięta."
 }

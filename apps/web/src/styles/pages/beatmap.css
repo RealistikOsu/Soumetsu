@@ -372,3 +372,9 @@
   background: var(--panel-2);
   box-shadow: inset 3px 0 var(--red);
 }
+
+.delete-set {
+  background: var(--panel-2);
+  box-shadow: inset 3px 0 var(--red);
+  color: var(--red);
+}

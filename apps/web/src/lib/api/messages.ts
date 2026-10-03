@@ -66,6 +66,8 @@ const messages: Record<string, Message> = {
   'beatmaps.daily_limit_reached': m.common_error_daily_limit_reached,
   'beatmaps.invalid_url': m.common_error_invalid_beatmap_url,
   'beatmaps.already_ranked': m.common_error_already_ranked,
+  'beatmaps.delete_forbidden': m.common_error_beatmap_delete_forbidden,
+  'beatmaps.delete_ranked': m.common_error_beatmap_delete_ranked,
 
   'site.forbidden': m.common_error_forbidden,
   'site.supporter_only': m.common_error_supporter_only,

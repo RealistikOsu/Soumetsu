@@ -7,6 +7,7 @@
     beatmap as ourBeatmap,
     beatmapScores,
     beatmapSet as ourSet,
+    deleteUploadedSet,
     type Beatmap,
     type BeatmapScore
   } from '$lib/api/beatmaps';
@@ -28,7 +29,10 @@
   import { modeNames, allowed, relaxColours, relaxNames, slideTowards } from '$lib/modes';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
-  import { canRankBeatmaps } from '$lib/auth/privileges';
+  import { canRankBeatmaps, hasPrivilege, Privilege } from '$lib/auth/privileges';
+  import Dialog from '$lib/components/Dialog.svelte';
+  import { describe } from '$lib/api/messages';
+  import { flash } from '$lib/flash.svelte';
   import { session } from '$lib/auth/session.svelte';
 
   const id = $derived(Number(page.params.id));
@@ -58,6 +62,9 @@
     creator: string;
     source: string;
     diffs: Diff[];
+    // Who uploaded the set here, for sets that were.
+    mapperId: number | null;
+    anyRanked: boolean;
   }
 
   // The difficulty the set was looked up by. Switching to another difficulty of the same set only changes
@@ -143,12 +150,35 @@
       artist: set?.artist ?? first?.[1] ?? '',
       creator: set?.creator ?? '',
       source: set?.source ?? '',
-      diffs
+      diffs,
+      mapperId: ourMaps.find((map) => map.mapper_id > 0)?.mapper_id ?? null,
+      anyRanked: ourMaps.some((map) => map.ranked >= 2)
     };
   });
 
   const loaded = $derived(info.state.status === 'ready' ? info.state.data : null);
   const canRank = $derived(!!session.user && canRankBeatmaps(session.user.privileges));
+  const canDelete = $derived(
+    !!loaded &&
+      !!session.user &&
+      isServerOnlySet(loaded.setId) &&
+      !loaded.anyRanked &&
+      (loaded.mapperId === session.user.id ||
+        hasPrivilege(session.user.privileges, Privilege.AdminWipeUsers))
+  );
+  let deleting = $state(false);
+
+  async function deleteSet() {
+    if (!loaded) return;
+    try {
+      await deleteUploadedSet(loaded.setId);
+      flash.next('success', m.beatmaps_deleted());
+      await goto('/beatmap_listing');
+    } catch (error) {
+      deleting = false;
+      flash.show('error', describe(error));
+    }
+  }
   const diff = $derived(loaded?.diffs.find((d) => d.id === id) ?? null);
 
   const view = $derived.by(() => {
@@ -335,6 +365,11 @@
               <i class="fa-solid fa-angles-up"></i>{m.beatmaps_staff_rank()}
             </a>
           {/if}
+          {#if canDelete}
+            <button class="action delete-set" type="button" onclick={() => (deleting = true)}>
+              <i class="fa-solid fa-trash"></i>{m.beatmaps_delete()}
+            </button>
+          {/if}
         </div>
       </div>
     {/if}
@@ -472,3 +507,14 @@
     </div>
   </main>
 {/if}
+
+<Dialog bind:open={deleting} class="pin-dialog">
+  <button class="dialog-close" aria-label={m.common_close()} onclick={() => (deleting = false)}>
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <h2>{m.beatmaps_delete_confirm()}</h2>
+  <p class="muted">{m.beatmaps_delete_warning()}</p>
+  <div class="dialog-actions">
+    <button class="btn btn-red" type="button" onclick={deleteSet}>{m.beatmaps_delete()}</button>
+  </div>
+</Dialog>

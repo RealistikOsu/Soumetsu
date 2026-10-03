@@ -224,5 +224,7 @@
   "common_playstyle_leap_motion": "Leap Motion",
   "common_playstyle_oculus_rift": "Oculus Rift",
   "common_playstyle_dick": "Fasz",
-  "common_playstyle_eggplant": "Padlizsán"
+  "common_playstyle_eggplant": "Padlizsán",
+  "common_error_beatmap_delete_forbidden": "Csak a saját feltöltött mapjeidet törölheted.",
+  "common_error_beatmap_delete_ranked": "Rankolt, qualified és loved mapeket nem lehet törölni."
 }
