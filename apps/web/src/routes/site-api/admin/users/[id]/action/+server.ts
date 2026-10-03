@@ -70,7 +70,7 @@ export const POST = handle(async ({ request, params }) => {
   const name = await users.nameOf(id);
   const who = `${name} (${id})`;
   const reason = (body.reason ?? '').trim();
-  // The ban log's detail column holds this many; users.ban_reason was widened to match.
+  // The ban log's detail column holds this many.
   if (reason.length > 2048)
     throw new Failure(400, 'The reason is too long, keep it under 2048 characters.');
 

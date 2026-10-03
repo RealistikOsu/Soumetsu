@@ -123,7 +123,9 @@ async function target(userId: number, reason: string) {
     select: { privileges: true, country: true }
   });
   if (!user) throw new Failure(404, 'users.user_not_found');
-  if (reason) await db.users.update({ where: { id: userId }, data: { ban_reason: reason } });
+  // users.ban_reason only holds 128 characters; the ban log keeps the whole reason.
+  const short = reason.length > 128 ? `${reason.slice(0, 127)}…` : reason;
+  if (reason) await db.users.update({ where: { id: userId }, data: { ban_reason: short } });
   return { privileges: Number(user.privileges), country: user.country };
 }
 
