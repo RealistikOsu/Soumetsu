@@ -53,7 +53,6 @@ model beatmaps {
   count_sliders          Int                      @default(0)
   count_spinners         Int                      @default(0)
   file_name              String?                  @db.LongText
-  rankedby               String                   @default("IDK") @db.VarChar(16)
   priv_crawler           Boolean                  @default(false)
   mapper_id              Int                      @default(-1)
 
