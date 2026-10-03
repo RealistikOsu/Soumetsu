@@ -124,6 +124,7 @@
                               <td class="player">
                                 <a class="who" href="/admin/users/{match.userId}">
                                   <Avatar id={match.userId} /><b>{match.username}</b>
+                                  <span class="muted">#{match.userId}</span>
                                 </a>
                               </td>
                               <td class="dim">#{match.logId}</td>
