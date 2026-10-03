@@ -47,14 +47,21 @@ export async function nameOf(userId: number) {
   return user.username;
 }
 
+// A map has one first place per mode and relax type, so the old row goes before the new holder is written.
 async function recalcFirstPlace(beatmapMd5: string, custom: number, mode: number) {
+  await db.$executeRawUnsafe(
+    'DELETE FROM first_places WHERE beatmap_md5 = ? AND mode = ? AND relax = ?',
+    beatmapMd5,
+    mode,
+    custom
+  );
   const table = SCORE_TABLES[(['va', 'rx', 'ap'] as const)[custom]];
   const top = await db.$queryRawUnsafe<Record<string, unknown>[]>(
     `SELECT s.id, s.userid, s.score, s.max_combo, s.full_combo, s.mods, s.300_count, s.100_count,
             s.50_count, s.misses_count, s.time, s.play_mode, s.completed, s.accuracy, s.pp,
             s.playtime, s.beatmap_md5
      FROM ${table} s RIGHT JOIN users a ON a.id = s.userid
-     WHERE s.beatmap_md5 = ? AND s.play_mode = ? AND s.completed = 3 AND a.privileges & 2
+     WHERE s.beatmap_md5 = ? AND s.play_mode = ? AND s.completed = 3 AND a.privileges & 1
      ORDER BY s.pp DESC LIMIT 1`,
     beatmapMd5,
     mode
@@ -98,15 +105,11 @@ export async function rollback(userId: number, days: number, { modes, types }: S
       cutoff
     );
     await db.$executeRawUnsafe(`DELETE FROM ${table} WHERE ${where}`, userId, cutoff);
-    for (const { beatmap_md5, play_mode } of affected) {
-      await db.$executeRawUnsafe(
-        'DELETE FROM first_places WHERE beatmap_md5 = ? AND user_id = ? AND relax = ? AND mode = ?',
-        beatmap_md5,
-        userId,
-        CUSTOM[type],
-        play_mode
-      );
-      await recalcFirstPlace(beatmap_md5, CUSTOM[type], play_mode);
+    // Several removed scores can be on one map; it only needs working out once.
+    const maps = new Set(affected.map((row) => `${row.beatmap_md5}:${row.play_mode}`));
+    for (const key of maps) {
+      const [md5, mode] = key.split(':');
+      await recalcFirstPlace(md5, CUSTOM[type], Number(mode));
     }
   }
   await kick(userId, 'Your account has been rolled back. Please reconnect.');
@@ -153,10 +156,11 @@ export async function toggleRestrict(userId: number, from: number, reason: strin
     await db.$executeRaw`UPDATE users SET notes = CONCAT(COALESCE(notes, ''), ${'\n' + note}) WHERE id = ${userId}`;
   }
 
-  const firsts = await db.$queryRaw<{ beatmap_md5: string }[]>`
-    SELECT beatmap_md5 FROM first_places WHERE user_id = ${userId}`;
-  await db.$executeRaw`DELETE FROM first_places WHERE user_id = ${userId}`;
-  for (const { beatmap_md5 } of firsts) await recalcFirstPlace(beatmap_md5, 0, 0);
+  const firsts = await db.$queryRaw<{ beatmap_md5: string; mode: number; relax: number }[]>`
+    SELECT DISTINCT beatmap_md5, mode, relax FROM first_places WHERE user_id = ${userId}`;
+  for (const { beatmap_md5, mode, relax } of firsts) {
+    await recalcFirstPlace(beatmap_md5, Number(relax), Number(mode));
+  }
   await redis.publish('peppy:ban', String(userId));
   return true;
 }
