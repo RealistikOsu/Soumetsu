@@ -258,9 +258,18 @@
     <div>
       <h1>{loaded?.title ?? ''}&nbsp;</h1>
       <p class="sub">
-        {#if loaded}{loaded.artist}{loaded.creator
-            ? ` · ${m.beatmaps_mapped_by()} ${loaded.creator}`
-            : ''}{/if}
+        {#if loaded}
+          {loaded.artist}
+          {#if loaded.creator}
+            · {m.beatmaps_mapped_by()}
+            <!-- Only a set uploaded here was mapped by one of our players. -->
+            {#if isServerOnlySet(loaded.setId) && loaded.mapperId}
+              <a href="/users/{loaded.mapperId}">{loaded.creator}</a>
+            {:else}
+              {loaded.creator}
+            {/if}
+          {/if}
+        {/if}
       </p>
     </div>
   </Banner>

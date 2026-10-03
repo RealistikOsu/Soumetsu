@@ -68,6 +68,8 @@ export interface SearchedSet {
   Artist: string;
   Title: string;
   Creator: string;
+  // osu!'s user ID for its own maps, the uploader's ID here for sets uploaded through the BSS.
+  CreatorID: number;
   HasVideo: boolean;
 }
 

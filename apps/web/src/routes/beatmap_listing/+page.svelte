@@ -157,7 +157,14 @@
         <div class="map-body">
           <a class="map-title" href="/beatmaps/{first?.BeatmapID}">{set.Title}</a>
           <div class="map-artist">{set.Artist}</div>
-          <div class="map-meta">{m.beatmaps_mapped_by()} <b>{set.Creator}</b></div>
+          <div class="map-meta">
+            {m.beatmaps_mapped_by()}
+            {#if isServerOnlySet(set.SetID) && set.CreatorID > 0}
+              <a href="/users/{set.CreatorID}"><b>{set.Creator}</b></a>
+            {:else}
+              <b>{set.Creator}</b>
+            {/if}
+          </div>
           <div class="map-diffs">
             <span class="dots">
               {#each diffs as d (d.BeatmapID)}

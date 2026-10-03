@@ -45,7 +45,12 @@
       {#if set.artist}<span>– {set.artist}</span>{/if}</a
     >
     <div class="score-meta">
-      {#if mapper && creator}{m.beatmaps_mapped_by()} <b>{creator}</b> ·{/if}
+      {#if mapper && creator}
+        {m.beatmaps_mapped_by()}
+        {#if set.creator_id}<a href="/users/{set.creator_id}"><b>{creator}</b></a>{:else}<b
+            >{creator}</b
+          >{/if} ·
+      {/if}
       {m.profile_sets_difficulties({ count: diffs.length })}
     </div>
     <div class="map-diffs">

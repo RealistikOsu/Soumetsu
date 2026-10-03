@@ -148,6 +148,7 @@ export interface ProfileSet {
   title: string;
   // Known for maps uploaded here; osu!'s own maps leave it to the mirror.
   creator: string | null;
+  creator_id: number | null;
   status: number;
   time: number;
   difficulties: { beatmap_id: number; version: string; mode: number; stars: number }[];
