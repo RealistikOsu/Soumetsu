@@ -1,4 +1,5 @@
 import { Privilege } from '$lib/auth/privileges';
+import { Prisma } from '$server/generated/client';
 import { config } from '$server/config';
 import { db } from '$server/db';
 import { redis } from '$server/redis';
@@ -189,6 +190,19 @@ const refresh = (md5s: string[]) =>
     redis.del(SUGGESTIONS_KEY)
   ]);
 
+// Profiles list the maps a staff member ranked or loved; unranking takes the credit away.
+async function recordRankers(userId: number, beatmapIds: number[], status: number) {
+  if (status === STATUSES.unranked) {
+    await db.beatmap_rankers.deleteMany({ where: { beatmap_id: { in: beatmapIds } } });
+    return;
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const rows = beatmapIds.map((id) => Prisma.sql`(${id}, ${userId}, ${status}, ${now})`);
+  await db.$executeRaw`
+    INSERT INTO beatmap_rankers (beatmap_id, user_id, status, ranked_at) VALUES ${Prisma.join(rows)}
+    ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), status = VALUES(status), ranked_at = VALUES(ranked_at)`;
+}
+
 export async function rankSet(by: Ranker, setId: number, status: number) {
   const present = await db.beatmaps.findMany({
     where: { beatmapset_id: setId },
@@ -205,6 +219,11 @@ export async function rankSet(by: Ranker, setId: number, status: number) {
     where: { beatmapset_id: setId, mode: { in: modes } },
     data: { ranked: status, ranked_status_freezed: true }
   });
+  await recordRankers(
+    by.id,
+    present.filter((row) => modes.includes(row.mode)).map((row) => row.beatmap_id),
+    status
+  );
   await clearRequests(
     setId,
     present.map((row) => row.beatmap_id)
@@ -228,6 +247,7 @@ export async function rankDifficulty(by: Ranker, beatmapId: number, status: numb
     where: { beatmap_id: beatmapId },
     data: { ranked: status, ranked_status_freezed: true }
   });
+  await recordRankers(by.id, [beatmapId], status);
   await clearRequests(row.beatmapset_id, [beatmapId]);
   await announce(by, row.beatmapset_id, beatmapId, row.song_name, status);
   await refresh([row.beatmap_md5]);

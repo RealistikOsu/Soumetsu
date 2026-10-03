@@ -29,6 +29,20 @@
   "profile_section_pinned": "Przypięte wyniki",
   "profile_section_best": "Topowe wyniki",
   "profile_section_most_played": "Najczęściej grane mapy",
+  "profile_section_ranked_sets": "Zrankowane mapy",
+  "profile_section_mapped_sets": "Mapy",
+  "profile_sets_difficulties": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} poziom trudności",
+        "countPlural=few": "{count} poziomy trudności",
+        "countPlural=many": "{count} poziomów trudności",
+        "countPlural=other": "{count} poziomu trudności"
+      }
+    }
+  ],
   "profile_section_most_watched": "Najczęściej oglądane replaye",
   "profile_section_recent": "Ostatnie wyniki",
   "profile_section_hide_failed": "Ukryj faile",

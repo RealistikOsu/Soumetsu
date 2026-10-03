@@ -2,7 +2,7 @@
   import { fade } from 'svelte/transition';
   import { ms } from '$lib/motion';
   import { readFlag, writeFlag } from '$lib/preferences';
-  import { mostPlayed, type MostPlayed } from '$lib/api/users';
+  import { mostPlayed, profileSets, type MostPlayed, type ProfileSet } from '$lib/api/users';
   import { profileHistory, type ProfileHistory } from '$lib/api/v1';
   import { query } from '$lib/api/query.svelte';
   import {
@@ -12,8 +12,9 @@
     type WatchedScore
   } from '$lib/api/scores';
   import { coverUrl } from '$lib/assets';
+  import { statusOf } from '$lib/beatmaps';
   import type { GraphPoint } from '$lib/graph';
-  import { songParts, number } from '$lib/format';
+  import { songParts, number, timeAgo } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
   import { tabInk } from '@soumetsu/ui';
   import LoadMoreList from './LoadMoreList.svelte';
@@ -27,6 +28,8 @@
     rx,
     own,
     firstPlaces,
+    rankedSets,
+    mappedSets,
     rankHistory,
     pinned,
     ondetails,
@@ -37,6 +40,8 @@
     rx: number;
     own: boolean;
     firstPlaces: number;
+    rankedSets: number;
+    mappedSets: number;
     // Loaded by the profile, which also shows it in the peak rank card; undefined while loading.
     rankHistory: ProfileHistory | undefined;
     pinned: ScoreWithBeatmap[] | null;
@@ -171,6 +176,47 @@
     </div>
   {/snippet}
 </LoadMoreList>
+
+{#snippet setRow(set: ProfileSet)}
+  {@const status = statusOf(set.status)}
+  <div class="score-row played" style="--cover: url({coverUrl(set.beatmapset_id, 'card')})">
+    <div class="score-bg"></div>
+    <div class="score-info">
+      <a class="song" href="/beatmaps/{set.beatmap_id}">{set.title}</a>
+      <div class="score-meta">
+        {m.profile_sets_difficulties({ count: set.difficulties })}
+        {#if set.time}· {timeAgo(set.time)}{/if}
+      </div>
+    </div>
+    <span class="map-status {status.colour}"
+      ><i class="fa-solid {status.icon}"></i>{status.name}</span
+    >
+  </div>
+{/snippet}
+
+{#if rankedSets > 0}
+  <SectionTitle colour="c-pink" icon="fa-angles-up">
+    {m.profile_section_ranked_sets()} <small>{number(rankedSets)}</small>
+  </SectionTitle>
+  <LoadMoreList
+    colour="c-pink"
+    key={(set: ProfileSet) => set.beatmapset_id}
+    row={setRow}
+    load={(page, signal) => profileSets('ranked', id, page, 5, signal)}
+  />
+{/if}
+
+{#if mappedSets > 0}
+  <SectionTitle colour="c-purple" icon="fa-pen-ruler">
+    {m.profile_section_mapped_sets()} <small>{number(mappedSets)}</small>
+  </SectionTitle>
+  <LoadMoreList
+    colour="c-purple"
+    key={(set: ProfileSet) => set.beatmapset_id}
+    row={setRow}
+    load={(page, signal) => profileSets('mapped', id, page, 5, signal)}
+  />
+{/if}
 
 <SectionTitle colour="c-lblue" icon="fa-eye">{m.profile_section_most_watched()}</SectionTitle>
 <LoadMoreList

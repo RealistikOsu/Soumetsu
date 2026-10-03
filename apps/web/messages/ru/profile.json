@@ -29,6 +29,20 @@
   "profile_section_pinned": "Закреплённые скоры",
   "profile_section_best": "Топ скоры",
   "profile_section_most_played": "Самые играемые карты",
+  "profile_section_ranked_sets": "Ранкнутые карты",
+  "profile_section_mapped_sets": "Карты",
+  "profile_sets_difficulties": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} сложность",
+        "countPlural=few": "{count} сложности",
+        "countPlural=many": "{count} сложностей",
+        "countPlural=other": "{count} сложности"
+      }
+    }
+  ],
   "profile_section_most_watched": "Самые просматриваемые реплеи",
   "profile_section_recent": "Последние скоры",
   "profile_section_hide_failed": "Скрыть фейлы",

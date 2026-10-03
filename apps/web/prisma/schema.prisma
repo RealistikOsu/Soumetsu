@@ -9,6 +9,16 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+// Who ranked or loved each difficulty, kept up to date by the panel and bancho's !map command.
+model beatmap_rankers {
+  beatmap_id Int @id
+  user_id    Int
+  status     Int @db.TinyInt
+  ranked_at  Int @default(0)
+
+  @@index([user_id], map: "user_id")
+}
+
 model beatmaps {
   beatmap_id             Int                      @id @default(0)
   beatmapset_id          Int                      @default(0)

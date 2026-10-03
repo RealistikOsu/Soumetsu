@@ -31,6 +31,8 @@ export interface UserExtras {
   pastNames: string[];
   badges: { name: string; icon: string }[];
   commentCount: number;
+  rankedSets: number;
+  mappedSets: number;
 }
 
 export const siteInfo = (signal?: AbortSignal) => siteApi.get<SiteInfo>('/site', undefined, signal);

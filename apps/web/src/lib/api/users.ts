@@ -141,3 +141,21 @@ export const isFriend = (id: number, signal?: AbortSignal) =>
 export const addFriend = (id: number) => api.post(`/users/me/friends/${id}`);
 
 export const removeFriend = (id: number) => api.delete(`/users/me/friends/${id}`);
+
+export interface ProfileSet {
+  beatmapset_id: number;
+  beatmap_id: number;
+  title: string;
+  status: number;
+  difficulties: number;
+  time: number;
+}
+
+// Sets a staff member ranked or loved, or sets a player uploaded to the server.
+export const profileSets = (
+  kind: 'ranked' | 'mapped',
+  id: number,
+  page: number,
+  limit: number,
+  signal?: AbortSignal
+) => api.get<ProfileSet[]>(`/users/${id}/beatmaps/${kind}`, { page, limit }, signal);

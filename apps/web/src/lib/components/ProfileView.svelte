@@ -337,6 +337,8 @@
                 rx={paneRx}
                 {own}
                 firstPlaces={loaded[pane].stats.first_places}
+                rankedSets={extra?.rankedSets ?? 0}
+                mappedSets={extra?.mappedSets ?? 0}
                 rankHistory={rankHistory[pane]}
                 pinned={pinned[pane] ?? null}
                 ondetails={(score) => {

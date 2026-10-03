@@ -29,6 +29,18 @@
   "profile_section_pinned": "Pinned scores",
   "profile_section_best": "Best scores",
   "profile_section_most_played": "Most played beatmaps",
+  "profile_section_ranked_sets": "Ranked maps",
+  "profile_section_mapped_sets": "Beatmaps",
+  "profile_sets_difficulties": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} difficulty",
+        "countPlural=other": "{count} difficulties"
+      }
+    }
+  ],
   "profile_section_most_watched": "Most watched replays",
   "profile_section_recent": "Recent scores",
   "profile_section_hide_failed": "Hide failed scores",
