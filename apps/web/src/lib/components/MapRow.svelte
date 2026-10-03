@@ -9,20 +9,25 @@
 
   let { set, mapper = true }: { set: ProfileSet; mapper?: boolean } = $props();
 
+  // The mirror fills what our database lacks: the mapper of osu!'s own maps, and star ratings for maps
+  // uploaded here, which the submission service only gives the mirror.
+  const mirrored = query((signal) => mirrorSet(set.beatmapset_id, signal));
+  const found = $derived(mirrored.state.status === 'ready' ? mirrored.state.data : null);
+
   const status = $derived(statusOf(set.status));
-  const diffs = $derived(set.difficulties);
+  const creator = $derived(set.creator ?? found?.creator ?? null);
+  const diffs = $derived(
+    set.difficulties
+      .map((diff) => ({
+        ...diff,
+        stars:
+          diff.stars ||
+          (found?.beatmaps.find((b) => b.id === diff.beatmap_id)?.difficulty_rating ?? 0)
+      }))
+      .toSorted((a, b) => a.stars - b.stars)
+  );
   const href = $derived(`/beatmaps/${diffs[0].beatmap_id}`);
   const stars = (value: number) => value.toFixed(2);
-
-  // Maps uploaded here come with their mapper; for osu!'s own maps the name is on the mirror.
-  const fromMirror = query((signal) =>
-    mapper && !set.creator
-      ? mirrorSet(set.beatmapset_id, signal).then((found) => found.creator)
-      : Promise.resolve(null)
-  );
-  const creator = $derived(
-    set.creator ?? (fromMirror.state.status === 'ready' ? fromMirror.state.data : null)
-  );
 </script>
 
 <div class="score-row map-row" style="--cover: url({coverUrl(set.beatmapset_id, 'card')})">
