@@ -25,5 +25,5 @@
     <ProfileView id={Number(param)} />
   {/key}
 {:else if missing}
-  <NotFound />
+  <NotFound user />
 {/if}

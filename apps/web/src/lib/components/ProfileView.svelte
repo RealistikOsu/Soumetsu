@@ -159,7 +159,7 @@
 </svelte:head>
 
 {#if hidden}
-  <NotFound />
+  <NotFound user />
 {:else}
   <section
     class="profile-head"

@@ -1,22 +1,27 @@
 <script lang="ts">
   import { m } from '$lib/paraglide/messages';
   import Banner from './Banner.svelte';
+
+  // Profiles explain why a player can be missing; every other page gets the plain 404.
+  let { user = false }: { user?: boolean } = $props();
+
+  const title = $derived(user ? m.common_user_not_found_title() : m.common_errorpage_not_found());
 </script>
 
 <svelte:head>
-  <title>{m.common_user_not_found_title()} · RealistikOsu</title>
+  <title>{title} · RealistikOsu</title>
 </svelte:head>
 
 <Banner image="not-found.jpg" class="error-banner">
   <div>
-    <span class="error-code">{m.common_header_profile()}</span>
-    <h1>{m.common_user_not_found_title()}</h1>
+    <span class="error-code">{user ? m.common_header_profile() : 404}</span>
+    <h1>{title}</h1>
   </div>
 </Banner>
 
 <main class="wrap error">
   <p class="lead">
-    {m.common_user_not_found_text()}
+    {user ? m.common_user_not_found_text() : m.common_errorpage_not_found_text()}
   </p>
   <p class="muted">{m.common_try_instead()}</p>
   <nav class="error-links">
