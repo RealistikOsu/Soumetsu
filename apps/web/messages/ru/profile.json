@@ -30,7 +30,7 @@
   "profile_section_best": "Топ скоры",
   "profile_section_most_played": "Самые играемые карты",
   "profile_section_ranked_sets": "Ранкнутые карты",
-  "profile_section_mapped_sets": "Карты",
+  "profile_section_mapped_sets": "Загруженные карты",
   "profile_sets_difficulties": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

@@ -641,3 +641,61 @@
 .badge.custom {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
 }
+
+/* sets a nominator ranked or loved, and maps uploaded here */
+
+.score-row.map-row {
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  padding: 10px 16px 10px 10px;
+}
+
+.map-thumb {
+  height: 62px;
+  border-radius: var(--radius);
+  background: var(--panel-2) center / cover no-repeat;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.map-row .map-diffs {
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.map-row .dots {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.map-row .dots span {
+  width: 8px;
+  height: 8px;
+}
+
+.map-when {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.map-when .map-status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.map-when time {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .score-row.map-row {
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    padding-right: 12px;
+  }
+
+  .map-thumb {
+    height: 56px;
+  }
+}

@@ -7,7 +7,13 @@
   import { query } from '$lib/api/query.svelte';
   import { playerScores, type ScoreWithBeatmap } from '$lib/api/scores';
   import { userExtras } from '$lib/api/site';
-  import { profile, userpage, type UserProfile } from '$lib/api/users';
+  import {
+    profile,
+    profileSets,
+    userpage,
+    type ProfileSet,
+    type UserProfile
+  } from '$lib/api/users';
   import { peakRank, profileHistory, type ProfileHistory } from '$lib/api/v1';
   import { Privilege } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
@@ -23,6 +29,8 @@
   import FriendButton from './FriendButton.svelte';
   import AlertStack from './AlertStack.svelte';
   import Flag from './Flag.svelte';
+  import LoadMoreList from './LoadMoreList.svelte';
+  import MapRow from './MapRow.svelte';
   import Medals from './Medals.svelte';
   import ModeTabs from './ModeTabs.svelte';
   import PastNames from './PastNames.svelte';
@@ -337,8 +345,6 @@
                 rx={paneRx}
                 {own}
                 firstPlaces={loaded[pane].stats.first_places}
-                rankedSets={extra?.rankedSets ?? 0}
-                mappedSets={extra?.mappedSets ?? 0}
                 rankHistory={rankHistory[pane]}
                 pinned={pinned[pane] ?? null}
                 ondetails={(score) => {
@@ -354,6 +360,32 @@
           {/if}
         {/each}
       {/key}
+
+      <!-- Not per mode, and only for players who have some: nominators, and anyone who uploaded a map here. -->
+      {#if extra && extra.rankedSets > 0}
+        <SectionTitle colour="s-ranked" icon="fa-angles-up">
+          {m.profile_section_ranked_sets()} <small>{number(extra.rankedSets)}</small>
+        </SectionTitle>
+        <LoadMoreList
+          colour="s-ranked"
+          key={(set: ProfileSet) => set.beatmapset_id}
+          load={(page, signal) => profileSets('ranked', id, page, 5, signal)}
+        >
+          {#snippet row(set: ProfileSet)}<MapRow {set} />{/snippet}
+        </LoadMoreList>
+      {/if}
+      {#if extra && extra.mappedSets > 0}
+        <SectionTitle colour="c-orange" icon="fa-cloud-arrow-up">
+          {m.profile_section_mapped_sets()} <small>{number(extra.mappedSets)}</small>
+        </SectionTitle>
+        <LoadMoreList
+          colour="c-orange"
+          key={(set: ProfileSet) => set.beatmapset_id}
+          load={(page, signal) => profileSets('mapped', id, page, 5, signal)}
+        >
+          {#snippet row(set: ProfileSet)}<MapRow {set} mapper={false} />{/snippet}
+        </LoadMoreList>
+      {/if}
 
       <Medals {id} />
 

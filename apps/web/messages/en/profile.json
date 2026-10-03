@@ -29,8 +29,8 @@
   "profile_section_pinned": "Pinned scores",
   "profile_section_best": "Best scores",
   "profile_section_most_played": "Most played beatmaps",
-  "profile_section_ranked_sets": "Ranked maps",
-  "profile_section_mapped_sets": "Beatmaps",
+  "profile_section_ranked_sets": "Ranked beatmaps",
+  "profile_section_mapped_sets": "Submitted beatmaps",
   "profile_sets_difficulties": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

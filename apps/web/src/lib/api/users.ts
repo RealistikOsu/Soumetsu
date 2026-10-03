@@ -144,11 +144,13 @@ export const removeFriend = (id: number) => api.delete(`/users/me/friends/${id}`
 
 export interface ProfileSet {
   beatmapset_id: number;
-  beatmap_id: number;
+  artist: string;
   title: string;
+  // Known for maps uploaded here; osu!'s own maps leave it to the mirror.
+  creator: string | null;
   status: number;
-  difficulties: number;
   time: number;
+  difficulties: { beatmap_id: number; version: string; mode: number; stars: number }[];
 }
 
 // Sets a staff member ranked or loved, or sets a player uploaded to the server.

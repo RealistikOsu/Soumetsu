@@ -29,8 +29,8 @@
   "profile_section_pinned": "Kitűzött eredmények",
   "profile_section_best": "Legjobb eredmények",
   "profile_section_most_played": "Legtöbbet játszott beatmapek",
-  "profile_section_ranked_sets": "Rankolt mapek",
-  "profile_section_mapped_sets": "Beatmapek",
+  "profile_section_ranked_sets": "Rankolt beatmapek",
+  "profile_section_mapped_sets": "Feltöltött beatmapek",
   "profile_sets_difficulties": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
