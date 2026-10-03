@@ -1,5 +1,6 @@
 <script lang="ts">
   import { inView, tabInk } from '@soumetsu/ui';
+  import { untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import {
@@ -59,11 +60,19 @@
     diffs: Diff[];
   }
 
+  // The difficulty the set was looked up by. Switching to another difficulty of the same set only changes
+  // which one is shown, so the page doesn't blank and reload the whole set.
+  let lookup = $state(untrack(() => id));
+  $effect(() => {
+    const current = id;
+    if (untrack(() => !loaded?.diffs.some((d) => d.id === current))) lookup = current;
+  });
+
   // The mirror describes the maps; the game server knows how each one is ranked here and its plays.
   const info = query<Loaded | null>(async (signal) => {
     const [mine, theirs] = await Promise.allSettled([
-      ourBeatmap(id, signal),
-      mirrorBeatmap(id, signal)
+      ourBeatmap(lookup, signal),
+      mirrorBeatmap(lookup, signal)
     ]);
     const setId =
       mine.status === 'fulfilled'
@@ -161,13 +170,16 @@
   }
 
   let boards = $state.raw<Record<string, BeatmapScore[] | 'error'>>({});
+  // Each leaderboard that lands reruns the effect, so it remembers what it already asked for.
+  const requested: Record<string, true> = {};
 
   $effect(() => {
     const { mode } = view;
     const beatmapId = id;
     for (const rx of [0, 1, 2]) {
       const key = `${beatmapId}-${mode}-${rx}`;
-      if (!allowed(mode, rx) || key in boards) continue;
+      if (!allowed(mode, rx) || requested[key]) continue;
+      requested[key] = true;
       beatmapScores(beatmapId, mode, rx).then(
         (rows) => (boards = { ...boards, [key]: rows }),
         () => (boards = { ...boards, [key]: 'error' })
