@@ -174,6 +174,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   });
 };
 
-export const handleError: HandleServerError = async ({ error }) => {
+// A missing page is somebody's typo or a bot probing paths, not something for staff to fix.
+export const handleError: HandleServerError = async ({ error, status }) => {
+  if (status === 404) return;
   await record('error', null, error);
 };
