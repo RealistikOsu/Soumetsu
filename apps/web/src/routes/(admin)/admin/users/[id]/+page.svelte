@@ -133,8 +133,13 @@
       </div>
       <div class="tags">
         <AdminTag colour={user.group.colour}>{user.group.name}</AdminTag>
-        {#if banned}<AdminTag colour="c-red">Banned</AdminTag>{/if}
-        {#if restricted}<AdminTag colour="c-orange">Restricted</AdminTag>{/if}
+        <!-- The group is named after the privileges, so it often says this already. -->
+        {#if banned && user.group.name.toLowerCase() !== 'banned'}
+          <AdminTag colour="c-red">Banned</AdminTag>
+        {/if}
+        {#if restricted && user.group.name.toLowerCase() !== 'restricted'}
+          <AdminTag colour="c-orange">Restricted</AdminTag>
+        {/if}
         {#if user.frozen}<AdminTag colour="c-lblue">Frozen</AdminTag>{/if}
         {#if user.silenceEnd > now()}
           <AdminTag colour="c-purple">Silenced until {fullDate(user.silenceEnd)}</AdminTag>
