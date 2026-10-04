@@ -47,8 +47,10 @@
   );
   const lastMine = $derived(messages.findLast((message) => message.from === me));
 
+  // The open conversation is being read, even if the list was counted just before that reached the server.
   async function refreshList() {
-    list = await loadConversations().catch(() => list ?? []);
+    const fresh = await loadConversations().catch(() => list ?? []);
+    list = fresh.map((c) => (c.peer.id === peerId ? { ...c, unread: 0 } : c));
   }
 
   const scrollDown = () =>
@@ -67,6 +69,14 @@
     if (first || atBottom) scrollDown();
   }
 
+  // Loading a conversation marks it read on the server, so the list and header can follow straight away.
+  function seen(id: number) {
+    if (list?.some((c) => c.peer.id === id && c.unread)) {
+      list = list.map((c) => (c.peer.id === id ? { ...c, unread: 0 } : c));
+    }
+    inbox.refresh();
+  }
+
   $effect(() => {
     refreshList();
     const timer = setInterval(() => {
@@ -83,11 +93,16 @@
     loadingThread = true;
     // refreshThread reads the scroll box, which mustn't make this rerun once the box appears.
     untrack(() => refreshThread(id, true))
-      .then(() => inbox.refresh())
+      .then(() => seen(id))
       .catch((error) => flash.show('error', describe(error)))
       .finally(() => (loadingThread = false));
     const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') refreshThread(id, false).catch(() => null);
+      if (document.visibilityState === 'visible') {
+        refreshThread(id, false).then(
+          () => seen(id),
+          () => null
+        );
+      }
     }, 8_000);
     return () => clearInterval(timer);
   });
