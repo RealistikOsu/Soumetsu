@@ -240,8 +240,10 @@
   colour="c-red"
 >
   <p>
-    Deletes {user.username} and everything tied to the account: scores, stats, comments and clan membership.
-    This cannot be undone.
+    Anonymises {user.username} into DeletedUser_{user.id}: their profile, comments, friends, clan,
+    badges and linked accounts go, and they drop off the global leaderboards and search. Their
+    scores stay on beatmap leaderboards, as on bancho, and their IP and hardware logs are kept for
+    multiaccount checks. This cannot be undone.
   </p>
   <div class="field">
     <label for="confirm-name">Type <b>{user.username}</b> to confirm</label>

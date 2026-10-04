@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { config } from '$server/config';
 import { db } from '$server/db';
@@ -299,74 +300,45 @@ export async function resetAvatar(userId: number, authorization: string) {
   if (!response.ok) throw new Failure(response.status, 'Failed to reset the avatar.');
 }
 
-const KEYS: Record<string, string[]> = {
-  users: ['id'],
-  users_stats: ['id'],
-  rx_stats: ['id'],
-  ap_stats: ['id'],
-  beatmaps_rating: ['user_id'],
-  comments: ['user_id'],
-  profile_backgrounds: ['uid'],
-  reports: ['to_uid', 'from_uid'],
-  tokens: ['user'],
-  users_achievements: ['user_id'],
-  users_beatmap_playcount: ['user_id'],
-  users_relationships: ['user1', 'user2'],
-  user_badges: ['user'],
-  user_clans: ['user'],
-  user_comments: ['op', 'prof'],
-  user_name_history: ['user_id'],
-  whitelist: ['user_id'],
-  beatmap_rankers: ['user_id']
-};
-
-const TABLES = [
-  'scores',
-  'users',
-  '2fa',
-  '2fa_telegram',
-  '2fa_totp',
-  'beatmaps_rating',
-  'comments',
-  'discord_roles',
-  'ip_user',
-  'profile_backgrounds',
-  'rank_requests',
-  'reports',
-  'tokens',
-  'remember',
-  'users_achievements',
-  'users_beatmap_playcount',
-  'users_relationships',
-  'user_badges',
-  'user_clans',
-  'users_stats',
-  'scores_relax',
-  'rx_stats',
-  'scores_ap',
-  'ap_stats',
-  'user_pinned',
-  'user_comments',
-  'hw_user',
-  'user_name_history',
-  'whitelist',
-  'beatmap_rankers'
+// Everything that identifies the player or makes up their public profile. Their scores, stats, first places
+// and the maps they ranked stay, as on bancho, and so do their IP and hardware logs, which catch a return on
+// another account.
+const PERSONAL: [string, string[]][] = [
+  ['tokens', ['user']],
+  ['remember', ['userid']],
+  ['2fa', ['userid']],
+  ['2fa_telegram', ['userid']],
+  ['2fa_totp', ['userid']],
+  ['discord_roles', ['userid']],
+  ['discord_oauth', ['user_id']],
+  ['osu_official_links', ['osu_user_id']],
+  ['twitch_links', ['osu_user_id']],
+  ['profile_backgrounds', ['uid']],
+  ['users_relationships', ['user1', 'user2']],
+  ['user_badges', ['user']],
+  ['user_clans', ['user']],
+  ['user_comments', ['op', 'prof']],
+  ['comments', ['user_id']],
+  ['beatmaps_rating', ['user_id']],
+  ['user_pinned', ['userid']],
+  ['user_name_history', ['user_id']],
+  ['whitelist', ['user_id']],
+  ['rank_requests', ['userid']]
 ];
 
-// The same sweep the panel did: every table that points at the account loses its rows.
-export async function deleteAccount(userId: number) {
+// Deleting an account anonymises it: the row stays as DeletedUser_<id> so its scores keep their place on
+// beatmap leaderboards, while the account drops off profiles, search and the global leaderboards.
+export async function deleteAccount(userId: number, authorization: string) {
   const owned = await db.user_clans.count({ where: { user: userId, perms: 8 } });
   if (owned) throw new Failure(400, 'They own a clan. Transfer it or disband it first.');
-
   const user = await db.users.findUnique({ where: { id: userId }, select: { country: true } });
-  // Read before their scores go, so each map's first place can be handed to whoever is next.
-  const firsts = await db.$queryRaw<{ beatmap_md5: string; mode: number; relax: number }[]>`
-    SELECT DISTINCT beatmap_md5, mode, relax FROM first_places WHERE user_id = ${userId}`;
+  if (!user) throw new Failure(404, 'users.user_not_found');
 
-  await kick(userId, `You have been deleted from ${config.serverName}. Bye!`);
-  await removeFromLeaderboards(userId, user?.country ?? null);
-  for (const table of TABLES) {
-    const columns = KEYS[table] ?? ['userid'];
+  await kick(userId, `Your account on ${config.serverName} has been deleted. Bye!`);
+  await removeFromLeaderboards(userId, user.country);
+  await resetAvatar(userId, authorization);
+
+  for (const [table, columns] of PERSONAL) {
     const where = columns.map((column) => `\`${column}\` = ?`).join(' OR ');
     // Some deployments never had the 2FA tables.
     await db
@@ -375,7 +347,38 @@ export async function deleteAccount(userId: number) {
         if (!String(error).includes("doesn't exist")) throw error;
       });
   }
-  for (const { beatmap_md5, mode, relax } of firsts) {
-    await recalcFirstPlace(beatmap_md5, Number(relax), Number(mode));
-  }
+
+  const name = `DeletedUser_${userId}`;
+  const unusable = await bcrypt.hash(randomBytes(32).toString('hex'), 10);
+  await db.users.update({
+    where: { id: userId },
+    data: {
+      username: name,
+      username_safe: name.toLowerCase(),
+      email: `deleted_${userId}@deleted.invalid`,
+      password_md5: unusable,
+      // Public and normal only, so the scores stay on beatmap leaderboards; latest_activity 0 keeps the cron
+      // treating the account as inactive, which keeps it off the global leaderboards for good.
+      privileges: 3,
+      latest_activity: 0,
+      country: 'XX',
+      donor_expire: 0,
+      notes: null,
+      deleted: true
+    }
+  });
+  await Promise.all(
+    ['users_stats', 'rx_stats', 'ap_stats'].map((table) =>
+      db.$executeRawUnsafe(`UPDATE ${table} SET username = ? WHERE id = ?`, name, userId)
+    )
+  );
+  await db.$executeRaw`
+    UPDATE users_stats
+    SET username_aka = '', userpage_content = NULL, show_custom_badge = 0, custom_badge_name = '',
+        custom_badge_icon = '', country = 'XX'
+    WHERE id = ${userId}`;
+  await redis.publish(
+    'peppy:change_username',
+    JSON.stringify({ userID: userId, newUsername: name })
+  );
 }

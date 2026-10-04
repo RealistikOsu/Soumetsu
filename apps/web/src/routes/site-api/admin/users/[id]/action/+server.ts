@@ -185,8 +185,8 @@ export const POST = handle(async ({ request, params }) => {
       break;
     case 'delete':
       if (body.confirm !== name) throw new Failure(400, 'auth.validation_error');
-      await users.deleteAccount(id);
-      await rapLog(caller.id, `has deleted the account ${who}`);
+      await users.deleteAccount(id, request.headers.get('Authorization') ?? '');
+      await rapLog(caller.id, `has deleted (anonymised) the account ${who}`);
       break;
   }
   return ok();

@@ -38,12 +38,13 @@ export const GET = handle(async ({ params, request }) => {
         silence_end: true,
         silence_reason: true,
         disabled_comments: true,
-        name_decoration: true
+        name_decoration: true,
+        deleted: true
       }
     }),
     optionalCaller(request)
   ]);
-  if (!user) throw new Failure(404, 'users.user_not_found');
+  if (!user || user.deleted) throw new Failure(404, 'users.user_not_found');
 
   const privileges = Number(user.privileges);
   const visible =

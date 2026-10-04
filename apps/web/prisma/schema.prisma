@@ -166,6 +166,7 @@ model users {
   rank                                                          Boolean                         @default(true)
   allowed                                                       Boolean                         @default(true)
   latest_activity                                               Int                             @default(0)
+  deleted                                                       Boolean                         @default(false)
   silence_end                                                   Int                             @default(0)
   silence_reason                                                String                          @default("") @db.VarChar(127)
   password_version                                              Int                             @default(1) @db.TinyInt
