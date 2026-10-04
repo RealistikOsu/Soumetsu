@@ -18,7 +18,7 @@
   import Flag from '$lib/components/Flag.svelte';
   import { flash } from '$lib/flash.svelte';
   import { chatPreview, parseChat } from '$lib/chat-format';
-  import { dateTime, timeAgo } from '$lib/format';
+  import { dateTime, dayLabel, sameDay, timeAgo } from '$lib/format';
   import { inbox } from '$lib/inbox.svelte';
   import { m } from '$lib/paraglide/messages';
 
@@ -222,7 +222,10 @@
         {/if}
         {#each messages as message, i (message.id)}
           {@const chat = parseChat(message.content)}
-          {@const first = messages[i - 1]?.from !== message.from}
+          {@const previous = messages[i - 1]}
+          {@const newDay = !previous || !sameDay(previous.time, message.time)}
+          {@const first = newDay || previous.from !== message.from}
+          {#if newDay}<div class="day-divider"><span>{dayLabel(message.time)}</span></div>{/if}
           <div class="message" class:mine={message.from === me} class:first>
             {#if first}<Avatar id={message.from} />{:else}<span class="avatar-gap"></span>{/if}
             <p class:chat-action={chat.action} title={dateTime(message.time)}>

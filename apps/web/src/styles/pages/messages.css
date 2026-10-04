@@ -207,6 +207,23 @@
   color: var(--red);
 }
 
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 4px;
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.day-divider::before,
+.day-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
 .seen {
   align-self: flex-end;
   color: var(--faint);
@@ -215,17 +232,40 @@
 
 .composer {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
   padding: 10px 14px;
   border-top: 1px solid var(--line);
 }
 
+/* grows with what's typed, up to a few lines */
 .composer textarea {
   flex: 1;
-  min-height: 38px;
+  min-height: 40px;
   max-height: 140px;
-  resize: vertical;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  line-height: 20px;
+  resize: none;
   field-sizing: content;
+}
+
+.composer textarea::placeholder {
+  color: var(--faint);
+}
+
+.composer textarea:focus {
+  border-color: var(--blue);
+}
+
+.composer .btn {
+  height: 40px;
+  border-radius: 10px;
 }
 
 .reported {
