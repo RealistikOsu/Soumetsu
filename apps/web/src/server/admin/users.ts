@@ -313,7 +313,11 @@ const KEYS: Record<string, string[]> = {
   users_beatmap_playcount: ['user_id'],
   users_relationships: ['user1', 'user2'],
   user_badges: ['user'],
-  user_clans: ['user']
+  user_clans: ['user'],
+  user_comments: ['op', 'prof'],
+  user_name_history: ['user_id'],
+  whitelist: ['user_id'],
+  beatmap_rankers: ['user_id']
 };
 
 const TABLES = [
@@ -340,12 +344,27 @@ const TABLES = [
   'scores_relax',
   'rx_stats',
   'scores_ap',
-  'ap_stats'
+  'ap_stats',
+  'user_pinned',
+  'user_comments',
+  'hw_user',
+  'user_name_history',
+  'whitelist',
+  'beatmap_rankers'
 ];
 
 // The same sweep the panel did: every table that points at the account loses its rows.
 export async function deleteAccount(userId: number) {
+  const owned = await db.user_clans.count({ where: { user: userId, perms: 8 } });
+  if (owned) throw new Failure(400, 'They own a clan. Transfer it or disband it first.');
+
+  const user = await db.users.findUnique({ where: { id: userId }, select: { country: true } });
+  // Read before their scores go, so each map's first place can be handed to whoever is next.
+  const firsts = await db.$queryRaw<{ beatmap_md5: string; mode: number; relax: number }[]>`
+    SELECT DISTINCT beatmap_md5, mode, relax FROM first_places WHERE user_id = ${userId}`;
+
   await kick(userId, `You have been deleted from ${config.serverName}. Bye!`);
+  await removeFromLeaderboards(userId, user?.country ?? null);
   for (const table of TABLES) {
     const columns = KEYS[table] ?? ['userid'];
     const where = columns.map((column) => `\`${column}\` = ?`).join(' OR ');
@@ -355,5 +374,8 @@ export async function deleteAccount(userId: number) {
       .catch((error) => {
         if (!String(error).includes("doesn't exist")) throw error;
       });
+  }
+  for (const { beatmap_md5, mode, relax } of firsts) {
+    await recalcFirstPlace(beatmap_md5, Number(relax), Number(mode));
   }
 }
