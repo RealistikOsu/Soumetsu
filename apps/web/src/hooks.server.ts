@@ -169,9 +169,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     )
     .join('\n    ');
 
-  return resolve(event, {
+  const response = await resolve(event, {
     transformPageChunk: ({ html }) => html.replace('</head>', `    ${tags}\n  </head>`)
   });
+  // The preload list for heavy pages like profiles outgrows nginx's proxy buffer and turns into a 502.
+  response.headers.delete('link');
+  return response;
 };
 
 // A missing page is somebody's typo or a bot probing paths, not something for staff to fix.
