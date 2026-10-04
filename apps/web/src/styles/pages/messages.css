@@ -129,13 +129,31 @@
 .thread-messages .older {
   align-self: center;
   margin-bottom: 8px;
+  color: var(--faint);
 }
 
 .message {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 8px;
   max-width: 75%;
+}
+
+.message.first {
+  margin-top: 8px;
+}
+
+/* as tall as a one-line bubble and rounded the same, so it sits level with the first one */
+.message .avatar,
+.message .avatar-gap {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.message .avatar-gap {
+  height: 0;
 }
 
 .message.mine {
@@ -145,7 +163,8 @@
 
 .message p {
   padding: 7px 11px;
-  border-radius: 12px;
+  border-radius: 10px;
+  line-height: 20px;
   background: var(--panel-2);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -154,6 +173,19 @@
 .message.mine p {
   background: var(--blue-2);
   color: #fff;
+}
+
+.message p.chat-action {
+  font-style: italic;
+}
+
+.message p a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.message .report {
+  align-self: center;
 }
 
 .message .report {
