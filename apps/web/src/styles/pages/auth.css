@@ -157,13 +157,22 @@
   padding: 11px;
 }
 
-.label-row {
-  display: flex;
-  justify-content: space-between;
+.field.with-link {
+  grid-template-columns: 1fr auto;
   align-items: baseline;
 }
 
-.label-row a,
+.field.with-link input {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.field.with-link a {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.field.with-link a,
 .auth-switch a {
   color: var(--link);
   font-size: 13px;

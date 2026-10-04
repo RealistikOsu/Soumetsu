@@ -102,12 +102,9 @@
             required
           />
         </div>
-        <div class="field">
-          <span class="label-row"
-            ><label for="password">{m.auth_password()}</label><a href="/pwreset"
-              >{m.auth_login_forgot()}</a
-            ></span
-          >
+        <!-- The link comes after the input so Tab goes from the username straight to the password. -->
+        <div class="field with-link">
+          <label for="password">{m.auth_password()}</label>
           <input
             id="password"
             type="password"
@@ -115,6 +112,7 @@
             autocomplete="current-password"
             required
           />
+          <a href="/pwreset">{m.auth_login_forgot()}</a>
         </div>
         <button class="btn btn-blue" type="submit" disabled={busy}>{m.auth_log_in()}</button>
       {/if}
