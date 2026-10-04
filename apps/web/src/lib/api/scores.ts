@@ -84,3 +84,19 @@ export const pinScore = (id: number, rx: number) =>
   api.post(`/scores/${id}/pin`, undefined, { custom_mode: rx });
 
 export const unpinScore = (id: number) => api.delete(`/scores/${id}/pin`);
+
+// The pp the score would give as a full combo: misses hit perfectly and the map's whole combo held.
+export const fullComboPp = (score: ScoreWithBeatmap) =>
+  siteApi.post<number | null>('/scores/fc', {
+    beatmapId: score.beatmap.beatmap_id,
+    mode: score.play_mode,
+    mods: score.mods,
+    counts: {
+      n300: score.count_300,
+      n100: score.count_100,
+      n50: score.count_50,
+      geki: score.count_gekis,
+      katu: score.count_katus,
+      miss: score.count_misses
+    }
+  });

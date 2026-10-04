@@ -256,3 +256,9 @@
   color: #ff6b6b;
   font-size: 13px;
 }
+
+.detail-headline .if-fc {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 13px;
+}

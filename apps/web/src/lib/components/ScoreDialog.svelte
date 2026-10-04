@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mirrorBeatmap } from '$lib/api/mirror';
   import { query } from '$lib/api/query.svelte';
-  import type { ScoreWithBeatmap } from '$lib/api/scores';
+  import { fullComboPp, type ScoreWithBeatmap } from '$lib/api/scores';
   import { coverUrl, replayUrl } from '$lib/assets';
   import { starColour, starTextColour } from '$lib/beatmaps';
   import { number, songParts, timeAgo } from '$lib/format';
@@ -38,6 +38,13 @@
   );
 
   const grade = $derived(score ? gradeOf(score) : 'D');
+  // Only worth asking for a score that dropped combo or missed.
+  const ifFc = query(() =>
+    score && open && (score.count_misses > 0 || !score.full_combo)
+      ? fullComboPp(score)
+      : Promise.resolve(null)
+  );
+  const fcPp = $derived(ifFc.state.status === 'ready' ? ifFc.state.data : null);
   const parts = $derived(score ? songParts(score.beatmap.song_name) : { song: '', diff: '' });
   const maxCombo = $derived(map.state.status === 'ready' ? map.state.data?.max_combo : undefined);
   const fullCombo = $derived(
@@ -79,6 +86,9 @@
     <div class="detail-body">
       <div class="detail-headline">
         <b>{number(score.pp, 2)}pp</b><span>{number(score.accuracy, 2)}%</span>
+        {#if fcPp !== null && fcPp > score.pp}
+          <span class="if-fc">{m.profile_dialog_if_fc({ pp: number(fcPp, 2) })}</span>
+        {/if}
       </div>
       <dl class="detail-stats">
         <div>

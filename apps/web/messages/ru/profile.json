@@ -114,5 +114,6 @@
   "profile_peak_below": "на {count} ниже пика",
   "profile_peak_at": "на пике",
   "profile_notice_restricted_title": "Этот игрок ограничен",
-  "profile_notice_restricted_body": "Этот профиль видит только стафф. Остальным показывается «Игрок не найден»."
+  "profile_notice_restricted_body": "Этот профиль видит только стафф. Остальным показывается «Игрок не найден».",
+  "profile_dialog_if_fc": "{pp}pp если FC"
 }

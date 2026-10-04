@@ -108,5 +108,6 @@
   "profile_peak_below": "{count} below peak",
   "profile_peak_at": "at their peak",
   "profile_notice_restricted_title": "This player is restricted",
-  "profile_notice_restricted_body": "Only staff can see this profile. Everyone else gets \"User not found\"."
+  "profile_notice_restricted_body": "Only staff can see this profile. Everyone else gets \"User not found\".",
+  "profile_dialog_if_fc": "{pp}pp if FC"
 }
