@@ -30,7 +30,7 @@ export const GET = handle(async ({ request, url }) => {
   const [rows, total] = await Promise.all([
     db.$queryRawUnsafe<Row[]>(
       `SELECT rr.id, rr.userid, rr.bid, rr.type, rr.time ${where}
-       ORDER BY rr.id DESC LIMIT ? OFFSET ?`,
+       ORDER BY rr.id LIMIT ? OFFSET ?`,
       PAGE_SIZE,
       (page - 1) * PAGE_SIZE
     ),
