@@ -1,5 +1,5 @@
 import { api } from './client';
-import { siteApi } from './site';
+import { siteApi, type Banner } from './site';
 
 export interface Card {
   id: number;
@@ -18,7 +18,7 @@ export interface CardExtras {
   lastSeen: number;
   clan: { id: number; tag: string; name: string } | null;
   group: string | null;
-  banner: { type: 1; value: null } | { type: 2; value: string } | null;
+  banner: Banner;
 }
 
 export const card = (id: number, signal?: AbortSignal) =>

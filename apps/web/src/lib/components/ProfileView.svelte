@@ -18,6 +18,7 @@
   import { Privilege } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { bannerUrl } from '$lib/assets';
+  import BannerImage from './BannerImage.svelte';
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
@@ -122,13 +123,6 @@
       (isApiError(failure) && failure.status >= 400 && failure.status < 500)
   );
 
-  // An uploaded banner sits over the default one, which shows if the file is missing.
-  const heading = $derived(
-    extra?.banner?.type === 1
-      ? `url(${bannerUrl(id)}), url(/img/banner-default.png)`
-      : 'url(/img/banner-default.png)'
-  );
-
   const playing = $derived(
     playStyles.filter((_, i) => (extra?.playStyle ?? 0) & (1 << i)).join(', ')
   );
@@ -163,12 +157,16 @@
 {#if hidden}
   <NotFound user />
 {:else}
+  <!-- An uploaded banner sits over the default one, which shows if the file is missing. -->
   <section
     class="profile-head"
     style={extra?.banner?.type === 2
       ? `background-color: ${extra.banner.value}`
-      : `background-image: ${heading}`}
+      : 'background-image: url(/img/banner-default.png)'}
   >
+    {#if extra?.banner?.type === 1}
+      <BannerImage src={bannerUrl(id)} position={extra.banner} />
+    {/if}
     <div class="wrap">
       <Avatar {id} />
       <div class="who-block">

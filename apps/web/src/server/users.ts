@@ -2,10 +2,13 @@ import { db } from './db';
 
 // Only supporters have a banner. An uploaded picture is the default for them, a solid colour when they
 // chose one, and nothing when they chose none.
-export function bannerOf(privileges: number, row: { type: number; value: string } | null) {
+export function bannerOf(
+  privileges: number,
+  row: { type: number; value: string; pos_x: number; pos_y: number; zoom: number } | null
+) {
   if ((privileges & 4) === 0) return null;
   if (!row) return null;
-  if (row.type === 1) return { type: 1, value: null };
+  if (row.type === 1) return { type: 1, value: null, x: row.pos_x, y: row.pos_y, zoom: row.zoom };
   // Colours saved by older sites weren't checked, and this one goes straight into a style attribute.
   return row.type === 2 && /^#[0-9a-f]{3,8}$/i.test(row.value)
     ? { type: 2, value: row.value }

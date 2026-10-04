@@ -1,4 +1,4 @@
-import { siteApi } from './site';
+import { siteApi, type BannerPosition } from './site';
 
 export interface BanchoLink {
   configured: boolean;
@@ -43,5 +43,5 @@ export const decoration = (signal?: AbortSignal) =>
   siteApi.get<{ current: string | null; unlocked: string[] }>('/decoration', undefined, signal);
 export const saveDecoration = (key: string) => siteApi.put('/decoration', { key });
 
-export const saveBanner = (type: 0 | 1 | 2, value?: string) =>
-  siteApi.put('/banner', { type, value });
+export const saveBanner = (type: 0 | 1 | 2, value?: string, position?: BannerPosition) =>
+  siteApi.put('/banner', { type, value, ...position });

@@ -88,7 +88,6 @@
   "settings_banner_type": "Typ banera",
   "settings_banner_image": "Obrazek",
   "settings_banner_solid": "Jednolity kolor",
-  "settings_banner_current": "Twój obecny baner",
   "settings_banner_colour": "Kolor",
   "settings_twitch_cancelled": "Autoryzacja Twitcha anulowana.",
   "settings_twitch_linked": "Twitch podpięty!",
@@ -145,5 +144,10 @@
     }
   ],
   "settings_2fa_new_codes": "Nowe kody odzyskiwania",
-  "settings_2fa_disable": "Wyłącz"
+  "settings_2fa_disable": "Wyłącz",
+  "settings_banner_position": "Przeciągnij baner, żeby wybrać, która część ma być widoczna, i przybliż, jeśli chcesz pokazać mniej. Nagłówek profilu jest szeroki na komputerze i wysoki na telefonie, więc sprawdź oba.",
+  "settings_banner_zoom": "Przybliżenie",
+  "settings_banner_wide": "Komputer",
+  "settings_banner_phone": "Telefon",
+  "settings_banner_reset": "Resetuj"
 }

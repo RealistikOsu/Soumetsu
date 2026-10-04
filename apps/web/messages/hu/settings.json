@@ -88,7 +88,6 @@
   "settings_banner_type": "Banner típusa",
   "settings_banner_image": "Kép",
   "settings_banner_solid": "Egyszínű",
-  "settings_banner_current": "A jelenlegi bannered",
   "settings_banner_colour": "Szín",
   "settings_twitch_cancelled": "A Twitch hitelesítés megszakadt.",
   "settings_twitch_linked": "Sikeresen összekapcsoltad a Twitch fiókodat!",
@@ -143,5 +142,10 @@
     }
   ],
   "settings_2fa_new_codes": "Új helyreállító kódok",
-  "settings_2fa_disable": "Kikapcsolás"
+  "settings_2fa_disable": "Kikapcsolás",
+  "settings_banner_position": "Húzd a bannert, hogy kiválaszd, melyik része látszódjon, és nagyíts rá, ha kevesebbet mutatnál belőle. A profil fejléce gépen széles, telefonon magas, úgyhogy nézd meg mindkettőt.",
+  "settings_banner_zoom": "Nagyítás",
+  "settings_banner_wide": "Gép",
+  "settings_banner_phone": "Telefon",
+  "settings_banner_reset": "Visszaállítás"
 }

@@ -102,6 +102,9 @@ model profile_backgrounds {
   time  Int
   type  Int
   value String @db.Text
+  pos_x Int    @default(50) @db.UnsignedTinyInt
+  pos_y Int    @default(50) @db.UnsignedTinyInt
+  zoom  Int    @default(100) @db.UnsignedSmallInt
 }
 
 model system_settings {

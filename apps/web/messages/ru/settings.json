@@ -88,7 +88,6 @@
   "settings_banner_type": "Тип баннера",
   "settings_banner_image": "Картинка",
   "settings_banner_solid": "Сплошной цвет",
-  "settings_banner_current": "Твой текущий баннер",
   "settings_banner_colour": "Цвет",
   "settings_twitch_cancelled": "Авторизация в Twitch отменена.",
   "settings_twitch_linked": "Twitch успешно привязан!",
@@ -145,5 +144,10 @@
     }
   ],
   "settings_2fa_new_codes": "Новые коды восстановления",
-  "settings_2fa_disable": "Выключить"
+  "settings_2fa_disable": "Выключить",
+  "settings_banner_position": "Перетаскивай баннер, чтобы выбрать, какая часть будет видна, и приближай, если нужно показать меньше. На компьютере шапка профиля широкая, а на телефоне высокая, так что проверь оба вида.",
+  "settings_banner_zoom": "Масштаб",
+  "settings_banner_wide": "Компьютер",
+  "settings_banner_phone": "Телефон",
+  "settings_banner_reset": "Сбросить"
 }

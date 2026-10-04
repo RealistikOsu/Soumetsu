@@ -88,7 +88,6 @@
   "settings_banner_type": "Banner type",
   "settings_banner_image": "Image",
   "settings_banner_solid": "Solid colour",
-  "settings_banner_current": "Your current banner",
   "settings_banner_colour": "Colour",
   "settings_twitch_cancelled": "Twitch authorisation was cancelled.",
   "settings_twitch_linked": "Successfully linked your Twitch account!",
@@ -143,5 +142,10 @@
     }
   ],
   "settings_2fa_new_codes": "New recovery codes",
-  "settings_2fa_disable": "Turn it off"
+  "settings_2fa_disable": "Turn it off",
+  "settings_banner_position": "Drag the banner to pick which part stays in view, and zoom in if you want less of it. The profile header is wide on computers and tall on phones, so check both.",
+  "settings_banner_zoom": "Zoom",
+  "settings_banner_wide": "Computer",
+  "settings_banner_phone": "Phone",
+  "settings_banner_reset": "Reset"
 }

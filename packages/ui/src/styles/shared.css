@@ -187,6 +187,7 @@
 
 .card-cover {
   position: absolute;
+  isolation: isolate;
   inset: 0 0 auto;
   height: 92px;
   background: center / cover;
@@ -197,6 +198,22 @@
 .card-cover.banner {
   filter: brightness(0.6);
   transform: none;
+}
+
+/* BannerImage fills its positioned box and sits under the box's content; the box needs isolation */
+.banner-image {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.banner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .card-head {

@@ -2,6 +2,7 @@
 
 .profile-head {
   position: relative;
+  isolation: isolate;
   background: #000 center / cover no-repeat;
 }
 

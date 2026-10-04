@@ -13,6 +13,7 @@
   import { ms } from '$lib/motion';
   import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
+  import BannerImage from './BannerImage.svelte';
   import Flag from './Flag.svelte';
 
   // Hovering a link to someone's profile shows their card, like the redesign's.
@@ -153,10 +154,9 @@
   >
     <!-- Supporters' banners show as they are; everyone else gets their avatar, blurred. -->
     {#if extras?.banner?.type === 1}
-      <div
-        class="card-cover banner"
-        style="background-image: url({bannerUrl(card.id)}), url({avatarUrl(card.id)})"
-      ></div>
+      <div class="card-cover banner">
+        <BannerImage src={bannerUrl(card.id)} position={extras.banner} />
+      </div>
     {:else if extras?.banner?.type === 2}
       <div class="card-cover banner" style="background-color: {extras.banner.value}"></div>
     {:else}

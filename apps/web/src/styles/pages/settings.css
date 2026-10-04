@@ -562,3 +562,59 @@
 .two-factor .btn i {
   margin-right: 8px;
 }
+
+.banner-frames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.banner-frames figure {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.banner-frames figure:first-child {
+  flex: 1 1 320px;
+}
+
+/* the profile header's shape on a computer and on a phone, darkened the same way */
+.banner-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #000 url(/img/banner-default.png) center / cover;
+  cursor: grab;
+  touch-action: none;
+}
+
+.banner-frame:active {
+  cursor: grabbing;
+}
+
+.banner-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.6);
+}
+
+.banner-frame.wide {
+  aspect-ratio: 1300 / 246;
+}
+
+.banner-frame.phone {
+  width: 120px;
+  aspect-ratio: 390 / 433;
+}
+
+.banner-zoom {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}

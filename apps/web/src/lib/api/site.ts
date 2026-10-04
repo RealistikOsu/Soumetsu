@@ -15,6 +15,16 @@ export interface SiteInfo {
   banchoConfigured: boolean;
 }
 
+// Where an uploaded banner sits: the point kept in view, in percent, and the zoom in percent.
+export interface BannerPosition {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+export type Banner =
+  ({ type: 1; value: null } & BannerPosition) | { type: 2; value: string } | null;
+
 export interface UserExtras {
   visibility: 'visible' | 'hidden';
   online: boolean;
@@ -26,7 +36,7 @@ export interface UserExtras {
   favouriteMode: number;
   playStyle: number;
   customBadge: { icon: string; name: string } | null;
-  banner: { type: number; value: string | null } | null;
+  banner: Banner;
   bancho: { id: number; username: string } | null;
   pastNames: string[];
   badges: { name: string; icon: string }[];
