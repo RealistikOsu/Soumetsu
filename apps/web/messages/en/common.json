@@ -226,5 +226,16 @@
   "common_playstyle_dick": "Dick",
   "common_playstyle_eggplant": "Eggplant",
   "common_error_beatmap_delete_forbidden": "You can only delete maps you uploaded.",
-  "common_error_beatmap_delete_ranked": "Ranked, qualified and loved maps can't be deleted."
+  "common_error_beatmap_delete_ranked": "Ranked, qualified and loved maps can't be deleted.",
+  "footer_terms": "Terms",
+  "footer_privacy": "Privacy",
+  "common_error_2fa_invalid_code": "That code isn't right.",
+  "common_error_2fa_challenge_expired": "That took too long. Log in again.",
+  "common_error_2fa_setup_link_required": "Staff set up two-factor from an emailed link.",
+  "common_error_2fa_invalid_setup_link": "That setup link is invalid or has expired.",
+  "common_error_2fa_already_enabled": "Two-factor is already on.",
+  "common_error_2fa_not_enabled": "Two-factor isn't on.",
+  "common_error_2fa_not_started": "Start the setup again.",
+  "common_error_2fa_required_for_staff": "Staff can't turn two-factor off.",
+  "common_error_2fa_mail_failed": "We couldn't send the email. Try again in a bit."
 }

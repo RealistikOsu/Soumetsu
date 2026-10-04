@@ -12,6 +12,7 @@
     ['/settings/userpage', m.settings_tab_userpage(), 'c-pink', 'fa-file-lines'],
     ['/settings/avatar', m.settings_tab_avatar(), 'c-teal', 'fa-image'],
     ['/settings/password', m.settings_tab_password(), 'c-orange', 'fa-key'],
+    ['/settings/2fa', m.settings_tab_2fa(), 'c-lblue', 'fa-shield-halved'],
     ['/settings/discord-integration', m.settings_tab_discord(), 'c-discord', 'fa-discord'],
     ...(site.info?.twitchConfigured
       ? [['/settings/twitch', m.settings_tab_twitch(), 'c-purple', 'fa-twitch']]

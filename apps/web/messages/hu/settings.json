@@ -116,5 +116,32 @@
   "settings_userpage_preview": "Előnézet",
   "settings_supporter_only_title": "Ez a funkció csak a RealistikOsu támogatóinak érhető el...",
   "settings_supporter_only_link": "Vegyél támogatói státuszt",
-  "settings_supporter_only_end": ", és ezt meg még rengeteg más funkciót is elérhetsz!"
+  "settings_supporter_only_end": ", és ezt meg még rengeteg más funkciót is elérhetsz!",
+  "settings_tab_2fa": "Kétlépcsős",
+  "settings_2fa_title": "Kétlépcsős azonosítás",
+  "settings_2fa_intro": "Adj a belépéshez egy kódot egy hitelesítő appból (pl. Google Authenticator, Aegis, 1Password), hogy a jelszó egymagában ne legyen elég.",
+  "settings_2fa_start": "Beállítás",
+  "settings_2fa_staff": "A staffnak kétlépcsős azonosítás kell a staff jogokhoz. Hogy biztosan te legyél, e-mailben küldünk egy linket a beállításhoz.",
+  "settings_2fa_email_link": "Küldd el a linket",
+  "settings_2fa_link_sent": "Elküldtük! Nyisd meg a levélben lévő linket 30 percen belül.",
+  "settings_2fa_scan": "Olvasd be a hitelesítő appal, aztán írd be a kódot, amit mutat.",
+  "settings_2fa_manual": "Nem megy a beolvasás? Írd be ezt a kulcsot:",
+  "settings_2fa_code": "Kód",
+  "settings_2fa_confirm": "Bekapcsolás",
+  "settings_2fa_enabled": "A kétlépcsős azonosítás be van kapcsolva.",
+  "settings_2fa_disabled": "A kétlépcsős azonosítás ki van kapcsolva.",
+  "settings_2fa_recovery_intro": "A helyreállító kódjaid. Mindegyik egyszer működik, ha elveszíted a hitelesítőt. Mentsd el őket biztos helyre: többet nem látod őket.",
+  "settings_2fa_copy": "Kódok másolása",
+  "settings_2fa_on": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "A kétlépcsős azonosítás be van kapcsolva. {count} helyreállító kódod maradt.",
+        "countPlural=other": "A kétlépcsős azonosítás be van kapcsolva. {count} helyreállító kódod maradt."
+      }
+    }
+  ],
+  "settings_2fa_new_codes": "Új helyreállító kódok",
+  "settings_2fa_disable": "Kikapcsolás"
 }

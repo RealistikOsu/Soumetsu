@@ -38,6 +38,11 @@ export const hasPrivilege = (privileges: number, flag: number) => (privileges & 
 export const isPublic = (privileges: number) => hasPrivilege(privileges, Privilege.Public);
 export const isSupporter = (privileges: number) => hasPrivilege(privileges, Privilege.Donor);
 export const isStaff = (privileges: number) => hasPrivilege(privileges, Privilege.AdminAccessRap);
+
+// What a session that didn't pass two-factor may use, matching soumetsu-api.
+export const playerPrivileges = (privileges: number) =>
+  privileges &
+  (Privilege.Public | Privilege.Normal | Privilege.Donor | Privilege.PendingVerification);
 export const canManageUsers = (privileges: number) =>
   hasPrivilege(privileges, Privilege.AdminManageUsers);
 

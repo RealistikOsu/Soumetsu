@@ -226,5 +226,16 @@
   "common_playstyle_dick": "Член",
   "common_playstyle_eggplant": "Баклажан",
   "common_error_beatmap_delete_forbidden": "Удалять можно только свои загруженные карты.",
-  "common_error_beatmap_delete_ranked": "Ранкнутые, квалифицированные и лавнутые карты удалить нельзя."
+  "common_error_beatmap_delete_ranked": "Ранкнутые, квалифицированные и лавнутые карты удалить нельзя.",
+  "footer_terms": "Условия",
+  "footer_privacy": "Конфиденциальность",
+  "common_error_2fa_invalid_code": "Код неверный.",
+  "common_error_2fa_challenge_expired": "Слишком долго. Войди заново.",
+  "common_error_2fa_setup_link_required": "Стафф настраивает двухфакторку по ссылке из письма.",
+  "common_error_2fa_invalid_setup_link": "Ссылка для настройки недействительна или устарела.",
+  "common_error_2fa_already_enabled": "Двухфакторка уже включена.",
+  "common_error_2fa_not_enabled": "Двухфакторка не включена.",
+  "common_error_2fa_not_started": "Начни настройку заново.",
+  "common_error_2fa_required_for_staff": "Стафф не может выключить двухфакторку.",
+  "common_error_2fa_mail_failed": "Не получилось отправить письмо. Попробуй чуть позже."
 }

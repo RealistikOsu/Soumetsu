@@ -44,10 +44,12 @@ export interface UserProfile {
 }
 
 export interface LoginResult {
-  token: string;
+  // Null when the account has two-factor on; the login then finishes with the challenge and a code.
+  token: string | null;
   user_id: number;
   username: string;
   privileges: number;
+  two_factor_challenge?: string | null;
 }
 
 export const login = (username: string, password: string, captcha?: string) =>

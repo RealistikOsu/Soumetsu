@@ -226,5 +226,16 @@
   "common_playstyle_dick": "Chuj",
   "common_playstyle_eggplant": "Bakłażan",
   "common_error_beatmap_delete_forbidden": "Możesz usuwać tylko własne wrzucone mapy.",
-  "common_error_beatmap_delete_ranked": "Map ranked, qualified i loved nie da się usunąć."
+  "common_error_beatmap_delete_ranked": "Map ranked, qualified i loved nie da się usunąć.",
+  "footer_terms": "Regulamin",
+  "footer_privacy": "Prywatność",
+  "common_error_2fa_invalid_code": "Zły kod.",
+  "common_error_2fa_challenge_expired": "Trwało to za długo. Zaloguj się jeszcze raz.",
+  "common_error_2fa_setup_link_required": "Staff konfiguruje weryfikację dwuetapową z linku w mailu.",
+  "common_error_2fa_invalid_setup_link": "Link do konfiguracji jest nieprawidłowy albo wygasł.",
+  "common_error_2fa_already_enabled": "Weryfikacja dwuetapowa jest już włączona.",
+  "common_error_2fa_not_enabled": "Weryfikacja dwuetapowa nie jest włączona.",
+  "common_error_2fa_not_started": "Zacznij konfigurację od nowa.",
+  "common_error_2fa_required_for_staff": "Staff nie może wyłączyć weryfikacji dwuetapowej.",
+  "common_error_2fa_mail_failed": "Nie udało się wysłać maila. Spróbuj za chwilę."
 }

@@ -51,6 +51,11 @@ export const POST = handle(async ({ request }) => {
     data: { password_md5: hash, salt: '', password_version: 2 }
   });
   await redis.publish('peppy:change_pass', JSON.stringify({ user_id: user.id }));
+  // Whoever had the account before the reset is logged out of the site everywhere. The API keeps its sessions
+  // in the same Redis.
+  const sessions = `soumetsuapi:user_sessions:${user.id}`;
+  const hashes = await redis.smembers(sessions);
+  await redis.del(sessions, ...hashes.map((hash) => `soumetsuapi:session:${hash}`));
   await db.password_recovery.deleteMany({ where: { k: recovery.k } });
   return ok();
 });

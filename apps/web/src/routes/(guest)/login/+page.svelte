@@ -15,6 +15,9 @@
   let username = $state('');
   let password = $state('');
   let busy = $state(false);
+  // Set once the password was right on an account with two-factor; the next submit sends the code.
+  let challenge = $state<string | null>(null);
+  let code = $state('');
 
   // Only paths on this site, never another address.
   const redirect = $derived.by(() => {
@@ -26,7 +29,12 @@
     event.preventDefault();
     busy = true;
     try {
-      await session.login(username.trim(), password);
+      if (challenge) {
+        await session.loginWithCode(challenge, code.trim());
+      } else {
+        challenge = await session.login(username.trim(), password);
+        if (challenge) return;
+      }
       flash.next('success', m.auth_login_welcome({ name: session.user?.username ?? '' }));
       await goto(redirect);
     } catch (error) {
@@ -37,13 +45,16 @@
   }
 
   async function handle(error: unknown) {
-    const code = isApiError(error) ? error.code : '';
-    if (code === 'auth.account_pending') {
+    const reason = isApiError(error) ? error.code : '';
+    if (reason === 'auth.account_pending') {
       const id = await resumeVerification(username.trim(), password).catch(() => null);
       flash.next('warning', m.auth_login_verify_first());
       return goto(id ? `/register/verify?u=${id}` : '/');
     }
-    if (code === 'auth.password_version_old') {
+    if (reason === 'two_factor.challenge_expired') {
+      challenge = null;
+    }
+    if (reason === 'auth.password_version_old') {
       flash.next('warning', describe(error));
       return goto('/pwreset');
     }
@@ -61,32 +72,52 @@
 >
   {#snippet card()}
     <form class="auth-form" onsubmit={submit}>
-      <div class="field">
-        <label for="username">{m.auth_username_or_email()}</label>
-        <input
-          id="username"
-          type="text"
-          bind:value={username}
-          placeholder={m.auth_username_placeholder()}
-          autocomplete="username"
-          required
-        />
-      </div>
-      <div class="field">
-        <span class="label-row"
-          ><label for="password">{m.auth_password()}</label><a href="/pwreset"
-            >{m.auth_login_forgot()}</a
-          ></span
+      {#if challenge}
+        <div class="field">
+          <label for="code">{m.auth_login_code_label()}</label>
+          <!-- svelte-ignore a11y_autofocus -->
+          <input
+            id="code"
+            type="text"
+            bind:value={code}
+            autocomplete="one-time-code"
+            spellcheck="false"
+            autofocus
+            required
+          />
+          <small>{m.auth_login_code_hint()}</small>
+        </div>
+        <button class="btn btn-blue" type="submit" disabled={busy}
+          >{m.auth_login_code_submit()}</button
         >
-        <input
-          id="password"
-          type="password"
-          bind:value={password}
-          autocomplete="current-password"
-          required
-        />
-      </div>
-      <button class="btn btn-blue" type="submit" disabled={busy}>{m.auth_log_in()}</button>
+      {:else}
+        <div class="field">
+          <label for="username">{m.auth_username_or_email()}</label>
+          <input
+            id="username"
+            type="text"
+            bind:value={username}
+            placeholder={m.auth_username_placeholder()}
+            autocomplete="username"
+            required
+          />
+        </div>
+        <div class="field">
+          <span class="label-row"
+            ><label for="password">{m.auth_password()}</label><a href="/pwreset"
+              >{m.auth_login_forgot()}</a
+            ></span
+          >
+          <input
+            id="password"
+            type="password"
+            bind:value={password}
+            autocomplete="current-password"
+            required
+          />
+        </div>
+        <button class="btn btn-blue" type="submit" disabled={busy}>{m.auth_log_in()}</button>
+      {/if}
     </form>
   {/snippet}
   {#snippet aside()}

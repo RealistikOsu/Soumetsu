@@ -116,5 +116,34 @@
   "settings_userpage_preview": "Podgląd",
   "settings_supporter_only_title": "Ta funkcja jest tylko dla supporterów RealistikOsu...",
   "settings_supporter_only_link": "Kup supportera",
-  "settings_supporter_only_end": ", żeby ją odblokować razem z masą innych bajerów!"
+  "settings_supporter_only_end": ", żeby ją odblokować razem z masą innych bajerów!",
+  "settings_tab_2fa": "Dwuetapowe",
+  "settings_2fa_title": "Weryfikacja dwuetapowa",
+  "settings_2fa_intro": "Dodaj do logowania kod z aplikacji uwierzytelniającej (np. Google Authenticator, Aegis, 1Password), żeby samo hasło nie wystarczało.",
+  "settings_2fa_start": "Skonfiguruj",
+  "settings_2fa_staff": "Staff potrzebuje weryfikacji dwuetapowej, żeby korzystać z uprawnień. Żeby upewnić się, że to ty, wyślemy link do konfiguracji na maila.",
+  "settings_2fa_email_link": "Wyślij link",
+  "settings_2fa_link_sent": "Wysłane! Otwórz link z maila w ciągu 30 minut.",
+  "settings_2fa_scan": "Zeskanuj to aplikacją uwierzytelniającą i wpisz kod, który pokaże.",
+  "settings_2fa_manual": "Nie da się zeskanować? Wpisz ten klucz ręcznie:",
+  "settings_2fa_code": "Kod",
+  "settings_2fa_confirm": "Włącz",
+  "settings_2fa_enabled": "Weryfikacja dwuetapowa włączona.",
+  "settings_2fa_disabled": "Weryfikacja dwuetapowa wyłączona.",
+  "settings_2fa_recovery_intro": "Twoje kody odzyskiwania. Każdy działa raz, jeśli zgubisz aplikację. Zapisz je w bezpiecznym miejscu: więcej ich nie zobaczysz.",
+  "settings_2fa_copy": "Skopiuj kody",
+  "settings_2fa_on": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Weryfikacja dwuetapowa włączona. Został {count} kod odzyskiwania.",
+        "countPlural=few": "Weryfikacja dwuetapowa włączona. Zostały {count} kody odzyskiwania.",
+        "countPlural=many": "Weryfikacja dwuetapowa włączona. Zostało {count} kodów odzyskiwania.",
+        "countPlural=other": "Weryfikacja dwuetapowa włączona. Zostało {count} kodu odzyskiwania."
+      }
+    }
+  ],
+  "settings_2fa_new_codes": "Nowe kody odzyskiwania",
+  "settings_2fa_disable": "Wyłącz"
 }

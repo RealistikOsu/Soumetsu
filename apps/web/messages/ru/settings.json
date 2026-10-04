@@ -116,5 +116,34 @@
   "settings_userpage_preview": "Предпросмотр",
   "settings_supporter_only_title": "Эта фишка только для саппортеров RealistikOsu...",
   "settings_supporter_only_link": "Купи саппортер",
-  "settings_supporter_only_end": ", чтобы открыть её и кучу других фишек!"
+  "settings_supporter_only_end": ", чтобы открыть её и кучу других фишек!",
+  "settings_tab_2fa": "Двухфакторка",
+  "settings_2fa_title": "Двухфакторная аутентификация",
+  "settings_2fa_intro": "Добавь ко входу код из приложения-аутентификатора (Google Authenticator, Aegis, 1Password и т. п.), чтобы одного пароля было мало.",
+  "settings_2fa_start": "Настроить",
+  "settings_2fa_staff": "Стаффу нужна двухфакторка, чтобы пользоваться привилегиями. Чтобы убедиться, что это ты, мы отправим ссылку для настройки на почту.",
+  "settings_2fa_email_link": "Отправить ссылку",
+  "settings_2fa_link_sent": "Отправили! Открой ссылку из письма в течение 30 минут.",
+  "settings_2fa_scan": "Отсканируй это приложением-аутентификатором и введи код, который оно покажет.",
+  "settings_2fa_manual": "Не сканируется? Введи этот ключ вручную:",
+  "settings_2fa_code": "Код",
+  "settings_2fa_confirm": "Включить",
+  "settings_2fa_enabled": "Двухфакторка включена.",
+  "settings_2fa_disabled": "Двухфакторка выключена.",
+  "settings_2fa_recovery_intro": "Твои коды восстановления. Каждый срабатывает один раз, если потеряешь аутентификатор. Сохрани их: больше ты их не увидишь.",
+  "settings_2fa_copy": "Скопировать коды",
+  "settings_2fa_on": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Двухфакторка включена. Остался {count} код восстановления.",
+        "countPlural=few": "Двухфакторка включена. Осталось {count} кода восстановления.",
+        "countPlural=many": "Двухфакторка включена. Осталось {count} кодов восстановления.",
+        "countPlural=other": "Двухфакторка включена. Осталось {count} кода восстановления."
+      }
+    }
+  ],
+  "settings_2fa_new_codes": "Новые коды восстановления",
+  "settings_2fa_disable": "Выключить"
 }

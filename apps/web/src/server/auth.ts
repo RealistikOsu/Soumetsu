@@ -1,3 +1,4 @@
+import { playerPrivileges } from '$lib/auth/privileges';
 import { config } from './config';
 import { db } from './db';
 import { Failure } from './respond';
@@ -7,7 +8,7 @@ export interface Caller {
   privileges: number;
 }
 
-async function sessionUserId(request: Request) {
+async function sessionOf(request: Request) {
   const authorization = request.headers.get('Authorization');
   if (!authorization?.startsWith('Bearer ')) return null;
 
@@ -15,8 +16,8 @@ async function sessionUserId(request: Request) {
     headers: { Authorization: authorization }
   });
   if (!response.ok) return null;
-  const body = (await response.json()) as { data: { user_id: number } };
-  return body.data.user_id;
+  const body = (await response.json()) as { data: { user_id: number; mfa: boolean } };
+  return body.data;
 }
 
 // The session's privileges are a snapshot from login, so they are read again from the database.
@@ -25,9 +26,15 @@ export async function privilegesOf(id: number) {
   return user ? Number(user.privileges) : 0;
 }
 
+// Staff privileges only count in a login that passed two-factor, as soumetsu-api decides too.
 export async function optionalCaller(request: Request): Promise<Caller | null> {
-  const id = await sessionUserId(request);
-  return id === null ? null : { id, privileges: await privilegesOf(id) };
+  const session = await sessionOf(request);
+  if (!session) return null;
+  const privileges = await privilegesOf(session.user_id);
+  return {
+    id: session.user_id,
+    privileges: session.mfa ? privileges : playerPrivileges(privileges)
+  };
 }
 
 export async function requireCaller(request: Request): Promise<Caller> {

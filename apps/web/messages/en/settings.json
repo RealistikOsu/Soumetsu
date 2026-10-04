@@ -116,5 +116,32 @@
   "settings_userpage_preview": "Preview",
   "settings_supporter_only_title": "This feature is restricted to RealistikOsu supporters only...",
   "settings_supporter_only_link": "Purchase supporter",
-  "settings_supporter_only_end": " to access this feature along with countless other features!"
+  "settings_supporter_only_end": " to access this feature along with countless other features!",
+  "settings_tab_2fa": "Two-factor",
+  "settings_2fa_title": "Two-factor authentication",
+  "settings_2fa_intro": "Add a code from an authenticator app (like Google Authenticator, Aegis or 1Password) to your logins, so your password alone isn't enough to get in.",
+  "settings_2fa_start": "Set it up",
+  "settings_2fa_staff": "Staff need two-factor to use their staff privileges. To make sure it's really you, we'll email you a link to set it up.",
+  "settings_2fa_email_link": "Email me the link",
+  "settings_2fa_link_sent": "Sent! Open the link in the email within 30 minutes.",
+  "settings_2fa_scan": "Scan this with your authenticator app, then type the code it shows.",
+  "settings_2fa_manual": "Can't scan it? Enter this key instead:",
+  "settings_2fa_code": "Code",
+  "settings_2fa_confirm": "Turn it on",
+  "settings_2fa_enabled": "Two-factor is on.",
+  "settings_2fa_disabled": "Two-factor is off.",
+  "settings_2fa_recovery_intro": "Your recovery codes. Each one works once if you lose your authenticator. Save them somewhere safe: you won't see them again.",
+  "settings_2fa_copy": "Copy codes",
+  "settings_2fa_on": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Two-factor is on. You have {count} recovery code left.",
+        "countPlural=other": "Two-factor is on. You have {count} recovery codes left."
+      }
+    }
+  ],
+  "settings_2fa_new_codes": "New recovery codes",
+  "settings_2fa_disable": "Turn it off"
 }

@@ -38,7 +38,19 @@
 
 <svelte:head><title>{here?.label ?? 'Admin'} · Admin · RealistikOsu</title></svelte:head>
 
-{#if user && !staff}
+{#if session.needsTwoFactor}
+  <main class="wrap">
+    <div class="notice alert profile-state c-orange">
+      <i class="fa-solid fa-shield-halved notice-icon"></i>
+      <div>
+        <b>Two-factor required</b>
+        Staff privileges only work in a login that passed two-factor authentication.
+        <a href="/settings/2fa">Set it up</a>, or if it's already on, log out and log in again with
+        your code.
+      </div>
+    </div>
+  </main>
+{:else if user && !staff}
   <NotFound />
 {:else if user}
   <div class="admin">

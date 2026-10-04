@@ -535,3 +535,30 @@
 .swatch.locked {
   opacity: 0.4;
 }
+
+.two-factor .qr {
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.two-factor code {
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.recovery-codes {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 6px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.two-factor .btn {
+  justify-self: start;
+}
+
+.two-factor .btn i {
+  margin-right: 8px;
+}
