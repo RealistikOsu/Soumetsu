@@ -1,5 +1,6 @@
 import { Prisma } from './generated/client';
 import { db } from './db';
+import { CHANNEL } from './inbox';
 import { redis } from './redis';
 import { Failure } from './respond';
 
@@ -148,6 +149,7 @@ export async function send(senderId: number, peerId: number, content: string) {
       content
     })
   );
+  await redis.publish(CHANNEL, JSON.stringify({ target_id: peerId, sender_id: senderId }));
   return { id, from: senderId, content, time: Math.floor(Date.now() / 1000) } satisfies Message;
 }
 

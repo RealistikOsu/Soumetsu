@@ -85,6 +85,18 @@
     return () => clearInterval(timer);
   });
 
+  $effect(() =>
+    inbox.on((peer) => {
+      refreshList();
+      if (peerId && (peer === null || peer === peerId)) {
+        refreshThread(peerId, false).then(
+          () => seen(peerId),
+          () => null
+        );
+      }
+    })
+  );
+
   $effect(() => {
     const id = peerId;
     messages = [];

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { listen } from '$lib/api/chat';
   import { isStaff } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -27,10 +28,13 @@
   const user = $derived(session.user);
   const path = $derived(page.url.pathname);
 
-  // Checked now and then while the tab is in view, so new messages show without a reload.
-  // Mobile browsers freeze timers in the background, so coming back to the tab checks straight away.
+  // Messages sent from the site arrive over the stream. The check now and then while the tab is in view
+  // covers in-game ones, and mobile browsers freeze timers and streams in the background, so coming back
+  // to the tab checks straight away.
   $effect(() => {
     if (!user) return;
+    const stream = new AbortController();
+    listen((peer) => inbox.notify(peer), stream.signal);
     const refresh = () => {
       if (document.visibilityState === 'visible') inbox.refresh();
     };
@@ -39,6 +43,7 @@
     document.addEventListener('visibilitychange', refresh);
     window.addEventListener('pageshow', refresh);
     return () => {
+      stream.abort();
       clearInterval(timer);
       document.removeEventListener('visibilitychange', refresh);
       window.removeEventListener('pageshow', refresh);
