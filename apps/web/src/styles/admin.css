@@ -1312,8 +1312,10 @@
 
   .suggest-foot img,
   .modes-cell img {
+    display: inline-block;
     width: 14px;
     height: 14px;
+    vertical-align: middle;
   }
 
   .modes-cell {
