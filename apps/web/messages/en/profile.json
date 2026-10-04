@@ -109,5 +109,19 @@
   "profile_peak_at": "at their peak",
   "profile_notice_restricted_title": "This player is restricted",
   "profile_notice_restricted_body": "Only staff can see this profile. Everyone else gets \"User not found\".",
-  "profile_dialog_if_fc": "{pp}pp if FC"
+  "profile_dialog_if_fc": "{pp}pp if FC",
+  "profile_report": "Report",
+  "profile_report_title": "Report {name}",
+  "profile_report_explain": "Staff get your report and take a look. Reports are private, so they won't know it was you.",
+  "profile_report_cheating": "Cheating",
+  "profile_report_multiaccount": "Multiaccounting",
+  "profile_report_profile": "Inappropriate profile (name, avatar, banner, userpage)",
+  "profile_report_insulting": "Insulting people",
+  "profile_report_spam": "Spam",
+  "profile_report_other": "Something else",
+  "profile_report_info": "Anything else staff should know",
+  "profile_report_info_placeholder": "Links to scores or replays, what they said, and so on",
+  "profile_report_send": "Send report",
+  "profile_report_sent": "Thanks, staff will take a look.",
+  "profile_report_close": "Close"
 }

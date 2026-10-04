@@ -28,6 +28,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         needs: Privilege.AdminManageUsers
       },
       {
+        href: '/admin/reports',
+        label: 'Player reports',
+        colour: 'c-red',
+        icon: 'fa-triangle-exclamation',
+        needs: Privilege.AdminManageReport
+      },
+      {
         href: '/admin/message-reports',
         label: 'Message reports',
         colour: 'c-orange',

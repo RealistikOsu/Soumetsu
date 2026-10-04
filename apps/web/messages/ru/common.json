@@ -241,5 +241,7 @@
   "common_header_messages": "Сообщения",
   "common_error_messages_silenced": "У тебя мут, поэтому сейчас нельзя отправлять сообщения.",
   "common_error_messages_restricted": "Твой аккаунт ограничен, поэтому отправлять сообщения нельзя.",
-  "common_error_messages_too_fast": "Помедленнее, слишком много сообщений подряд."
+  "common_error_messages_too_fast": "Помедленнее, слишком много сообщений подряд.",
+  "common_error_report_needs_info": "Если выбираешь «Другое», напиши, в чём проблема.",
+  "common_error_report_already_sent": "Жалоба от тебя на этого игрока сегодня уже есть."
 }

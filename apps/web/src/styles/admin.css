@@ -1798,3 +1798,17 @@
     white-space: pre-wrap;
   }
 }
+
+.admin {
+  .report-reason {
+    white-space: normal;
+  }
+
+  .report-reason pre {
+    max-height: 220px;
+    margin-top: 6px;
+    overflow: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+}

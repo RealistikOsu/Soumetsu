@@ -115,5 +115,19 @@
   "profile_peak_at": "na szczycie",
   "profile_notice_restricted_title": "Ten gracz jest zrestrictowany",
   "profile_notice_restricted_body": "Ten profil widzi tylko staff. Reszta dostaje „Nie znaleziono gracza”.",
-  "profile_dialog_if_fc": "{pp}pp za FC"
+  "profile_dialog_if_fc": "{pp}pp za FC",
+  "profile_report": "Zgłoś",
+  "profile_report_title": "Zgłoś {name}",
+  "profile_report_explain": "Staff dostanie zgłoszenie i się temu przyjrzy. Zgłoszenia są prywatne, więc ta osoba nie dowie się, że to ty.",
+  "profile_report_cheating": "Cheatowanie",
+  "profile_report_multiaccount": "Multikonto",
+  "profile_report_profile": "Nieodpowiedni profil (nick, avatar, baner, userpage)",
+  "profile_report_insulting": "Obrażanie innych",
+  "profile_report_spam": "Spam",
+  "profile_report_other": "Coś innego",
+  "profile_report_info": "Co jeszcze staff powinien wiedzieć",
+  "profile_report_info_placeholder": "Linki do wyników albo powtórek, co zostało napisane i tak dalej",
+  "profile_report_send": "Wyślij zgłoszenie",
+  "profile_report_sent": "Dzięki, staff się temu przyjrzy.",
+  "profile_report_close": "Zamknij"
 }

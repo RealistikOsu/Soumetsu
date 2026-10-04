@@ -6,7 +6,6 @@
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { chatPreview } from '$lib/chat-format';
   import { dateTime } from '$lib/format';
 
   const id = $derived(Number(page.params.id));
@@ -47,7 +46,7 @@
       <div class="line" class:flagged={message.id === report.message_id}>
         <span class="dim">{dateTime(message.time)}</span>
         <b>{message.from === report.sender_id ? report.sender : report.reporter}</b>
-        <span class="text">{chatPreview(message.content)}</span>
+        <span class="text">{message.content}</span>
       </div>
     {/each}
   </div>

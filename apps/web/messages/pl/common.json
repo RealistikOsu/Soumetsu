@@ -241,5 +241,7 @@
   "common_header_messages": "Wiadomości",
   "common_error_messages_silenced": "Masz wyciszenie, więc teraz nie możesz wysyłać wiadomości.",
   "common_error_messages_restricted": "Twoje konto jest ograniczone, więc nie możesz wysyłać wiadomości.",
-  "common_error_messages_too_fast": "Zwolnij trochę, zanim wyślesz kolejne wiadomości."
+  "common_error_messages_too_fast": "Zwolnij trochę, zanim wyślesz kolejne wiadomości.",
+  "common_error_report_needs_info": "Jeśli wybierasz „Coś innego”, napisz, w czym problem.",
+  "common_error_report_already_sent": "Twoje zgłoszenie na tego gracza już dziś wpłynęło."
 }

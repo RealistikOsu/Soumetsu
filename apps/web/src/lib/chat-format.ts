@@ -26,7 +26,12 @@ export function parseChat(content: string) {
     if (match.index > last) parts.push({ text: text.slice(last, match.index) });
     const url = match[1] ?? match[3];
     const local = localHref(url);
-    parts.push({ text: match[2] ?? url, href: local ?? url, external: !local });
+    // A label can claim to be any site, so a link leaving this one also names where it really goes.
+    const label = match[2];
+    const host =
+      !local && label && url.startsWith('http') && URL.canParse(url) ? new URL(url).host : '';
+    const shown = label ? (host && !label.includes(host) ? `${label} (${host})` : label) : url;
+    parts.push({ text: shown, href: local ?? url, external: !local });
     last = match.index + match[0].length;
   }
   if (last < text.length) parts.push({ text: text.slice(last) });

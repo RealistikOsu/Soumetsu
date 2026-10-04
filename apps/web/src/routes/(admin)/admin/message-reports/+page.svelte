@@ -3,7 +3,6 @@
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
-  import { chatPreview } from '$lib/chat-format';
   import { timeAgo } from '$lib/format';
 
   const reports = query((signal) => messageReports(signal));
@@ -35,7 +34,7 @@
                 <Avatar id={report.sender_id} /><b>{report.sender_name}</b>
               </a>
             </td>
-            <td class="note" title={chatPreview(report.content)}>{chatPreview(report.content)}</td>
+            <td class="note" title={report.content}>{report.content}</td>
             <td class="note" title={report.reason}>{report.reason}</td>
             <td class="player">
               <a class="who" href="/admin/users/{report.reporter_id}">

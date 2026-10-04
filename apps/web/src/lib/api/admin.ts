@@ -376,3 +376,25 @@ export const messageReport = (id: number, signal?: AbortSignal) =>
   siteApi.get<ReportedConversation>(`/admin/message-reports/${id}`, undefined, signal);
 
 export const resolveMessageReport = (id: number) => siteApi.post(`/admin/message-reports/${id}`);
+
+export interface PlayerReport {
+  id: number;
+  from_uid: number;
+  from_name: string | null;
+  to_uid: number;
+  to_name: string | null;
+  reason: string;
+  chatlog: string;
+  time: number;
+  resolved_at: number | null;
+  resolved_name: string | null;
+}
+
+export const playerReports = (all: boolean, page: number, signal?: AbortSignal) =>
+  siteApi.get<{ pages: number; rows: PlayerReport[] }>(
+    '/admin/reports',
+    { all: all ? 1 : undefined, page },
+    signal
+  );
+
+export const resolvePlayerReport = (id: number) => siteApi.post(`/admin/reports/${id}`);

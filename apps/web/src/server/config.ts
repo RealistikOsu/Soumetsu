@@ -24,6 +24,8 @@ export const config = {
   scoreServiceUrl: optional('SCORE_SERVICE_URL') || 'https://osu.ussr.pl/web',
   performanceUrl: (optional('PERFORMANCE_URL') || 'https://performance.ussr.pl').replace(/\/$/, ''),
   adminLogWebhook: optional('ADMIN_LOG_WEBHOOK_URL'),
+  // Where new player reports are posted, like bancho's !report. Falls back to the admin log.
+  reportWebhook: optional('REPORT_WEBHOOK_URL') || optional('ADMIN_LOG_WEBHOOK_URL'),
   rankedWebhook: optional('RANKED_WEBHOOK_URL'),
   serverName: optional('SERVER_NAME') || 'RealistikOsu!',
   donorBadgeId: Number(optional('DONOR_BADGE_ID') || 1002),

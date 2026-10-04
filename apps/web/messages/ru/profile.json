@@ -115,5 +115,19 @@
   "profile_peak_at": "на пике",
   "profile_notice_restricted_title": "Этот игрок ограничен",
   "profile_notice_restricted_body": "Этот профиль видит только стафф. Остальным показывается «Игрок не найден».",
-  "profile_dialog_if_fc": "{pp}pp если FC"
+  "profile_dialog_if_fc": "{pp}pp если FC",
+  "profile_report": "Пожаловаться",
+  "profile_report_title": "Жалоба на {name}",
+  "profile_report_explain": "Стафф получит жалобу и разберётся. Жалобы анонимны, человек не узнает, что это ты.",
+  "profile_report_cheating": "Читы",
+  "profile_report_multiaccount": "Мультиаккаунт",
+  "profile_report_profile": "Неприемлемый профиль (ник, аватар, баннер, юзерпейдж)",
+  "profile_report_insulting": "Оскорбления",
+  "profile_report_spam": "Спам",
+  "profile_report_other": "Другое",
+  "profile_report_info": "Что ещё стоит знать стаффу",
+  "profile_report_info_placeholder": "Ссылки на скоры или реплеи, что было сказано и так далее",
+  "profile_report_send": "Отправить жалобу",
+  "profile_report_sent": "Спасибо, стафф посмотрит.",
+  "profile_report_close": "Закрыть"
 }

@@ -28,6 +28,7 @@
   import Avatar from './Avatar.svelte';
   import Comments from './Comments.svelte';
   import FriendButton from './FriendButton.svelte';
+  import ReportUser from './ReportUser.svelte';
   import AlertStack from './AlertStack.svelte';
   import Flag from './Flag.svelte';
   import LoadMoreList from './LoadMoreList.svelte';
@@ -247,6 +248,7 @@
           >
             <i class="fa-solid fa-envelope"></i>
           </a>
+          <ReportUser {id} username={base.username} />
         {/if}
         {#if session.user && session.user.privileges & Privilege.AdminManageUsers}
           <a

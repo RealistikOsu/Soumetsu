@@ -241,5 +241,7 @@
   "common_header_messages": "Messages",
   "common_error_messages_silenced": "You're silenced, so you can't send messages right now.",
   "common_error_messages_restricted": "Your account is restricted, so you can't send messages.",
-  "common_error_messages_too_fast": "Slow down a bit before sending more messages."
+  "common_error_messages_too_fast": "Slow down a bit before sending more messages.",
+  "common_error_report_needs_info": "Tell staff what the problem is when you pick \"Something else\".",
+  "common_error_report_already_sent": "You've already reported this player today."
 }

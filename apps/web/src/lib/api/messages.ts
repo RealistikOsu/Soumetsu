@@ -96,6 +96,8 @@ const messages: Record<string, Message> = {
   'site.messages_silenced': m.common_error_messages_silenced,
   'site.messages_restricted': m.common_error_messages_restricted,
   'site.messages_too_fast': m.common_error_messages_too_fast,
+  'site.report_needs_info': m.common_error_report_needs_info,
+  'site.report_already_sent': m.common_error_report_already_sent,
 
   network_error: m.common_error_network
 };

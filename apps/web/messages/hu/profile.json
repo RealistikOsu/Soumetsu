@@ -109,5 +109,19 @@
   "profile_peak_at": "a csúcson",
   "profile_notice_restricted_title": "Ez a játékos korlátozva van",
   "profile_notice_restricted_body": "Ezt a profilt csak a staff látja. Mindenki más „Felhasználó nem található” üzenetet kap.",
-  "profile_dialog_if_fc": "{pp}pp FC-vel"
+  "profile_dialog_if_fc": "{pp}pp FC-vel",
+  "profile_report": "Jelentés",
+  "profile_report_title": "{name} jelentése",
+  "profile_report_explain": "A staff megkapja a jelentésed és utánanéz. A jelentések privátak, nem fogja megtudni, hogy te voltál.",
+  "profile_report_cheating": "Csalás",
+  "profile_report_multiaccount": "Több fiók használata",
+  "profile_report_profile": "Nem helyénvaló profil (név, avatar, banner, userpage)",
+  "profile_report_insulting": "Mások sértegetése",
+  "profile_report_spam": "Spam",
+  "profile_report_other": "Valami más",
+  "profile_report_info": "Amit még tudnia kell a staffnak",
+  "profile_report_info_placeholder": "Linkek eredményekhez vagy replay-ekhez, mit írt, és így tovább",
+  "profile_report_send": "Jelentés küldése",
+  "profile_report_sent": "Köszi, a staff megnézi.",
+  "profile_report_close": "Bezárás"
 }

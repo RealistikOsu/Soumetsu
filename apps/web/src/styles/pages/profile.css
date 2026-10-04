@@ -129,7 +129,8 @@
   gap: 12px;
 }
 
-.head-message {
+.head-message,
+.head-report {
   display: grid;
   place-items: center;
   align-self: stretch;
@@ -137,6 +138,12 @@
   aspect-ratio: 1;
   padding: 0;
   background: rgb(0 0 0 / 0.45);
+}
+
+.head-report:hover {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
 }
 
 .head-message:hover {
@@ -715,4 +722,17 @@
   .map-thumb {
     height: 56px;
   }
+}
+
+.report-reasons {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.report-reasons label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }

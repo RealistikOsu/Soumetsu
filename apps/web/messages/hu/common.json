@@ -241,5 +241,7 @@
   "common_header_messages": "Üzenetek",
   "common_error_messages_silenced": "Le vagy némítva, ezért most nem küldhetsz üzenetet.",
   "common_error_messages_restricted": "A fiókod korlátozva van, ezért nem küldhetsz üzenetet.",
-  "common_error_messages_too_fast": "Lassíts egy kicsit, mielőtt több üzenetet küldesz."
+  "common_error_messages_too_fast": "Lassíts egy kicsit, mielőtt több üzenetet küldesz.",
+  "common_error_report_needs_info": "Ha a „Valami más” lehetőséget választod, írd le, mi a gond.",
+  "common_error_report_already_sent": "Ma már jelentetted ezt a játékost."
 }
