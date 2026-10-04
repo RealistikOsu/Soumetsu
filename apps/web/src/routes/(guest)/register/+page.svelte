@@ -141,6 +141,11 @@
           {#if mismatch}<small class="error">{m.auth_register_mismatch()}</small>{/if}
         </div>
         <Captcha bind:this={captchaWidget} bind:token={captcha} />
+        <p class="auth-agree">
+          {m.auth_register_agree_before()}<a href="/doc/terms">{m.auth_register_agree_terms()}</a
+          >{m.auth_register_agree_and()}<a href="/doc/privacy">{m.auth_register_agree_privacy()}</a
+          >{m.auth_register_agree_after()}
+        </p>
         <button class="btn btn-green" type="submit" disabled={busy}>{m.auth_register()}</button>
       </form>
       <p class="auth-switch">
