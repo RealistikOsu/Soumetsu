@@ -6,6 +6,8 @@ import { Failure } from './respond';
 export interface Caller {
   id: number;
   privileges: number;
+  // Whether this login passed two-factor.
+  mfa: boolean;
 }
 
 async function sessionOf(request: Request) {
@@ -33,7 +35,8 @@ export async function optionalCaller(request: Request): Promise<Caller | null> {
   const privileges = await privilegesOf(session.user_id);
   return {
     id: session.user_id,
-    privileges: session.mfa ? privileges : playerPrivileges(privileges)
+    privileges: session.mfa ? privileges : playerPrivileges(privileges),
+    mfa: session.mfa
   };
 }
 
