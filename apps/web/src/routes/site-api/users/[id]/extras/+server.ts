@@ -2,6 +2,7 @@ import { optionalCaller } from '$server/auth';
 import { isOnline } from '$server/admin/bancho';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
+import { bannerOf } from '$server/users';
 
 const PUBLIC = 1;
 const MANAGE_USERS = 16;
@@ -14,15 +15,6 @@ interface StatsExtras {
   custom_badge_name: string | null;
   show_custom_badge: number;
   can_custom_badge: number;
-}
-
-// Only supporters have a banner. An uploaded picture is the default for them, a solid colour when they
-// chose one, and nothing when they chose none.
-function bannerOf(privileges: number, row: { type: number; value: string } | null) {
-  if ((privileges & 4) === 0) return null;
-  if (!row) return null;
-  if (row.type === 1) return { type: 1, value: null };
-  return row.type === 2 ? { type: 2, value: row.value } : null;
 }
 
 export const GET = handle(async ({ params, request }) => {

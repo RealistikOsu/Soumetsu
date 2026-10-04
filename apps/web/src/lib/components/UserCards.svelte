@@ -4,7 +4,7 @@
   import { card as loadCard, cardExtras, type Card, type CardExtras } from '$lib/api/cards';
   import { describe } from '$lib/api/messages';
   import { addFriend, isFriend, removeFriend } from '$lib/api/users';
-  import { avatarUrl, defaultAvatar } from '$lib/assets';
+  import { avatarUrl, bannerUrl, defaultAvatar } from '$lib/assets';
   import { session } from '$lib/auth/session.svelte';
   import { decorationClass } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
@@ -151,10 +151,20 @@
       : 'bottom left'}"
     transition:scale={{ start: 0.96, duration: ms(160) }}
   >
-    <div
-      class="card-cover"
-      style="background-image: url({avatarUrl(card.id)}), url({defaultAvatar})"
-    ></div>
+    <!-- Supporters' banners show as they are; everyone else gets their avatar, blurred. -->
+    {#if extras?.banner?.type === 1}
+      <div
+        class="card-cover banner"
+        style="background-image: url({bannerUrl(card.id)}), url({avatarUrl(card.id)})"
+      ></div>
+    {:else if extras?.banner?.type === 2}
+      <div class="card-cover banner" style="background-color: {extras.banner.value}"></div>
+    {:else}
+      <div
+        class="card-cover"
+        style="background-image: url({avatarUrl(card.id)}), url({defaultAvatar})"
+      ></div>
+    {/if}
     <div class="card-head">
       <Avatar id={card.id} class="card-avatar" />
       <div class="card-who">

@@ -18,6 +18,7 @@ export interface CardExtras {
   lastSeen: number;
   clan: { id: number; tag: string; name: string } | null;
   group: string | null;
+  banner: { type: 1; value: null } | { type: 2; value: string } | null;
 }
 
 export const card = (id: number, signal?: AbortSignal) =>

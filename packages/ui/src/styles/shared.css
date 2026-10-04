@@ -194,6 +194,11 @@
   transform: scale(1.3);
 }
 
+.card-cover.banner {
+  filter: brightness(0.6);
+  transform: none;
+}
+
 .card-head {
   position: relative;
   display: grid;
