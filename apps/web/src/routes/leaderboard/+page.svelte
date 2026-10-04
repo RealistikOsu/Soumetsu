@@ -210,7 +210,7 @@
             >
               <td class="rank">#{rank}</td>
               <td class="player">
-                <a href="/users/{user.id}">
+                <a href="/users/{user.id}?mode={view.mode}&rx={view.rx}">
                   <Flag country={user.country} /><Avatar id={user.id} /><Username
                     id={user.id}
                     name={user.username}
