@@ -237,11 +237,11 @@
   "common_error_2fa_not_enabled": "Двухфакторка не включена.",
   "common_error_2fa_not_started": "Начни настройку заново.",
   "common_error_2fa_required_for_staff": "Стафф не может выключить двухфакторку.",
-  "common_error_2fa_mail_failed": "Не получилось отправить письмо. Попробуй чуть позже.",
+  "common_error_2fa_mail_failed": "Не получилось отправить письмо. Попробуй позже.",
   "common_header_messages": "Сообщения",
-  "common_error_messages_silenced": "У тебя мут, поэтому сейчас нельзя отправлять сообщения.",
-  "common_error_messages_restricted": "Твой аккаунт ограничен, поэтому отправлять сообщения нельзя.",
-  "common_error_messages_too_fast": "Помедленнее, слишком много сообщений подряд.",
-  "common_error_report_needs_info": "Если выбираешь «Другое», напиши, в чём проблема.",
-  "common_error_report_already_sent": "Жалоба от тебя на этого игрока сегодня уже есть."
+  "common_error_messages_silenced": "Во время мута отправлять сообщения нельзя.",
+  "common_error_messages_restricted": "С ограниченного аккаунта нельзя отправлять сообщения.",
+  "common_error_messages_too_fast": "Слишком много сообщений подряд.",
+  "common_error_report_needs_info": "Для «Другое» добавь подробности.",
+  "common_error_report_already_sent": "Сегодня жалоба на этого игрока от тебя уже есть."
 }
