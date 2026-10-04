@@ -1,5 +1,6 @@
 <script lang="ts">
   import { scale } from 'svelte/transition';
+  import { beforeNavigate } from '$app/navigation';
   import { card as loadCard, cardExtras, type Card, type CardExtras } from '$lib/api/cards';
   import { describe } from '$lib/api/messages';
   import { addFriend, isFriend, removeFriend } from '$lib/api/users';
@@ -46,7 +47,7 @@
   let showTimer: ReturnType<typeof setTimeout>;
   let hideTimer: ReturnType<typeof setTimeout>;
 
-  const idOf = (link: Element) => link.getAttribute('href')?.match(/^\/users\/(\d+)$/)?.[1];
+  const idOf = (link: Element) => link.getAttribute('href')?.match(/^\/users\/(\d+)(?:\?|$)/)?.[1];
 
   function linkOf(target: EventTarget | null) {
     const link = (target as Element | null)?.closest?.('a[href^="/users/"]');
@@ -95,6 +96,12 @@
     clearTimeout(hideTimer);
     hideTimer = setTimeout(() => (current = null), HIDE_DELAY);
   }
+
+  // Clicking through to a profile never moves the pointer off the link, so nothing else would close it.
+  beforeNavigate(() => {
+    clearTimeout(showTimer);
+    current = null;
+  });
 
   function onOver(event: PointerEvent) {
     if (event.pointerType !== 'mouse') return;
