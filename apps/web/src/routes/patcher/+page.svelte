@@ -53,8 +53,8 @@
       <p class="lead">{m.support_patcher_lead()}</p>
       <ol class="steps">
         <li>
-          <b>{m.support_patcher_step_install()}</b><span
-            >{m.support_patcher_step_install_text()}</span
+          <b>{m.support_patcher_step_download()}</b><span
+            >{m.support_patcher_step_download_text()}</span
           >
         </li>
         <li>
@@ -71,6 +71,7 @@
         <a href="/api/v1/patcher/launcher/linux/download"
           ><i class="fa-brands fa-linux"></i> Linux</a
         >
+        <small>{m.support_patcher_linux_note()}</small>
       </p>
     </div>
   </div>
