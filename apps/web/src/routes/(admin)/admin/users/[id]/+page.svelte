@@ -250,7 +250,7 @@
 
       <SectionTitle colour="c-red" icon="fa-gavel">Ban log</SectionTitle>
       <ol class="timeline">
-        {#each banLogs as entry (`${entry.ts}-${entry.summary}`)}
+        {#each banLogs as entry, i (i)}
           <li class="c-red">
             <div class="timeline-head">
               <b>{entry.from_name}</b>

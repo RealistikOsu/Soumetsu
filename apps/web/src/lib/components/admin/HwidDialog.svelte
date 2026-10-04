@@ -119,7 +119,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {#each row.matches as match (match.logId)}
+                          {#each row.matches as match, i (i)}
                             <tr>
                               <td class="player">
                                 <a class="who" href="/admin/users/{match.userId}">

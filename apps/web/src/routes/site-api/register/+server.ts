@@ -34,7 +34,10 @@ export const POST = handle(async (event) => {
     headers: { 'Content-Type': 'application/json', 'X-Real-IP': clientIp(event) },
     body: JSON.stringify({ username, email, password, captcha: body?.captcha })
   });
-  const result = (await response.json()) as { status: number; data: unknown };
+  // A crash in the API answers with plain text, which reads as a failed registration rather than a second error.
+  const result = (await response.json().catch(() => ({ data: 'site.internal_error' }))) as {
+    data: unknown;
+  };
   if (!response.ok || typeof result.data === 'string') {
     throw new Failure(response.status, String(result.data));
   }

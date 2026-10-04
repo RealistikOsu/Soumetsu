@@ -17,7 +17,7 @@ export const POST = handle(async (event) => {
     headers: { 'Content-Type': 'application/json', 'X-Real-IP': clientIp(event) },
     body: JSON.stringify({ username: body.username, password: body.password })
   });
-  const result = (await login.json()) as { data: unknown };
+  const result = (await login.json().catch(() => ({ data: null }))) as { data: unknown };
   if (result.data !== 'auth.account_pending') throw new Failure(403, 'site.forbidden');
 
   const safe = body.username.trim().toLowerCase().replaceAll(' ', '_');
