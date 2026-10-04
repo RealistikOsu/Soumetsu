@@ -13,7 +13,8 @@
       "./messages/{locale}/auth.json",
       "./messages/{locale}/home.json",
       "./messages/{locale}/clans.json",
-      "./messages/{locale}/support.json"
+      "./messages/{locale}/support.json",
+      "./messages/{locale}/messages.json"
     ]
   }
 }

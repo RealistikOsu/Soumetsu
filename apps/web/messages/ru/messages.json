@@ -1,0 +1,20 @@
+{
+  "messages_title": "Сообщения",
+  "messages_new": "Новый диалог",
+  "messages_you": "Ты: ",
+  "messages_empty": "Сообщений пока нет. Открой чей-нибудь профиль, чтобы написать.",
+  "messages_back": "К диалогам",
+  "messages_older": "Загрузить старые сообщения",
+  "messages_report": "Пожаловаться",
+  "messages_seen": "Прочитано",
+  "messages_start": "Напиши привет! Если человек в игре, сообщение придёт и туда.",
+  "messages_placeholder": "Сообщение для {name}",
+  "messages_send": "Отправить",
+  "messages_pick": "Выбери диалог.",
+  "messages_close": "Закрыть",
+  "messages_report_title": "Пожаловаться на сообщение",
+  "messages_report_explain": "Стафф прочитает переписку вокруг этого сообщения, чтобы разобраться. Жалуйся только на то, что нарушает правила.",
+  "messages_report_reason": "Что не так?",
+  "messages_report_sent": "Спасибо, стафф посмотрит.",
+  "messages_message": "Написать"
+}

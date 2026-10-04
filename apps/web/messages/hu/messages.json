@@ -1,0 +1,20 @@
+{
+  "messages_title": "Üzenetek",
+  "messages_new": "Új beszélgetés",
+  "messages_you": "Te: ",
+  "messages_empty": "Még nincs üzeneted. Nyisd meg valakinek a profilját, hogy írj neki.",
+  "messages_back": "Vissza a beszélgetésekhez",
+  "messages_older": "Régebbi üzenetek betöltése",
+  "messages_report": "Jelentés",
+  "messages_seen": "Látta",
+  "messages_start": "Köszönj! Ha játékban van, ott is megkapja.",
+  "messages_placeholder": "Üzenet neki: {name}",
+  "messages_send": "Küldés",
+  "messages_pick": "Válassz egy beszélgetést.",
+  "messages_close": "Bezárás",
+  "messages_report_title": "Üzenet jelentése",
+  "messages_report_explain": "A staff elolvassa a beszélgetést az üzenet körül, hogy utánanézzen. Csak szabályszegést jelents.",
+  "messages_report_reason": "Mi a gond vele?",
+  "messages_report_sent": "Köszi, a staff megnézi.",
+  "messages_message": "Üzenet"
+}

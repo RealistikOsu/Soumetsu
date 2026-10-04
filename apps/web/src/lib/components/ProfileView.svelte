@@ -238,6 +238,16 @@
       </div>
       <div class="head-actions">
         {#if !own && base}<FriendButton {id} />{/if}
+        {#if session.user && !own && base}
+          <a
+            class="btn head-message"
+            href="/messages?with={id}"
+            title={m.messages_message()}
+            aria-label={m.messages_message()}
+          >
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+        {/if}
         {#if session.user && session.user.privileges & Privilege.AdminManageUsers}
           <a
             class="btn staff-edit"

@@ -93,6 +93,9 @@ const messages: Record<string, Message> = {
   'site.payments_unavailable': m.common_error_payments_unavailable,
   'site.doc_not_found': m.common_error_page_not_found,
   'site.mirror_unreachable': m.common_error_mirror_unreachable,
+  'site.messages_silenced': m.common_error_messages_silenced,
+  'site.messages_restricted': m.common_error_messages_restricted,
+  'site.messages_too_fast': m.common_error_messages_too_fast,
 
   network_error: m.common_error_network
 };

@@ -342,3 +342,37 @@ export const deleteAdminClan = (id: number) => siteApi.delete(`/admin/clans/${id
 
 export const kickMember = (id: number, userId: number) =>
   siteApi.post(`/admin/clans/${id}/kick`, { userId });
+
+export interface MessageReport {
+  id: number;
+  reason: string;
+  created_at: number;
+  content: string;
+  sender_id: number;
+  sender_name: string;
+  reporter_id: number;
+  reporter_name: string;
+}
+
+export interface ReportedConversation {
+  report: {
+    id: number;
+    message_id: number;
+    reason: string;
+    created_at: number;
+    resolved_at: number | null;
+    sender_id: number;
+    sender: string;
+    reporter_id: number;
+    reporter: string;
+  };
+  messages: { id: number; from: number; content: string; time: number }[];
+}
+
+export const messageReports = (signal?: AbortSignal) =>
+  siteApi.get<MessageReport[]>('/admin/message-reports', undefined, signal);
+
+export const messageReport = (id: number, signal?: AbortSignal) =>
+  siteApi.get<ReportedConversation>(`/admin/message-reports/${id}`, undefined, signal);
+
+export const resolveMessageReport = (id: number) => siteApi.post(`/admin/message-reports/${id}`);

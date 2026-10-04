@@ -1,0 +1,20 @@
+{
+  "messages_title": "Wiadomości",
+  "messages_new": "Nowa rozmowa",
+  "messages_you": "Ty: ",
+  "messages_empty": "Nie masz jeszcze wiadomości. Otwórz czyjś profil, żeby napisać.",
+  "messages_back": "Wróć do rozmów",
+  "messages_older": "Wczytaj starsze wiadomości",
+  "messages_report": "Zgłoś",
+  "messages_seen": "Przeczytane",
+  "messages_start": "Przywitaj się! Jeśli ta osoba jest w grze, dostanie wiadomość też tam.",
+  "messages_placeholder": "Wiadomość do {name}",
+  "messages_send": "Wyślij",
+  "messages_pick": "Wybierz rozmowę.",
+  "messages_close": "Zamknij",
+  "messages_report_title": "Zgłoś tę wiadomość",
+  "messages_report_explain": "Staff przeczyta rozmowę wokół tej wiadomości, żeby to sprawdzić. Zgłaszaj tylko to, co łamie zasady.",
+  "messages_report_reason": "Co jest nie tak?",
+  "messages_report_sent": "Dzięki, staff się temu przyjrzy.",
+  "messages_message": "Napisz"
+}

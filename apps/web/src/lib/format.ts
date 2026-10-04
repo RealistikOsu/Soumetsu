@@ -27,6 +27,15 @@ export const fullDate = (unixSeconds: number) =>
     year: 'numeric'
   });
 
+export const dateTime = (unixSeconds: number) =>
+  new Date(unixSeconds * 1000).toLocaleString(intlLocale(), {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
 export function songParts(songName: string) {
   const match = songName.match(/^(.*) \[(.*)\]$/);
   return match ? { song: match[1], diff: match[2] } : { song: songName, diff: '' };

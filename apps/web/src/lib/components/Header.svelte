@@ -4,6 +4,7 @@
   import { isStaff } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { inbox } from '$lib/inbox.svelte';
   import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import PlayerSearch from './PlayerSearch.svelte';
@@ -25,6 +26,16 @@
 
   const user = $derived(session.user);
   const path = $derived(page.url.pathname);
+
+  // Checked now and then while the tab is in view, so new messages show without a reload.
+  $effect(() => {
+    if (!user) return;
+    inbox.refresh();
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') inbox.refresh();
+    }, 30_000);
+    return () => clearInterval(timer);
+  });
 
   const menus: Menu[] = $derived([
     {
@@ -157,6 +168,18 @@
       {#if user}
         <a class="support-us c-pink" class:active={path.startsWith('/donate')} href="/donate">
           <i class="fa-solid fa-heart"></i><span>{m.common_header_support_us()}</span>
+        </a>
+        <a
+          class="inbox"
+          class:active={path.startsWith('/messages')}
+          href="/messages"
+          title={m.common_header_messages()}
+          aria-label={m.common_header_messages()}
+        >
+          <i class="fa-solid fa-envelope"></i>
+          {#if inbox.unread}<span class="inbox-count"
+              >{inbox.unread > 99 ? '99+' : inbox.unread}</span
+            >{/if}
         </a>
         <details class="me" bind:open={meOpen}>
           <summary title={user.username}><Avatar id={user.id} /></summary>

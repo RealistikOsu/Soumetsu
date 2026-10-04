@@ -17,6 +17,7 @@ This policy explains what personal data RealistikOsu collects, why, and what you
 - **Profile:** whatever you add to it: avatar, banner, userpage, "also known as" name, country, favourite mode, playstyle and comments.
 - **Gameplay:** your scores, replays, play counts, stats, achievements, first places and when you were last online.
 - **Linked accounts:** if you link Discord, Twitch or an official osu! account, we store its account ID. For Discord we look up your current Discord name through our own lookup service, which asks Discord for it, when your profile is shown.
+- **Private messages** you send and receive, on the site and in game, so you can read your conversations and get messages that arrived while you were offline.
 - **Support tickets and reports** you send to staff.
 
 **To protect the server:**
@@ -45,6 +46,8 @@ We don't use advertising or third-party tracking cookies.
 
 Your profile, scores, username, country and anything you post publicly can be seen by anyone. Email addresses, IP addresses, hardware identifiers and passwords are never public; only staff who moderate the server can see the first three.
 
+Private messages are only for you and the person you're talking to. Staff read a conversation only when one of you reports a message in it, and then only the messages around the reported one. Every time they do is logged.
+
 We use these services, which process some data for us:
 
 - **Cloudflare:** sits in front of the site and sees visitors' IP addresses and requests.
@@ -60,7 +63,7 @@ We never sell your data.
 ## How long we keep it
 
 - **Account, profile and gameplay data:** for as long as your account exists.
-- **When you delete your account,** we anonymise it rather than wipe it: your name becomes `DeletedUser_` followed by your account number, and we delete your email, password, profile, past usernames, linked accounts, comments, friends and clan membership. Your scores stay on beatmap leaderboards under the anonymous name, as on osu!.
+- **When you delete your account,** we anonymise it rather than wipe it: your name becomes `DeletedUser_` followed by your account number, and we delete your email, password, profile, past usernames, linked accounts, comments, private messages, friends and clan membership. Your scores stay on beatmap leaderboards under the anonymous name, as on osu!.
 - **IP addresses and hardware identifiers** are kept, even after an account is deleted, for as long as we need them to stop multiaccounting and ban evasion.
 - **Donation records** are kept as long as the law requires.
 

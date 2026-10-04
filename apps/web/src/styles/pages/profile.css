@@ -129,6 +129,22 @@
   gap: 12px;
 }
 
+.head-message {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-height: 40px;
+  aspect-ratio: 1;
+  padding: 0;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.head-message:hover {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
 .staff-edit {
   display: grid;
   place-items: center;

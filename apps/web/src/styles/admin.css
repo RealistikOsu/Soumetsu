@@ -1773,3 +1773,28 @@
     }
   }
 }
+
+.admin {
+  .report-summary,
+  .reported-thread {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+  }
+
+  .reported-thread .line {
+    display: grid;
+    grid-template-columns: 150px 140px minmax(0, 1fr);
+    gap: 12px;
+    padding: 5px 8px;
+    border-radius: 4px;
+  }
+
+  .reported-thread .line.flagged {
+    background: color-mix(in srgb, var(--red) 22%, transparent);
+  }
+
+  .reported-thread .text {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+}

@@ -237,5 +237,9 @@
   "common_error_2fa_not_enabled": "Two-factor isn't on.",
   "common_error_2fa_not_started": "Start the setup again.",
   "common_error_2fa_required_for_staff": "Staff can't turn two-factor off.",
-  "common_error_2fa_mail_failed": "We couldn't send the email. Try again in a bit."
+  "common_error_2fa_mail_failed": "We couldn't send the email. Try again in a bit.",
+  "common_header_messages": "Messages",
+  "common_error_messages_silenced": "You're silenced, so you can't send messages right now.",
+  "common_error_messages_restricted": "Your account is restricted, so you can't send messages.",
+  "common_error_messages_too_fast": "Slow down a bit before sending more messages."
 }

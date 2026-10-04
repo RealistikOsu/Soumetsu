@@ -237,5 +237,9 @@
   "common_error_2fa_not_enabled": "A kétlépcsős azonosítás nincs bekapcsolva.",
   "common_error_2fa_not_started": "Kezdd újra a beállítást.",
   "common_error_2fa_required_for_staff": "A staff nem kapcsolhatja ki a kétlépcsős azonosítást.",
-  "common_error_2fa_mail_failed": "Nem sikerült elküldeni az e-mailt. Próbáld újra kicsit később."
+  "common_error_2fa_mail_failed": "Nem sikerült elküldeni az e-mailt. Próbáld újra kicsit később.",
+  "common_header_messages": "Üzenetek",
+  "common_error_messages_silenced": "Le vagy némítva, ezért most nem küldhetsz üzenetet.",
+  "common_error_messages_restricted": "A fiókod korlátozva van, ezért nem küldhetsz üzenetet.",
+  "common_error_messages_too_fast": "Lassíts egy kicsit, mielőtt több üzenetet küldesz."
 }

@@ -309,6 +309,8 @@ const PERSONAL: [string, string[]][] = [
   ['2fa', ['userid']],
   ['2fa_telegram', ['userid']],
   ['2fa_totp', ['userid']],
+  ['user_totp', ['user_id']],
+  ['user_totp_recovery', ['user_id']],
   ['discord_roles', ['userid']],
   ['discord_oauth', ['user_id']],
   ['osu_official_links', ['osu_user_id']],
@@ -323,7 +325,9 @@ const PERSONAL: [string, string[]][] = [
   ['user_pinned', ['userid']],
   ['user_name_history', ['user_id']],
   ['whitelist', ['user_id']],
-  ['rank_requests', ['userid']]
+  ['rank_requests', ['userid']],
+  ['chat_logs', ['user_id', 'target_id']],
+  ['chat_reads', ['user_id', 'peer_id']]
 ];
 
 // Deleting an account anonymises it: the row stays as DeletedUser_<id> so its scores keep their place on

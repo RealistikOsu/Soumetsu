@@ -132,6 +132,32 @@
   color: var(--text);
 }
 
+.inbox {
+  position: relative;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.inbox:hover,
+.inbox.active {
+  color: var(--text);
+}
+
+.inbox-count {
+  position: absolute;
+  top: -8px;
+  right: -11px;
+  min-width: 17px;
+  padding: 1px 4px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  text-align: center;
+}
+
 .top-right {
   display: flex;
   align-items: center;
