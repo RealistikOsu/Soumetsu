@@ -28,13 +28,21 @@
   const path = $derived(page.url.pathname);
 
   // Checked now and then while the tab is in view, so new messages show without a reload.
+  // Mobile browsers freeze timers in the background, so coming back to the tab checks straight away.
   $effect(() => {
     if (!user) return;
-    inbox.refresh();
-    const timer = setInterval(() => {
+    const refresh = () => {
       if (document.visibilityState === 'visible') inbox.refresh();
-    }, 30_000);
-    return () => clearInterval(timer);
+    };
+    inbox.refresh();
+    const timer = setInterval(refresh, 30_000);
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('pageshow', refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('pageshow', refresh);
+    };
   });
 
   const menus: Menu[] = $derived([

@@ -629,6 +629,7 @@
   list-style: none;
   font-size: 14px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .badges {
@@ -714,6 +715,18 @@
 }
 
 @media (max-width: 640px) {
+  .name-row {
+    position: relative;
+  }
+
+  .past-names {
+    position: static;
+  }
+
+  .past-names > div {
+    max-width: 100%;
+  }
+
   .score-row.map-row {
     grid-template-columns: 56px minmax(0, 1fr) auto;
     padding-right: 12px;
