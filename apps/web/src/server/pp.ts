@@ -29,6 +29,25 @@ const LEGACY: Record<string, number> = {
   MR: 1073741824
 };
 
+// Lazer-only mods with no legacy bit, still accepted for the lazer list.
+const LAZER_ONLY = new Set([
+  'CL',
+  'DA',
+  'TC',
+  'BL',
+  'ST',
+  'AC',
+  'WU',
+  'WD',
+  'AL',
+  'SG',
+  'DC',
+  'BR',
+  'SI'
+]);
+
+export const isKnownMod = (acronym: string) => acronym in LEGACY || LAZER_ONLY.has(acronym);
+
 export interface Counts {
   n300: number;
   n100: number;
