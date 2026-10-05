@@ -50,8 +50,8 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": "játék",
-        "countPlural=other": "játék"
+        "countPlural=one": "játszás",
+        "countPlural=other": "játszás"
       }
     }
   ],

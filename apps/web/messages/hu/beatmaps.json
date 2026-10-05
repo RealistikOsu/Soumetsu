@@ -13,7 +13,7 @@
   "beatmaps_map_length": "Hossz",
   "beatmaps_map_drain": "{time} drain",
   "beatmaps_map_max_combo": "Max combo",
-  "beatmaps_map_passes_plays": "Teljesítések / játékok",
+  "beatmaps_map_passes_plays": "Teljesítések / játszások",
   "beatmaps_map_source": "Forrás",
   "beatmaps_scores_error": "Nem sikerült betölteni az eredményeket. Próbáld újra kicsit később.",
   "beatmaps_scores_empty": "Ezen a nehézségen még senkinek nincs {relax} {mode} eredménye.",
