@@ -76,6 +76,12 @@
   border-radius: var(--radius);
 }
 
+.upload-skin {
+  justify-self: start;
+  color: var(--link);
+}
+
+.upload-skin i,
 .withdraw i {
   margin-right: 8px;
 }

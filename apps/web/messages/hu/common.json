@@ -245,6 +245,7 @@
   "common_error_messages_too_fast": "Túl gyorsan küldöd az üzeneteket.",
   "common_error_upload_requests_full": "Túl sok nyitott kérésed van. Várd meg a döntést, vagy vonj vissza egyet.",
   "common_error_upload_score_not_found": "Nem találtunk ilyen ID-jú, teljesített eredményt a fiókodban.",
+  "common_error_upload_invalid_skin": "Ez a skin link nem jó. Használj közvetlen .osk letöltési linket, vagy egy skin oldalról származót.",
   "common_error_report_needs_info": "Az „Egyéb” mellé írj részleteket.",
   "common_error_report_already_sent": "Ma már jelentetted ezt a játékost."
 }

@@ -59,7 +59,7 @@
   let detailOpen = $state(false);
 
   let scoreId = $state('');
-  let skin = $state('');
+  let skinUrl = $state('');
   let reason = $state('');
   let sending = $state(false);
 
@@ -75,9 +75,9 @@
     event.preventDefault();
     sending = true;
     try {
-      await sendUploadRequest({ score_id: Number(scoreId), skin, reason });
+      await sendUploadRequest({ score_id: Number(scoreId), skin_url: skinUrl, reason });
       flash.show('success', m.uploads_sent());
-      scoreId = skin = reason = '';
+      scoreId = skinUrl = reason = '';
       if (status === 'pending' && current === 1) list.reload();
       else go({ status: 'pending' });
     } catch (error) {
@@ -165,7 +165,16 @@
           {:else}
             <p class="faint">{m.uploads_score_missing()}</p>
           {/if}
-          {#if request.skin}<p class="faint">{m.uploads_skin({ skin: request.skin })}</p>{/if}
+          {#if request.skin_url}
+            <a
+              class="upload-skin"
+              href={request.skin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-solid fa-download"></i>{m.uploads_skin()}
+            </a>
+          {/if}
 
           <footer>
             <button
@@ -236,7 +245,8 @@
         </div>
         <div class="field">
           <label for="skin">{m.uploads_skin_label()}</label>
-          <input id="skin" maxlength="100" bind:value={skin} />
+          <input id="skin" type="url" maxlength="255" bind:value={skinUrl} />
+          <small>{m.uploads_skin_hint()}</small>
         </div>
         <div class="field">
           <label for="reason">{m.uploads_reason_label()}</label>

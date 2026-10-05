@@ -9,7 +9,7 @@ export interface UploadRequest {
   score_id: number;
   // Null once the score is gone, for example after a wipe.
   score: ScoreWithBeatmap | null;
-  skin: string;
+  skin_url: string;
   reason: string;
   status: UploadStatus;
   created_at: number;
@@ -26,7 +26,7 @@ export const uploadRequests = (status: UploadStatus, page: number, signal?: Abor
     signal
   );
 
-export const sendUploadRequest = (body: { score_id: number; skin: string; reason: string }) =>
+export const sendUploadRequest = (body: { score_id: number; skin_url: string; reason: string }) =>
   api.post('/upload-requests/', body);
 
 export const voteUploadRequest = (id: number, vote: -1 | 0 | 1) =>

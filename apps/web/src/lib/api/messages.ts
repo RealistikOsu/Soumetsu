@@ -79,6 +79,7 @@ const messages: Record<string, Message> = {
   'upload_requests.too_many_open': m.common_error_upload_requests_full,
   'upload_requests.request_not_found': m.common_error_not_found,
   'upload_requests.cannot_vote': m.common_error_invalid_request,
+  'upload_requests.invalid_skin': m.common_error_upload_invalid_skin,
   'upload_requests.invalid_request': m.common_error_invalid_request,
   'upload_requests.forbidden': m.common_error_forbidden,
 

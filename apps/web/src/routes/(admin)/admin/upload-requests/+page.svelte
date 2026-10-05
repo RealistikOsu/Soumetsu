@@ -92,8 +92,11 @@
                 <span class="dim">Score gone</span>
               {/if}
               <small class="dim">
-                ID {request.score_id}{request.skin ? ` · ${request.skin}` : ''}
+                ID {request.score_id}
               </small>
+              {#if request.skin_url}
+                <a href={request.skin_url} target="_blank" rel="noopener noreferrer">Skin</a>
+              {/if}
             </td>
             <td>+{request.up} / -{request.down}</td>
             <td class="dim">{timeAgo(request.created_at)}</td>
