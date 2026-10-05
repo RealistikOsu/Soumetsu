@@ -138,6 +138,7 @@
   "support_patcher_feature_misses": "Миссы на релаксе",
   "support_patcher_feature_rate": "Изменение скорости",
   "support_patcher_feature_counter": "Счётчик PP",
+  "support_patcher_opt_judgement_counter": "Счётчик попаданий для mania",
   "support_patcher_feature_settings": "Настраиваемый набор фич",
   "support_patcher_feature_alt": "{name} в игре",
   "support_patcher_toggles": "Всё, что можно настроить",

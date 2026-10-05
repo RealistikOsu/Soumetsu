@@ -134,6 +134,7 @@
   "support_patcher_feature_misses": "Enable relax misses",
   "support_patcher_feature_rate": "Rate changes",
   "support_patcher_feature_counter": "PP counter",
+  "support_patcher_opt_judgement_counter": "Mania judgement counter",
   "support_patcher_feature_settings": "Customisable feature set",
   "support_patcher_feature_alt": "{name} in game",
   "support_patcher_toggles": "Everything you can toggle",

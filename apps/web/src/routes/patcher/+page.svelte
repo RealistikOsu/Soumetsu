@@ -22,7 +22,8 @@
     m.support_patcher_opt_nightcore_beat(),
     m.support_patcher_opt_coins(),
     m.support_patcher_opt_coins_play(),
-    m.support_patcher_opt_coin_sounds()
+    m.support_patcher_opt_coin_sounds(),
+    m.support_patcher_opt_judgement_counter()
   ];
 
   const counterSettings = [
