@@ -78,12 +78,17 @@
       label: m.common_header_support(),
       colour: 'c-green',
       icon: 'fa-life-ring',
-      prefixes: ['/doc', '/connect', '/patcher', '/team'],
+      prefixes: ['/doc', '/connect', '/patcher', '/upload-requests', '/team'],
       items: [
         { href: '/doc/rules', icon: 'fa-scale-balanced', text: m.common_header_rules() },
         { href: '/doc', icon: 'fa-book', text: m.common_nav_documentation() },
         { href: '/connect', icon: 'fa-plug', text: m.common_header_connection_guide() },
         { href: '/patcher', icon: 'fa-screwdriver-wrench', text: m.common_header_patcher() },
+        {
+          href: '/upload-requests',
+          icon: 'fa-circle-play',
+          text: m.common_header_upload_requests()
+        },
         { href: '/discord', icon: 'fa-discord', text: 'Discord', brand: true },
         { href: '/team', icon: 'fa-users', text: m.common_header_team() }
       ]

@@ -22,6 +22,7 @@
   "common_header_team": "Наша команда",
   "common_header_beatmap_listing": "Список карт",
   "common_header_request_beatmap": "Запросить карту",
+  "common_header_upload_requests": "Запросы на загрузку",
   "common_header_support_us": "Поддержать нас",
   "common_header_profile": "Профиль",
   "common_header_friends": "Друзья",
@@ -242,6 +243,7 @@
   "common_error_messages_silenced": "Во время мута отправлять сообщения нельзя.",
   "common_error_messages_restricted": "С ограниченного аккаунта нельзя отправлять сообщения.",
   "common_error_messages_too_fast": "Слишком много сообщений подряд.",
+  "common_error_upload_requests_full": "У тебя слишком много открытых запросов. Дождись решения или отзови один.",
   "common_error_report_needs_info": "Для «Другое» добавь подробности.",
   "common_error_report_already_sent": "Сегодня жалоба на этого игрока от тебя уже есть."
 }

@@ -22,6 +22,7 @@
   "common_header_team": "A csapatunk",
   "common_header_beatmap_listing": "Beatmap lista",
   "common_header_request_beatmap": "Beatmap kérése",
+  "common_header_upload_requests": "Feltöltési kérések",
   "common_header_support_us": "Támogass minket",
   "common_header_profile": "Profil",
   "common_header_friends": "Barátok",
@@ -242,6 +243,7 @@
   "common_error_messages_silenced": "Némítás alatt nem küldhetsz üzenetet.",
   "common_error_messages_restricted": "Korlátozott fiókról nem lehet üzenetet küldeni.",
   "common_error_messages_too_fast": "Túl gyorsan küldöd az üzeneteket.",
+  "common_error_upload_requests_full": "Túl sok nyitott kérésed van. Várd meg a döntést, vagy vonj vissza egyet.",
   "common_error_report_needs_info": "Az „Egyéb” mellé írj részleteket.",
   "common_error_report_already_sent": "Ma már jelentetted ezt a játékost."
 }

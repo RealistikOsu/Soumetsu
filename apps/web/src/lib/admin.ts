@@ -94,6 +94,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         needs: Privilege.AdminAccessRap
       },
       {
+        href: '/admin/upload-requests',
+        label: 'Upload requests',
+        colour: 'c-red',
+        icon: 'fa-circle-play',
+        needs: Privilege.AdminAccessRap
+      },
+      {
         href: '/admin/bancho',
         label: 'Bancho settings',
         colour: 'c-yellow',

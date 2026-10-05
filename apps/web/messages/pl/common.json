@@ -22,6 +22,7 @@
   "common_header_team": "Nasza ekipa",
   "common_header_beatmap_listing": "Lista map",
   "common_header_request_beatmap": "Zgłoś mapę",
+  "common_header_upload_requests": "Prośby o upload",
   "common_header_support_us": "Wesprzyj nas",
   "common_header_profile": "Profil",
   "common_header_friends": "Znajomi",
@@ -242,6 +243,7 @@
   "common_error_messages_silenced": "Nie możesz wysyłać wiadomości, gdy masz wyciszenie.",
   "common_error_messages_restricted": "Ograniczone konta nie mogą wysyłać wiadomości.",
   "common_error_messages_too_fast": "Za szybko wysyłasz wiadomości.",
+  "common_error_upload_requests_full": "Masz za dużo otwartych próśb. Poczekaj na decyzję albo wycofaj jedną.",
   "common_error_report_needs_info": "Dodaj szczegóły przy „Inne”.",
   "common_error_report_already_sent": "Twoje zgłoszenie na tego gracza już dziś wpłynęło."
 }

@@ -98,6 +98,7 @@ const messages: Record<string, Message> = {
   'site.messages_too_fast': m.common_error_messages_too_fast,
   'site.report_needs_info': m.common_error_report_needs_info,
   'site.report_already_sent': m.common_error_report_already_sent,
+  'site.upload_requests_full': m.common_error_upload_requests_full,
 
   network_error: m.common_error_network
 };

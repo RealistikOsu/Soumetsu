@@ -1,6 +1,7 @@
 import type { GradeName } from '$lib/grades';
 import type { Mod } from '$lib/mods';
 import { siteApi } from './site';
+import type { UploadStatus } from './uploads';
 
 export interface DashboardPlay {
   id: number;
@@ -247,6 +248,9 @@ export const rankRequests = (page: number, signal?: AbortSignal) =>
   siteApi.get<{ pages: number; requests: RankRequest[] }>('/admin/requests', { page }, signal);
 
 export const dismissRequest = (id: number) => siteApi.delete(`/admin/requests/${id}`);
+
+export const reviewUploadRequest = (id: number, status: UploadStatus) =>
+  siteApi.post(`/admin/upload-requests/${id}`, { status });
 
 export interface SystemSettings {
   websiteMaintenance: boolean;

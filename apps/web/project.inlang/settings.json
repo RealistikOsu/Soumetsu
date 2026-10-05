@@ -14,7 +14,8 @@
       "./messages/{locale}/home.json",
       "./messages/{locale}/clans.json",
       "./messages/{locale}/support.json",
-      "./messages/{locale}/messages.json"
+      "./messages/{locale}/messages.json",
+      "./messages/{locale}/uploads.json"
     ]
   }
 }

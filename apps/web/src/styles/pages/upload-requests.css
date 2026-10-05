@@ -1,0 +1,161 @@
+/* upload requests */
+
+.uploads {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 32px;
+  align-items: start;
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.uploads .tabs {
+  margin-bottom: 16px;
+}
+
+.uploads aside .section-title:first-child {
+  margin-top: 0;
+}
+
+.upload {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+}
+
+.upload header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text);
+}
+
+.upload-who .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.upload-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.upload-reason {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.upload-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-links .btn i,
+.withdraw i {
+  margin-right: 8px;
+}
+
+.upload footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vote {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.vote:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.vote:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.vote.chosen {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.vote.down.chosen {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.withdraw {
+  margin-left: auto;
+  padding: 6px 12px;
+}
+
+.upload-skel {
+  display: block;
+  height: 150px;
+  margin-bottom: 16px;
+}
+
+.upload-form {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.upload-form .field input,
+.upload-form .field textarea {
+  max-width: none;
+}
+
+.upload-form .btn {
+  justify-self: start;
+}
+
+.upload-rules {
+  display: grid;
+  gap: 10px;
+  padding: 16px 20px;
+  list-style: none;
+}
+
+.upload-rules a {
+  color: var(--link);
+}
+
+.upload-rules a i {
+  margin-right: 8px;
+}
+
+@media (max-width: 900px) {
+  .uploads {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
