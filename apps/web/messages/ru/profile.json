@@ -87,6 +87,8 @@
   "profile_score_unpin": "Открепить скор",
   "profile_dialog_close": "Закрыть",
   "profile_dialog_score": "Очки",
+  "profile_dialog_score_id": "ID скора",
+  "profile_dialog_id_copied": "ID скора скопирован.",
   "profile_dialog_max_combo": "Макс. комбо",
   "profile_dialog_difficulty": "Сложность",
   "profile_dialog_mods": "Моды",

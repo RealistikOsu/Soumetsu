@@ -87,6 +87,8 @@
   "profile_score_unpin": "Odepnij wynik",
   "profile_dialog_close": "Zamknij",
   "profile_dialog_score": "Wynik",
+  "profile_dialog_score_id": "ID wyniku",
+  "profile_dialog_id_copied": "ID wyniku skopiowane.",
   "profile_dialog_max_combo": "Max combo",
   "profile_dialog_difficulty": "Trudność",
   "profile_dialog_mods": "Mody",

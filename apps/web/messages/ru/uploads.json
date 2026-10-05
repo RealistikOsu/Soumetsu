@@ -10,8 +10,6 @@
   "uploads_status_pending": "Ждёт решения",
   "uploads_status_accepted": "Принят",
   "uploads_status_rejected": "Отклонён",
-  "uploads_replay": "Реплей",
-  "uploads_map": "Карта",
   "uploads_skin": "Скин: {skin}",
   "uploads_vote_up": "За",
   "uploads_vote_down": "Против",
@@ -19,9 +17,8 @@
   "uploads_withdraw": "Отозвать",
   "uploads_withdrawn": "Запрос отозван.",
   "uploads_form_title": "Запросить загрузку",
-  "uploads_replay_label": "Ссылка на реплей",
-  "uploads_replay_hint": "Ссылка на твой реплей, например на скачивание со страницы скора.",
-  "uploads_map_label": "Ссылка на карту",
+  "uploads_score_id_label": "ID скора",
+  "uploads_score_id_hint": "Открой детали скора в профиле и скопируй ID.",
   "uploads_skin_label": "Скин (необязательно)",
   "uploads_reason_label": "Почему этот плей стоит загрузить?",
   "uploads_send": "Отправить запрос",
@@ -33,5 +30,6 @@
   "uploads_rules_votes": "Голосуй за и против запросов, чтобы показать, что хочешь увидеть.",
   "uploads_rules_discussion": "Обсуждать запросы лучше в нашем Discord, а не тут.",
   "uploads_rules_limit": "Открытых запросов одновременно: {max}.",
-  "uploads_channel": "Открыть YouTube-канал"
+  "uploads_channel": "Открыть YouTube-канал",
+  "uploads_score_missing": "Этого скора больше нет."
 }

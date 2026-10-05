@@ -197,6 +197,23 @@
   font-size: 13px;
 }
 
+.copy-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.copy-id:hover {
+  color: var(--text);
+}
+
 .tag {
   padding: 1px 8px;
   border-radius: 4px;

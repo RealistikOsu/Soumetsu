@@ -4,6 +4,7 @@
   import { page } from '$app/state';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
+  import type { ScoreWithBeatmap } from '$lib/api/scores';
   import {
     sendUploadRequest,
     uploadRequests,
@@ -17,6 +18,8 @@
   import Banner from '$lib/components/Banner.svelte';
   import Flag from '$lib/components/Flag.svelte';
   import Pager from '$lib/components/Pager.svelte';
+  import ScoreDialog from '$lib/components/ScoreDialog.svelte';
+  import ScoreRow from '$lib/components/ScoreRow.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import Username from '$lib/components/Username.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -52,8 +55,10 @@
     votes = {};
   });
 
-  let replayUrl = $state('');
-  let mapUrl = $state('');
+  let detail = $state<ScoreWithBeatmap | null>(null);
+  let detailOpen = $state(false);
+
+  let scoreId = $state('');
   let skin = $state('');
   let reason = $state('');
   let sending = $state(false);
@@ -70,9 +75,9 @@
     event.preventDefault();
     sending = true;
     try {
-      await sendUploadRequest({ replayUrl, mapUrl, skin, reason });
+      await sendUploadRequest({ score_id: Number(scoreId), skin, reason });
       flash.show('success', m.uploads_sent());
-      replayUrl = mapUrl = skin = reason = '';
+      scoreId = skin = reason = '';
       if (status === 'pending' && current === 1) list.reload();
       else go({ status: 'pending' });
     } catch (error) {
@@ -137,22 +142,30 @@
               <Flag country={request.user.country} />
               <Username id={request.user.id} name={request.user.username} />
             </a>
-            <span class="muted" title={dateTime(request.time)}>{timeAgo(request.time)}</span>
+            <span class="muted" title={dateTime(request.created_at)}
+              >{timeAgo(request.created_at)}</span
+            >
             <span class="upload-tag"><i class="fa-solid {tag.icon}"></i>{tag.label()}</span>
           </header>
 
           <p class="upload-reason">{request.reason}</p>
 
-          <div class="upload-links">
-            <a class="btn" href={request.replayUrl} target="_blank" rel="noopener noreferrer">
-              <i class="fa-solid fa-play"></i>{m.uploads_replay()}
-            </a>
-            <a class="btn" href={request.mapUrl} target="_blank" rel="noopener noreferrer">
-              <i class="fa-solid fa-music"></i>{m.uploads_map()}
-            </a>
-            {#if request.skin}<span class="faint">{m.uploads_skin({ skin: request.skin })}</span
-              >{/if}
-          </div>
+          {#if request.score}
+            {@const score = request.score}
+            <div class="score-list upload-score">
+              <ScoreRow
+                {score}
+                ondetails={() => {
+                  detail = score;
+                  detailOpen = true;
+                }}
+                onpin={() => null}
+              />
+            </div>
+          {:else}
+            <p class="faint">{m.uploads_score_missing()}</p>
+          {/if}
+          {#if request.skin}<p class="faint">{m.uploads_skin({ skin: request.skin })}</p>{/if}
 
           <footer>
             <button
@@ -210,13 +223,16 @@
     {#if session.user}
       <form class="panel upload-form c-red" onsubmit={send}>
         <div class="field">
-          <label for="replay">{m.uploads_replay_label()}</label>
-          <input id="replay" type="url" maxlength="255" bind:value={replayUrl} required />
-          <small>{m.uploads_replay_hint()}</small>
-        </div>
-        <div class="field">
-          <label for="map">{m.uploads_map_label()}</label>
-          <input id="map" type="url" maxlength="255" bind:value={mapUrl} required />
+          <label for="score">{m.uploads_score_id_label()}</label>
+          <input
+            id="score"
+            type="number"
+            min="1"
+            inputmode="numeric"
+            bind:value={scoreId}
+            required
+          />
+          <small>{m.uploads_score_id_hint()}</small>
         </div>
         <div class="field">
           <label for="skin">{m.uploads_skin_label()}</label>
@@ -254,3 +270,5 @@
     </ul>
   </aside>
 </main>
+
+<ScoreDialog score={detail} bind:open={detailOpen} />

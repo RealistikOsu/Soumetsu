@@ -10,8 +10,6 @@
   "uploads_status_pending": "Waiting for a decision",
   "uploads_status_accepted": "Accepted",
   "uploads_status_rejected": "Rejected",
-  "uploads_replay": "Replay",
-  "uploads_map": "Beatmap",
   "uploads_skin": "Skin: {skin}",
   "uploads_vote_up": "Upvote",
   "uploads_vote_down": "Downvote",
@@ -19,9 +17,8 @@
   "uploads_withdraw": "Withdraw",
   "uploads_withdrawn": "Request withdrawn.",
   "uploads_form_title": "Request an upload",
-  "uploads_replay_label": "Replay link",
-  "uploads_replay_hint": "A link to your replay, like the download link on your score.",
-  "uploads_map_label": "Beatmap link",
+  "uploads_score_id_label": "Score ID",
+  "uploads_score_id_hint": "Open your score's details on your profile and copy the ID.",
   "uploads_skin_label": "Skin (optional)",
   "uploads_reason_label": "Why should the play be uploaded?",
   "uploads_send": "Send request",
@@ -33,5 +30,6 @@
   "uploads_rules_votes": "Upvote or downvote requests to show what you'd like to see.",
   "uploads_rules_discussion": "Chat about requests on our Discord, not here.",
   "uploads_rules_limit": "Open requests at a time: {max}.",
-  "uploads_channel": "Visit the YouTube channel"
+  "uploads_channel": "Visit the YouTube channel",
+  "uploads_score_missing": "This score is no longer available."
 }

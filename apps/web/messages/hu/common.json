@@ -244,6 +244,7 @@
   "common_error_messages_restricted": "Korlátozott fiókról nem lehet üzenetet küldeni.",
   "common_error_messages_too_fast": "Túl gyorsan küldöd az üzeneteket.",
   "common_error_upload_requests_full": "Túl sok nyitott kérésed van. Várd meg a döntést, vagy vonj vissza egyet.",
+  "common_error_upload_score_not_found": "Nem találtunk ilyen ID-jú, teljesített eredményt a fiókodban.",
   "common_error_report_needs_info": "Az „Egyéb” mellé írj részleteket.",
   "common_error_report_already_sent": "Ma már jelentetted ezt a játékost."
 }

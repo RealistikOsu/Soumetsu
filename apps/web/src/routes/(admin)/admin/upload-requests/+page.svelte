@@ -2,10 +2,9 @@
   import { tabInk } from '@soumetsu/ui';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { reviewUploadRequest } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
-  import { uploadRequests, type UploadStatus } from '$lib/api/uploads';
+  import { reviewUploadRequest, uploadRequests, type UploadStatus } from '$lib/api/uploads';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
   import Flag from '$lib/components/Flag.svelte';
@@ -63,7 +62,7 @@
       <tr>
         <th class="player">Player</th>
         <th>Why</th>
-        <th>Links</th>
+        <th>Score</th>
         <th>Votes</th>
         <th>When</th>
         <th></th>
@@ -82,13 +81,22 @@
             </td>
             <td class="note">{request.reason}</td>
             <td>
-              <a href={request.replayUrl} target="_blank" rel="noopener noreferrer">Replay</a>
-              ·
-              <a href={request.mapUrl} target="_blank" rel="noopener noreferrer">Map</a>
-              {#if request.skin}<small class="dim">{request.skin}</small>{/if}
+              {#if request.score}
+                <a href="/beatmaps/{request.score.beatmap.beatmap_id}">
+                  {request.score.beatmap.song_name}
+                </a>
+                <small class="dim">
+                  {Math.round(request.score.pp)}pp · {request.score.accuracy.toFixed(2)}%
+                </small>
+              {:else}
+                <span class="dim">Score gone</span>
+              {/if}
+              <small class="dim">
+                ID {request.score_id}{request.skin ? ` · ${request.skin}` : ''}
+              </small>
             </td>
             <td>+{request.up} / -{request.down}</td>
-            <td class="dim">{timeAgo(request.time)}</td>
+            <td class="dim">{timeAgo(request.created_at)}</td>
             <td class="actions">
               {#if request.status !== 'accepted'}
                 <button

@@ -10,8 +10,6 @@
   "uploads_status_pending": "Czeka na decyzję",
   "uploads_status_accepted": "Przyjęta",
   "uploads_status_rejected": "Odrzucona",
-  "uploads_replay": "Replay",
-  "uploads_map": "Mapa",
   "uploads_skin": "Skin: {skin}",
   "uploads_vote_up": "Za",
   "uploads_vote_down": "Przeciw",
@@ -19,9 +17,8 @@
   "uploads_withdraw": "Wycofaj",
   "uploads_withdrawn": "Prośba wycofana.",
   "uploads_form_title": "Poproś o upload",
-  "uploads_replay_label": "Link do replaya",
-  "uploads_replay_hint": "Link do twojego replaya, np. do pobrania z wyniku.",
-  "uploads_map_label": "Link do mapy",
+  "uploads_score_id_label": "ID wyniku",
+  "uploads_score_id_hint": "Otwórz szczegóły wyniku na profilu i skopiuj ID.",
   "uploads_skin_label": "Skin (opcjonalnie)",
   "uploads_reason_label": "Dlaczego to zagranie powinno trafić na kanał?",
   "uploads_send": "Wyślij prośbę",
@@ -33,5 +30,6 @@
   "uploads_rules_votes": "Głosuj za lub przeciw prośbom, żeby pokazać, co chcesz zobaczyć.",
   "uploads_rules_discussion": "O prośbach rozmawiaj na naszym Discordzie, nie tutaj.",
   "uploads_rules_limit": "Otwartych próśb naraz: {max}.",
-  "uploads_channel": "Otwórz kanał na YouTube"
+  "uploads_channel": "Otwórz kanał na YouTube",
+  "uploads_score_missing": "Ten wynik już nie istnieje."
 }

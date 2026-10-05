@@ -81,6 +81,8 @@
   "profile_score_unpin": "Unpin score",
   "profile_dialog_close": "Close",
   "profile_dialog_score": "Score",
+  "profile_dialog_score_id": "Score ID",
+  "profile_dialog_id_copied": "Score ID copied.",
   "profile_dialog_max_combo": "Max combo",
   "profile_dialog_difficulty": "Difficulty",
   "profile_dialog_mods": "Mods",

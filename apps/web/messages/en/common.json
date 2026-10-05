@@ -244,6 +244,7 @@
   "common_error_messages_restricted": "Restricted accounts can't send messages.",
   "common_error_messages_too_fast": "You're sending messages too fast.",
   "common_error_upload_requests_full": "You already have too many open requests. Wait for a decision or withdraw one.",
+  "common_error_upload_score_not_found": "Couldn't find a passed score of yours with that ID.",
   "common_error_report_needs_info": "Add some details for \"Other\".",
   "common_error_report_already_sent": "You already reported this player today."
 }

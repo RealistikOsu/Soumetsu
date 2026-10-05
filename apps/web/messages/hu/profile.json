@@ -81,6 +81,8 @@
   "profile_score_unpin": "Kitűzés levétele",
   "profile_dialog_close": "Bezárás",
   "profile_dialog_score": "Pontszám",
+  "profile_dialog_score_id": "Eredmény ID-ja",
+  "profile_dialog_id_copied": "Az ID a vágólapra másolva.",
   "profile_dialog_max_combo": "Max combo",
   "profile_dialog_difficulty": "Nehézség",
   "profile_dialog_mods": "Modok",

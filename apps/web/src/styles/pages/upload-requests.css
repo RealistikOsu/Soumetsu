@@ -19,6 +19,7 @@
 
 .upload {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   margin-bottom: 16px;
   padding: 16px 20px;
@@ -26,8 +27,14 @@
 
 .upload header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
+}
+
+.upload header time,
+.upload header .muted {
+  white-space: nowrap;
 }
 
 .upload-who {
@@ -63,14 +70,12 @@
   overflow-wrap: anywhere;
 }
 
-.upload-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+.upload-score {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
-.upload-links .btn i,
 .withdraw i {
   margin-right: 8px;
 }

@@ -75,6 +75,13 @@ const messages: Record<string, Message> = {
   'two_factor.not_started': m.common_error_2fa_not_started,
   'two_factor.required_for_staff': m.common_error_2fa_required_for_staff,
   'two_factor.mail_failed': m.common_error_2fa_mail_failed,
+  'upload_requests.score_not_found': m.common_error_upload_score_not_found,
+  'upload_requests.too_many_open': m.common_error_upload_requests_full,
+  'upload_requests.request_not_found': m.common_error_not_found,
+  'upload_requests.cannot_vote': m.common_error_invalid_request,
+  'upload_requests.invalid_request': m.common_error_invalid_request,
+  'upload_requests.forbidden': m.common_error_forbidden,
+
   'beatmaps.delete_forbidden': m.common_error_beatmap_delete_forbidden,
   'beatmaps.delete_ranked': m.common_error_beatmap_delete_ranked,
 
@@ -98,7 +105,6 @@ const messages: Record<string, Message> = {
   'site.messages_too_fast': m.common_error_messages_too_fast,
   'site.report_needs_info': m.common_error_report_needs_info,
   'site.report_already_sent': m.common_error_report_already_sent,
-  'site.upload_requests_full': m.common_error_upload_requests_full,
 
   network_error: m.common_error_network
 };

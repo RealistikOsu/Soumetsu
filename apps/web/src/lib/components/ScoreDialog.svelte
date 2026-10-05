@@ -7,6 +7,7 @@
   import { number, songParts, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
   import { modeNames } from '$lib/modes';
+  import { flash } from '$lib/flash.svelte';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
   import Dialog from './Dialog.svelte';
@@ -52,6 +53,12 @@
       (score.full_combo ||
         (maxCombo !== undefined && score.max_combo > 0.97 * maxCombo && score.count_misses === 0))
   );
+  const copyId = () =>
+    navigator.clipboard.writeText(String(score?.id)).then(
+      () => flash.show('success', m.profile_dialog_id_copied()),
+      () => null
+    );
+
   const hits = $derived(
     score
       ? [
@@ -135,6 +142,9 @@
             >{m.profile_dialog_personal_best()}</span
           >{/if}
         <span>{modeNames[score.play_mode]} · {timeAgo(score.submitted_at)}</span>
+        <button class="copy-id" type="button" title={m.profile_dialog_score_id()} onclick={copyId}>
+          ID {score.id}<i class="fa-solid fa-copy"></i>
+        </button>
       </p>
       {#if score.completed === 3}
         <div class="dialog-actions">

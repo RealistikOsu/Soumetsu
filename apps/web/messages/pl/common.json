@@ -244,6 +244,7 @@
   "common_error_messages_restricted": "Ograniczone konta nie mogą wysyłać wiadomości.",
   "common_error_messages_too_fast": "Za szybko wysyłasz wiadomości.",
   "common_error_upload_requests_full": "Masz za dużo otwartych próśb. Poczekaj na decyzję albo wycofaj jedną.",
+  "common_error_upload_score_not_found": "Nie znaleziono twojego zaliczonego wyniku z takim ID.",
   "common_error_report_needs_info": "Dodaj szczegóły przy „Inne”.",
   "common_error_report_already_sent": "Twoje zgłoszenie na tego gracza już dziś wpłynęło."
 }
