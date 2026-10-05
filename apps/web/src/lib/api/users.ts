@@ -138,7 +138,7 @@ export const postComment = (profileId: number, message: string) =>
 export const deleteComment = (id: number) => api.delete(`/comments/${id}`);
 
 export const isFriend = (id: number, signal?: AbortSignal) =>
-  api.get<{ is_friend: boolean }>(`/users/me/friends/${id}`, undefined, signal);
+  api.get<{ is_friend: boolean; mutual: boolean }>(`/users/me/friends/${id}`, undefined, signal);
 
 export const addFriend = (id: number) => api.post(`/users/me/friends/${id}`);
 
