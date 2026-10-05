@@ -15,11 +15,10 @@
     </dd>
   </div>
   <div class="c-orange">
-    <dt><i class="fa-solid fa-angles-up"></i>{m.home_feature_ranking_title()}</dt>
+    <dt><i class="fa-solid fa-upload"></i>{m.home_feature_ranking_title()}</dt>
     <dd>
       {m.home_feature_ranking_before()}
       <a href="/rank-request">{m.home_feature_ranking_link()}</a>
-      {m.home_feature_ranking_after()}
     </dd>
   </div>
   <div class="c-purple">

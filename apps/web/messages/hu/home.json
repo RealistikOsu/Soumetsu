@@ -37,10 +37,9 @@
   "home_feature_rate_before": "Játssz mapeket más sebességen a",
   "home_feature_rate_link": "patcherrel",
   "home_feature_rate_after": ", ami a relaxos misseket és egy pp számlálót is visszahozza.",
-  "home_feature_ranking_title": "Saját map rankelés",
-  "home_feature_ranking_before": "Hiányzik egy map?",
-  "home_feature_ranking_link": "Kérj rá rankelést",
-  "home_feature_ranking_after": "és bekerül a sorba.",
+  "home_feature_ranking_title": "Beatmap Submission System",
+  "home_feature_ranking_before": "Töltsd fel a saját mapjeidet egyenesen az osu! szerkesztőből. Rankoltatnád?",
+  "home_feature_ranking_link": "Kérj rankolást",
   "home_feature_clans_title": "Klánok",
   "home_feature_clans_text": "Alapíts klánt, vagy csatlakozz egyhez meghívóval. A klán címkéje ott lesz a neved mellett."
 }

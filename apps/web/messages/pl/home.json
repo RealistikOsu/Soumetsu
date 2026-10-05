@@ -37,10 +37,9 @@
   "home_feature_rate_before": "Graj mapy w innych prędkościach dzięki",
   "home_feature_rate_link": "patcherowi",
   "home_feature_rate_after": ", który dorzuca też missy na relaksie i licznik pp.",
-  "home_feature_ranking_title": "Własny ranking map",
-  "home_feature_ranking_before": "Brakuje ci mapy?",
-  "home_feature_ranking_link": "Wyślij prośbę o ranking",
-  "home_feature_ranking_after": "i trafi do kolejki.",
+  "home_feature_ranking_title": "Beatmap Submission System",
+  "home_feature_ranking_before": "Wrzucaj własne mapy prosto z edytora osu!. Chcesz, żeby mapa była rankingowa?",
+  "home_feature_ranking_link": "Poproś o ranking",
   "home_feature_clans_title": "Klany",
   "home_feature_clans_text": "Załóż klan albo dołącz do jakiegoś przez zaproszenie. Jego tag pojawi się obok twojego nicku."
 }

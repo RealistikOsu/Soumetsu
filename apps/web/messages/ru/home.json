@@ -37,10 +37,9 @@
   "home_feature_rate_before": "Играй карты на другой скорости через",
   "home_feature_rate_link": "патчер",
   "home_feature_rate_after": ", который ещё добавляет миссы на релаксе и счётчик pp.",
-  "home_feature_ranking_title": "Свой ранкинг карт",
-  "home_feature_ranking_before": "Нет нужной карты?",
-  "home_feature_ranking_link": "Кинь запрос на ранк",
-  "home_feature_ranking_after": "и она попадёт в очередь.",
+  "home_feature_ranking_title": "Beatmap Submission System",
+  "home_feature_ranking_before": "Загружай свои карты прямо из редактора osu!. Хочешь, чтобы карту ранкнули?",
+  "home_feature_ranking_link": "Отправь запрос на ранк",
   "home_feature_clans_title": "Кланы",
   "home_feature_clans_text": "Создай клан или вступи в чужой по инвайту. Его тег будет видно рядом с твоим ником."
 }

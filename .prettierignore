@@ -5,3 +5,4 @@ bun.lock
 *.md
 apps/web/src/lib/paraglide
 apps/web/project.inlang/cache
+apps/web/project.inlang/.meta.json

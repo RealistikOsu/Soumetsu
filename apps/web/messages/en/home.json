@@ -37,10 +37,9 @@
   "home_feature_rate_before": "Play maps at other speeds with the",
   "home_feature_rate_link": "patcher",
   "home_feature_rate_after": ", which also brings relax misses and a pp counter.",
-  "home_feature_ranking_title": "Custom map ranking",
-  "home_feature_ranking_before": "Missing a map?",
+  "home_feature_ranking_title": "Beatmap Submission System",
+  "home_feature_ranking_before": "Upload your own maps straight from the osu! editor. Want one ranked?",
   "home_feature_ranking_link": "Request beatmap ranking",
-  "home_feature_ranking_after": "and it goes into the queue.",
   "home_feature_clans_title": "Clans",
   "home_feature_clans_text": "Create a clan or join one through an invite. Its tag shows next to your name."
 }
