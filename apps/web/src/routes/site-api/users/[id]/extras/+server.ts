@@ -25,6 +25,7 @@ export const GET = handle(async ({ params, request }) => {
     db.users.findUnique({
       where: { id },
       select: {
+        username: true,
         privileges: true,
         frozen: true,
         silence_end: true,
@@ -92,7 +93,10 @@ export const GET = handle(async ({ params, request }) => {
         : null,
     banner: bannerOf(privileges, banner),
     bancho: bancho ? { id: Number(bancho.ppy_user_id), username: bancho.ppy_username } : null,
-    pastNames: names.map((n) => n.username),
+    // The history also holds renames back to the current name and repeats, which aren't past names.
+    pastNames: [...new Set(names.map((n) => n.username))].filter(
+      (name) => name.toLowerCase() !== user.username.toLowerCase()
+    ),
     badges,
     commentCount: Number(comments[0]?.total ?? 0),
     rankedSets: Number(rankedSets[0]?.total ?? 0),
