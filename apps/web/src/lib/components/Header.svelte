@@ -95,15 +95,7 @@
       prefixes: ['/beatmap_listing', '/beatmaps/', '/rank-request'],
       items: [
         { href: '/beatmap_listing', icon: 'fa-list', text: m.common_header_beatmap_listing() },
-        ...(user
-          ? [
-              {
-                href: '/rank-request',
-                icon: 'fa-paper-plane',
-                text: m.common_header_request_beatmap()
-              }
-            ]
-          : [])
+        { href: '/rank-request', icon: 'fa-paper-plane', text: m.common_header_request_beatmap() }
       ]
     }
   ]);
