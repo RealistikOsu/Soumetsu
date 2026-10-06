@@ -1,0 +1,48 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "ranked_title": "Ranked play",
+  "ranked_active": "Active",
+  "ranked_ended": "Ended",
+  "ranked_in_progress": "In progress",
+  "ranked_active_empty": "Not currently in any in-progress ranked play games.",
+  "ranked_ended_empty": "No finished ranked play games yet.",
+  "ranked_started": "Started {date}",
+  "ranked_finished": "Ended {date}",
+  "ranked_view_summary": "Summary",
+  "ranked_view_history": "History",
+  "ranked_leaderboard": "Leaderboard",
+  "ranked_played_maps": "Maps played",
+  "ranked_no_maps": "No maps played yet.",
+  "ranked_col_score": "Total score",
+  "ranked_round": "Round {number}",
+  "ranked_joined": "joined the match",
+  "ranked_left": "left the match",
+  "ranked_disbanded": "The match was disbanded",
+  "ranked_game_ended": "The game has ended",
+  "ranked_winner": "Winner",
+  "ranked_combo": "Combo",
+  "ranked_great": "Great",
+  "ranked_ok": "Ok",
+  "ranked_meh": "Meh",
+  "ranked_miss": "Miss",
+  "ranked_maps": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} map",
+        "countPlural=other": "{count} maps"
+      }
+    }
+  ],
+  "ranked_players": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} player",
+        "countPlural=other": "{count} players"
+      }
+    }
+  ]
+}

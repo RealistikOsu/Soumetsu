@@ -62,3 +62,11 @@ export function dayLabel(unixSeconds: number) {
     year: 'numeric'
   });
 }
+
+export const fromIso = (iso: string) => Date.parse(iso) / 1000;
+
+export const clock = (unixSeconds: number) =>
+  new Date(unixSeconds * 1000).toLocaleTimeString(intlLocale(), {
+    hour: '2-digit',
+    minute: '2-digit'
+  });

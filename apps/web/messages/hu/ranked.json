@@ -1,0 +1,48 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "ranked_title": "Ranked play",
+  "ranked_active": "Aktív",
+  "ranked_ended": "Befejezett",
+  "ranked_in_progress": "Folyamatban",
+  "ranked_active_empty": "Jelenleg nincs folyamatban lévő ranked play játék.",
+  "ranked_ended_empty": "Még nincs befejezett ranked play játék.",
+  "ranked_started": "Kezdés: {date}",
+  "ranked_finished": "Vége: {date}",
+  "ranked_view_summary": "Összegzés",
+  "ranked_view_history": "Előzmények",
+  "ranked_leaderboard": "Ranglista",
+  "ranked_played_maps": "Lejátszott mapok",
+  "ranked_no_maps": "Még nem játszottak le mapot.",
+  "ranked_col_score": "Összpontszám",
+  "ranked_round": "{number}. kör",
+  "ranked_joined": "csatlakozott a meccshez",
+  "ranked_left": "elhagyta a meccset",
+  "ranked_disbanded": "A meccs feloszlott",
+  "ranked_game_ended": "A játék véget ért",
+  "ranked_winner": "Győztes",
+  "ranked_combo": "Combo",
+  "ranked_great": "Great",
+  "ranked_ok": "Ok",
+  "ranked_meh": "Meh",
+  "ranked_miss": "Miss",
+  "ranked_maps": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} map",
+        "countPlural=other": "{count} map"
+      }
+    }
+  ],
+  "ranked_players": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} játékos",
+        "countPlural=other": "{count} játékos"
+      }
+    }
+  ]
+}

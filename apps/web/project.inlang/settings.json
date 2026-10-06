@@ -15,7 +15,8 @@
       "./messages/{locale}/clans.json",
       "./messages/{locale}/support.json",
       "./messages/{locale}/messages.json",
-      "./messages/{locale}/uploads.json"
+      "./messages/{locale}/uploads.json",
+      "./messages/{locale}/ranked.json"
     ]
   }
 }

@@ -764,3 +764,17 @@
   gap: 8px;
   cursor: pointer;
 }
+
+.head-ranked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgb(0 0 0 / 0.45);
+  white-space: nowrap;
+}
+
+.head-ranked:hover {
+  border-color: var(--purple);
+  background: var(--purple);
+  color: #fff;
+}

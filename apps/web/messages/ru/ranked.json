@@ -1,0 +1,52 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "ranked_title": "Рейтинговая игра",
+  "ranked_active": "Активные",
+  "ranked_ended": "Завершённые",
+  "ranked_in_progress": "Идёт сейчас",
+  "ranked_active_empty": "Сейчас нет идущих рейтинговых игр.",
+  "ranked_ended_empty": "Завершённых рейтинговых игр пока нет.",
+  "ranked_started": "Начало: {date}",
+  "ranked_finished": "Конец: {date}",
+  "ranked_view_summary": "Итоги",
+  "ranked_view_history": "История",
+  "ranked_leaderboard": "Таблица лидеров",
+  "ranked_played_maps": "Сыгранные карты",
+  "ranked_no_maps": "Карты ещё не сыграны.",
+  "ranked_col_score": "Всего очков",
+  "ranked_round": "Раунд {number}",
+  "ranked_joined": "подключается к матчу",
+  "ranked_left": "покидает матч",
+  "ranked_disbanded": "Матч распущен",
+  "ranked_game_ended": "Игра закончена",
+  "ranked_winner": "Победитель",
+  "ranked_combo": "Комбо",
+  "ranked_great": "Great",
+  "ranked_ok": "Ok",
+  "ranked_meh": "Meh",
+  "ranked_miss": "Мисс",
+  "ranked_maps": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} карта",
+        "countPlural=few": "{count} карты",
+        "countPlural=many": "{count} карт",
+        "countPlural=other": "{count} карты"
+      }
+    }
+  ],
+  "ranked_players": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} игрок",
+        "countPlural=few": "{count} игрока",
+        "countPlural=many": "{count} игроков",
+        "countPlural=other": "{count} игрока"
+      }
+    }
+  ]
+}
