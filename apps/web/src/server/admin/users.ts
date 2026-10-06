@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { config } from '$server/config';
 import { db } from '$server/db';
 import { md5 } from '$server/identity';
+import { ifLazerTables } from '$server/lazer';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
 import { kick, removeFromLeaderboards } from './bancho';
@@ -92,6 +93,14 @@ export async function wipeStats(userId: number, { modes, types }: Scope) {
       `DELETE FROM ${SCORE_TABLES[type]} WHERE userid = ? AND play_mode IN (${modes.join(',')})`,
       userId
     );
+    if (type === 'va') {
+      await ifLazerTables(
+        db.$executeRawUnsafe(
+          `DELETE FROM lazer_scores WHERE user_id = ? AND ruleset_id IN (${modes.join(',')})`,
+          userId
+        )
+      );
+    }
   }
 }
 
@@ -106,6 +115,15 @@ export async function rollback(userId: number, days: number, { modes, types }: S
       cutoff
     );
     await db.$executeRawUnsafe(`DELETE FROM ${table} WHERE ${where}`, userId, cutoff);
+    if (type === 'va') {
+      await ifLazerTables(
+        db.$executeRawUnsafe(
+          `DELETE FROM lazer_scores WHERE user_id = ? AND created_at > FROM_UNIXTIME(?) AND ruleset_id IN (${modes.join(',')})`,
+          userId,
+          cutoff
+        )
+      );
+    }
     // Several removed scores can be on one map; it only needs working out once.
     const maps = new Set(affected.map((row) => `${row.beatmap_md5}:${row.play_mode}`));
     for (const key of maps) {
@@ -351,6 +369,8 @@ export async function deleteAccount(userId: number, authorization: string) {
         if (!String(error).includes("doesn't exist")) throw error;
       });
   }
+
+  await ifLazerTables(db.$executeRaw`DELETE FROM lazer_tokens WHERE user_id = ${userId}`);
 
   const name = `DeletedUser_${userId}`;
   const unusable = await bcrypt.hash(randomBytes(32).toString('hex'), 10);

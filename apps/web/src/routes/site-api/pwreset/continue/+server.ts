@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { passwordProblem } from '$lib/passwords';
 import { db } from '$server/db';
 import { md5 } from '$server/identity';
+import { ifLazerTables } from '$server/lazer';
 import { redis } from '$server/redis';
 import { Failure, handle, ok } from '$server/respond';
 
@@ -56,6 +57,7 @@ export const POST = handle(async ({ request }) => {
   const sessions = `soumetsuapi:user_sessions:${user.id}`;
   const hashes = await redis.smembers(sessions);
   await redis.del(sessions, ...hashes.map((hash) => `soumetsuapi:session:${hash}`));
+  await ifLazerTables(db.$executeRaw`DELETE FROM lazer_tokens WHERE user_id = ${user.id}`);
   await db.password_recovery.deleteMany({ where: { k: recovery.k } });
   return ok();
 });
