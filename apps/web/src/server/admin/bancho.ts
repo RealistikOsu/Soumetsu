@@ -16,7 +16,9 @@ const BOARDS = [
   'ripple:leaderboard',
   'ripple:leaderboard_relax',
   'ripple:leaderboard_ap',
-  'ripple:leaderboard_lazer'
+  'ripple:leaderboard_lazer',
+  'ripple:leaderboard_lazer_relax',
+  'ripple:leaderboard_lazer_ap'
 ];
 
 // Takes a player off every leaderboard Bancho keeps for them, country boards included.

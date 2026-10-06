@@ -16,6 +16,7 @@ const STAT_TABLES = {
   ap: 'ap_stats',
   lz: 'lazer_stats'
 } as const;
+const LAZER_STAT_TABLES = ['lazer_stats', 'lazer_rx_stats', 'lazer_ap_stats'];
 const SCORE_TABLES = { va: 'scores', rx: 'scores_relax', ap: 'scores_ap' } as const;
 const CUSTOM = { va: 0, rx: 1, ap: 2 } as const;
 const STAT_COLUMNS = [
@@ -90,9 +91,11 @@ export async function wipeStats(userId: number, { modes, types }: Scope) {
       const columns = modes.flatMap((mode) =>
         STAT_COLUMNS.map((column) => `${column}${SUFFIXES[mode]} = 0`)
       );
-      await ifLazerTables(
-        db.$executeRawUnsafe(`UPDATE lazer_stats SET ${columns.join(', ')} WHERE id = ?`, userId)
-      );
+      for (const table of LAZER_STAT_TABLES) {
+        await ifLazerTables(
+          db.$executeRawUnsafe(`UPDATE ${table} SET ${columns.join(', ')} WHERE id = ?`, userId)
+        );
+      }
       await ifLazerTables(
         db.$executeRawUnsafe(
           `DELETE FROM lazer_scores WHERE user_id = ? AND ruleset_id IN (${modes.join(',')})`,
