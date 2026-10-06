@@ -22,7 +22,7 @@
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
-  import { allowed, isLazer, modeNames, relaxNames, slideTowards } from '$lib/modes';
+  import { allowed, isLazer, modeNames, parseRx, relaxNames, slideTowards } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
   import { playStyleNames } from '$lib/playstyles';
   import Avatar from './Avatar.svelte';
@@ -56,7 +56,7 @@
 
   const view = $derived.by(() => {
     const q = page.url.searchParams;
-    const rx = [0, 1, 2, 3].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
+    const rx = parseRx(q.get('rx'));
     const fallback = extra?.favouriteMode ?? 0;
     const asked = q.has('mode') ? Number(q.get('mode')) : fallback;
     return { rx, mode: allowed(asked, rx) ? asked : 0 };

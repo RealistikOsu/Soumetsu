@@ -25,7 +25,9 @@
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
         { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
         { custom: 2, label: m.home_top_autopilot_score(), colour: 'c-purple' },
-        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' },
+        { custom: 4, label: m.home_top_lazer_relax_score(), colour: 'c-teal' },
+        { custom: 5, label: m.home_top_lazer_autopilot_score(), colour: 'c-teal' }
       ]
     },
     {
@@ -35,7 +37,8 @@
       cards: [
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
         { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
-        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' },
+        { custom: 4, label: m.home_top_lazer_relax_score(), colour: 'c-teal' }
       ]
     },
     {
@@ -45,7 +48,8 @@
       cards: [
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
         { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
-        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' },
+        { custom: 4, label: m.home_top_lazer_relax_score(), colour: 'c-teal' }
       ]
     },
     {

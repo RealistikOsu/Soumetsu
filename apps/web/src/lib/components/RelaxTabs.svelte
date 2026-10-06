@@ -15,7 +15,7 @@
   } = $props();
 </script>
 
-<nav class="tabs tinted" use:tabInk>
+<nav class="tabs tinted scroll" use:tabInk>
   {#each relaxNames as name, i (name)}
     {#if lazer || !isLazer(i)}
       <a

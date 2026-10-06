@@ -9,7 +9,7 @@ export interface StatsTopScore {
   beatmapset_id: number;
 }
 
-// top_scores has one entry per mode: vanilla 0-3, relax 4-6, autopilot 7, lazer 8-11.
+// top_scores has one entry per mode: vanilla 0-3, relax 4-6, autopilot 7, lazer 8-11, lazer relax 12-14, lazer autopilot 15.
 interface Homepage {
   online_history: number[];
   top_scores: (StatsTopScore | null)[];
@@ -40,8 +40,9 @@ export async function homepage(signal?: AbortSignal) {
 export const onlineHistory = async (signal?: AbortSignal) =>
   (await homepage(signal)).online_history;
 
-export const topScoreIndex = (mode: number, rx: number) =>
-  rx === 2 ? 7 : rx === 3 ? 8 + mode : mode + rx * 4;
+const TOP_SCORE_START = [0, 4, 7, 8, 12, 15];
+
+export const topScoreIndex = (mode: number, rx: number) => TOP_SCORE_START[rx] + mode;
 
 // The statistics service keeps daily captures and adds today's figure itself. It refuses players who are
 // restricted or haven't played in 60 days, since their captures stop changing.

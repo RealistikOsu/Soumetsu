@@ -7,6 +7,11 @@
   background: var(--panel);
 }
 
+.tabs.scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
 .tabs a {
   display: flex;
   flex: 1;
@@ -17,6 +22,11 @@
   color: var(--muted);
   font-size: 13px;
   white-space: nowrap;
+}
+
+.tabs.scroll a {
+  flex: 1 0 auto;
+  padding-inline: 10px;
 }
 
 .tabs a:hover {

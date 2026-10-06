@@ -349,10 +349,7 @@ a.perk:hover b {
     margin-left: 0;
   }
 
-  .top-scores {
-    grid-auto-flow: row;
-  }
-
+  .top-scores,
   .filters,
   .map-stats {
     grid-template-columns: 1fr;

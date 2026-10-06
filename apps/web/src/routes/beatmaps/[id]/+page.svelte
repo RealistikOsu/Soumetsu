@@ -26,7 +26,15 @@
   import Username from '$lib/components/Username.svelte';
   import { length, number, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
-  import { modeNames, allowed, isLazer, relaxColours, relaxNames, slideTowards } from '$lib/modes';
+  import {
+    modeNames,
+    allowed,
+    isLazer,
+    parseRx,
+    relaxColours,
+    relaxNames,
+    slideTowards
+  } from '$lib/modes';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
   import { canRankBeatmaps, hasPrivilege, Privilege } from '$lib/auth/privileges';
@@ -183,7 +191,7 @@
 
   const view = $derived.by(() => {
     const q = page.url.searchParams;
-    const rx = [0, 1, 2, 3].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
+    const rx = parseRx(q.get('rx'));
     const asked = q.has('mode') ? Number(q.get('mode')) : (diff?.mode ?? 0);
     return { rx, mode: allowed(asked, rx) ? asked : 0 };
   });
@@ -206,7 +214,7 @@
   $effect(() => {
     const { mode } = view;
     const beatmapId = id;
-    for (const rx of [0, 1, 2, 3]) {
+    for (const rx of relaxNames.keys()) {
       const key = `${beatmapId}-${mode}-${rx}`;
       if (!allowed(mode, rx) || requested[key]) continue;
       requested[key] = true;
@@ -384,7 +392,7 @@
     {/if}
 
     <div class="filters mode-switch">
-      <nav class="tabs tinted" use:tabInk>
+      <nav class="tabs tinted scroll" use:tabInk>
         {#each relaxNames as name, i (name)}
           <a
             class="{relaxColours[i]} {i === view.rx ? 'active' : ''}"
