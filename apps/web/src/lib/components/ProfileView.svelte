@@ -22,7 +22,7 @@
   import { fullDate, monthYear, number, timeAgo } from '$lib/format';
   import { badgeIcon } from '$lib/badges';
   import { decorationClass } from '$lib/decorations';
-  import { allowed, modeNames, relaxNames, slideTowards } from '$lib/modes';
+  import { allowed, isLazer, modeNames, relaxNames, slideTowards } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
   import { playStyleNames } from '$lib/playstyles';
   import Avatar from './Avatar.svelte';
@@ -56,7 +56,7 @@
 
   const view = $derived.by(() => {
     const q = page.url.searchParams;
-    const rx = [0, 1, 2].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
+    const rx = [0, 1, 2, 3].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
     const fallback = extra?.favouriteMode ?? 0;
     const asked = q.has('mode') ? Number(q.get('mode')) : fallback;
     return { rx, mode: allowed(asked, rx) ? asked : 0 };
@@ -107,7 +107,7 @@
     const current = key;
     const { mode, rx } = view;
     // Re-runs after a pin or unpin, which bumps this counter.
-    if (refresh < 0) return;
+    if (refresh < 0 || isLazer(rx)) return;
     playerScores('pinned', id, mode, rx, 1, 50).then(
       (rows) => (pinned = { ...pinned, [current]: rows }),
       () => null
@@ -423,7 +423,7 @@
     </div>
   </main>
 
-  <ScoreDialog score={detail} bind:open={detailOpen} />
+  <ScoreDialog score={detail} rx={view.rx} bind:open={detailOpen} />
   <PinDialog
     score={pinTarget}
     pinned={pinIsPinned}

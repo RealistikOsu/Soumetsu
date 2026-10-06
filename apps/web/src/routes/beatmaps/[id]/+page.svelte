@@ -26,7 +26,7 @@
   import Username from '$lib/components/Username.svelte';
   import { length, number, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
-  import { modeNames, allowed, relaxColours, relaxNames, slideTowards } from '$lib/modes';
+  import { modeNames, allowed, isLazer, relaxColours, relaxNames, slideTowards } from '$lib/modes';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
   import { canRankBeatmaps, hasPrivilege, Privilege } from '$lib/auth/privileges';
@@ -183,7 +183,7 @@
 
   const view = $derived.by(() => {
     const q = page.url.searchParams;
-    const rx = [0, 1, 2].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
+    const rx = [0, 1, 2, 3].includes(Number(q.get('rx'))) && q.has('rx') ? Number(q.get('rx')) : 0;
     const asked = q.has('mode') ? Number(q.get('mode')) : (diff?.mode ?? 0);
     return { rx, mode: allowed(asked, rx) ? asked : 0 };
   });
@@ -206,7 +206,7 @@
   $effect(() => {
     const { mode } = view;
     const beatmapId = id;
-    for (const rx of [0, 1, 2]) {
+    for (const rx of [0, 1, 2, 3]) {
       const key = `${beatmapId}-${mode}-${rx}`;
       if (!allowed(mode, rx) || requested[key]) continue;
       requested[key] = true;
@@ -458,9 +458,11 @@
               </dd>
             </div>
           </dl>
-          <a class="btn" href={replayUrl(top.id)}
-            ><i class="fa-solid fa-download"></i>{m.beatmaps_scores_replay()}</a
-          >
+          {#if !isLazer(view.rx)}
+            <a class="btn" href={replayUrl(top.id)}
+              ><i class="fa-solid fa-download"></i>{m.beatmaps_scores_replay()}</a
+            >
+          {/if}
         </div>
         {#if rest.length}
           <table class="panel scoreboard">
@@ -499,13 +501,15 @@
                   <td class="hide-md"><span class="mods">{modsText(score.mods)}</span></td>
                   <td class="dim hide-md">{timeAgo(score.submitted_at)}</td>
                   <td class="hide-sm">
-                    <a
-                      class="replay"
-                      href={replayUrl(score.id)}
-                      title={m.beatmaps_scores_download_replay()}
-                    >
-                      <i class="fa-solid fa-download"></i>
-                    </a>
+                    {#if !isLazer(view.rx)}
+                      <a
+                        class="replay"
+                        href={replayUrl(score.id)}
+                        title={m.beatmaps_scores_download_replay()}
+                      >
+                        <i class="fa-solid fa-download"></i>
+                      </a>
+                    {/if}
                   </td>
                 </tr>
               {/each}

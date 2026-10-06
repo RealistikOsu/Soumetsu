@@ -24,7 +24,8 @@
       cards: [
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
         { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
-        { custom: 2, label: m.home_top_autopilot_score(), colour: 'c-purple' }
+        { custom: 2, label: m.home_top_autopilot_score(), colour: 'c-purple' },
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
       ]
     },
     {
@@ -33,7 +34,8 @@
       mode: 1,
       cards: [
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
-        { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' }
+        { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
       ]
     },
     {
@@ -42,14 +44,18 @@
       mode: 2,
       cards: [
         { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
-        { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' }
+        { custom: 1, label: m.home_top_relax_score(), colour: 'c-pink' },
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
       ]
     },
     {
       key: 'mania',
       name: 'Mania',
       mode: 3,
-      cards: [{ custom: 0, label: m.home_top_score(), colour: 'c-yellow' }]
+      cards: [
+        { custom: 0, label: m.home_top_score(), colour: 'c-yellow' },
+        { custom: 3, label: m.home_top_lazer_score(), colour: 'c-teal' }
+      ]
     }
   ];
 

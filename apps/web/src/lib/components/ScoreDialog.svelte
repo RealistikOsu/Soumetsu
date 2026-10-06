@@ -6,7 +6,7 @@
   import { starColour, starTextColour } from '$lib/beatmaps';
   import { number, songParts, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
-  import { modeNames } from '$lib/modes';
+  import { isLazer, modeNames } from '$lib/modes';
   import { flash } from '$lib/flash.svelte';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
@@ -14,9 +14,11 @@
 
   let {
     score,
+    rx = 0,
     open = $bindable(false)
   }: {
     score: ScoreWithBeatmap | null;
+    rx?: number;
     open?: boolean;
   } = $props();
 
@@ -41,7 +43,7 @@
   const grade = $derived(score ? gradeOf(score) : 'D');
   // Only worth asking for a score that dropped combo or missed.
   const ifFc = query(() =>
-    score && open && (score.count_misses > 0 || !score.full_combo)
+    score && open && !isLazer(rx) && (score.count_misses > 0 || !score.full_combo)
       ? fullComboPp(score)
       : Promise.resolve(null)
   );
@@ -146,7 +148,7 @@
           ID {score.id}<i class="fa-solid fa-copy"></i>
         </button>
       </p>
-      {#if score.completed === 3}
+      {#if score.completed === 3 && !isLazer(rx)}
         <div class="dialog-actions">
           <a class="btn btn-blue" href={replayUrl(score.id)}>
             <i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}

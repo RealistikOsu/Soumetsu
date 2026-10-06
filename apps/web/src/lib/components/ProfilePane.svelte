@@ -12,6 +12,7 @@
     type WatchedScore
   } from '$lib/api/scores';
   import { coverUrl } from '$lib/assets';
+  import { isLazer } from '$lib/modes';
   import type { GraphPoint } from '$lib/graph';
   import { songParts, number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
@@ -80,41 +81,44 @@
   <ScoreRow
     {score}
     {own}
+    {rx}
     pinned={pinnedIds.has(score.id)}
     ondetails={() => ondetails(score)}
     onpin={() => onpin(score)}
   />
 {/snippet}
 
-<div class="section-title chart-head c-blue">
-  <h2><i class="fa-solid fa-chart-line"></i>{m.profile_graph_title()}</h2>
-  <nav class="tabs" use:tabInk>
-    {#each [['rank', m.profile_graph_rank()], ['pp', 'PP']] as [key, label] (key)}
-      <a
-        class:active={graph === key}
-        href="?graph={key}"
-        onclick={(event) => {
-          event.preventDefault();
-          graph = key as 'rank' | 'pp';
-        }}
-      >
-        {label}
-      </a>
-    {/each}
-  </nav>
-</div>
-{#if points && points.length > 1}
-  {#key graph}
-    <ProfileGraph {points} inverted={graph === 'rank'} unit={graph === 'pp' ? 'pp' : ''} />
-  {/key}
-{:else if history.status === 'ready' && history.data.status === 'inactive'}
-  <div class="panel c-blue"><p class="empty-note">{m.profile_graph_inactive()}</p></div>
-{:else if history.status !== 'loading'}
-  <div class="panel c-blue"><p class="empty-note">{m.profile_graph_empty()}</p></div>
-{:else}
-  <div class="panel chart c-blue">
-    <span class="skel" style="width: 100%; height: 160px"></span>
+{#if !isLazer(rx)}
+  <div class="section-title chart-head c-blue">
+    <h2><i class="fa-solid fa-chart-line"></i>{m.profile_graph_title()}</h2>
+    <nav class="tabs" use:tabInk>
+      {#each [['rank', m.profile_graph_rank()], ['pp', 'PP']] as [key, label] (key)}
+        <a
+          class:active={graph === key}
+          href="?graph={key}"
+          onclick={(event) => {
+            event.preventDefault();
+            graph = key as 'rank' | 'pp';
+          }}
+        >
+          {label}
+        </a>
+      {/each}
+    </nav>
   </div>
+  {#if points && points.length > 1}
+    {#key graph}
+      <ProfileGraph {points} inverted={graph === 'rank'} unit={graph === 'pp' ? 'pp' : ''} />
+    {/key}
+  {:else if history.status === 'ready' && history.data.status === 'inactive'}
+    <div class="panel c-blue"><p class="empty-note">{m.profile_graph_inactive()}</p></div>
+  {:else if history.status !== 'loading'}
+    <div class="panel c-blue"><p class="empty-note">{m.profile_graph_empty()}</p></div>
+  {:else}
+    <div class="panel chart c-blue">
+      <span class="skel" style="width: 100%; height: 160px"></span>
+    </div>
+  {/if}
 {/if}
 
 {#if pinned && pinned.length > 0}
@@ -146,49 +150,51 @@
   load={(page, signal) => playerScores('best', id, mode, rx, page, 5, signal)}
 />
 
-<SectionTitle colour="c-green" icon="fa-play">{m.profile_section_most_played()}</SectionTitle>
-<LoadMoreList
-  colour="c-green"
-  key={(item: MostPlayed) => item.beatmap.beatmap_id}
-  load={(page, signal) => mostPlayed(id, mode, rx, page, 5, signal)}
->
-  {#snippet row(item: MostPlayed)}
-    {@const parts = songParts(item.beatmap.song_name)}
-    <div
-      class="score-row played"
-      style="--cover: url({coverUrl(item.beatmap.beatmapset_id, 'card')})"
-    >
-      <div class="score-bg"></div>
-      <div class="score-info">
-        <a class="song" href="/beatmaps/{item.beatmap.beatmap_id}">{parts.song}</a>
-        <div class="score-meta">{parts.diff}</div>
+{#if !isLazer(rx)}
+  <SectionTitle colour="c-green" icon="fa-play">{m.profile_section_most_played()}</SectionTitle>
+  <LoadMoreList
+    colour="c-green"
+    key={(item: MostPlayed) => item.beatmap.beatmap_id}
+    load={(page, signal) => mostPlayed(id, mode, rx, page, 5, signal)}
+  >
+    {#snippet row(item: MostPlayed)}
+      {@const parts = songParts(item.beatmap.song_name)}
+      <div
+        class="score-row played"
+        style="--cover: url({coverUrl(item.beatmap.beatmapset_id, 'card')})"
+      >
+        <div class="score-bg"></div>
+        <div class="score-info">
+          <a class="song" href="/beatmaps/{item.beatmap.beatmap_id}">{parts.song}</a>
+          <div class="score-meta">{parts.diff}</div>
+        </div>
+        <div class="score-pp">
+          <b>{number(item.playcount)}</b><span
+            >{m.profile_most_played_plays({ count: item.playcount })}</span
+          >
+        </div>
       </div>
-      <div class="score-pp">
-        <b>{number(item.playcount)}</b><span
-          >{m.profile_most_played_plays({ count: item.playcount })}</span
-        >
-      </div>
-    </div>
-  {/snippet}
-</LoadMoreList>
+    {/snippet}
+  </LoadMoreList>
 
-<SectionTitle colour="c-lblue" icon="fa-eye">{m.profile_section_most_watched()}</SectionTitle>
-<LoadMoreList
-  colour="c-lblue"
-  key={(s: WatchedScore) => s.id}
-  load={(page, signal) => watchedScores(id, mode, rx, page, 5, signal)}
->
-  {#snippet row(score: WatchedScore)}
-    <ScoreRow
-      {score}
-      {own}
-      pinned={pinnedIds.has(score.id)}
-      watched={score.watched_count}
-      ondetails={() => ondetails(score)}
-      onpin={() => onpin(score)}
-    />
-  {/snippet}
-</LoadMoreList>
+  <SectionTitle colour="c-lblue" icon="fa-eye">{m.profile_section_most_watched()}</SectionTitle>
+  <LoadMoreList
+    colour="c-lblue"
+    key={(s: WatchedScore) => s.id}
+    load={(page, signal) => watchedScores(id, mode, rx, page, 5, signal)}
+  >
+    {#snippet row(score: WatchedScore)}
+      <ScoreRow
+        {score}
+        {own}
+        pinned={pinnedIds.has(score.id)}
+        watched={score.watched_count}
+        ondetails={() => ondetails(score)}
+        onpin={() => onpin(score)}
+      />
+    {/snippet}
+  </LoadMoreList>
+{/if}
 
 <h2 class="section-title c-blue">
   <i class="fa-solid fa-clock-rotate-left"></i>{m.profile_section_recent()}
@@ -213,12 +219,14 @@
   </div>
 {/key}
 
-<SectionTitle colour="c-red" icon="fa-trophy">
-  {m.profile_section_first_places()} <small>{number(firstPlaces)}</small>
-</SectionTitle>
-<LoadMoreList
-  colour="c-red"
-  key={(s: ScoreWithBeatmap) => s.id}
-  row={scoreRow}
-  load={(page, signal) => playerScores('firsts', id, mode, rx, page, 5, signal)}
-/>
+{#if !isLazer(rx)}
+  <SectionTitle colour="c-red" icon="fa-trophy">
+    {m.profile_section_first_places()} <small>{number(firstPlaces)}</small>
+  </SectionTitle>
+  <LoadMoreList
+    colour="c-red"
+    key={(s: ScoreWithBeatmap) => s.id}
+    row={scoreRow}
+    load={(page, signal) => playerScores('firsts', id, mode, rx, page, 5, signal)}
+  />
+{/if}

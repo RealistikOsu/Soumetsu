@@ -118,7 +118,7 @@
     <div class="clan-top">
       <div>
         <div class="filters mode-switch">
-          <RelaxTabs mode={view.mode} rx={view.rx} onselect={(rx) => go({ rx })} />
+          <RelaxTabs mode={view.mode} rx={view.rx} lazer={false} onselect={(rx) => go({ rx })} />
           <div class="modes">
             <ModeTabs mode={view.mode} rx={view.rx} onselect={(mode) => go({ mode })} />
           </div>

@@ -1,3 +1,4 @@
+import { isLazer } from '$lib/modes';
 import { apiUrl } from './client';
 
 export interface StatsTopScore {
@@ -8,7 +9,7 @@ export interface StatsTopScore {
   beatmapset_id: number;
 }
 
-// top_scores has one entry per mode: vanilla 0-3, relax 4-6, autopilot 7.
+// top_scores has one entry per mode: vanilla 0-3, relax 4-6, autopilot 7, lazer 8-11.
 interface Homepage {
   online_history: number[];
   top_scores: (StatsTopScore | null)[];
@@ -39,7 +40,8 @@ export async function homepage(signal?: AbortSignal) {
 export const onlineHistory = async (signal?: AbortSignal) =>
   (await homepage(signal)).online_history;
 
-export const topScoreIndex = (mode: number, rx: number) => (rx === 2 ? 7 : mode + rx * 4);
+export const topScoreIndex = (mode: number, rx: number) =>
+  rx === 2 ? 7 : rx === 3 ? 8 + mode : mode + rx * 4;
 
 // The statistics service keeps daily captures and adds today's figure itself. It refuses players who are
 // restricted or haven't played in 60 days, since their captures stop changing.
@@ -54,6 +56,7 @@ export async function profileHistory(
   rx: number,
   signal?: AbortSignal
 ): Promise<ProfileHistory> {
+  if (isLazer(rx)) return { status: 'missing' };
   const body = await v1<{
     status: string;
     error?: string;
@@ -73,6 +76,7 @@ export async function profileHistory(
 }
 
 export async function peakRank(userId: number, mode: number, rx: number, signal?: AbortSignal) {
+  if (isLazer(rx)) return null;
   const body = await v1<{ status: string; data?: { rank: number; captured_at: string } }>(
     `/profile-history/peak-rank?user_id=${userId}&mode=${mode + rx * 4}`,
     signal
