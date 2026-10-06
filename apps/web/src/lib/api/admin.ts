@@ -398,3 +398,33 @@ export const playerReports = (all: boolean, page: number, signal?: AbortSignal) 
   );
 
 export const resolvePlayerReport = (id: number) => siteApi.post(`/admin/reports/${id}`);
+
+export interface DailyChallenge {
+  date: string;
+  beatmapId: number;
+  song: string | null;
+}
+
+export interface PoolEntry {
+  beatmapId: number;
+  stars: number;
+  song: string | null;
+}
+
+export const dailyChallenges = (signal?: AbortSignal) =>
+  siteApi.get<DailyChallenge[]>('/admin/lazer/daily', undefined, signal);
+
+export const setDailyChallenge = (date: string, beatmapId: number) =>
+  siteApi.put('/admin/lazer/daily', { date, beatmap_id: beatmapId });
+
+export const removeDailyChallenge = (date: string) =>
+  siteApi.delete(`/admin/lazer/daily?date=${date}`);
+
+export const poolEntries = (ruleset: number, signal?: AbortSignal) =>
+  siteApi.get<PoolEntry[]>('/admin/lazer/pool', { ruleset }, signal);
+
+export const addPoolEntry = (ruleset: number, beatmapId: number, stars?: number) =>
+  siteApi.put('/admin/lazer/pool', { ruleset, beatmap_id: beatmapId, stars });
+
+export const removePoolEntry = (ruleset: number, beatmapId: number) =>
+  siteApi.delete(`/admin/lazer/pool?ruleset=${ruleset}&beatmap=${beatmapId}`);
