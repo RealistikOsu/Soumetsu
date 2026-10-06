@@ -6,7 +6,7 @@ import { md5 } from '$server/identity';
 import { ifLazerTables } from '$server/lazer';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
-import { kick, removeFromLeaderboards } from './bancho';
+import { kick, removeFromLeaderboards, removeFromScopeLeaderboards } from './bancho';
 import { rapLog } from './log';
 
 const SUFFIXES = ['_std', '_taiko', '_ctb', '_mania'];
@@ -117,6 +117,8 @@ export async function wipeStats(userId: number, { modes, types }: Scope) {
       userId
     );
   }
+  const user = await db.users.findUnique({ where: { id: userId }, select: { country: true } });
+  await removeFromScopeLeaderboards(userId, user?.country ?? null, { modes, types });
 }
 
 export async function rollback(userId: number, days: number, { modes, types }: Scope) {

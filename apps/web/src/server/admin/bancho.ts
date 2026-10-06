@@ -26,8 +26,35 @@ export async function removeFromLeaderboards(userId: number, country: string | n
   const keys = MODES.flatMap((mode) =>
     BOARDS.flatMap((board) => [
       `${board}:${mode}`,
-      ...(country && country !== 'XX' ? [`${board}:${mode}:${country}`] : [])
+      ...(country && country !== 'XX' ? [`${board}:${mode}:${country.toLowerCase()}`] : [])
     ])
+  );
+  await Promise.all(keys.map((key) => redis.zrem(key, userId)));
+}
+
+const SCOPE_BOARDS = {
+  va: ['ripple:leaderboard'],
+  rx: ['ripple:leaderboard_relax'],
+  ap: ['ripple:leaderboard_ap'],
+  lz: ['ripple:leaderboard_lazer', 'ripple:leaderboard_lazer_relax', 'ripple:leaderboard_lazer_ap']
+} as const;
+const BOARD_MODES = ['std', 'taiko', 'ctb', 'mania'];
+
+// Only the boards a wipe covers, so wiping one custom mode leaves the others ranked.
+export async function removeFromScopeLeaderboards(
+  userId: number,
+  country: string | null,
+  { modes, types }: { modes: number[]; types: (keyof typeof SCOPE_BOARDS)[] }
+) {
+  const keys = types.flatMap((type) =>
+    SCOPE_BOARDS[type].flatMap((board) =>
+      modes.flatMap((mode) => [
+        `${board}:${BOARD_MODES[mode]}`,
+        ...(country && country !== 'XX'
+          ? [`${board}:${BOARD_MODES[mode]}:${country.toLowerCase()}`]
+          : [])
+      ])
+    )
   );
   await Promise.all(keys.map((key) => redis.zrem(key, userId)));
 }
