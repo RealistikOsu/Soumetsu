@@ -3,13 +3,13 @@
 
   let {
     modes = $bindable([0, 1, 2, 3]),
-    types = $bindable(['va', 'rx', 'ap'])
+    types = $bindable(['va', 'rx', 'ap', 'lz'])
   }: {
     modes?: number[];
     types?: string[];
   } = $props();
 
-  const slugs = ['va', 'rx', 'ap'];
+  const slugs = ['va', 'rx', 'ap', 'lz'];
 </script>
 
 <div class="field">

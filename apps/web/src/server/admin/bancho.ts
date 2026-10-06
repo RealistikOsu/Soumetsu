@@ -12,7 +12,12 @@ export async function isOnline(userId: number) {
 }
 
 const MODES = ['std', 'ctb', 'mania', 'taiko'];
-const BOARDS = ['ripple:leaderboard', 'ripple:leaderboard_relax', 'ripple:leaderboard_ap'];
+const BOARDS = [
+  'ripple:leaderboard',
+  'ripple:leaderboard_relax',
+  'ripple:leaderboard_ap',
+  'ripple:leaderboard_lazer'
+];
 
 // Takes a player off every leaderboard Bancho keeps for them, country boards included.
 export async function removeFromLeaderboards(userId: number, country: string | null) {

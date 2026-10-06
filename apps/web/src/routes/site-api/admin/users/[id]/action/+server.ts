@@ -155,7 +155,7 @@ export const POST = handle(async ({ request, params }) => {
     case 'wipe': {
       const scope = users.parseScope(body);
       await users.wipeStats(id, scope);
-      const everything = scope.modes.length === 4 && scope.types.length === 3;
+      const everything = scope.modes.length === 4 && scope.types.length === 4;
       await rapLog(
         caller.id,
         everything

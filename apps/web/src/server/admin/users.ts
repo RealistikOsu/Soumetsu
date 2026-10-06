@@ -10,7 +10,12 @@ import { kick, removeFromLeaderboards } from './bancho';
 import { rapLog } from './log';
 
 const SUFFIXES = ['_std', '_taiko', '_ctb', '_mania'];
-const STAT_TABLES = { va: 'users_stats', rx: 'rx_stats', ap: 'ap_stats' } as const;
+const STAT_TABLES = {
+  va: 'users_stats',
+  rx: 'rx_stats',
+  ap: 'ap_stats',
+  lz: 'lazer_stats'
+} as const;
 const SCORE_TABLES = { va: 'scores', rx: 'scores_relax', ap: 'scores_ap' } as const;
 const CUSTOM = { va: 0, rx: 1, ap: 2 } as const;
 const STAT_COLUMNS = [
@@ -81,6 +86,21 @@ async function recalcFirstPlace(beatmapMd5: string, custom: number, mode: number
 
 export async function wipeStats(userId: number, { modes, types }: Scope) {
   for (const type of types) {
+    if (type === 'lz') {
+      const columns = modes.flatMap((mode) =>
+        STAT_COLUMNS.map((column) => `${column}${SUFFIXES[mode]} = 0`)
+      );
+      await ifLazerTables(
+        db.$executeRawUnsafe(`UPDATE lazer_stats SET ${columns.join(', ')} WHERE id = ?`, userId)
+      );
+      await ifLazerTables(
+        db.$executeRawUnsafe(
+          `DELETE FROM lazer_scores WHERE user_id = ? AND ruleset_id IN (${modes.join(',')})`,
+          userId
+        )
+      );
+      continue;
+    }
     const columns = modes.flatMap((mode) => [
       ...STAT_COLUMNS.map((column) => `${column}${SUFFIXES[mode]} = 0`),
       ...(mode === 0 ? ['unrestricted_pp = 0'] : [])
@@ -93,20 +113,22 @@ export async function wipeStats(userId: number, { modes, types }: Scope) {
       `DELETE FROM ${SCORE_TABLES[type]} WHERE userid = ? AND play_mode IN (${modes.join(',')})`,
       userId
     );
-    if (type === 'va') {
-      await ifLazerTables(
-        db.$executeRawUnsafe(
-          `DELETE FROM lazer_scores WHERE user_id = ? AND ruleset_id IN (${modes.join(',')})`,
-          userId
-        )
-      );
-    }
   }
 }
 
 export async function rollback(userId: number, days: number, { modes, types }: Scope) {
   const cutoff = Math.floor(Date.now() / 1000) - days * 86400;
   for (const type of types) {
+    if (type === 'lz') {
+      await ifLazerTables(
+        db.$executeRawUnsafe(
+          `DELETE FROM lazer_scores WHERE user_id = ? AND created_at > FROM_UNIXTIME(?) AND ruleset_id IN (${modes.join(',')})`,
+          userId,
+          cutoff
+        )
+      );
+      continue;
+    }
     const table = SCORE_TABLES[type];
     const where = `userid = ? AND time > ? AND play_mode IN (${modes.join(',')})`;
     const affected = await db.$queryRawUnsafe<{ beatmap_md5: string; play_mode: number }[]>(
@@ -115,15 +137,6 @@ export async function rollback(userId: number, days: number, { modes, types }: S
       cutoff
     );
     await db.$executeRawUnsafe(`DELETE FROM ${table} WHERE ${where}`, userId, cutoff);
-    if (type === 'va') {
-      await ifLazerTables(
-        db.$executeRawUnsafe(
-          `DELETE FROM lazer_scores WHERE user_id = ? AND created_at > FROM_UNIXTIME(?) AND ruleset_id IN (${modes.join(',')})`,
-          userId,
-          cutoff
-        )
-      );
-    }
     // Several removed scores can be on one map; it only needs working out once.
     const maps = new Set(affected.map((row) => `${row.beatmap_md5}:${row.play_mode}`));
     for (const key of maps) {

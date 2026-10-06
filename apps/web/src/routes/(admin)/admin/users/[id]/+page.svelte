@@ -359,7 +359,8 @@
           {#each modeNames as name, mode (mode)}
             <span><img src="/img/modes/mode-{mode}.png" alt={name} title={name} /></span>
           {/each}
-          {#each relaxNames as rxName, rx (rx)}
+          <!-- The whitelist has no lazer bits. -->
+          {#each relaxNames.slice(0, 3) as rxName, rx (rx)}
             <span class="row-label">{rxName}</span>
             {#each modeNames as name, mode (mode)}
               {#if allowed(mode, rx)}

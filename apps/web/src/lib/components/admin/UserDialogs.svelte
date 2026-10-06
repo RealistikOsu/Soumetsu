@@ -70,7 +70,7 @@
   let days = $state(30);
   let rollbackDays = $state(1);
   let modes = $state([0, 1, 2, 3]);
-  let types = $state(['va', 'rx', 'ap']);
+  let types = $state(['va', 'rx', 'ap', 'lz']);
   let confirm = $state('');
   let busy = $state(false);
 
@@ -82,7 +82,7 @@
     days = 30;
     rollbackDays = 1;
     modes = [0, 1, 2, 3];
-    types = ['va', 'rx', 'ap'];
+    types = ['va', 'rx', 'ap', 'lz'];
     confirm = '';
   });
 
