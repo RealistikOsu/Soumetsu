@@ -51,7 +51,6 @@
         ? ` · ${m.profile_score_misses({ count: score.count_misses })}`
         : ''}
       {#if mods}<span class="mods">{mods}</span>{/if}
-      {#if score.lazer}<span class="mods">lazer</span>{/if}
     </div>
     <time>{timeAgo(score.submitted_at)}</time>
   </div>
@@ -75,12 +74,12 @@
       >
         <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
       </button>
-      {#if score.completed === 3 && !score.lazer}
+      {#if score.completed === 3}
         <a href={replayUrl(score.id)}
           ><i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}</a
         >
       {/if}
-      {#if own && score.completed >= 2 && !score.lazer}
+      {#if own && score.completed >= 2}
         <button
           type="button"
           onclick={() => {

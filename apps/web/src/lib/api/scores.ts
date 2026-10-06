@@ -22,8 +22,6 @@ export interface Score {
   accuracy: number;
   pp: number;
   playtime: number;
-  // Played on osu!lazer, which has no replay download or pinning here.
-  lazer: boolean;
 }
 
 export interface ScoreBeatmap {

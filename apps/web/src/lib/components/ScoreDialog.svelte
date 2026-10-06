@@ -146,7 +146,7 @@
           ID {score.id}<i class="fa-solid fa-copy"></i>
         </button>
       </p>
-      {#if score.completed === 3 && !score.lazer}
+      {#if score.completed === 3}
         <div class="dialog-actions">
           <a class="btn btn-blue" href={replayUrl(score.id)}>
             <i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}
