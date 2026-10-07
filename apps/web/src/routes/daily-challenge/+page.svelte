@@ -25,9 +25,8 @@
     `?date=${date}${src === 'lazer' ? '&source=lazer' : ''}${p > 1 ? `&p=${p}` : ''}`;
 
   const DAY = 86_400_000;
-  // Only worth saying when the challenge isn't simply the whole UTC day.
-  const customWindow = (start: string, end: string) =>
-    Date.parse(start) % DAY !== 0 || Date.parse(end) - Date.parse(start) !== DAY;
+  // Only worth saying when the challenge doesn't start at midnight UTC.
+  const customStart = (start: string) => Date.parse(start) % DAY !== 0;
 
   const challenge = query((signal) => dailyChallenge(date, signal));
   const result = $derived(challenge.state);
@@ -75,7 +74,7 @@
             <RoomMods required={day.required_mods} />
           </MatchMap>
         </div>
-        {#if customWindow(day.starts_at, day.ends_at)}
+        {#if customStart(day.starts_at)}
           <p class="muted">
             {m.rooms_daily_window({
               start: dateTime(Date.parse(day.starts_at) / 1000),

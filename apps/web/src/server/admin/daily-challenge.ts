@@ -12,9 +12,8 @@ export interface DailyChallenge {
   date: string;
   beatmapId: number;
   song: string | null;
-  // UTC, as 'YYYY-MM-DDTHH:mm'. Without them the challenge runs for its UTC day.
+  // UTC, as 'YYYY-MM-DDTHH:mm'. Without it the challenge starts at the beginning of its date.
   startsAt: string | null;
-  endsAt: string | null;
 }
 
 interface Row {
@@ -22,15 +21,15 @@ interface Row {
   beatmap_id: number;
   song_name: string | null;
   starts_at: string | null;
-  ends_at: string | null;
 }
 
 const asUtc = (value: string) => Date.parse(`${value.slice(0, 16)}:00Z`);
 
-// A challenge runs for its UTC day unless it has its own window, and a start alone runs for 24 hours.
-function windowOf(date: string, startsAt: string | null, endsAt: string | null) {
+// The schedule is made by hand, so a challenge always runs for 24 hours from its start, which is the beginning
+// of its date unless it has one.
+function windowOf(date: string, startsAt: string | null) {
   const start = startsAt ? asUtc(startsAt) : Date.parse(`${date}T00:00:00Z`);
-  return { start, end: endsAt ? asUtc(endsAt) : start + DAY };
+  return { start, end: start + DAY };
 }
 
 const running = (window: { start: number; end: number }, now: number) =>
@@ -40,8 +39,7 @@ export async function dailyChallenges() {
   const rows = await lazerTables(
     db.$queryRaw<Row[]>`
       SELECT DATE_FORMAT(c.challenge_date, '%Y-%m-%d') AS date, c.beatmap_id, b.song_name,
-             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at,
-             DATE_FORMAT(c.ends_at, '%Y-%m-%dT%H:%i') AS ends_at
+             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at
       FROM lazer_daily_challenges c
       LEFT JOIN beatmaps b ON b.beatmap_id = c.beatmap_id
       WHERE c.challenge_date >= CURDATE() - INTERVAL 7 DAY
@@ -51,8 +49,7 @@ export async function dailyChallenges() {
     date: row.date,
     beatmapId: row.beatmap_id,
     song: row.song_name,
-    startsAt: row.starts_at,
-    endsAt: row.ends_at
+    startsAt: row.starts_at
   }));
 }
 
@@ -65,12 +62,11 @@ const refreshIfRunning = (windows: { start: number; end: number }[], date: strin
 
 async function currentWindow(date: string) {
   const [row] = await lazerTables(
-    db.$queryRaw<{ starts_at: string | null; ends_at: string | null }[]>`
-      SELECT DATE_FORMAT(starts_at, '%Y-%m-%dT%H:%i') AS starts_at,
-             DATE_FORMAT(ends_at, '%Y-%m-%dT%H:%i') AS ends_at
+    db.$queryRaw<{ starts_at: string | null }[]>`
+      SELECT DATE_FORMAT(starts_at, '%Y-%m-%dT%H:%i') AS starts_at
       FROM lazer_daily_challenges WHERE challenge_date = ${date}`
   );
-  return row ? [windowOf(date, row.starts_at, row.ends_at)] : [];
+  return row ? [windowOf(date, row.starts_at)] : [];
 }
 
 const minute = (value: unknown) => {
@@ -84,15 +80,12 @@ export async function setDailyChallenge(
   staffId: number,
   date: string,
   beatmapId: number,
-  starts: unknown,
-  ends: unknown
+  starts: unknown
 ) {
   if (!DATE.test(date) || Number.isNaN(Date.parse(date)))
     throw new Failure(400, 'site.invalid_request');
   const startsAt = minute(starts);
-  const endsAt = minute(ends);
-  const window = windowOf(date, startsAt, endsAt);
-  if (window.end <= window.start) throw new Failure(400, 'site.invalid_request');
+  const window = windowOf(date, startsAt);
   // Stable and lazer share the challenge, and the leaderboards on both only cover osu!standard.
   const map = await db.beatmaps.findUnique({
     where: { beatmap_id: beatmapId },
@@ -104,13 +97,11 @@ export async function setDailyChallenge(
   const before = await currentWindow(date);
   await lazerTables(
     db.$executeRaw`
-      INSERT INTO lazer_daily_challenges (challenge_date, beatmap_id, starts_at, ends_at)
-      VALUES (${date}, ${beatmapId}, ${startsAt?.replace('T', ' ') ?? null}, ${endsAt?.replace('T', ' ') ?? null})
-      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId},
-        starts_at = ${startsAt?.replace('T', ' ') ?? null}, ends_at = ${endsAt?.replace('T', ' ') ?? null}`
+      INSERT INTO lazer_daily_challenges (challenge_date, beatmap_id, starts_at)
+      VALUES (${date}, ${beatmapId}, ${startsAt?.replace('T', ' ') ?? null})
+      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}, starts_at = ${startsAt?.replace('T', ' ') ?? null}`
   );
-  const custom =
-    startsAt || endsAt ? `, from ${startsAt ?? date} to ${endsAt ?? 'a day later'} UTC` : '';
+  const custom = startsAt ? `, starting ${startsAt} UTC` : '';
   await rapLog(staffId, `set the daily challenge for ${date} to beatmap ${beatmapId}${custom}`);
   await refreshIfRunning([...before, window], date);
 }

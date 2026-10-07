@@ -11,7 +11,6 @@
   let date = $state(tomorrow);
   let beatmap = $state('');
   let startsAt = $state('');
-  let endsAt = $state('');
   let busy = $state(false);
 
   const daily = query((signal) => {
@@ -32,20 +31,15 @@
   }
 
   const save = () =>
-    run(
-      () => setDailyChallenge(date, Number(beatmap), startsAt || null, endsAt || null),
-      'Daily challenge saved.'
-    );
+    run(() => setDailyChallenge(date, Number(beatmap), startsAt || null), 'Daily challenge saved.');
 
-  const runs = (startsAt: string | null, endsAt: string | null) =>
-    startsAt || endsAt
-      ? `${startsAt?.replace('T', ' ') ?? 'start of the day'} to ${endsAt?.replace('T', ' ') ?? 'a day later'}`
-      : 'The whole day';
+  const runs = (startsAt: string | null) =>
+    startsAt ? `${startsAt.replace('T', ' ')} for 24 hours` : 'Midnight for 24 hours';
 </script>
 
 <AdminHead
   heading="Daily challenge"
-  text="One osu!standard map per day, for stable and lazer. It runs for its UTC day unless you give it a start and an end (all times are UTC). Changes to the running challenge apply straight away."
+  text="One osu!standard map per day, for stable and lazer. It runs for 24 hours from its start, which is midnight UTC on its date unless you set one (all times are UTC). Changes to the running challenge apply straight away."
 />
 
 <div class="panel form-panel c-teal admin-form">
@@ -64,17 +58,13 @@
       <label for="challenge-start">Starts (UTC, optional)</label>
       <input id="challenge-start" type="datetime-local" bind:value={startsAt} />
     </div>
-    <div class="field">
-      <label for="challenge-end">Ends (UTC, optional)</label>
-      <input id="challenge-end" type="datetime-local" bind:value={endsAt} />
-    </div>
     <button class="btn btn-blue" type="button" disabled={busy || !beatmap || !date} onclick={save}>
       <i class="fa-solid fa-floppy-disk"></i>Save
     </button>
   </div>
   <small class="dim">
-    Leave both empty for the whole UTC day. A start alone runs for 24 hours from it. The map stays
-    hidden from players until the challenge starts.
+    Leave the start empty to begin at midnight UTC on the date. The challenge ends 24 hours later,
+    or when the next one starts. The map stays hidden from players until it starts.
   </small>
 </div>
 
@@ -91,7 +81,7 @@
             <td class="note">
               <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
             </td>
-            <td class="dim">{runs(challenge.startsAt, challenge.endsAt)}</td>
+            <td class="dim">{runs(challenge.startsAt)}</td>
             <td class="actions">
               <button
                 class="btn btn-small"
@@ -101,7 +91,6 @@
                   date = challenge.date;
                   beatmap = String(challenge.beatmapId);
                   startsAt = challenge.startsAt ?? '';
-                  endsAt = challenge.endsAt ?? '';
                 }}
               >
                 Edit

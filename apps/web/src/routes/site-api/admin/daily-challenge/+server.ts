@@ -15,16 +15,15 @@ export const GET = handle(async ({ request }) => {
 
 export const PUT = handle(async ({ request }) => {
   const caller = await requirePrivilege(request, Privilege.AdminManageBeatmap);
-  const { date, beatmap_id, starts_at, ends_at } = await bodyOf<{
+  const { date, beatmap_id, starts_at } = await bodyOf<{
     date: string;
     beatmap_id: number;
     starts_at: string | null;
-    ends_at: string | null;
   }>(request);
   if (typeof date !== 'string' || !Number.isInteger(beatmap_id) || beatmap_id! < 1) {
     throw new Failure(400, 'site.invalid_request');
   }
-  await setDailyChallenge(caller.id, date, beatmap_id!, starts_at, ends_at);
+  await setDailyChallenge(caller.id, date, beatmap_id!, starts_at);
   return ok();
 });
 
