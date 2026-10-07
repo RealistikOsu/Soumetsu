@@ -5,7 +5,7 @@ export interface HitRow {
   key: string;
   label: string;
   value: number;
-  // Ticks and bonuses are shown against how many the map had.
+  // Ticks and bonuses are shown against how many the map had, when the API knows.
   max: number | null;
   colour: string;
 }
@@ -81,7 +81,7 @@ function labelOf(key: string, mode: number): string | null {
 }
 
 export function hitRows(score: LazerScore): HitRow[] {
-  const { statistics, maximum_statistics: maximum, play_mode: mode } = score;
+  const { statistics, maximum_statistics: maximum = {}, play_mode: mode } = score;
   return order.flatMap((key) => {
     if (!(key in statistics) && !(key in maximum)) return [];
     const label = labelOf(key, mode);

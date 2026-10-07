@@ -16,7 +16,7 @@ export interface LazerScore {
   ranked_mods: number;
   mods: Mod[];
   statistics: Record<string, number>;
-  maximum_statistics: Record<string, number>;
+  maximum_statistics?: Record<string, number>;
   global_rank: number | null;
   beatmap: {
     beatmap_id: number;
