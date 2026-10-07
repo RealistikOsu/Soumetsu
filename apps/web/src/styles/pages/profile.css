@@ -229,6 +229,13 @@
   padding-bottom: 48px;
 }
 
+/* The entrance animation makes the sidebar and the column after it separate stacking contexts, so on
+   mobile, where the column sits below, the peak and streak cards would open underneath it. */
+.profile > aside {
+  position: relative;
+  z-index: 2;
+}
+
 .ranks {
   display: grid;
   grid-template-columns: 1fr 1fr;
