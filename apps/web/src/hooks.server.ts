@@ -28,6 +28,14 @@ async function legacyTarget(url: URL) {
     target.search = url.search;
     return target;
   }
+
+  // osu! calls clans teams.
+  const team = url.pathname.match(/^\/teams\/(\d+)\/?$/);
+  if (team) {
+    const target = new URL(`/c/${team[1]}`, url);
+    target.search = url.search;
+    return target;
+  }
   return null;
 }
 
