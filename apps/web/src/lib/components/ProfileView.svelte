@@ -3,6 +3,7 @@
   import { untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { dailyStats } from '$lib/api/dailyChallenge';
   import { isApiError } from '$lib/api/errors';
   import { query } from '$lib/api/query.svelte';
   import { playerScores, type ScoreWithBeatmap } from '$lib/api/scores';
@@ -50,6 +51,12 @@
   const playStyles = playStyleNames();
 
   const extras = query((signal) => userExtras(id, signal));
+  const dailyQuery = query((signal) => dailyStats(id, signal));
+  const daily = $derived(
+    dailyQuery.state.status === 'ready' && dailyQuery.state.data.total_days > 0
+      ? dailyQuery.state.data
+      : null
+  );
   const page_ = query((signal) => userpage(id, signal));
   const own = $derived(session.user?.id === id);
   const extra = $derived(extras.state.status === 'ready' ? extras.state.data : null);
@@ -342,6 +349,7 @@
                 country={countryName(loaded[pane].country)}
                 peakRank={peak[pane] ?? null}
                 history={rankHistory[pane]?.status === 'ready' ? rankHistory[pane].points : []}
+                {daily}
               />
             {/if}
           {:else}

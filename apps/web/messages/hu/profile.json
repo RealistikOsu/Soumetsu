@@ -126,5 +126,15 @@
   "profile_report_send": "Jelentés küldése",
   "profile_report_sent": "Jelentés elküldve.",
   "profile_report_close": "Bezárás",
-  "profile_match_history": "Meccselőzmények"
+  "profile_match_history": "Meccselőzmények",
+  "profile_daily_label": "Napi kihívás",
+  "profile_daily_days": "{count} n",
+  "profile_daily_weeks": "{count} h",
+  "profile_daily_total": "Összes részvétel",
+  "profile_daily_streak_daily": "Jelenlegi napi sorozat",
+  "profile_daily_streak_weekly": "Jelenlegi heti sorozat",
+  "profile_daily_best_daily": "Legjobb napi sorozat",
+  "profile_daily_best_weekly": "Legjobb heti sorozat",
+  "profile_daily_top_10": "Top 10% helyezések",
+  "profile_daily_top_50": "Top 50% helyezések"
 }

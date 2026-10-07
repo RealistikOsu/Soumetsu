@@ -126,5 +126,15 @@
   "profile_report_send": "Send report",
   "profile_report_sent": "Report sent.",
   "profile_report_close": "Close",
-  "profile_match_history": "Match history"
+  "profile_match_history": "Match history",
+  "profile_daily_label": "Daily challenge",
+  "profile_daily_days": "{count}d",
+  "profile_daily_weeks": "{count}w",
+  "profile_daily_total": "Total participation",
+  "profile_daily_streak_daily": "Current daily streak",
+  "profile_daily_streak_weekly": "Current weekly streak",
+  "profile_daily_best_daily": "Best daily streak",
+  "profile_daily_best_weekly": "Best weekly streak",
+  "profile_daily_top_10": "Top 10% placements",
+  "profile_daily_top_50": "Top 50% placements"
 }

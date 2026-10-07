@@ -132,5 +132,15 @@
   "profile_report_send": "Отправить жалобу",
   "profile_report_sent": "Жалоба отправлена.",
   "profile_report_close": "Закрыть",
-  "profile_match_history": "История матчей"
+  "profile_match_history": "История матчей",
+  "profile_daily_label": "Ежедневный челлендж",
+  "profile_daily_days": "{count} д",
+  "profile_daily_weeks": "{count} н",
+  "profile_daily_total": "Всего участия",
+  "profile_daily_streak_daily": "Текущая дневная серия",
+  "profile_daily_streak_weekly": "Текущая недельная серия",
+  "profile_daily_best_daily": "Лучшая дневная серия",
+  "profile_daily_best_weekly": "Лучшая недельная серия",
+  "profile_daily_top_10": "Места в топ 10%",
+  "profile_daily_top_50": "Места в топ 50%"
 }

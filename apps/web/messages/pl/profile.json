@@ -132,5 +132,15 @@
   "profile_report_send": "Wyślij zgłoszenie",
   "profile_report_sent": "Zgłoszenie wysłane.",
   "profile_report_close": "Zamknij",
-  "profile_match_history": "Historia meczów"
+  "profile_match_history": "Historia meczów",
+  "profile_daily_label": "Wyzwanie dnia",
+  "profile_daily_days": "{count} d",
+  "profile_daily_weeks": "{count} t",
+  "profile_daily_total": "Łączny udział",
+  "profile_daily_streak_daily": "Obecna seria dzienna",
+  "profile_daily_streak_weekly": "Obecna seria tygodniowa",
+  "profile_daily_best_daily": "Najlepsza seria dzienna",
+  "profile_daily_best_weekly": "Najlepsza seria tygodniowa",
+  "profile_daily_top_10": "Miejsca w top 10%",
+  "profile_daily_top_50": "Miejsca w top 50%"
 }
