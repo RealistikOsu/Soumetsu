@@ -5,12 +5,11 @@
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import { flash } from '$lib/flash.svelte';
 
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+  const tomorrow = `${new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)}T00:00`;
 
   let version = $state(0);
-  let date = $state(tomorrow);
   let beatmap = $state('');
-  let startsAt = $state('');
+  let startsAt = $state(tomorrow);
   let busy = $state(false);
 
   const daily = query((signal) => {
@@ -31,47 +30,44 @@
   }
 
   const save = () =>
-    run(() => setDailyChallenge(date, Number(beatmap), startsAt || null), 'Daily challenge saved.');
-
-  const runs = (startsAt: string | null) =>
-    startsAt ? `${startsAt.replace('T', ' ')} for 24 hours` : 'Midnight for 24 hours';
+    run(() => setDailyChallenge(startsAt, Number(beatmap)), 'Daily challenge saved.');
 </script>
 
 <AdminHead
   heading="Daily challenge"
-  text="One osu!standard map per day, for stable and lazer. It runs for 24 hours from its start, which is midnight UTC on its date unless you set one (all times are UTC). Changes to the running challenge apply straight away."
+  text="One osu!standard map per day, for stable and lazer. It runs for 24 hours from its start (all times are UTC). Changes to the running challenge apply straight away."
 />
 
 <div class="panel form-panel c-teal admin-form">
   <div class="field-row">
     <div class="field">
-      <label for="challenge-date">Date (UTC)</label>
-      <input id="challenge-date" type="date" bind:value={date} />
+      <label for="challenge-start">Starts (UTC)</label>
+      <input id="challenge-start" type="datetime-local" bind:value={startsAt} />
     </div>
     <div class="field">
       <label for="challenge-map">Beatmap ID</label>
       <input id="challenge-map" type="number" min="1" bind:value={beatmap} />
     </div>
-  </div>
-  <div class="field-row">
-    <div class="field">
-      <label for="challenge-start">Starts (UTC, optional)</label>
-      <input id="challenge-start" type="datetime-local" bind:value={startsAt} />
-    </div>
-    <button class="btn btn-blue" type="button" disabled={busy || !beatmap || !date} onclick={save}>
+    <button
+      class="btn btn-blue"
+      type="button"
+      disabled={busy || !beatmap || !startsAt}
+      onclick={save}
+    >
       <i class="fa-solid fa-floppy-disk"></i>Save
     </button>
   </div>
   <small class="dim">
-    Leave the start empty to begin at midnight UTC on the date. The challenge ends 24 hours later,
-    or when the next one starts. The map stays hidden from players until it starts.
+    The challenge ends 24 hours after it starts, or when the next one starts. A day has one
+    challenge, so saving another start on the same UTC date replaces it. The map stays hidden from
+    players until it starts.
   </small>
 </div>
 
 <div class="table-wrap">
   <table class="board admin-table c-teal">
     <thead>
-      <tr><th>Date</th><th>Beatmap</th><th>Runs</th><th></th></tr>
+      <tr><th>Date</th><th>Beatmap</th><th>Starts (UTC)</th><th></th></tr>
     </thead>
     <tbody>
       {#if daily.state.status === 'ready'}
@@ -81,16 +77,15 @@
             <td class="note">
               <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
             </td>
-            <td class="dim">{runs(challenge.startsAt)}</td>
+            <td class="dim">{challenge.startsAt.replace('T', ' ')}</td>
             <td class="actions">
               <button
                 class="btn btn-small"
                 type="button"
                 disabled={busy}
                 onclick={() => {
-                  date = challenge.date;
                   beatmap = String(challenge.beatmapId);
-                  startsAt = challenge.startsAt ?? '';
+                  startsAt = challenge.startsAt;
                 }}
               >
                 Edit

@@ -403,8 +403,8 @@ export interface DailyChallenge {
   date: string;
   beatmapId: number;
   song: string | null;
-  // UTC, as 'YYYY-MM-DDTHH:mm'. Without it the challenge starts at the beginning of its date.
-  startsAt: string | null;
+  // UTC, as 'YYYY-MM-DDTHH:mm'. The challenge runs for 24 hours from it.
+  startsAt: string;
 }
 
 export interface PoolEntry {
@@ -426,8 +426,8 @@ export const setLazerSettings = (settings: LazerSettings) =>
 export const dailyChallenges = (signal?: AbortSignal) =>
   siteApi.get<DailyChallenge[]>('/admin/daily-challenge', undefined, signal);
 
-export const setDailyChallenge = (date: string, beatmapId: number, startsAt: string | null) =>
-  siteApi.put('/admin/daily-challenge', { date, beatmap_id: beatmapId, starts_at: startsAt });
+export const setDailyChallenge = (startsAt: string, beatmapId: number) =>
+  siteApi.put('/admin/daily-challenge', { starts_at: startsAt, beatmap_id: beatmapId });
 
 export const removeDailyChallenge = (date: string) =>
   siteApi.delete(`/admin/daily-challenge?date=${date}`);
