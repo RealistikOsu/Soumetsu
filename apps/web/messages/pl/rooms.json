@@ -5,6 +5,7 @@
   "rooms_daily_map": "Mapa",
   "rooms_daily_empty": "Tego dnia nie było wyzwania.",
   "rooms_daily_window": "Trwa od {start} do {end}.",
+  "rooms_daily_freemod": "Freemod: mody są dozwolone, poza modami prędkości, Relax i Autopilot.",
   "rooms_stat_participants": "Uczestnicy",
   "rooms_stat_top_10": "Wynik top 10%",
   "rooms_stat_top_50": "Wynik top 50%",

@@ -14,6 +14,8 @@ export interface DailyChallenge {
   song: string | null;
   // UTC, as 'YYYY-MM-DDTHH:mm'. The challenge runs for 24 hours from it.
   startsAt: string;
+  // Mods are allowed, except the speed mods, Relax and Autopilot, instead of the challenge being no-mod.
+  freemod: boolean;
 }
 
 const asUtc = (value: string) => Date.parse(`${value.slice(0, 16)}:00Z`);
@@ -21,10 +23,16 @@ const asUtc = (value: string) => Date.parse(`${value.slice(0, 16)}:00Z`);
 export async function dailyChallenges() {
   const rows = await lazerTables(
     db.$queryRaw<
-      { date: string; beatmap_id: number; song_name: string | null; starts_at: string }[]
+      {
+        date: string;
+        beatmap_id: number;
+        song_name: string | null;
+        starts_at: string;
+        freemod: number;
+      }[]
     >`
       SELECT DATE_FORMAT(c.challenge_date, '%Y-%m-%d') AS date, c.beatmap_id, b.song_name,
-             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at
+             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at, c.freemod
       FROM lazer_daily_challenges c
       LEFT JOIN beatmaps b ON b.beatmap_id = c.beatmap_id
       WHERE c.challenge_date >= CURDATE() - INTERVAL 7 DAY
@@ -34,7 +42,8 @@ export async function dailyChallenges() {
     date: row.date,
     beatmapId: row.beatmap_id,
     song: row.song_name,
-    startsAt: row.starts_at
+    startsAt: row.starts_at,
+    freemod: !!row.freemod
   }));
 }
 
@@ -56,7 +65,12 @@ async function startOf(date: string) {
 }
 
 // A day has one challenge, so setting another start on the same UTC date replaces it.
-export async function setDailyChallenge(staffId: number, starts: unknown, beatmapId: number) {
+export async function setDailyChallenge(
+  staffId: number,
+  starts: unknown,
+  beatmapId: number,
+  freemod: boolean
+) {
   if (typeof starts !== 'string' || !MINUTE.test(starts) || Number.isNaN(asUtc(starts)))
     throw new Failure(400, 'site.invalid_request');
   const date = starts.slice(0, 10);
@@ -73,10 +87,14 @@ export async function setDailyChallenge(staffId: number, starts: unknown, beatma
   const startsAt = starts.replace('T', ' ');
   await lazerTables(
     db.$executeRaw`
-      INSERT INTO lazer_daily_challenges (starts_at, beatmap_id) VALUES (${startsAt}, ${beatmapId})
-      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}, starts_at = ${startsAt}`
+      INSERT INTO lazer_daily_challenges (starts_at, beatmap_id, freemod)
+      VALUES (${startsAt}, ${beatmapId}, ${freemod})
+      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}, starts_at = ${startsAt}, freemod = ${freemod}`
   );
-  await rapLog(staffId, `set the daily challenge starting ${starts} UTC to beatmap ${beatmapId}`);
+  await rapLog(
+    staffId,
+    `set the daily challenge starting ${starts} UTC to beatmap ${beatmapId}${freemod ? ' (freemod)' : ''}`
+  );
   await refreshIfRunning([before, starts], date);
 }
 

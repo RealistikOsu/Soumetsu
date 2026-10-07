@@ -405,6 +405,7 @@ export interface DailyChallenge {
   song: string | null;
   // UTC, as 'YYYY-MM-DDTHH:mm'. The challenge runs for 24 hours from it.
   startsAt: string;
+  freemod: boolean;
 }
 
 export interface PoolEntry {
@@ -426,8 +427,8 @@ export const setLazerSettings = (settings: LazerSettings) =>
 export const dailyChallenges = (signal?: AbortSignal) =>
   siteApi.get<DailyChallenge[]>('/admin/daily-challenge', undefined, signal);
 
-export const setDailyChallenge = (startsAt: string, beatmapId: number) =>
-  siteApi.put('/admin/daily-challenge', { starts_at: startsAt, beatmap_id: beatmapId });
+export const setDailyChallenge = (startsAt: string, beatmapId: number, freemod: boolean) =>
+  siteApi.put('/admin/daily-challenge', { starts_at: startsAt, beatmap_id: beatmapId, freemod });
 
 export const removeDailyChallenge = (date: string) =>
   siteApi.delete(`/admin/daily-challenge?date=${date}`);

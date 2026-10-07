@@ -12,6 +12,7 @@ export interface DailyChallenge {
   // UTC. A challenge runs for its UTC day unless it was given its own window.
   starts_at: string;
   ends_at: string;
+  freemod: boolean;
   beatmap: BeatmapRef;
   ruleset: number;
   required_mods: Mod[];

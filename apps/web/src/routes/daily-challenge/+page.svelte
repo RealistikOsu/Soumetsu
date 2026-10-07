@@ -74,6 +74,9 @@
             <RoomMods required={day.required_mods} />
           </MatchMap>
         </div>
+        {#if day.freemod}
+          <p class="muted">{m.rooms_daily_freemod()}</p>
+        {/if}
         {#if customStart(day.starts_at)}
           <p class="muted">
             {m.rooms_daily_window({
@@ -112,7 +115,7 @@
         {m.rooms_source_lazer()}
       </a>
     </nav>
-    {#if source === 'stable'}
+    {#if source === 'stable' && !result.data.freemod}
       <p class="muted">{m.rooms_stable_note()}</p>
     {/if}
     {#key source}
