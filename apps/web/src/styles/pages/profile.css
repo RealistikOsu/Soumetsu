@@ -765,37 +765,35 @@
   cursor: pointer;
 }
 
-.head-ranked {
+.history-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.history-links a {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgb(0 0 0 / 0.45);
-  white-space: nowrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: var(--panel-2);
 }
 
-.head-menu {
-  position: relative;
-}
-
-.head-menu summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.head-menu summary::-webkit-details-marker {
-  display: none;
-}
-
-.head-caret {
-  font-size: 10px;
-}
-
-.head-menu[open] .head-caret {
-  transform: rotate(180deg);
-}
-
-.head-ranked:hover {
-  border-color: var(--purple);
-  background: var(--purple);
+.history-links a:hover {
+  background: var(--active);
   color: #fff;
+}
+
+.history-links a i:first-child {
+  width: 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.history-links a i:last-child {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 11px;
 }

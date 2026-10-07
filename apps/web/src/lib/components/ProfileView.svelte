@@ -1,7 +1,7 @@
 <script lang="ts">
   import { countryName } from '$lib/countries';
   import { untrack } from 'svelte';
-  import { afterNavigate, goto } from '$app/navigation';
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { isApiError } from '$lib/api/errors';
   import { query } from '$lib/api/query.svelte';
@@ -140,19 +140,7 @@
   const pinIsPinned = $derived(
     !!pinTarget && (pinned[key] ?? []).some((score) => score.id === pinTarget!.id)
   );
-
-  let historyOpen = $state(false);
-
-  afterNavigate(() => {
-    historyOpen = false;
-  });
-
-  function closeHistory(event: MouseEvent) {
-    if (!(event.target as Element).closest('.head-menu')) historyOpen = false;
-  }
 </script>
-
-<svelte:window onclick={closeHistory} />
 
 <svelte:head>
   <title>{title} · RealistikOsu</title>
@@ -250,20 +238,6 @@
         {/if}
       </div>
       <div class="head-actions">
-        <details class="head-menu" bind:open={historyOpen}>
-          <summary class="btn head-ranked">
-            <i class="fa-solid fa-clock-rotate-left"></i>{m.profile_match_history()}
-            <i class="fa-solid fa-chevron-down head-caret"></i>
-          </summary>
-          <nav class="me-menu">
-            <a href="/users/{id}/ranked-play">
-              <i class="fa-solid fa-ranking-star"></i>{m.ranked_title()}
-            </a>
-            <a href="/users/{id}/multiplayer">
-              <i class="fa-solid fa-users"></i>{m.multiplayer_title()}
-            </a>
-          </nav>
-        </details>
         {#if !own && base}<FriendButton {id} />{/if}
         {#if session.user && !own && base}
           <a
@@ -437,6 +411,20 @@
       {/if}
 
       <Medals {id} />
+
+      <SectionTitle colour="c-purple" icon="fa-clock-rotate-left">
+        {m.profile_match_history()}
+      </SectionTitle>
+      <div class="panel history-links c-purple">
+        <a href="/users/{id}/ranked-play">
+          <i class="fa-solid fa-ranking-star"></i>{m.ranked_title()}
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        <a href="/users/{id}/multiplayer">
+          <i class="fa-solid fa-users"></i>{m.multiplayer_title()}
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      </div>
 
       <SectionTitle colour="c-teal" icon="fa-comments">
         {m.profile_comments_title()} <small>{number(commentTotal)}</small>
