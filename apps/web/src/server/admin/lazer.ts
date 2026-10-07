@@ -62,7 +62,7 @@ export async function setDailyChallenge(staffId: number, date: string, beatmapId
       INSERT INTO lazer_daily_challenges (challenge_date, beatmap_id) VALUES (${date}, ${beatmapId})
       ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}`
   );
-  await rapLog(staffId, `set the lazer daily challenge for ${date} to beatmap ${beatmapId}`);
+  await rapLog(staffId, `set the daily challenge for ${date} to beatmap ${beatmapId}`);
   await refreshToday(date);
 }
 
@@ -72,7 +72,7 @@ export async function removeDailyChallenge(staffId: number, date: string) {
   await lazerTables(
     db.$executeRaw`DELETE FROM lazer_daily_challenges WHERE challenge_date = ${date}`
   );
-  await rapLog(staffId, `removed the lazer daily challenge for ${date}`);
+  await rapLog(staffId, `removed the daily challenge for ${date}`);
   await refreshToday(date);
 }
 
