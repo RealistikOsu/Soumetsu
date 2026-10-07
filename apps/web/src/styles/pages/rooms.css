@@ -49,15 +49,27 @@
 }
 
 .cal-bar button {
+  display: grid;
+  flex: none;
+  place-items: center;
   width: 32px;
   height: 32px;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  color: var(--muted);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .cal-bar button:hover:not(:disabled) {
-  background: var(--panel-2);
-  color: var(--text);
+  background: var(--active);
+  color: #fff;
+}
+
+.cal-bar button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
 }
 
 .cal-bar button:disabled {
