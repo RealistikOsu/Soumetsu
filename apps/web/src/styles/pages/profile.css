@@ -773,6 +773,27 @@
   white-space: nowrap;
 }
 
+.head-menu {
+  position: relative;
+}
+
+.head-menu summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.head-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.head-caret {
+  font-size: 10px;
+}
+
+.head-menu[open] .head-caret {
+  transform: rotate(180deg);
+}
+
 .head-ranked:hover {
   border-color: var(--purple);
   background: var(--purple);

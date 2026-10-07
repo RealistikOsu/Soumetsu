@@ -125,5 +125,6 @@
   "profile_report_info_placeholder": "Score or replay links, chat messages, etc.",
   "profile_report_send": "Send report",
   "profile_report_sent": "Report sent.",
-  "profile_report_close": "Close"
+  "profile_report_close": "Close",
+  "profile_match_history": "Match history"
 }

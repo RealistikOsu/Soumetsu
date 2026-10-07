@@ -131,5 +131,6 @@
   "profile_report_info_placeholder": "Ссылки на скоры или реплеи, сообщения из чата и т. д.",
   "profile_report_send": "Отправить жалобу",
   "profile_report_sent": "Жалоба отправлена.",
-  "profile_report_close": "Закрыть"
+  "profile_report_close": "Закрыть",
+  "profile_match_history": "История матчей"
 }

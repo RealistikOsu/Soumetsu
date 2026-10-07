@@ -125,5 +125,6 @@
   "profile_report_info_placeholder": "Eredmény- vagy replay-linkek, chatüzenetek stb.",
   "profile_report_send": "Jelentés küldése",
   "profile_report_sent": "Jelentés elküldve.",
-  "profile_report_close": "Bezárás"
+  "profile_report_close": "Bezárás",
+  "profile_match_history": "Meccselőzmények"
 }
