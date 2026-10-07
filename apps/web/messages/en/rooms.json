@@ -1,0 +1,56 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "rooms_daily_title": "Daily challenge",
+  "rooms_playlists_title": "Playlists",
+  "rooms_daily_map": "Map",
+  "rooms_daily_empty": "No challenge on this day.",
+  "rooms_stat_participants": "Participants",
+  "rooms_stat_top_10": "Top 10% score",
+  "rooms_stat_top_50": "Top 50% score",
+  "rooms_leaderboard": "Leaderboard",
+  "rooms_col_combo": "Max combo",
+  "rooms_col_score": "Total score",
+  "rooms_col_grade": "Grade",
+  "rooms_scores_empty": "No scores yet.",
+  "rooms_active": "Active",
+  "rooms_ended": "Ended",
+  "rooms_active_empty": "No active playlists.",
+  "rooms_ended_empty": "No ended playlists.",
+  "rooms_by": "by {name}",
+  "rooms_created": "Created {date}",
+  "rooms_ends": "Ends {date}",
+  "rooms_finished": "Ended {date}",
+  "rooms_maps": "Maps",
+  "rooms_no_maps": "No maps in this playlist.",
+  "rooms_expired": "Expired",
+  "rooms_show_scores": "Show scores",
+  "rooms_shown": "Showing",
+  "rooms_required_mods": "Required mods",
+  "rooms_allowed_mods": "Allowed",
+  "rooms_month": "Month",
+  "rooms_year": "Year",
+  "rooms_prev_month": "Previous month",
+  "rooms_next_month": "Next month",
+  "rooms_prev_year": "Previous year",
+  "rooms_next_year": "Next year",
+  "rooms_items": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} map",
+        "countPlural=other": "{count} maps"
+      }
+    }
+  ],
+  "rooms_participants": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} player",
+        "countPlural=other": "{count} players"
+      }
+    }
+  ]
+}

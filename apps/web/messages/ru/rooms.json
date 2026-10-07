@@ -1,0 +1,60 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "rooms_daily_title": "Ежедневный вызов",
+  "rooms_playlists_title": "Плейлисты",
+  "rooms_daily_map": "Карта",
+  "rooms_daily_empty": "В этот день вызова не было.",
+  "rooms_stat_participants": "Участников",
+  "rooms_stat_top_10": "Счёт топ 10%",
+  "rooms_stat_top_50": "Счёт топ 50%",
+  "rooms_leaderboard": "Таблица лидеров",
+  "rooms_col_combo": "Макс. комбо",
+  "rooms_col_score": "Общий счёт",
+  "rooms_col_grade": "Ранг",
+  "rooms_scores_empty": "Пока нет результатов.",
+  "rooms_active": "Активные",
+  "rooms_ended": "Завершённые",
+  "rooms_active_empty": "Активных плейлистов нет.",
+  "rooms_ended_empty": "Завершённых плейлистов нет.",
+  "rooms_by": "от {name}",
+  "rooms_created": "Создан {date}",
+  "rooms_ends": "Закончится {date}",
+  "rooms_finished": "Завершён {date}",
+  "rooms_maps": "Карты",
+  "rooms_no_maps": "В плейлисте нет карт.",
+  "rooms_expired": "Истёк",
+  "rooms_show_scores": "Показать результаты",
+  "rooms_shown": "Показан",
+  "rooms_required_mods": "Обязательные моды",
+  "rooms_allowed_mods": "Разрешены",
+  "rooms_month": "Месяц",
+  "rooms_year": "Год",
+  "rooms_prev_month": "Предыдущий месяц",
+  "rooms_next_month": "Следующий месяц",
+  "rooms_prev_year": "Предыдущий год",
+  "rooms_next_year": "Следующий год",
+  "rooms_items": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} карта",
+        "countPlural=few": "{count} карты",
+        "countPlural=many": "{count} карт",
+        "countPlural=other": "{count} карты"
+      }
+    }
+  ],
+  "rooms_participants": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} игрок",
+        "countPlural=few": "{count} игрока",
+        "countPlural=many": "{count} игроков",
+        "countPlural=other": "{count} игрока"
+      }
+    }
+  ]
+}

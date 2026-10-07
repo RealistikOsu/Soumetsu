@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import type { BeatmapRef } from '$lib/api/rankedPlay';
   import { coverUrl } from '$lib/assets';
   import { statusOf } from '$lib/beatmaps';
@@ -10,8 +11,15 @@
     beatmap,
     ruleset,
     round,
-    class: className = ''
-  }: { beatmap: BeatmapRef; ruleset: number; round: number; class?: string } = $props();
+    class: className = '',
+    children
+  }: {
+    beatmap: BeatmapRef;
+    ruleset: number;
+    round?: number;
+    class?: string;
+    children?: Snippet;
+  } = $props();
 
   const status = $derived(statusOf(beatmap.ranked_status));
   const href = $derived(`/beatmaps/${beatmap.id}`);
@@ -32,7 +40,8 @@
   <div class="score-info">
     <a class="song" {href}>{beatmap.title} <span>– {beatmap.artist}</span></a>
     <div class="score-meta">
-      {m.ranked_round({ number: round })} · {beatmap.version} · {m.beatmaps_mapped_by()}
+      {#if round !== undefined}{m.ranked_round({ number: round })} ·
+      {/if}{beatmap.version} · {m.beatmaps_mapped_by()}
       <b>{beatmap.creator}</b>
     </div>
     <div class="map-diffs">
@@ -40,6 +49,7 @@
         ><img src="/img/modes/mode-{ruleset}.png" alt="" />{modeNames[ruleset]}</span
       >
       {#if beatmap.star_rating}<Stars value={beatmap.star_rating} />{/if}
+      {@render children?.()}
     </div>
   </div>
   <div class="map-when">

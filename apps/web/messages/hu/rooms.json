@@ -1,0 +1,56 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "rooms_daily_title": "Napi kihívás",
+  "rooms_playlists_title": "Lejátszási listák",
+  "rooms_daily_map": "Pálya",
+  "rooms_daily_empty": "Ezen a napon nem volt kihívás.",
+  "rooms_stat_participants": "Résztvevők",
+  "rooms_stat_top_10": "Top 10% pontszám",
+  "rooms_stat_top_50": "Top 50% pontszám",
+  "rooms_leaderboard": "Ranglista",
+  "rooms_col_combo": "Max kombó",
+  "rooms_col_score": "Összpontszám",
+  "rooms_col_grade": "Rang",
+  "rooms_scores_empty": "Még nincs eredmény.",
+  "rooms_active": "Aktív",
+  "rooms_ended": "Befejezett",
+  "rooms_active_empty": "Nincs aktív lejátszási lista.",
+  "rooms_ended_empty": "Nincs befejezett lejátszási lista.",
+  "rooms_by": "{name} által",
+  "rooms_created": "Létrehozva: {date}",
+  "rooms_ends": "Vége: {date}",
+  "rooms_finished": "Befejezve: {date}",
+  "rooms_maps": "Pályák",
+  "rooms_no_maps": "Ebben a listában nincs pálya.",
+  "rooms_expired": "Lejárt",
+  "rooms_show_scores": "Eredmények",
+  "rooms_shown": "Megjelenítve",
+  "rooms_required_mods": "Kötelező modok",
+  "rooms_allowed_mods": "Engedélyezett",
+  "rooms_month": "Hónap",
+  "rooms_year": "Év",
+  "rooms_prev_month": "Előző hónap",
+  "rooms_next_month": "Következő hónap",
+  "rooms_prev_year": "Előző év",
+  "rooms_next_year": "Következő év",
+  "rooms_items": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} pálya",
+        "countPlural=other": "{count} pálya"
+      }
+    }
+  ],
+  "rooms_participants": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} játékos",
+        "countPlural=other": "{count} játékos"
+      }
+    }
+  ]
+}

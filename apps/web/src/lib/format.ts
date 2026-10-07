@@ -70,3 +70,12 @@ export const clock = (unixSeconds: number) =>
     hour: '2-digit',
     minute: '2-digit'
   });
+
+// Daily challenge dates are UTC calendar days, so they're formatted in UTC whatever the viewer's zone.
+export const utcDay = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString(intlLocale(), {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });

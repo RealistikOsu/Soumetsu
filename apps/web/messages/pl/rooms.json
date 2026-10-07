@@ -1,0 +1,60 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "rooms_daily_title": "Wyzwanie dnia",
+  "rooms_playlists_title": "Playlisty",
+  "rooms_daily_map": "Mapa",
+  "rooms_daily_empty": "Tego dnia nie było wyzwania.",
+  "rooms_stat_participants": "Uczestnicy",
+  "rooms_stat_top_10": "Wynik top 10%",
+  "rooms_stat_top_50": "Wynik top 50%",
+  "rooms_leaderboard": "Ranking",
+  "rooms_col_combo": "Maks. combo",
+  "rooms_col_score": "Łączny wynik",
+  "rooms_col_grade": "Ocena",
+  "rooms_scores_empty": "Brak wyników.",
+  "rooms_active": "Aktywne",
+  "rooms_ended": "Zakończone",
+  "rooms_active_empty": "Brak aktywnych playlist.",
+  "rooms_ended_empty": "Brak zakończonych playlist.",
+  "rooms_by": "od {name}",
+  "rooms_created": "Utworzona {date}",
+  "rooms_ends": "Kończy się {date}",
+  "rooms_finished": "Zakończona {date}",
+  "rooms_maps": "Mapy",
+  "rooms_no_maps": "Ta playlista nie ma map.",
+  "rooms_expired": "Wygasła",
+  "rooms_show_scores": "Pokaż wyniki",
+  "rooms_shown": "Pokazana",
+  "rooms_required_mods": "Wymagane mody",
+  "rooms_allowed_mods": "Dozwolone",
+  "rooms_month": "Miesiąc",
+  "rooms_year": "Rok",
+  "rooms_prev_month": "Poprzedni miesiąc",
+  "rooms_next_month": "Następny miesiąc",
+  "rooms_prev_year": "Poprzedni rok",
+  "rooms_next_year": "Następny rok",
+  "rooms_items": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} mapa",
+        "countPlural=few": "{count} mapy",
+        "countPlural=many": "{count} map",
+        "countPlural=other": "{count} mapy"
+      }
+    }
+  ],
+  "rooms_participants": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} gracz",
+        "countPlural=few": "{count} graczy",
+        "countPlural=many": "{count} graczy",
+        "countPlural=other": "{count} gracza"
+      }
+    }
+  ]
+}
