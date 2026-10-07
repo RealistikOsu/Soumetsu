@@ -48,24 +48,21 @@
       {#if result.status === 'ready'}
         {@const day = result.data}
         <SectionTitle colour="c-blue" icon="fa-music">{m.rooms_daily_map()}</SectionTitle>
+        {@const stable = source === 'stable'}
+        {@const top10 = stable ? day.stable_top_10_score : day.top_10_score}
+        {@const top50 = stable ? day.stable_top_50_score : day.top_50_score}
         <div class="room-facts">
           <div>
             <small>{m.rooms_stat_participants()}</small>
-            <b>{number(day.participants)}</b>
+            <b>{number(stable ? day.stable_participants : day.participants)}</b>
           </div>
-          {#if day.stable_participants > 0 || source === 'stable'}
-            <div>
-              <small>{m.rooms_stat_stable_players()}</small>
-              <b>{number(day.stable_participants)}</b>
-            </div>
-          {/if}
           <div>
             <small>{m.rooms_stat_top_10()}</small>
-            <b>{day.top_10_score === null ? '-' : number(day.top_10_score)}</b>
+            <b>{top10 === null ? '-' : number(top10)}</b>
           </div>
           <div>
             <small>{m.rooms_stat_top_50()}</small>
-            <b>{day.top_50_score === null ? '-' : number(day.top_50_score)}</b>
+            <b>{top50 === null ? '-' : number(top50)}</b>
           </div>
         </div>
         <div class="panel score-list c-blue">

@@ -14,6 +14,8 @@ export interface DailyChallenge {
   required_mods: Mod[];
   participants: number;
   stable_participants: number;
+  stable_top_10_score: number | null;
+  stable_top_50_score: number | null;
   top_10_score: number | null;
   top_50_score: number | null;
   room_id: number | null;
