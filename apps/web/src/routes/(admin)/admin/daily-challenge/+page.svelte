@@ -68,8 +68,8 @@
   <small class="dim">
     The challenge ends 24 hours after it starts, or when the next one starts. A day has one
     challenge, so saving another start on the same UTC date replaces it. The map stays hidden from
-    players until it starts. Freemod allows mods, apart from the speed mods, Relax and Autopilot;
-    without it only scores without mods count.
+    players until it starts. Freemod takes every mod, and vanilla, Relax and Autopilot plays share
+    the board; without it only scores without mods count.
   </small>
 </div>
 

@@ -5,7 +5,7 @@
   "rooms_daily_map": "Map",
   "rooms_daily_empty": "No challenge on this day.",
   "rooms_daily_window": "Runs from {start} to {end}.",
-  "rooms_daily_freemod": "Freemod: mods are allowed, apart from the speed mods, Relax and Autopilot.",
+  "rooms_daily_freemod": "Freemod: any mods count, and vanilla, Relax and Autopilot plays share the board.",
   "rooms_stat_participants": "Participants",
   "rooms_stat_top_10": "Top 10% score",
   "rooms_stat_top_50": "Top 50% score",
