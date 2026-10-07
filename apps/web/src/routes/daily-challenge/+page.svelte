@@ -3,7 +3,7 @@
   import { page } from '$app/state';
   import { isApiError } from '$lib/api/errors';
   import { query } from '$lib/api/query.svelte';
-  import { dailyChallenge, dailyScores } from '$lib/api/rooms';
+  import { dailyChallenge, dailyScores, type DailySource } from '$lib/api/rooms';
   import Banner from '$lib/components/Banner.svelte';
   import DailyCalendar from '$lib/components/DailyCalendar.svelte';
   import MatchMap from '$lib/components/MatchMap.svelte';
@@ -11,12 +11,18 @@
   import RoomMods from '$lib/components/RoomMods.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { number, utcDay } from '$lib/format';
+  import { tabInk } from '@soumetsu/ui';
   import { m } from '$lib/paraglide/messages';
 
   const today = new Date().toISOString().slice(0, 10);
   const asked = $derived(page.url.searchParams.get('date') ?? '');
   const date = $derived(/^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : today);
   const current = $derived(Math.max(1, parseInt(page.url.searchParams.get('p') ?? '') || 1));
+  const source = $derived<DailySource>(
+    page.url.searchParams.get('source') === 'stable' ? 'stable' : 'lazer'
+  );
+  const target = (src: DailySource, p: number) =>
+    `?date=${date}${src === 'stable' ? '&source=stable' : ''}${p > 1 ? `&p=${p}` : ''}`;
 
   const challenge = query((signal) => dailyChallenge(date, signal));
   const result = $derived(challenge.state);
@@ -47,6 +53,12 @@
             <small>{m.rooms_stat_participants()}</small>
             <b>{number(day.participants)}</b>
           </div>
+          {#if day.stable_participants > 0 || source === 'stable'}
+            <div>
+              <small>{m.rooms_stat_stable_players()}</small>
+              <b>{number(day.stable_participants)}</b>
+            </div>
+          {/if}
           <div>
             <small>{m.rooms_stat_top_10()}</small>
             <b>{day.top_10_score === null ? '-' : number(day.top_10_score)}</b>
@@ -73,10 +85,34 @@
 
   {#if result.status === 'ready'}
     <SectionTitle colour="c-purple" icon="fa-ranking-star">{m.rooms_leaderboard()}</SectionTitle>
-    <RoomBoard
-      load={(p, signal) => dailyScores(date, p, signal)}
-      page={current}
-      onpage={(p) => goto(`?date=${date}&p=${p}`, { keepFocus: true, noScroll: true })}
-    />
+    <nav class="tabs tinted room-tabs" use:tabInk>
+      <a
+        class="c-purple"
+        class:active={source === 'lazer'}
+        href={target('lazer', 1)}
+        data-sveltekit-noscroll
+      >
+        {m.rooms_source_lazer()}
+      </a>
+      <a
+        class="c-purple"
+        class:active={source === 'stable'}
+        href={target('stable', 1)}
+        data-sveltekit-noscroll
+      >
+        {m.rooms_source_stable()}
+      </a>
+    </nav>
+    {#if source === 'stable'}
+      <p class="muted">{m.rooms_stable_note()}</p>
+    {/if}
+    {#key source}
+      <RoomBoard
+        load={(p, signal) => dailyScores(date, source, p, signal)}
+        page={current}
+        onpage={(p) => goto(target(source, p), { keepFocus: true, noScroll: true })}
+        empty={source === 'stable' ? m.rooms_stable_empty() : undefined}
+      />
+    {/key}
   {/if}
 </main>

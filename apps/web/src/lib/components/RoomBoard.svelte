@@ -11,11 +11,13 @@
   let {
     load,
     page,
-    onpage
+    onpage,
+    empty
   }: {
     load: (page: number, signal: AbortSignal) => Promise<RoomScores>;
     page: number;
     onpage: (page: number) => void;
+    empty?: string;
   } = $props();
 
   const scores = query((signal) => load(page, signal));
@@ -69,7 +71,7 @@
       {onpage}
     />
   {:else}
-    <div class="panel c-purple"><p class="empty-note">{m.rooms_scores_empty()}</p></div>
+    <div class="panel c-purple"><p class="empty-note">{empty ?? m.rooms_scores_empty()}</p></div>
   {/if}
 {:else if result.status === 'error'}
   <div class="panel c-red"><p class="empty-note">{m.common_load_failed()}</p></div>

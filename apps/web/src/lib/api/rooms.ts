@@ -13,6 +13,7 @@ export interface DailyChallenge {
   ruleset: number;
   required_mods: Mod[];
   participants: number;
+  stable_participants: number;
   top_10_score: number | null;
   top_50_score: number | null;
   room_id: number | null;
@@ -66,6 +67,8 @@ export interface Playlist {
 export type PlaylistStatus = 'active' | 'ended';
 
 export const SCORES_PAGE_SIZE = 50;
+export type DailySource = 'lazer' | 'stable';
+
 export const PLAYLISTS_PAGE_SIZE = 20;
 
 export const challengeDays = async (year: number, month: number, signal?: AbortSignal) =>
@@ -74,8 +77,17 @@ export const challengeDays = async (year: number, month: number, signal?: AbortS
 export const dailyChallenge = (date: string, signal?: AbortSignal) =>
   api.get<DailyChallenge>(`/daily-challenge/${date}`, undefined, signal);
 
-export const dailyScores = (date: string, page: number, signal?: AbortSignal) =>
-  api.get<RoomScores>(`/daily-challenge/${date}/scores`, { page, limit: SCORES_PAGE_SIZE }, signal);
+export const dailyScores = (
+  date: string,
+  source: DailySource,
+  page: number,
+  signal?: AbortSignal
+) =>
+  api.get<RoomScores>(
+    `/daily-challenge/${date}/scores`,
+    { source, page, limit: SCORES_PAGE_SIZE },
+    signal
+  );
 
 export const playlists = (status: PlaylistStatus, page: number, signal?: AbortSignal) =>
   api.get<{ total: number; rooms: PlaylistSummary[] }>(
