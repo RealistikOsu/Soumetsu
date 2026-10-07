@@ -6,7 +6,7 @@
   import { dailyChallenge, dailyScores } from '$lib/api/rooms';
   import Banner from '$lib/components/Banner.svelte';
   import DailyCalendar from '$lib/components/DailyCalendar.svelte';
-  import RankedMap from '$lib/components/RankedMap.svelte';
+  import MatchMap from '$lib/components/MatchMap.svelte';
   import RoomBoard from '$lib/components/RoomBoard.svelte';
   import RoomMods from '$lib/components/RoomMods.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
@@ -55,9 +55,9 @@
       </div>
     </div>
     <div class="panel score-list c-blue">
-      <RankedMap beatmap={day.beatmap} ruleset={day.ruleset}>
+      <MatchMap beatmap={day.beatmap} ruleset={day.ruleset}>
         <RoomMods required={day.required_mods} />
-      </RankedMap>
+      </MatchMap>
     </div>
 
     <SectionTitle colour="c-purple" icon="fa-ranking-star">{m.rooms_leaderboard()}</SectionTitle>

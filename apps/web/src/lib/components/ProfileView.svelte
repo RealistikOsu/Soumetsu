@@ -241,6 +241,9 @@
         <a class="btn head-ranked" href="/users/{id}/ranked-play">
           <i class="fa-solid fa-ranking-star"></i>{m.ranked_title()}
         </a>
+        <a class="btn head-ranked" href="/users/{id}/multiplayer">
+          <i class="fa-solid fa-users"></i>{m.multiplayer_title()}
+        </a>
         {#if !own && base}<FriendButton {id} />{/if}
         {#if session.user && !own && base}
           <a

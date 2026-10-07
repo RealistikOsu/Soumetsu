@@ -6,7 +6,7 @@
   import { playlist, playlistScores } from '$lib/api/rooms';
   import Banner from '$lib/components/Banner.svelte';
   import NotFound from '$lib/components/NotFound.svelte';
-  import RankedMap from '$lib/components/RankedMap.svelte';
+  import MatchMap from '$lib/components/MatchMap.svelte';
   import RoomBoard from '$lib/components/RoomBoard.svelte';
   import RoomMods from '$lib/components/RoomMods.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
@@ -62,7 +62,7 @@
     {#if items.length}
       <div class="panel score-list c-blue">
         {#each items as it (it.item_id)}
-          <RankedMap
+          <MatchMap
             beatmap={it.beatmap}
             ruleset={it.ruleset}
             class="room-item {it.item_id === item.item_id ? 'picked' : ''}"
@@ -73,7 +73,7 @@
             <a class="room-pick" href="?item={it.item_id}">
               {it.item_id === item.item_id ? m.rooms_shown() : m.rooms_show_scores()}
             </a>
-          </RankedMap>
+          </MatchMap>
         {/each}
       </div>
 

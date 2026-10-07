@@ -60,6 +60,8 @@ export function gradeOf(
 }
 
 const lazerRanks: Record<string, GradeName> = {
+  SS: 'SS',
+  SSH: 'SSH',
   X: 'SS',
   XH: 'SSH',
   S: 'S',
@@ -70,5 +72,5 @@ const lazerRanks: Record<string, GradeName> = {
   D: 'D'
 };
 
-// Lazer names its grades X and XH where we say SS and SSH.
+// Lazer names its grades X and XH where we say SS and SSH; stable matches already say SS.
 export const gradeFromRank = (rank: string): GradeName => lazerRanks[rank.toUpperCase()] ?? 'F';

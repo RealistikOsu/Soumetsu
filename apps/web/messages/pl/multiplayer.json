@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "multiplayer_title": "Multiplayer",
+  "multiplayer_active_empty": "Nie ma teraz żadnych trwających meczów multiplayer.",
+  "multiplayer_ended_empty": "Nie ma jeszcze zakończonych meczów multiplayer.",
+  "multiplayer_game": "Gra {number}",
+  "multiplayer_win_score": "Wynik",
+  "multiplayer_win_accuracy": "Dokładność",
+  "multiplayer_win_combo": "Combo",
+  "multiplayer_win_score_v2": "Wynik V2",
+  "multiplayer_team_head_to_head": "Każdy na każdego",
+  "multiplayer_team_tag_coop": "Tag co-op",
+  "multiplayer_team_vs": "Drużyna na drużynę",
+  "multiplayer_team_tag_vs": "Tag: drużyna na drużynę",
+  "multiplayer_team_blue": "Niebieska drużyna",
+  "multiplayer_team_red": "Czerwona drużyna"
+}

@@ -1,11 +1,12 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { isApiError } from '$lib/api/errors';
+  import { matchSummary } from '$lib/api/multiplayer';
   import { query } from '$lib/api/query.svelte';
-  import { matchSummary } from '$lib/api/rankedPlay';
   import MatchHead from '$lib/components/MatchHead.svelte';
   import MatchLeaderboard from '$lib/components/MatchLeaderboard.svelte';
   import MatchMap from '$lib/components/MatchMap.svelte';
+  import ModBadges from '$lib/components/ModBadges.svelte';
   import NotFound from '$lib/components/NotFound.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { number } from '$lib/format';
@@ -20,23 +21,25 @@
   <NotFound />
 {:else if result.status === 'ready'}
   {@const { match, participants, maps } = result.data}
-  <MatchHead {match} view="summary" title={m.ranked_title()} base="/ranked-play" />
+  <MatchHead {match} view="summary" title={m.multiplayer_title()} base="/multiplayer" />
 
   <main class="wrap rp-page">
     <SectionTitle colour="c-purple" icon="fa-ranking-star">{m.ranked_leaderboard()}</SectionTitle>
-    <MatchLeaderboard {participants} winnerId={match.winner_id} />
+    <MatchLeaderboard {participants} />
 
     <SectionTitle colour="c-blue" icon="fa-music">
       {m.ranked_played_maps()} <small>{number(maps.length)}</small>
     </SectionTitle>
     {#if maps.length}
       <div class="panel score-list c-blue">
-        {#each maps as played (played.round)}
+        {#each maps as played (played.game)}
           <MatchMap
             beatmap={played.beatmap}
-            ruleset={played.ruleset}
-            label={m.ranked_round({ number: played.round })}
-          />
+            ruleset={played.mode}
+            label={m.multiplayer_game({ number: played.game })}
+          >
+            <ModBadges bits={played.mods} />
+          </MatchMap>
         {/each}
       </div>
     {:else}

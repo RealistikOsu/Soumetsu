@@ -10,13 +10,13 @@
   let {
     beatmap,
     ruleset,
-    round,
+    label,
     class: className = '',
     children
   }: {
     beatmap: BeatmapRef;
     ruleset: number;
-    round?: number;
+    label?: string;
     class?: string;
     children?: Snippet;
   } = $props();
@@ -40,7 +40,7 @@
   <div class="score-info">
     <a class="song" {href}>{beatmap.title} <span>– {beatmap.artist}</span></a>
     <div class="score-meta">
-      {#if round !== undefined}{m.ranked_round({ number: round })} ·
+      {#if label}{label} ·
       {/if}{beatmap.version} · {m.beatmaps_mapped_by()}
       <b>{beatmap.creator}</b>
     </div>

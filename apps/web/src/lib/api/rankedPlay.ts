@@ -18,13 +18,12 @@ export interface BeatmapRef {
   mode: number;
 }
 
-export interface MatchSummary {
+export interface MatchBase {
   id: number;
   name: string;
   status: 'active' | 'ended';
   started_at: string;
   ended_at: string | null;
-  winner_id: number | null;
   map_count: number;
   players: UserRef[];
   star_min: number | null;
@@ -32,9 +31,13 @@ export interface MatchSummary {
   cover_set_ids: number[];
 }
 
-export interface UserMatches {
-  active: MatchSummary[];
-  ended: MatchSummary[];
+export interface MatchSummary extends MatchBase {
+  winner_id: number | null;
+}
+
+export interface UserMatchList<T extends MatchBase = MatchSummary> {
+  active: T[];
+  ended: T[];
   total_ended: number;
 }
 
@@ -88,7 +91,7 @@ export interface MatchEvents {
 export const MATCHES_PAGE_SIZE = 20;
 
 export const userMatches = (id: number, page: number, signal?: AbortSignal) =>
-  api.get<UserMatches>(
+  api.get<UserMatchList>(
     `/users/${id}/ranked-play/matches`,
     { page, limit: MATCHES_PAGE_SIZE },
     signal

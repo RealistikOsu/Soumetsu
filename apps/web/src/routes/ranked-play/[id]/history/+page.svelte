@@ -5,9 +5,10 @@
   import { matchEvents } from '$lib/api/rankedPlay';
   import Avatar from '$lib/components/Avatar.svelte';
   import Flag from '$lib/components/Flag.svelte';
+  import MatchHead from '$lib/components/MatchHead.svelte';
+  import MatchMap from '$lib/components/MatchMap.svelte';
+  import MatchNote from '$lib/components/MatchNote.svelte';
   import NotFound from '$lib/components/NotFound.svelte';
-  import RankedMap from '$lib/components/RankedMap.svelte';
-  import RankedMatchHead from '$lib/components/RankedMatchHead.svelte';
   import { clock, fromIso, number } from '$lib/format';
   import { gradeClass, gradeFromRank, gradeLabel } from '$lib/grades';
   import { m } from '$lib/paraglide/messages';
@@ -15,20 +16,13 @@
   const id = $derived(Number(page.params.id));
   const history = query((signal) => matchEvents(id, signal));
   const result = $derived(history.state);
-
-  const notes = {
-    joined: { icon: 'fa-right-to-bracket', colour: 'c-green' },
-    left: { icon: 'fa-right-from-bracket', colour: 'c-orange' },
-    disbanded: { icon: 'fa-ban', colour: 'c-red' },
-    round_ended: { icon: 'fa-flag-checkered', colour: 'c-blue' }
-  };
 </script>
 
 {#if result.status === 'error' && isApiError(result.error) && result.error.status === 404}
   <NotFound />
 {:else if result.status === 'ready'}
   {@const { match, events } = result.data}
-  <RankedMatchHead {match} view="history" />
+  <MatchHead {match} view="history" title={m.ranked_title()} base="/ranked-play" />
 
   <main class="wrap rp-page">
     {#if events.length}
@@ -39,7 +33,11 @@
             <li class="rp-event rp-round">
               <span class="rp-dot c-purple"><i class="fa-solid fa-music"></i></span>
               <div class="panel c-purple">
-                <RankedMap beatmap={round.beatmap} ruleset={round.ruleset} round={round.number} />
+                <MatchMap
+                  beatmap={round.beatmap}
+                  ruleset={round.ruleset}
+                  label={m.ranked_round({ number: round.number })}
+                />
                 <div class="rp-time">
                   {clock(fromIso(round.started_at))}{#if round.ended_at}
                     – {clock(fromIso(round.ended_at))}{/if}
@@ -87,26 +85,7 @@
               </div>
             </li>
           {:else}
-            {@const note = notes[event.type]}
-            <li class="rp-event rp-note">
-              <span class="rp-dot {note.colour}"><i class="fa-solid {note.icon}"></i></span>
-              <p>
-                {#if event.user}
-                  <a href="/users/{event.user.id}"><Avatar id={event.user.id} /></a>
-                  <a href="/users/{event.user.id}"><b>{event.user.username}</b></a>
-                {/if}
-                {#if event.type === 'joined'}
-                  {m.ranked_joined()}
-                {:else if event.type === 'left'}
-                  {m.ranked_left()}
-                {:else if event.type === 'disbanded'}
-                  {m.ranked_disbanded()}
-                {:else}
-                  {m.ranked_game_ended()}
-                {/if}
-                <time>{clock(fromIso(event.at))}</time>
-              </p>
-            </li>
+            <MatchNote {event} />
           {/if}
         {/each}
       </ol>

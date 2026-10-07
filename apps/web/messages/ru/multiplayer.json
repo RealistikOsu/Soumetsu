@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "multiplayer_title": "Мультиплеер",
+  "multiplayer_active_empty": "Сейчас нет идущих матчей в мультиплеере.",
+  "multiplayer_ended_empty": "Завершённых матчей в мультиплеере пока нет.",
+  "multiplayer_game": "Игра {number}",
+  "multiplayer_win_score": "Очки",
+  "multiplayer_win_accuracy": "Точность",
+  "multiplayer_win_combo": "Комбо",
+  "multiplayer_win_score_v2": "Очки V2",
+  "multiplayer_team_head_to_head": "Каждый сам за себя",
+  "multiplayer_team_tag_coop": "Тег-кооп",
+  "multiplayer_team_vs": "Команда на команду",
+  "multiplayer_team_tag_vs": "Тег: команда на команду",
+  "multiplayer_team_blue": "Синяя команда",
+  "multiplayer_team_red": "Красная команда"
+}

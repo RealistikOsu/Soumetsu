@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type { MatchSummary } from '$lib/api/rankedPlay';
+  import type { MatchBase } from '$lib/api/rankedPlay';
   import { coverUrl } from '$lib/assets';
   import Avatar from '$lib/components/Avatar.svelte';
   import { dateTime, fromIso, number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
 
-  let { match }: { match: MatchSummary } = $props();
+  let { match, href }: { match: MatchBase; href: string } = $props();
 
   const live = $derived(match.status === 'active');
   const covers = $derived(match.cover_set_ids.slice(0, 3));
   const players = $derived(match.players.slice(0, 6));
 </script>
 
-<a class="rp-card" class:live href="/ranked-play/{match.id}">
+<a class="rp-card" class:live {href}>
   <div class="rp-covers" aria-hidden="true">
     {#each covers as setId, i (i)}
       <span style="background-image: url({coverUrl(setId, 'list')})"></span>

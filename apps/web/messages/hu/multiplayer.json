@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "multiplayer_title": "Multiplayer",
+  "multiplayer_active_empty": "Jelenleg nincs folyamatban lévő multiplayer meccs.",
+  "multiplayer_ended_empty": "Még nincs befejezett multiplayer meccs.",
+  "multiplayer_game": "{number}. játék",
+  "multiplayer_win_score": "Pontszám",
+  "multiplayer_win_accuracy": "Pontosság",
+  "multiplayer_win_combo": "Combo",
+  "multiplayer_win_score_v2": "Pontszám V2",
+  "multiplayer_team_head_to_head": "Mindenki mindenki ellen",
+  "multiplayer_team_tag_coop": "Tag co-op",
+  "multiplayer_team_vs": "Csapat csapat ellen",
+  "multiplayer_team_tag_vs": "Tag: csapat csapat ellen",
+  "multiplayer_team_blue": "Kék csapat",
+  "multiplayer_team_red": "Piros csapat"
+}

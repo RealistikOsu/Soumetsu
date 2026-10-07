@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "multiplayer_title": "Multiplayer",
+  "multiplayer_active_empty": "Not in any multiplayer matches right now.",
+  "multiplayer_ended_empty": "No finished multiplayer matches yet.",
+  "multiplayer_game": "Game {number}",
+  "multiplayer_win_score": "Score",
+  "multiplayer_win_accuracy": "Accuracy",
+  "multiplayer_win_combo": "Combo",
+  "multiplayer_win_score_v2": "Score V2",
+  "multiplayer_team_head_to_head": "Head to head",
+  "multiplayer_team_tag_coop": "Tag co-op",
+  "multiplayer_team_vs": "Team vs",
+  "multiplayer_team_tag_vs": "Tag team vs",
+  "multiplayer_team_blue": "Blue team",
+  "multiplayer_team_red": "Red team"
+}

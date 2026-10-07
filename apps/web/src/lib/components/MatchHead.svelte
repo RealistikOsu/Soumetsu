@@ -1,12 +1,17 @@
 <script lang="ts">
   import { tabInk } from '@soumetsu/ui';
-  import type { MatchSummary } from '$lib/api/rankedPlay';
+  import type { MatchBase } from '$lib/api/rankedPlay';
   import { coverUrl } from '$lib/assets';
   import Banner from '$lib/components/Banner.svelte';
   import { dateTime, fromIso } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
 
-  let { match, view }: { match: MatchSummary; view: 'summary' | 'history' } = $props();
+  let {
+    match,
+    view,
+    title,
+    base
+  }: { match: MatchBase; view: 'summary' | 'history'; title: string; base: string } = $props();
 
   const live = $derived(match.status === 'active');
   const cover = $derived(
@@ -16,7 +21,7 @@
   );
 </script>
 
-<svelte:head><title>{match.name} · {m.ranked_title()} · RealistikOsu</title></svelte:head>
+<svelte:head><title>{match.name} · {title} · RealistikOsu</title></svelte:head>
 
 <Banner url={cover} class="rp-banner">
   <div class="rp-head">
@@ -34,10 +39,10 @@
     </p>
   </div>
   <nav class="tabs rp-switch" use:tabInk>
-    <a class:active={view === 'summary'} href="/ranked-play/{match.id}">
+    <a class:active={view === 'summary'} href="{base}/{match.id}">
       <i class="fa-solid fa-list-ol"></i>{m.ranked_view_summary()}
     </a>
-    <a class:active={view === 'history'} href="/ranked-play/{match.id}/history">
+    <a class:active={view === 'history'} href="{base}/{match.id}/history">
       <i class="fa-solid fa-clock-rotate-left"></i>{m.ranked_view_history()}
     </a>
   </nav>
