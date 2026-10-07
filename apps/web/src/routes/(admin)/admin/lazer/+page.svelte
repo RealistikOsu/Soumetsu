@@ -2,12 +2,16 @@
   import {
     addPoolEntry,
     dailyChallenges,
+    lazerSettings,
     poolEntries,
     removeDailyChallenge,
     removePoolEntry,
-    setDailyChallenge
+    setDailyChallenge,
+    setLazerSettings
   } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
+  import { Privilege } from '$lib/auth/privileges';
+  import { session } from '$lib/auth/session.svelte';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -27,6 +31,13 @@
     void version;
     return dailyChallenges(signal);
   });
+  const canSettings = $derived(
+    !!(session.user && session.user.privileges & Privilege.AdminManageSetting)
+  );
+  const settings = query((signal) => {
+    void version;
+    return canSettings ? lazerSettings(signal) : Promise.resolve(null);
+  });
   const pool = query((signal) => {
     void version;
     return poolEntries(ruleset, signal);
@@ -44,6 +55,12 @@
     busy = false;
   }
 
+  const setElo = (rankedPlayElo: boolean) =>
+    run(
+      () => setLazerSettings({ rankedPlayElo }),
+      `Ranked play rating changes turned ${rankedPlayElo ? 'on' : 'off'}.`
+    );
+
   const saveChallenge = () =>
     run(() => setDailyChallenge(date, Number(challengeMap)), 'Daily challenge saved.');
 
@@ -59,6 +76,32 @@
   heading="Lazer"
   text="The daily challenge and the ranked play map pool for osu!lazer. Changes to today's challenge apply straight away."
 />
+
+{#if settings.state.status === 'ready' && settings.state.data}
+  <h2 class="section-title c-orange">
+    <i class="fa-solid fa-scale-balanced"></i>Ranked play rating
+  </h2>
+  <div class="panel form-panel admin-form settings-form c-orange">
+    <div class="setting">
+      <div>
+        <b>Rating changes</b>
+        <p>
+          When off, matches end without changing anyone's rating, and the history shows the same
+          rating before and after.
+        </p>
+      </div>
+      <label class="switch">
+        <input
+          type="checkbox"
+          checked={settings.state.data.rankedPlayElo}
+          disabled={busy}
+          onchange={(event) => setElo(event.currentTarget.checked)}
+        />
+        <span></span>
+      </label>
+    </div>
+  </div>
+{/if}
 
 <h2 class="section-title c-teal"><i class="fa-solid fa-calendar-day"></i>Daily challenge</h2>
 <div class="panel form-panel c-teal admin-form">

@@ -76,6 +76,29 @@ export async function removeDailyChallenge(staffId: number, date: string) {
   await refreshToday(date);
 }
 
+// Read by the lazer server when a ranked play match ends; no row means on.
+const RANKED_PLAY_ELO = 'lazer_ranked_play_elo';
+
+export async function rankedPlayElo() {
+  const row = await db.system_settings.findFirst({ where: { name: RANKED_PLAY_ELO } });
+  return row ? row.value_int !== 0 : true;
+}
+
+export async function setRankedPlayElo(staffId: number, enabled: boolean) {
+  const row = await db.system_settings.findFirst({ where: { name: RANKED_PLAY_ELO } });
+  if (row) {
+    await db.system_settings.update({
+      where: { id: row.id },
+      data: { value_int: Number(enabled) }
+    });
+  } else {
+    await db.system_settings.create({
+      data: { name: RANKED_PLAY_ELO, value_int: Number(enabled), value_string: '' }
+    });
+  }
+  await rapLog(staffId, `turned ranked play rating changes ${enabled ? 'on' : 'off'}`);
+}
+
 export interface PoolEntry {
   beatmapId: number;
   stars: number;

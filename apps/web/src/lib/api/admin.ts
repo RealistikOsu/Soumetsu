@@ -411,6 +411,16 @@ export interface PoolEntry {
   song: string | null;
 }
 
+export interface LazerSettings {
+  rankedPlayElo: boolean;
+}
+
+export const lazerSettings = (signal?: AbortSignal) =>
+  siteApi.get<LazerSettings>('/admin/lazer/settings', undefined, signal);
+
+export const setLazerSettings = (settings: LazerSettings) =>
+  siteApi.put('/admin/lazer/settings', settings);
+
 export const dailyChallenges = (signal?: AbortSignal) =>
   siteApi.get<DailyChallenge[]>('/admin/lazer/daily', undefined, signal);
 
