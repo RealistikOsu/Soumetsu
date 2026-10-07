@@ -1,7 +1,7 @@
 import { db } from '$server/db';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
-import { lazerTables, requireBeatmap } from './lazer';
+import { lazerTables } from './lazer';
 import { rapLog } from './log';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -93,7 +93,13 @@ export async function setDailyChallenge(
   const endsAt = minute(ends);
   const window = windowOf(date, startsAt, endsAt);
   if (window.end <= window.start) throw new Failure(400, 'site.invalid_request');
-  await requireBeatmap(beatmapId);
+  // Stable and lazer share the challenge, and the leaderboards on both only cover osu!standard.
+  const map = await db.beatmaps.findUnique({
+    where: { beatmap_id: beatmapId },
+    select: { mode: true }
+  });
+  if (!map) throw new Failure(404, 'beatmaps.beatmap_not_found');
+  if (map.mode !== 0) throw new Failure(400, 'The daily challenge can only use osu!standard maps.');
 
   const before = await currentWindow(date);
   await lazerTables(

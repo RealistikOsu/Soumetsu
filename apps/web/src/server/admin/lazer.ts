@@ -17,7 +17,7 @@ export async function lazerTables<T>(query: Promise<T>) {
   });
 }
 
-export async function requireBeatmap(beatmapId: number) {
+async function requireBeatmap(beatmapId: number) {
   const found = await db.beatmaps.count({ where: { beatmap_id: beatmapId } });
   if (!found) throw new Failure(404, 'beatmaps.beatmap_not_found');
 }

@@ -45,7 +45,7 @@
 
 <AdminHead
   heading="Daily challenge"
-  text="One map per day, for stable and lazer. It runs for its UTC day unless you give it a start and an end (all times are UTC). Changes to the running challenge apply straight away."
+  text="One osu!standard map per day, for stable and lazer. It runs for its UTC day unless you give it a start and an end (all times are UTC). Changes to the running challenge apply straight away."
 />
 
 <div class="panel form-panel c-teal admin-form">
