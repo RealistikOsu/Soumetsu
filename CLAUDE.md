@@ -87,7 +87,7 @@ Conventions in the game data:
 
 Paraglide JS 2 with the inlang message-format plugin. English is the source, and Russian, Polish and Hungarian are translated. The language comes from the `PARAGLIDE_LOCALE` cookie, then `Accept-Language`, then English. `setLocale()` reloads the page, so messages don't need to be reactive.
 
-- **Where strings live:** `apps/web/messages/{en,ru,pl,hu}/<area>.json`, one file per area: `common`, `profile`, `beatmaps`, `leaderboard`, `settings`, `auth`, `home`, `clans`, `support`, `messages`, `uploads`, `ranked`. Every key is prefixed with its area (`profile_peak_label`). Every language must have the same keys.
+- **Where strings live:** `apps/web/messages/{en,ru,pl,hu}/<area>.json`, one file per area: `common`, `profile`, `beatmaps`, `leaderboard`, `settings`, `auth`, `home`, `clans`, `support`, `messages`, `uploads`, `ranked`, `scores`. Every key is prefixed with its area (`profile_peak_label`). Every language must have the same keys.
 - **Calling them:** `import { m } from '$lib/paraglide/messages'` and call `m.key({ params })`. Never call `m.*` at module top level in a `.ts` file; wrap it in a function or getter so it runs after the locale is known. `src/lib/paraglide` is generated and gitignored.
 - **Plurals:** counts use the plural form (`declarations` / `selectors` / `match`). Russian and Polish need `one`, `few`, `many` and `other`; Hungarian only `one` and `other`. Avoid gendered past tense in Russian and Polish copy.
 - **Dates and numbers:** go through `lib/format.ts`, which uses `intlLocale()`. Don't hardcode `'en'` or `'en-GB'` in public pages.

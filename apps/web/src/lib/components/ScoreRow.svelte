@@ -77,6 +77,11 @@
       >
         <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
       </button>
+      {#if isLazer(rx)}
+        <a href="/scores/{score.id}"
+          ><i class="fa-solid fa-up-right-from-square"></i>{m.profile_score_open_page()}</a
+        >
+      {/if}
       {#if score.completed === 3 && !isLazer(rx)}
         <a href={replayUrl(score.id)}
           ><i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}</a

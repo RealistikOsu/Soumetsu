@@ -1,0 +1,300 @@
+/* the public page for one lazer score */
+
+.sp {
+  display: grid;
+  gap: 16px;
+  padding-block: 24px 40px;
+}
+
+.sp-head h1 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sp-head h1 a:hover {
+  color: var(--link);
+}
+
+.sp-map {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.sp-map img {
+  width: 20px;
+  height: 20px;
+}
+
+.sp-map a {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sp-map a:hover {
+  color: var(--link);
+}
+
+.sp-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 32px;
+  overflow: hidden;
+  padding: 28px 32px;
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.sp-hero::before,
+.sp-hero::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+}
+
+.sp-hero::before {
+  inset: -24px;
+  background: var(--cover) center / cover;
+  filter: blur(8px);
+}
+
+.sp-hero::after {
+  inset: 0;
+  background: rgb(26 26 27 / 0.8);
+}
+
+.sp-grade {
+  min-width: 1.2em;
+  font-size: 120px;
+  text-align: center;
+}
+
+.sp-main {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sp-mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sp-mod {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.12);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sp-mod small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sp-score {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-facts {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sp-facts div {
+  display: flex;
+  gap: 6px;
+}
+
+.sp-facts dd {
+  margin: 0;
+}
+
+.sp-facts dd a {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sp-facts dd a:hover {
+  color: var(--link);
+}
+
+.sp-rank {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--yellow) 22%, transparent);
+  color: var(--yellow);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sp-replay i {
+  margin-right: 8px;
+}
+
+.sp-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.sp-player,
+.sp-stats {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.sp-player {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.sp-player .sp-avatar {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.sp-player > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sp-name {
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-name:hover {
+  color: var(--link);
+}
+
+.sp-country {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-player .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.sp-stats {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.sp-key {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.sp-key div {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+
+.sp-key dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sp-key dd {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-hits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sp-hits li {
+  display: grid;
+  padding: 8px 12px;
+  border-left: 2px solid var(--hit);
+  border-radius: 0 6px 6px 0;
+  background: var(--panel-2);
+}
+
+.sp-hits span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sp-hits b {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .sp-hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px 16px;
+  }
+
+  .sp-grade {
+    font-size: 72px;
+  }
+
+  .sp-score {
+    font-size: 34px;
+  }
+
+  .sp-replay {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .sp-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

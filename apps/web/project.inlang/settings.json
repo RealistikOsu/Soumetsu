@@ -18,7 +18,8 @@
       "./messages/{locale}/uploads.json",
       "./messages/{locale}/ranked.json",
       "./messages/{locale}/rooms.json",
-      "./messages/{locale}/multiplayer.json"
+      "./messages/{locale}/multiplayer.json",
+      "./messages/{locale}/scores.json"
     ]
   }
 }

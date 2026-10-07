@@ -257,6 +257,34 @@ async function beatmapset(id: string) {
   };
 }
 
+async function lazerScore(id: string) {
+  const found = await getJson<{
+    score: number;
+    accuracy: number;
+    pp: number;
+    play_mode: number;
+    beatmap: { beatmapset_id: number; title: string; artist: string; version: string };
+    player: { username: string };
+  }>(api(`/lazer/scores/${id}`));
+  if (!found) return site;
+  const { beatmap } = found;
+  const name = `${beatmap.artist} - ${beatmap.title} [${beatmap.version}]`;
+  return {
+    title: `${found.player.username} | ${beatmap.artist} - ${beatmap.title}`,
+    description: [
+      `${numbers.format(found.score)} score`,
+      `${found.accuracy.toFixed(2)}% accuracy`,
+      found.pp > 0 ? `${numbers.format(Math.round(found.pp))}pp` : null,
+      `[${beatmap.version}]`
+    ]
+      .filter((part) => part !== null)
+      .join(' · '),
+    image: cover(beatmap.beatmapset_id),
+    alt: `${name} cover`,
+    wide: true
+  };
+}
+
 const songName = (map: BeatmapRef) => `${map.artist} - ${map.title} [${map.version}]`;
 
 async function daily(date: string) {
@@ -341,6 +369,7 @@ const dynamic: [RegExp, (hit: string[], url: URL) => Promise<Preview>][] = [
   [/^\/beatmaps\/(\d+)$/, ([, id]) => beatmap(id)],
   [/^\/beatmapsets\/(\d+)$/, ([, id]) => beatmapset(id)],
   [/^\/playlists\/(\d+)$/, ([, id]) => playlist(id)],
+  [/^\/scores\/(\d+)$/, ([, id]) => lazerScore(id)],
   [/^\/(ranked-play|multiplayer)\/(\d+)(?:\/history)?$/, ([, kind, id]) => match(kind as Kind, id)]
 ];
 
