@@ -68,19 +68,20 @@
       ><i class="fa-solid fa-ellipsis-vertical"></i></summary
     >
     <div>
-      <button
-        type="button"
-        onclick={() => {
-          menu!.open = false;
-          ondetails();
-        }}
-      >
-        <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
-      </button>
       {#if isLazer(rx)}
         <a href="/scores/{score.id}"
-          ><i class="fa-solid fa-up-right-from-square"></i>{m.profile_score_open_page()}</a
+          ><i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}</a
         >
+      {:else}
+        <button
+          type="button"
+          onclick={() => {
+            menu!.open = false;
+            ondetails();
+          }}
+        >
+          <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
+        </button>
       {/if}
       {#if score.completed === 3 && !isLazer(rx)}
         <a href={replayUrl(score.id)}
