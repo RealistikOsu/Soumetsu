@@ -14,6 +14,23 @@
   padding: 14px;
 }
 
+.daily-top {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.daily-top .calendar {
+  max-width: none;
+}
+
+@media (max-width: 800px) {
+  .daily-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .cal-bar {
   display: flex;
   align-items: center;
@@ -90,6 +107,11 @@ a.cal-day:hover {
 
 .cal-day.today {
   box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cal-day.off.today {
+  color: var(--text);
+  opacity: 1;
 }
 
 a.cal-day.selected {
