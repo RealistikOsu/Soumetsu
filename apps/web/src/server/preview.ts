@@ -257,7 +257,8 @@ async function beatmapset(id: string) {
   };
 }
 
-async function lazerScore(id: string) {
+// Stable scores name their table in ?rx=, since their ids overlap with lazer's.
+async function scoreCard(id: string, rx: string | null) {
   const found = await getJson<{
     score: number;
     accuracy: number;
@@ -265,7 +266,7 @@ async function lazerScore(id: string) {
     play_mode: number;
     beatmap: { beatmapset_id: number; title: string; artist: string; version: string };
     player: { username: string };
-  }>(api(`/lazer/scores/${id}`));
+  }>(api(rx === null ? `/lazer/scores/${id}` : `/scores/${id}/detail?custom_mode=${rx}`));
   if (!found) return site;
   const { beatmap } = found;
   const name = `${beatmap.artist} - ${beatmap.title} [${beatmap.version}]`;
@@ -369,7 +370,14 @@ const dynamic: [RegExp, (hit: string[], url: URL) => Promise<Preview>][] = [
   [/^\/beatmaps\/(\d+)$/, ([, id]) => beatmap(id)],
   [/^\/beatmapsets\/(\d+)$/, ([, id]) => beatmapset(id)],
   [/^\/playlists\/(\d+)$/, ([, id]) => playlist(id)],
-  [/^\/scores\/(\d+)$/, ([, id]) => lazerScore(id)],
+  [
+    /^\/scores\/(\d+)$/,
+    ([, id], url) =>
+      scoreCard(
+        id,
+        /^[0-2]$/.test(url.searchParams.get('rx') ?? '') ? url.searchParams.get('rx') : null
+      )
+  ],
   [/^\/(ranked-play|multiplayer)\/(\d+)(?:\/history)?$/, ([, kind, id]) => match(kind as Kind, id)]
 ];
 
@@ -398,7 +406,7 @@ export async function previewFor(url: URL): Promise<Preview> {
 
   for (const [pattern, build] of dynamic) {
     const hit = pathname.match(pattern);
-    if (hit) return limited(await cached(pathname, () => build(hit, url)));
+    if (hit) return limited(await cached(`${pathname}${url.search}`, () => build(hit, url)));
   }
   return site;
 }

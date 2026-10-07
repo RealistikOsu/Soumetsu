@@ -3,6 +3,7 @@ import { api } from './client';
 
 export interface LazerScore {
   id: number;
+  source: 'lazer' | 'stable';
   variant: number;
   play_mode: number;
   score: number;
@@ -38,5 +39,11 @@ export interface LazerScore {
   };
 }
 
-export const lazerScore = (id: number, signal?: AbortSignal) =>
-  api.get<LazerScore>(`/lazer/scores/${id}`, undefined, signal);
+// Lazer ids and stable ids overlap, so a stable score says which table it is in.
+export const scoreUrl = (id: number, rx: number) =>
+  rx >= 3 ? `/scores/${id}` : `/scores/${id}?rx=${rx}`;
+
+export const scoreDetail = (id: number, stableRx: number | null, signal?: AbortSignal) =>
+  stableRx === null
+    ? api.get<LazerScore>(`/lazer/scores/${id}`, undefined, signal)
+    : api.get<LazerScore>(`/scores/${id}/detail`, { custom_mode: stableRx }, signal);

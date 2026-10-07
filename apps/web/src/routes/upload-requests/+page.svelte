@@ -4,7 +4,6 @@
   import { page } from '$app/state';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
-  import type { ScoreWithBeatmap } from '$lib/api/scores';
   import {
     sendUploadRequest,
     uploadRequests,
@@ -18,7 +17,6 @@
   import Banner from '$lib/components/Banner.svelte';
   import Flag from '$lib/components/Flag.svelte';
   import Pager from '$lib/components/Pager.svelte';
-  import ScoreDialog from '$lib/components/ScoreDialog.svelte';
   import ScoreRow from '$lib/components/ScoreRow.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import Username from '$lib/components/Username.svelte';
@@ -54,9 +52,6 @@
     void list.state;
     votes = {};
   });
-
-  let detail = $state<ScoreWithBeatmap | null>(null);
-  let detailOpen = $state(false);
 
   let scoreId = $state('');
   let skinUrl = $state('');
@@ -153,14 +148,7 @@
           {#if request.score}
             {@const score = request.score}
             <div class="score-list upload-score">
-              <ScoreRow
-                {score}
-                ondetails={() => {
-                  detail = score;
-                  detailOpen = true;
-                }}
-                onpin={() => null}
-              />
+              <ScoreRow {score} onpin={() => null} />
             </div>
           {:else}
             <p class="faint">{m.uploads_score_missing()}</p>
@@ -280,5 +268,3 @@
     </ul>
   </aside>
 </main>
-
-<ScoreDialog score={detail} bind:open={detailOpen} />

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
   import { page } from '$app/state';
-  import { lazerScore } from '$lib/api/lazerScores';
+  import { scoreDetail } from '$lib/api/lazerScores';
   import { query } from '$lib/api/query.svelte';
   import { profile } from '$lib/api/users';
-  import { coverUrl } from '$lib/assets';
+  import { coverUrl, replayUrl } from '$lib/assets';
   import { countryName } from '$lib/countries';
   import Avatar from '$lib/components/Avatar.svelte';
   import ClanBadge from '$lib/components/ClanBadge.svelte';
@@ -18,25 +18,45 @@
   import { modeNames, relaxNames } from '$lib/modes';
   import { m } from '$lib/paraglide/messages';
 
+  const stableName = (variant: number) =>
+    variant === 0 ? 'Stable' : `Stable ${relaxNames[variant]}`;
+
   const id = $derived(page.params.id ?? '');
   const valid = $derived(/^\d+$/.test(id));
 
+  // Lazer scores have no query; a stable one names its table, since the ids overlap.
+  const stableRx = $derived.by(() => {
+    const rx = page.url.searchParams.get('rx');
+    return rx !== null && /^[0-2]$/.test(rx) ? Number(rx) : null;
+  });
+
   const info = query((signal) =>
-    valid ? lazerScore(Number(id), signal) : Promise.reject(new Error('invalid id'))
+    valid ? scoreDetail(Number(id), stableRx, signal) : Promise.reject(new Error('invalid id'))
   );
   const score = $derived(info.state.status === 'ready' ? info.state.data : null);
 
   // The score payload has no clan, so it comes from the profile. The page doesn't need it to render.
   const owner = query(async (signal) => {
     if (!score) return null;
-    return profile(score.player.id, score.play_mode, 3 + score.variant, signal).catch(() => null);
+    return profile(score.player.id, score.play_mode, stableRx ?? 3 + score.variant, signal).catch(
+      () => null
+    );
   });
   const clan = $derived(owner.state.status === 'ready' ? (owner.state.data?.clan ?? null) : null);
 
   const lazerUrl = (env.PUBLIC_LAZER_URL ?? '').replace(/\/$/, '');
+  const replayHref = $derived(
+    !score
+      ? ''
+      : stableRx === null
+        ? lazerUrl && `${lazerUrl}/api/v2/scores/${score.id}/download`
+        : replayUrl(score.id)
+  );
   const grade = $derived(score ? gradeFromRank(score.rank) : 'F');
   const hits = $derived(score ? hitRows(score) : []);
-  const variant = $derived(score ? relaxNames[3 + score.variant] : '');
+  const variant = $derived(
+    score ? (stableRx === null ? relaxNames[3 + score.variant] : stableName(score.variant)) : ''
+  );
   const mods = $derived(
     (score?.mods ?? [])
       .filter((mod) => mod.acronym !== 'CL')
@@ -108,8 +128,8 @@
             <span class="sp-rank">{m.scores_global_rank({ rank: number(score.global_rank) })}</span>
           {/if}
         </div>
-        {#if score.has_replay && lazerUrl}
-          <a class="btn btn-blue sp-replay" href="{lazerUrl}/api/v2/scores/{score.id}/download">
+        {#if score.has_replay && replayHref}
+          <a class="btn btn-blue sp-replay" href={replayHref}>
             <i class="fa-solid fa-download"></i>{m.scores_download_replay()}
           </a>
         {/if}

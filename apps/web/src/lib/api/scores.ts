@@ -22,6 +22,8 @@ export interface Score {
   accuracy: number;
   pp: number;
   playtime: number;
+  // Only lazer rows know; stable replays are looked up by the replay route.
+  has_replay?: boolean | null;
 }
 
 export interface ScoreBeatmap {

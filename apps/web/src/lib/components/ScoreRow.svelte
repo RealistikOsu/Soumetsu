@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { ScoreWithBeatmap } from '$lib/api/scores';
+  import { env } from '$env/dynamic/public';
   import { replayUrl, coverUrl } from '$lib/assets';
   import { number, songParts, timeAgo } from '$lib/format';
   import { gradeClass, gradeLabel, gradeOf } from '$lib/grades';
   import { isLazer } from '$lib/modes';
+  import { scoreUrl } from '$lib/api/lazerScores';
   import { modsText } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
 
@@ -13,7 +15,6 @@
     rx = 0,
     pinned = false,
     watched,
-    ondetails,
     onpin
   }: {
     score: ScoreWithBeatmap;
@@ -21,10 +22,10 @@
     rx?: number;
     pinned?: boolean;
     watched?: number;
-    ondetails: () => void;
     onpin: () => void;
   } = $props();
 
+  const lazerUrl = (env.PUBLIC_LAZER_URL ?? '').replace(/\/$/, '');
   const grade = $derived(gradeOf(score));
   const parts = $derived(songParts(score.beatmap.song_name));
   const mods = $derived(modsText(score.mods));
@@ -68,20 +69,13 @@
       ><i class="fa-solid fa-ellipsis-vertical"></i></summary
     >
     <div>
-      {#if isLazer(rx)}
-        <a href="/scores/{score.id}"
-          ><i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}</a
+      <a href={scoreUrl(score.id, rx)}
+        ><i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}</a
+      >
+      {#if isLazer(rx) && score.has_replay && lazerUrl}
+        <a href="{lazerUrl}/api/v2/scores/{score.id}/download"
+          ><i class="fa-solid fa-download"></i>{m.profile_score_download_replay()}</a
         >
-      {:else}
-        <button
-          type="button"
-          onclick={() => {
-            menu!.open = false;
-            ondetails();
-          }}
-        >
-          <i class="fa-solid fa-circle-info"></i>{m.profile_score_view_details()}
-        </button>
       {/if}
       {#if score.completed === 3 && !isLazer(rx)}
         <a href={replayUrl(score.id)}

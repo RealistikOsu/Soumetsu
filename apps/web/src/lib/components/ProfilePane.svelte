@@ -30,7 +30,6 @@
     firstPlaces,
     rankHistory,
     pinned,
-    ondetails,
     onpin
   }: {
     id: number;
@@ -41,7 +40,6 @@
     // Loaded by the profile, which also shows it in the peak rank card; undefined while loading.
     rankHistory: ProfileHistory | undefined;
     pinned: ScoreWithBeatmap[] | null;
-    ondetails: (score: ScoreWithBeatmap) => void;
     onpin: (score: ScoreWithBeatmap) => void;
   } = $props();
 
@@ -78,14 +76,7 @@
 </script>
 
 {#snippet scoreRow(score: ScoreWithBeatmap)}
-  <ScoreRow
-    {score}
-    {own}
-    {rx}
-    pinned={pinnedIds.has(score.id)}
-    ondetails={() => ondetails(score)}
-    onpin={() => onpin(score)}
-  />
+  <ScoreRow {score} {own} {rx} pinned={pinnedIds.has(score.id)} onpin={() => onpin(score)} />
 {/snippet}
 
 {#if !isLazer(rx)}
@@ -189,7 +180,6 @@
         {own}
         pinned={pinnedIds.has(score.id)}
         watched={score.watched_count}
-        ondetails={() => ondetails(score)}
         onpin={() => onpin(score)}
       />
     {/snippet}

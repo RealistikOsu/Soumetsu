@@ -42,7 +42,6 @@
   import ProfilePane from './ProfilePane.svelte';
   import ProfileStats from './ProfileStats.svelte';
   import RelaxTabs from './RelaxTabs.svelte';
-  import ScoreDialog from './ScoreDialog.svelte';
   import SectionTitle from './SectionTitle.svelte';
   import Userpage from './Userpage.svelte';
 
@@ -138,8 +137,6 @@
   // Only staff get this far on a restricted profile; the player sees the site-wide restricted notice instead.
   const restrictedToStaff = $derived(!!base && (base.privileges & Privilege.Public) === 0 && !own);
 
-  let detail = $state<ScoreWithBeatmap | null>(null);
-  let detailOpen = $state(false);
   let pinTarget = $state<ScoreWithBeatmap | null>(null);
   let pinOpen = $state(false);
   let commentTotal = $derived(extra?.commentCount ?? 0);
@@ -378,10 +375,6 @@
                 firstPlaces={loaded[pane].stats.first_places}
                 rankHistory={rankHistory[pane]}
                 pinned={pinned[pane] ?? null}
-                ondetails={(score) => {
-                  detail = score;
-                  detailOpen = true;
-                }}
                 onpin={(score) => {
                   pinTarget = score;
                   pinOpen = true;
@@ -445,7 +438,6 @@
     </div>
   </main>
 
-  <ScoreDialog score={detail} rx={view.rx} bind:open={detailOpen} />
   <PinDialog
     score={pinTarget}
     pinned={pinIsPinned}
