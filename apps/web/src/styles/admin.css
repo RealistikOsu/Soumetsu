@@ -443,6 +443,10 @@
     align-items: start;
   }
 
+  .admin-form .field-row {
+    align-items: flex-end;
+  }
+
   .admin-form .field {
     min-width: 0;
   }
