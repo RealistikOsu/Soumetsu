@@ -4,6 +4,7 @@
   "rooms_playlists_title": "Lejátszási listák",
   "rooms_daily_map": "Pálya",
   "rooms_daily_empty": "Ezen a napon nem volt kihívás.",
+  "rooms_daily_window": "{start} és {end} között tart.",
   "rooms_stat_participants": "Résztvevők",
   "rooms_stat_top_10": "Top 10% pontszám",
   "rooms_stat_top_50": "Top 50% pontszám",

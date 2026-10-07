@@ -129,6 +129,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         needs: Privilege.AdminManageSetting
       },
       {
+        href: '/admin/daily-challenge',
+        label: 'Daily challenge',
+        colour: 'c-teal',
+        icon: 'fa-calendar-day',
+        needs: Privilege.AdminManageBeatmap
+      },
+      {
         href: '/admin/lazer',
         label: 'Lazer',
         colour: 'c-teal',

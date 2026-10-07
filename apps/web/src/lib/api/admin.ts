@@ -403,6 +403,9 @@ export interface DailyChallenge {
   date: string;
   beatmapId: number;
   song: string | null;
+  // UTC, as 'YYYY-MM-DDTHH:mm'. Without them the challenge runs for its UTC day.
+  startsAt: string | null;
+  endsAt: string | null;
 }
 
 export interface PoolEntry {
@@ -422,13 +425,23 @@ export const setLazerSettings = (settings: LazerSettings) =>
   siteApi.put('/admin/lazer/settings', settings);
 
 export const dailyChallenges = (signal?: AbortSignal) =>
-  siteApi.get<DailyChallenge[]>('/admin/lazer/daily', undefined, signal);
+  siteApi.get<DailyChallenge[]>('/admin/daily-challenge', undefined, signal);
 
-export const setDailyChallenge = (date: string, beatmapId: number) =>
-  siteApi.put('/admin/lazer/daily', { date, beatmap_id: beatmapId });
+export const setDailyChallenge = (
+  date: string,
+  beatmapId: number,
+  startsAt: string | null,
+  endsAt: string | null
+) =>
+  siteApi.put('/admin/daily-challenge', {
+    date,
+    beatmap_id: beatmapId,
+    starts_at: startsAt,
+    ends_at: endsAt
+  });
 
 export const removeDailyChallenge = (date: string) =>
-  siteApi.delete(`/admin/lazer/daily?date=${date}`);
+  siteApi.delete(`/admin/daily-challenge?date=${date}`);
 
 export const poolEntries = (ruleset: number, signal?: AbortSignal) =>
   siteApi.get<PoolEntry[]>('/admin/lazer/pool', { ruleset }, signal);

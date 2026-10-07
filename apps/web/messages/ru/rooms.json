@@ -4,6 +4,7 @@
   "rooms_playlists_title": "Плейлисты",
   "rooms_daily_map": "Карта",
   "rooms_daily_empty": "В этот день вызова не было.",
+  "rooms_daily_window": "Идёт с {start} до {end}.",
   "rooms_stat_participants": "Участников",
   "rooms_stat_top_10": "Счёт топ 10%",
   "rooms_stat_top_50": "Счёт топ 50%",

@@ -10,7 +10,7 @@
   import RoomBoard from '$lib/components/RoomBoard.svelte';
   import RoomMods from '$lib/components/RoomMods.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
-  import { number, utcDay } from '$lib/format';
+  import { dateTime, number, utcDay } from '$lib/format';
   import { tabInk } from '@soumetsu/ui';
   import { m } from '$lib/paraglide/messages';
 
@@ -19,10 +19,15 @@
   const date = $derived(/^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : today);
   const current = $derived(Math.max(1, parseInt(page.url.searchParams.get('p') ?? '') || 1));
   const source = $derived<DailySource>(
-    page.url.searchParams.get('source') === 'stable' ? 'stable' : 'lazer'
+    page.url.searchParams.get('source') === 'lazer' ? 'lazer' : 'stable'
   );
   const target = (src: DailySource, p: number) =>
-    `?date=${date}${src === 'stable' ? '&source=stable' : ''}${p > 1 ? `&p=${p}` : ''}`;
+    `?date=${date}${src === 'lazer' ? '&source=lazer' : ''}${p > 1 ? `&p=${p}` : ''}`;
+
+  const DAY = 86_400_000;
+  // Only worth saying when the challenge isn't simply the whole UTC day.
+  const customWindow = (start: string, end: string) =>
+    Date.parse(start) % DAY !== 0 || Date.parse(end) - Date.parse(start) !== DAY;
 
   const challenge = query((signal) => dailyChallenge(date, signal));
   const result = $derived(challenge.state);
@@ -70,6 +75,14 @@
             <RoomMods required={day.required_mods} />
           </MatchMap>
         </div>
+        {#if customWindow(day.starts_at, day.ends_at)}
+          <p class="muted">
+            {m.rooms_daily_window({
+              start: dateTime(Date.parse(day.starts_at) / 1000),
+              end: dateTime(Date.parse(day.ends_at) / 1000)
+            })}
+          </p>
+        {/if}
       {:else if missing}
         <div class="panel c-blue"><p class="empty-note">{m.rooms_daily_empty()}</p></div>
       {:else if result.status === 'error'}
@@ -85,19 +98,19 @@
     <nav class="tabs tinted room-tabs" use:tabInk>
       <a
         class="c-purple"
-        class:active={source === 'lazer'}
-        href={target('lazer', 1)}
-        data-sveltekit-noscroll
-      >
-        {m.rooms_source_lazer()}
-      </a>
-      <a
-        class="c-purple"
         class:active={source === 'stable'}
         href={target('stable', 1)}
         data-sveltekit-noscroll
       >
         {m.rooms_source_stable()}
+      </a>
+      <a
+        class="c-purple"
+        class:active={source === 'lazer'}
+        href={target('lazer', 1)}
+        data-sveltekit-noscroll
+      >
+        {m.rooms_source_lazer()}
       </a>
     </nav>
     {#if source === 'stable'}

@@ -1,12 +1,9 @@
 <script lang="ts">
   import {
     addPoolEntry,
-    dailyChallenges,
     lazerSettings,
     poolEntries,
-    removeDailyChallenge,
     removePoolEntry,
-    setDailyChallenge,
     setLazerSettings
   } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
@@ -17,20 +14,12 @@
   import { flash } from '$lib/flash.svelte';
   import { modeNames } from '$lib/modes';
 
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-
   let version = $state(0);
   let ruleset = $state(0);
-  let date = $state(tomorrow);
-  let challengeMap = $state('');
   let poolMap = $state('');
   let poolStars = $state('');
   let busy = $state(false);
 
-  const daily = query((signal) => {
-    void version;
-    return dailyChallenges(signal);
-  });
   const canSettings = $derived(
     !!(session.user && session.user.privileges & Privilege.AdminManageSetting)
   );
@@ -61,9 +50,6 @@
       `Ranked play rating changes turned ${rankedPlayElo ? 'on' : 'off'}.`
     );
 
-  const saveChallenge = () =>
-    run(() => setDailyChallenge(date, Number(challengeMap)), 'Daily challenge saved.');
-
   const addToPool = () =>
     run(async () => {
       await addPoolEntry(ruleset, Number(poolMap), Number(poolStars) || undefined);
@@ -72,10 +58,7 @@
     }, 'Added to the pool.');
 </script>
 
-<AdminHead
-  heading="Lazer"
-  text="The daily challenge and the ranked play map pool for osu!lazer. Changes to today's challenge apply straight away."
-/>
+<AdminHead heading="Lazer" text="Ranked play settings and its map pool for osu!lazer." />
 
 {#if settings.state.status === 'ready' && settings.state.data}
   <h2 class="section-title c-orange">
@@ -102,65 +85,6 @@
     </div>
   </div>
 {/if}
-
-<h2 class="section-title c-teal"><i class="fa-solid fa-calendar-day"></i>Daily challenge</h2>
-<div class="panel form-panel c-teal admin-form">
-  <div class="field-row">
-    <div class="field">
-      <label for="challenge-date">Date (UTC)</label>
-      <input id="challenge-date" type="date" bind:value={date} />
-    </div>
-    <div class="field">
-      <label for="challenge-map">Beatmap ID</label>
-      <input id="challenge-map" type="number" min="1" bind:value={challengeMap} />
-    </div>
-    <button
-      class="btn btn-blue"
-      type="button"
-      disabled={busy || !challengeMap || !date}
-      onclick={saveChallenge}
-    >
-      <i class="fa-solid fa-floppy-disk"></i>Save
-    </button>
-  </div>
-</div>
-
-<div class="table-wrap">
-  <table class="board admin-table c-teal">
-    <thead>
-      <tr><th>Date</th><th>Beatmap</th><th></th></tr>
-    </thead>
-    <tbody>
-      {#if daily.state.status === 'ready'}
-        {#each daily.state.data as challenge (challenge.date)}
-          <tr>
-            <td>{challenge.date}</td>
-            <td class="note">
-              <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
-            </td>
-            <td>
-              <button
-                class="btn btn-small"
-                type="button"
-                disabled={busy}
-                onclick={() =>
-                  run(() => removeDailyChallenge(challenge.date), 'Daily challenge removed.')}
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
-        {:else}
-          <tr><td colspan="3" class="empty-note">Nothing scheduled.</td></tr>
-        {/each}
-      {:else if daily.state.status === 'loading'}
-        <tr><td colspan="3"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
-      {:else}
-        <tr><td colspan="3" class="empty-note">{describe(daily.state.error)}</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
 
 <h2 class="section-title c-purple"><i class="fa-solid fa-layer-group"></i>Ranked play pool</h2>
 <div class="panel form-panel c-purple admin-form">

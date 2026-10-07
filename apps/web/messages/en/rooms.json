@@ -4,6 +4,7 @@
   "rooms_playlists_title": "Playlists",
   "rooms_daily_map": "Map",
   "rooms_daily_empty": "No challenge on this day.",
+  "rooms_daily_window": "Runs from {start} to {end}.",
   "rooms_stat_participants": "Participants",
   "rooms_stat_top_10": "Top 10% score",
   "rooms_stat_top_50": "Top 50% score",
