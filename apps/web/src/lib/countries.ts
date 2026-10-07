@@ -6,12 +6,24 @@ const codes =
     ' '
   );
 
+// The browser's own names for these two end in "SAR China", which players don't pick their country for.
+const plainNames: Record<string, Record<string, string>> = {
+  HK: { en: 'Hong Kong', ru: 'Гонконг', pl: 'Hongkong', hu: 'Hongkong' },
+  MO: { en: 'Macau', ru: 'Макао', pl: 'Makau', hu: 'Makaó' }
+};
+
+const nameOf = (names: Intl.DisplayNames, code: string, locale: string) =>
+  plainNames[code]?.[locale] ?? plainNames[code]?.en ?? names.of(code) ?? code;
+
 const names = new Intl.DisplayNames([intlLocale()], { type: 'region' });
 
 export const countries = [
   { code: 'XX', name: m.common_country_unknown() },
   ...codes
-    .map((code) => ({ code: code.toUpperCase(), name: names.of(code.toUpperCase()) ?? code }))
+    .map((code) => ({
+      code: code.toUpperCase(),
+      name: nameOf(names, code.toUpperCase(), intlLocale())
+    }))
     .sort((a, b) => a.name.localeCompare(b.name, intlLocale()))
 ];
 
@@ -20,5 +32,5 @@ export const isCountry = (code: string) => /^[a-z]{2}$/i.test(code) && code.toUp
 
 export function countryName(code: string, locale = intlLocale()) {
   if (!isCountry(code)) return m.common_country_unknown();
-  return new Intl.DisplayNames([locale], { type: 'region' }).of(code.toUpperCase()) ?? code;
+  return nameOf(new Intl.DisplayNames([locale], { type: 'region' }), code.toUpperCase(), locale);
 }

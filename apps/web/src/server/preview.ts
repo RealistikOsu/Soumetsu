@@ -117,6 +117,7 @@ const avatar = (id: number) => `${apiBase()}/api/v2/assets/avatars/${id}.png`;
 
 const numbers = new Intl.NumberFormat('en-GB');
 const countries = new Intl.DisplayNames(['en'], { type: 'region' });
+const plainCountries: Record<string, string> = { HK: 'Hong Kong', MO: 'Macau' };
 
 const limited = (preview: Preview): Preview => ({
   ...preview,
@@ -133,7 +134,7 @@ const stars = (rating: number | null) => (rating ? `${rating.toFixed(2)} stars` 
 // Old accounts can have '' or '0' as their country, which Intl rejects.
 const countryOf = (code: string) =>
   /^[a-z]{2}$/i.test(code) && code.toUpperCase() !== 'XX'
-    ? (countries.of(code.toUpperCase()) ?? code)
+    ? (plainCountries[code.toUpperCase()] ?? countries.of(code.toUpperCase()) ?? code)
     : null;
 
 async function getJson<T>(url: string, enveloped = true): Promise<T | null> {
