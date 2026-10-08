@@ -8,6 +8,8 @@ export interface DailyRow {
   placement: number;
   stablePlacement: number;
   finalised: boolean;
+  // Every play on the challenge map while it ran, which can reach past the commission day's own end.
+  scores: DayScore[];
 }
 export interface RankedPlayRow {
   matchId: number;
@@ -62,6 +64,15 @@ const cached = <T>(load: () => Promise<T>) => {
   let promise: Promise<T> | undefined;
   return () => (promise ??= load());
 };
+
+const sqlTime = (date: Date) => date.toISOString().slice(0, 19).replace('T', ' ');
+
+// The 24 hours a challenge runs for, shaped like a commission day so the score loader can read it.
+function spanOf(date: string, start: Date): DayWindow {
+  const end = new Date(start.getTime() + 86_400_000);
+  const unix = (at: Date) => String(Math.floor(at.getTime() / 1000));
+  return { date, start, end, startUnix: unix(start), endUnix: unix(end) };
+}
 
 const STABLE_TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const STARS = ['difficulty_std', 'difficulty_taiko', 'difficulty_ctb', 'difficulty_mania'];
@@ -134,19 +145,31 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
     daily: cached(async () => {
       // The challenge exists before the player's own row does, which is only written once they set a lazer score
       // or the day finalises, so the map comes from the challenge and the placements are optional.
-      const [challenge] = await optional(db.$queryRaw<{ beatmap_id: number }[]>`
-        SELECT beatmap_id FROM lazer_daily_challenges WHERE challenge_date = ${window.date}`);
+      // A day's challenge is the one that starts inside it, whatever hour it was scheduled for. starts_at is a UTC
+      // DATETIME, so it's compared and read as text to keep the connection's time zone out of it.
+      const [challenge] = await optional(db.$queryRaw<
+        { beatmap_id: number; challenge_date: string; starts_at: string }[]
+      >`
+        SELECT beatmap_id, DATE_FORMAT(challenge_date, '%Y-%m-%d') AS challenge_date,
+               DATE_FORMAT(starts_at, '%Y-%m-%dT%H:%i:%s') AS starts_at
+        FROM lazer_daily_challenges
+        WHERE starts_at >= ${sqlTime(window.start)} AND starts_at < ${sqlTime(window.end)}
+        ORDER BY starts_at LIMIT 1`);
       if (!challenge) return null;
       const [row] = await optional(db.$queryRaw<
         { placement: number; stable_placement: number; finalised: number }[]
       >`
         SELECT placement, stable_placement, finalised FROM lazer_daily_challenge_days
-        WHERE user_id = ${id} AND challenge_date = ${window.date}`);
+        WHERE user_id = ${id} AND challenge_date = ${challenge.challenge_date}`);
+      const beatmapId = Number(challenge.beatmap_id);
+      const start = new Date(`${challenge.starts_at}Z`);
+      const plays = await loadDayScores(id, spanOf(window.date, start));
       return {
-        beatmapId: Number(challenge.beatmap_id),
+        beatmapId,
         placement: Number(row?.placement ?? 0),
         stablePlacement: Number(row?.stable_placement ?? 0),
-        finalised: Number(row?.finalised ?? 0) === 1
+        finalised: Number(row?.finalised ?? 0) === 1,
+        scores: plays.filter((score) => score.beatmapId === beatmapId)
       };
     }),
     rankedPlay: cached(async () => {
@@ -316,7 +339,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
 }
 
 export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
-  const window = overrides.window ?? windowOf('2026-10-08');
+  const window = overrides.window ?? windowOf('2026-10-08', 0);
   return {
     id: 1,
     window,

@@ -65,10 +65,14 @@ const dailyRow = (overrides: Partial<DailyRow> = {}): DailyRow => ({
   placement: 0,
   stablePlacement: 0,
   finalised: false,
+  scores: [],
   ...overrides
 });
 const dailyCtx = (row: DailyRow | null, scores: DayScore[] = []) =>
-  ctxWith(scores, { daily: async () => row });
+  ctxWith(scores, {
+    daily: async () =>
+      row && { ...row, scores: scores.filter((s) => s.beatmapId === row.beatmapId) }
+  });
 
 describe('login', () => {
   test('activity since the day started', async () => {
@@ -78,7 +82,7 @@ describe('login', () => {
   });
   test("today's activity doesn't complete yesterday's login", async () => {
     const today = Number(fakeContext({}).window.startUnix) + 60;
-    const yesterday = windowOf('2026-10-07');
+    const yesterday = windowOf('2026-10-07', 0);
     expect(await run('login', fakeContext({ window: yesterday, latestActivity: today }))).toBe(0);
     expect(await run('login', fakeContext({ latestActivity: today }))).toBe(1);
   });

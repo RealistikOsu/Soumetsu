@@ -6,7 +6,7 @@
   import { taskHref, taskText } from '$lib/commissions';
   import Banner from '$lib/components/Banner.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { number } from '$lib/format';
+  import { fromIso, number, timeUntil } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
 
   const info = query((signal) => commissions(signal));
@@ -68,8 +68,9 @@
 
 <main class="wrap cm">
   {#if day}
+    {@const when = timeUntil(fromIso(day.endsAt))}
     <p class="cm-intro">
-      {m.commissions_intro()} <span class="muted">{m.commissions_resets()}</span>
+      {m.commissions_intro()} <span class="muted">{m.commissions_resets({ when })}</span>
     </p>
 
     {#if previous}
@@ -99,7 +100,9 @@
           ></i>
           <div>
             {#if href}<a {href}>{taskText(task)}</a>{:else}<span>{taskText(task)}</span>{/if}
-            {#if task.template.startsWith('daily_top')}<small>{m.commissions_settles()}</small>{/if}
+            {#if task.template.startsWith('daily_top')}<small
+                >{m.commissions_settles({ when })}</small
+              >{/if}
           </div>
           <span class="cm-progress">
             {#if task.completed}{m.commissions_done()}{:else}{m.commissions_progress({

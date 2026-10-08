@@ -2,7 +2,7 @@ import type { PlayerContext } from '../context';
 import type { DayScore } from '../scores';
 import { once, template, type Template } from './types';
 
-// Placements only settle when the day finalises at the UTC rollover.
+// Placements only settle once the challenge has ended and its day is finalised.
 async function placed(ctx: PlayerContext, atLeast: number) {
   const row = await ctx.daily();
   if (!row?.finalised) return 0;
@@ -12,8 +12,7 @@ async function placed(ctx: PlayerContext, atLeast: number) {
 async function onDaily(ctx: PlayerContext, predicate: (score: DayScore) => boolean = () => true) {
   const row = await ctx.daily();
   if (!row) return 0;
-  const scores = await ctx.scores();
-  return scores.some((s) => s.passed && s.beatmapId === row.beatmapId && predicate(s)) ? 1 : 0;
+  return row.scores.some((s) => s.passed && predicate(s)) ? 1 : 0;
 }
 
 const daily = (key: string, tier: Template['tier'], check: Template['check']) =>
@@ -46,8 +45,8 @@ export const dailyChallenge: Template[] = [
     const row = await ctx.daily();
     if (!row) return 0;
     // Stable and lazer scores are on different scales, so only compare like with like.
-    const plays = (await ctx.scores())
-      .filter((s) => s.passed && s.beatmapId === row.beatmapId)
+    const plays = row.scores
+      .filter((s) => s.passed)
       .sort((a, b) => a.at.getTime() - b.at.getTime());
     return plays.some((play, i) =>
       plays

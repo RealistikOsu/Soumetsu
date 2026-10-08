@@ -31,8 +31,8 @@
       }
     }
   ],
-  "commissions_resets": "New tasks at 06:00 UTC, when the daily challenge changes.",
-  "commissions_settles": "Settles when the daily challenge ends.",
+  "commissions_resets": "New tasks {when}.",
+  "commissions_settles": "Settles {when}.",
   "commissions_claim_failed_locked": "That tier isn't reached yet.",
   "commissions_claim_failed_claimed": "Already claimed.",
   "commissions_claim_failed_missing": "Nothing to claim for that day.",

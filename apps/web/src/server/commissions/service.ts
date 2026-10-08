@@ -23,6 +23,7 @@ export interface TaskView {
 
 export interface DayView {
   date: string;
+  endsAt: string;
   points: number;
   claimedTier: number;
   completedAt: string | null;
@@ -145,7 +146,7 @@ async function rollIfMissing(
   settings: Settings,
   context: (() => Promise<PlayerContext>) | null = null
 ) {
-  const load = context ?? (() => loadContext(userId, windowOf(date)));
+  const load = context ?? (() => loadContext(userId, windowOf(date, settings.dayStartHour)));
   const existing = await findDay(userId, date);
   if (existing) return replaceSwitchedOff(existing, settings, load);
 
@@ -224,7 +225,7 @@ const previousDate = (date: string) =>
 // Yesterday gets checked again until it's complete, since some tasks (daily challenge placements) only settle at
 // the rollover. It is never rolled after the fact.
 async function checkPass(userId: number, now: Date, settings: Settings) {
-  const window = dayWindow(now);
+  const window = dayWindow(now, settings.dayStartHour);
   const before = previousDate(window.date);
   // Rolling and checking read the same context, so a first visit loads it once.
   let loaded: Promise<PlayerContext> | undefined;
@@ -237,12 +238,16 @@ async function checkPass(userId: number, now: Date, settings: Settings) {
   return Promise.all([
     checkDay(userId, today, settings, context, now),
     previous &&
-      checkDay(userId, previous, settings, () => loadContext(userId, windowOf(before)), now).catch(
-        (error) => {
-          void record('error', userId, error);
-          return previous;
-        }
-      )
+      checkDay(
+        userId,
+        previous,
+        settings,
+        () => loadContext(userId, windowOf(before, settings.dayStartHour)),
+        now
+      ).catch((error) => {
+        void record('error', userId, error);
+        return previous;
+      })
   ]);
 }
 
@@ -250,7 +255,7 @@ async function currentDays(userId: number, now: Date, settings: Settings) {
   const running = inFlight.get(userId);
   if (running) {
     await running.catch(() => {});
-    const window = dayWindow(now);
+    const window = dayWindow(now, settings.dayStartHour);
     return Promise.all([
       rollIfMissing(userId, window.date, settings),
       findDay(userId, previousDate(window.date))
@@ -284,7 +289,7 @@ export async function todayFor(userId: number, now = new Date()) {
 // caller learns what this check completed.
 export async function recheckToday(userId: number, now = new Date()) {
   const settings = await loadSettings();
-  const date = dayWindow(now).date;
+  const date = dayWindow(now, settings.dayStartHour).date;
   const before = await findDay(userId, date);
   const doneBefore = new Set(
     before?.tasks.filter((task) => task.completed_at).map((task) => Number(task.id)) ?? []
@@ -304,6 +309,7 @@ export async function recheckToday(userId: number, now = new Date()) {
 function view(day: Day, settings: Settings): DayView {
   return {
     date: day.day.toISOString().slice(0, 10),
+    endsAt: windowOf(day.day.toISOString().slice(0, 10), settings.dayStartHour).end.toISOString(),
     points: day.points,
     claimedTier: day.claimed_tier,
     completedAt: day.completed_at?.toISOString() ?? null,
@@ -330,7 +336,7 @@ export async function claim(userId: number, tier: number, date?: string) {
     throw new Failure(400, 'site.invalid_request');
   if (date !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(date))
     throw new Failure(400, 'site.invalid_request');
-  const day = date ?? dayWindow().date;
+  const day = date ?? dayWindow(new Date(), settings.dayStartHour).date;
   const coins = settings.thresholds[tier - 1].coins;
 
   return db.$transaction(async (tx) => {
@@ -358,6 +364,6 @@ export async function streaksFor(userId: number, now = new Date()): Promise<Stre
   });
   return streakStats(
     rows.map((row) => row.day),
-    new Date(dayWindow(now).date)
+    new Date(dayWindow(now, (await loadSettings()).dayStartHour).date)
   );
 }

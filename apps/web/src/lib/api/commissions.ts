@@ -18,6 +18,7 @@ export interface CommissionTask {
 
 export interface CommissionDay {
   date: string;
+  endsAt: string;
   points: number;
   claimedTier: number;
   completedAt: string | null;

@@ -435,6 +435,7 @@ export interface CommissionSettings {
   artists: string[];
   famousMaps: { beatmapId: number; name: string }[];
   lazerTasks: boolean;
+  dayStartHour: number;
 }
 
 export const commissionSettings = (signal?: AbortSignal) =>

@@ -28,6 +28,16 @@ export function timeAgo(unixSeconds: number) {
   return relative.format(-Math.floor(days / 365), 'year');
 }
 
+// "in 5 hours", "in 12 minutes", worded by Intl in the chosen language.
+export function timeUntil(unixSeconds: number) {
+  const minutes = Math.max(1, Math.round((unixSeconds - Date.now() / 1000) / 60));
+  const relative = new Intl.RelativeTimeFormat(intlLocale(), { numeric: 'auto' });
+  if (minutes < 60) return relative.format(minutes, 'minute');
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return relative.format(hours, 'hour');
+  return relative.format(Math.round(hours / 24), 'day');
+}
+
 export const monthYear = (unixSeconds: number) =>
   new Date(unixSeconds * 1000).toLocaleDateString(intlLocale(), { month: 'long', year: 'numeric' });
 
