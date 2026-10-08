@@ -1,4 +1,3 @@
-import { env } from '$env/dynamic/public';
 import type { CommissionTask } from '$lib/api/commissions';
 import { modeNames, relaxNames } from '$lib/modes';
 import { m } from '$lib/paraglide/messages';
@@ -126,6 +125,6 @@ export const taskText = (task: CommissionTask) =>
   texts[task.template]?.(task.params) ?? task.template;
 
 export function taskHref(task: CommissionTask) {
-  if (task.link === 'casino') return env.PUBLIC_CASINO_URL || null;
+  if (task.link === 'casino') return '/casino';
   return task.link;
 }
