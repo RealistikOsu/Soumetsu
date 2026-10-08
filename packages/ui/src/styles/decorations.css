@@ -51,6 +51,15 @@
 .deco-beer,
 .deco-vaporwave,
 .deco-sakura,
+.deco-candy,
+.deco-midnight,
+.deco-neon,
+.deco-mint,
+.deco-lava,
+.deco-foil,
+.deco-royal,
+.deco-coral,
+.deco-storm,
 .deco-staff-claude {
   background-clip: text;
   -webkit-background-clip: text;
@@ -345,4 +354,65 @@
     color: #a0a0a0;
     text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
   }
+}
+
+.deco-candy {
+  background-image: linear-gradient(90deg, #ff9ad5, #ffd1ec, #9ad8ff, #ff9ad5);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 7s ease infinite;
+}
+
+.deco-midnight {
+  background-image: linear-gradient(90deg, #0b1a4a, #3a4fb5, #8fa8ff, #3a4fb5, #0b1a4a);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 11s ease infinite;
+}
+
+.deco-neon {
+  background-image: linear-gradient(90deg, #39ff14, #00ffa2, #eaff00, #39ff14);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 4s ease infinite;
+}
+
+.deco-mint {
+  background-image: linear-gradient(90deg, #7bf1c4, #e6fff5, #3fd6a0, #7bf1c4);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 9s ease infinite;
+}
+
+.deco-lava {
+  background-image: linear-gradient(90deg, #7a0c00, #ff3d00, #ffb300, #ff3d00, #7a0c00);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 5s ease infinite;
+}
+
+.deco-foil {
+  background-image: linear-gradient(90deg, #8a6a12, #f5d76e, #fffbe0, #d4a017, #8a6a12);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 4.5s ease infinite;
+}
+
+.deco-glitch {
+  color: #f2f2f2;
+  text-shadow:
+    2px 0 #ff2bd6,
+    -2px 0 #19f0ff;
+}
+
+.deco-royal {
+  background-image: linear-gradient(90deg, #4b1d8f, #8e44ff, #ffd24d, #8e44ff, #4b1d8f);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 8s ease infinite;
+}
+
+.deco-coral {
+  background-image: linear-gradient(90deg, #ff7e6b, #ffb199, #3fd0c9, #ff7e6b);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 9s ease infinite;
+}
+
+.deco-storm {
+  background-image: linear-gradient(90deg, #2c3e50, #6c7a89, #dfe9f3, #6c7a89, #2c3e50);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 6s ease infinite;
 }

@@ -1,27 +1,35 @@
 import { m } from '$lib/paraglide/messages';
 
-export type DecorationTier = 'everyone' | 'supporter' | 'staff';
+export type DecorationTier = 'everyone' | 'supporter' | 'staff' | 'shop';
 
 export interface Decoration {
   key: string;
   readonly name: string;
-  category: 'Default' | 'Supporter' | 'Staff';
+  category: 'Default' | 'Supporter' | 'Staff' | 'Shop';
   tier: DecorationTier;
+  stock?: 'permanent' | 'spotlight';
 }
 
 const tiers: Record<Decoration['category'], DecorationTier> = {
   Default: 'everyone',
   Supporter: 'supporter',
-  Staff: 'staff'
+  Staff: 'staff',
+  Shop: 'shop'
 };
 
-const entry = (category: Decoration['category'], key: string, name: () => string): Decoration => ({
+const entry = (
+  category: Decoration['category'],
+  key: string,
+  name: () => string,
+  stock?: Decoration['stock']
+): Decoration => ({
   key,
   get name() {
     return name();
   },
   category,
-  tier: tiers[category]
+  tier: tiers[category],
+  stock
 });
 
 export const decorations: Decoration[] = [
@@ -64,8 +72,21 @@ export const decorations: Decoration[] = [
   entry('Staff', 'staff-glitch', m.common_decoration_staff_glitch),
   entry('Staff', 'staff-prism', m.common_decoration_staff_prism),
   entry('Staff', 'staff-eclipse', m.common_decoration_staff_eclipse),
-  entry('Staff', 'staff-pulse', m.common_decoration_staff_pulse)
+  entry('Staff', 'staff-pulse', m.common_decoration_staff_pulse),
+  entry('Shop', 'candy', m.common_decoration_candy, 'permanent'),
+  entry('Shop', 'midnight', m.common_decoration_midnight, 'permanent'),
+  entry('Shop', 'neon', m.common_decoration_neon, 'permanent'),
+  entry('Shop', 'mint', m.common_decoration_mint, 'permanent'),
+  entry('Shop', 'lava', m.common_decoration_lava, 'permanent'),
+  entry('Shop', 'foil', m.common_decoration_foil, 'permanent'),
+  entry('Shop', 'glitch', m.common_decoration_glitch, 'permanent'),
+  entry('Shop', 'royal', m.common_decoration_royal, 'spotlight'),
+  entry('Shop', 'coral', m.common_decoration_coral, 'spotlight'),
+  entry('Shop', 'storm', m.common_decoration_storm, 'spotlight')
 ];
+
+export const shopDecorations = decorations.filter((d) => d.category === 'Shop');
+export const supporterDecorations = decorations.filter((d) => d.category === 'Supporter');
 
 export const decorationClass = (key: string | null | undefined) =>
   key && decorations.some((d) => d.key === key) ? `deco-${key}` : '';

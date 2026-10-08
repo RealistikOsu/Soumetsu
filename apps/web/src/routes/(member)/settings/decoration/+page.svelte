@@ -21,19 +21,22 @@
   const groupNames: Record<Decoration['category'], () => string> = {
     Default: m.settings_decoration_group_default,
     Supporter: m.settings_decoration_group_supporter,
-    Staff: m.settings_decoration_group_staff
+    Staff: m.settings_decoration_group_staff,
+    Shop: m.settings_decoration_group_shop
   };
 
   const unlocked = $derived(loaded.state.status === 'ready' ? loaded.state.data.unlocked : []);
   const groups = $derived(
-    (['Default', 'Supporter', 'Staff'] as const)
+    (['Default', 'Supporter', 'Staff', 'Shop'] as const)
       .map((category) => ({
         category,
         items: decorations.filter((d) => d.category === category)
       }))
-      // Staff styles stay hidden from everyone else; locked supporter ones are shown greyed out.
+      // Staff and shop styles stay hidden until unlocked; locked supporter ones are shown greyed out.
       .filter(
-        (group) => group.category !== 'Staff' || group.items.some((d) => unlocked.includes(d.key))
+        (group) =>
+          (group.category !== 'Staff' && group.category !== 'Shop') ||
+          group.items.some((d) => unlocked.includes(d.key))
       )
   );
 

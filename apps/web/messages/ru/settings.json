@@ -69,6 +69,7 @@
   "settings_decoration_group_default": "Обычные",
   "settings_decoration_group_supporter": "Для саппортеров",
   "settings_decoration_group_staff": "Для стаффа",
+  "settings_decoration_group_shop": "Магазин",
   "settings_decoration_unlock_link": "Стань саппортером",
   "settings_decoration_unlock_end": ", чтобы открыть эти оформления.",
   "settings_discord_state_error": "Что-то пошло не так. Попробуй привязать Discord ещё раз.",
