@@ -903,3 +903,15 @@ describe('registry', () => {
     }
   });
 });
+
+describe('commission messages', () => {
+  test('every template has an English message', async () => {
+    const messages = await Bun.file(
+      new URL('../../../../messages/en/commissions.json', import.meta.url)
+    ).json();
+    const missing = templates
+      .map((t) => t.key)
+      .filter((key) => !(`commissions_task_${key}` in messages));
+    expect(missing).toEqual([]);
+  });
+});
