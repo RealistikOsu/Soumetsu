@@ -15,5 +15,10 @@
   "messages_report_explain": "Staff will see this message and the ones around it.",
   "messages_report_reason": "Reason",
   "messages_report_sent": "Report sent.",
-  "messages_message": "Message"
+  "messages_message": "Message",
+  "messages_channels": "Channels",
+  "messages_conversations": "Conversations",
+  "messages_channel_empty": "No messages here yet.",
+  "messages_channel_commands": "Commands only work in game.",
+  "messages_channel_placeholder": "Message #{channel}"
 }

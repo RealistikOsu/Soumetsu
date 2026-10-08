@@ -15,5 +15,10 @@
   "messages_report_explain": "Стафф увидит это сообщение и соседние.",
   "messages_report_reason": "Причина",
   "messages_report_sent": "Жалоба отправлена.",
-  "messages_message": "Написать"
+  "messages_message": "Написать",
+  "messages_channels": "Каналы",
+  "messages_conversations": "Диалоги",
+  "messages_channel_empty": "Здесь пока пусто.",
+  "messages_channel_commands": "Команды работают только в игре.",
+  "messages_channel_placeholder": "Сообщение в #{channel}"
 }

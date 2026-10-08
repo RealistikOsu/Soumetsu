@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { card } from '$lib/api/cards';
+  import { channels as loadChannels, type ChannelList } from '$lib/api/channels';
   import {
     conversations as loadConversations,
     reportMessage,
@@ -17,15 +18,23 @@
   import Dialog from '$lib/components/Dialog.svelte';
   import Flag from '$lib/components/Flag.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { chatPreview, parseChat } from '$lib/chat-format';
+  import { chatPreview } from '$lib/chat-format';
   import { dateTime, dayLabel, sameDay, timeAgo } from '$lib/format';
   import { inbox } from '$lib/inbox.svelte';
   import { m } from '$lib/paraglide/messages';
+  import ChannelView from './ChannelView.svelte';
+  import ChatText from './ChatText.svelte';
 
   const MAX_LENGTH = 1000;
 
   const me = $derived(session.user!.id);
   const peerId = $derived(Number(page.url.searchParams.get('with')) || null);
+  const channelParam = $derived(page.url.searchParams.get('channel'));
+
+  let channelList = $state.raw<ChannelList | null>(null);
+  const channel = $derived(
+    channelParam ? channelList?.channels.find((c) => c.name === `#${channelParam}`) : undefined
+  );
 
   let list = $state.raw<Conversation[] | null>(null);
   // Someone opened from their profile that there's no conversation with yet.
@@ -76,6 +85,13 @@
     }
     inbox.refresh();
   }
+
+  $effect(() => {
+    loadChannels().then(
+      (found) => (channelList = found),
+      () => (channelList = { channels: [], blocked: null })
+    );
+  });
 
   $effect(() => {
     refreshList();
@@ -186,9 +202,26 @@
 
 <svelte:head><title>{m.messages_title()} · RealistikOsu</title></svelte:head>
 
-<main class="wrap messages-page" class:has-thread={!!peerId}>
+<main class="wrap messages-page" class:has-thread={!!peerId || !!channelParam}>
   <aside class="panel conversations">
     <h1>{m.messages_title()}</h1>
+    {#if channelList?.channels.length}
+      <h2>{m.messages_channels()}</h2>
+      {#each channelList.channels as listed (listed.name)}
+        <a
+          class="conversation"
+          class:active={channel?.name === listed.name}
+          href="?channel={encodeURIComponent(listed.name.slice(1))}"
+        >
+          <span class="channel-mark">#</span>
+          <div>
+            <b>{listed.name.slice(1)}</b>
+            {#if listed.description}<span class="muted">{listed.description}</span>{/if}
+          </div>
+        </a>
+      {/each}
+      <h2>{m.messages_conversations()}</h2>
+    {/if}
     {#if list === null}
       {#each [0, 1, 2, 3] as n (n)}<span class="skel conversation-skel"></span>{/each}
     {:else}
@@ -226,7 +259,13 @@
   </aside>
 
   <section class="panel thread">
-    {#if peer}
+    {#if channelParam}
+      {#if channel && channelList}
+        <ChannelView {channel} blocked={channelList.blocked} />
+      {:else if channelList}
+        <p class="muted empty">{m.common_error_channel_not_found()}</p>
+      {/if}
+    {:else if peer}
       <header>
         <a class="back" href="/messages" aria-label={m.messages_back()}>
           <i class="fa-solid fa-arrow-left"></i>
@@ -248,21 +287,17 @@
           <span class="older"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
         {/if}
         {#each messages as message, i (message.id)}
-          {@const chat = parseChat(message.content)}
           {@const previous = messages[i - 1]}
           {@const newDay = !previous || !sameDay(previous.time, message.time)}
           {@const first = newDay || previous.from !== message.from}
           {#if newDay}<div class="day-divider"><span>{dayLabel(message.time)}</span></div>{/if}
           <div class="message" class:mine={message.from === me} class:first>
             {#if first}<Avatar id={message.from} />{:else}<span class="avatar-gap"></span>{/if}
-            <p class:chat-action={chat.action} title={dateTime(message.time)}>
-              {#if chat.action}{(message.from === me ? session.user!.username : peer.username) +
-                  ' '}{/if}{#each chat.parts as part, n (n)}{#if 'href' in part}<a
-                    href={part.href}
-                    target={part.external ? '_blank' : undefined}
-                    rel={part.external ? 'noopener noreferrer' : undefined}>{part.text}</a
-                  >{:else}{part.text}{/if}{/each}
-            </p>
+            <ChatText
+              content={message.content}
+              name={message.from === me ? session.user!.username : peer.username}
+              time={message.time}
+            />
             {#if message.from !== me}
               <button
                 class="report"

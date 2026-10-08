@@ -15,5 +15,10 @@
   "messages_report_explain": "Staff zobaczy tę wiadomość i te obok niej.",
   "messages_report_reason": "Powód",
   "messages_report_sent": "Zgłoszenie wysłane.",
-  "messages_message": "Napisz"
+  "messages_message": "Napisz",
+  "messages_channels": "Kanały",
+  "messages_conversations": "Rozmowy",
+  "messages_channel_empty": "Nic tu jeszcze nie ma.",
+  "messages_channel_commands": "Komendy działają tylko w grze.",
+  "messages_channel_placeholder": "Wiadomość na #{channel}"
 }

@@ -264,6 +264,8 @@
   "common_error_messages_silenced": "Во время мута отправлять сообщения нельзя.",
   "common_error_messages_restricted": "С ограниченного аккаунта нельзя отправлять сообщения.",
   "common_error_messages_too_fast": "Слишком много сообщений подряд.",
+  "common_error_channel_not_found": "Такого канала нет.",
+  "common_error_channel_no_commands": "Команды работают только в игре.",
   "common_error_upload_requests_full": "У тебя слишком много открытых запросов. Дождись решения или отзови один.",
   "common_error_upload_score_not_found": "Не нашли твой пройденный скор с таким ID.",
   "common_error_upload_invalid_skin": "Эта ссылка на скин не подходит. Нужна прямая ссылка на .osk или ссылка с сайта скинов.",

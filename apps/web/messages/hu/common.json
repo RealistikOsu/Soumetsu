@@ -264,6 +264,8 @@
   "common_error_messages_silenced": "Némítás alatt nem küldhetsz üzenetet.",
   "common_error_messages_restricted": "Korlátozott fiókról nem lehet üzenetet küldeni.",
   "common_error_messages_too_fast": "Túl gyorsan küldöd az üzeneteket.",
+  "common_error_channel_not_found": "Ilyen csatorna nincs.",
+  "common_error_channel_no_commands": "A parancsok csak játékban működnek.",
   "common_error_upload_requests_full": "Túl sok nyitott kérésed van. Várd meg a döntést, vagy vonj vissza egyet.",
   "common_error_upload_score_not_found": "Nem találtunk ilyen ID-jú, teljesített eredményt a fiókodban.",
   "common_error_upload_invalid_skin": "Ez a skin link nem jó. Használj közvetlen .osk letöltési linket, vagy egy skin oldalról származót.",

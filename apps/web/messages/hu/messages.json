@@ -15,5 +15,10 @@
   "messages_report_explain": "A staff látni fogja ezt az üzenetet és a körülötte lévőket.",
   "messages_report_reason": "Ok",
   "messages_report_sent": "Jelentés elküldve.",
-  "messages_message": "Üzenet"
+  "messages_message": "Üzenet",
+  "messages_channels": "Csatornák",
+  "messages_conversations": "Beszélgetések",
+  "messages_channel_empty": "Még nincs itt üzenet.",
+  "messages_channel_commands": "A parancsok csak játékban működnek.",
+  "messages_channel_placeholder": "Üzenet ide: #{channel}"
 }
