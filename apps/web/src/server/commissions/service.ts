@@ -4,7 +4,7 @@ import { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
 import { loadContext, type PlayerContext } from './context';
 import { dayWindow, windowOf } from './day';
-import { rollDay } from './roll';
+import { rollDay, rollReplacement } from './roll';
 import { loadSettings, type Settings, type Threshold } from './settings';
 import { streakStats, type StreakStats } from './streaks';
 import { byKey, templates } from './templates';
@@ -89,16 +89,64 @@ const findDay = (userId: number, date: string) =>
     include: { tasks: true }
   });
 
+const switchedOff = (template: string, settings: Settings) =>
+  !byKey.has(template) || (settings.weights[template] ?? 1) <= 0;
+
+type Day = NonNullable<Awaited<ReturnType<typeof findDay>>>;
+
+// Staff can switch a template off after players already rolled it today; those tasks are swapped for another
+// template while they're still open, keeping their points so the day's bar doesn't move.
+async function replaceSwitchedOff(
+  day: Day,
+  settings: Settings,
+  context: () => Promise<PlayerContext>
+): Promise<Day> {
+  const stale = day.tasks.filter(
+    (task) => !task.completed_at && switchedOff(task.template, settings)
+  );
+  if (!stale.length) return day;
+
+  const ctx = await context();
+  const families = new Set(
+    day.tasks
+      .filter((task) => !stale.includes(task))
+      .map((task) => byKey.get(task.template)?.family)
+      .filter((family): family is string => !!family)
+  );
+  const updates = [];
+  for (const task of stale) {
+    const tier = byKey.get(task.template)?.tier;
+    const replacement = rollReplacement(templates, ctx, settings, tier, families);
+    if (!replacement) continue;
+    families.add(byKey.get(replacement.template)!.family);
+    updates.push(
+      db.commission_tasks.updateMany({
+        where: { id: task.id, template: task.template, completed_at: null },
+        data: {
+          template: replacement.template,
+          params: replacement.params,
+          target: replacement.target,
+          progress: 0
+        }
+      })
+    );
+  }
+  if (!updates.length) return day;
+  await db.$transaction(updates);
+  return (await findDay(day.user_id, day.day.toISOString().slice(0, 10))) ?? day;
+}
+
 async function rollIfMissing(
   userId: number,
   date: string,
   settings: Settings,
   context: (() => Promise<PlayerContext>) | null = null
 ) {
+  const load = context ?? (() => loadContext(userId, windowOf(date)));
   const existing = await findDay(userId, date);
-  if (existing) return existing;
+  if (existing) return replaceSwitchedOff(existing, settings, load);
 
-  const ctx = await (context ?? (() => loadContext(userId, windowOf(date))))();
+  const ctx = await load();
   const rolled = rollDay(templates, ctx, settings);
   try {
     return await db.commission_days.create({
@@ -125,8 +173,6 @@ async function rollIfMissing(
     throw error;
   }
 }
-
-type Day = Awaited<ReturnType<typeof rollIfMissing>>;
 
 async function checkDay(
   userId: number,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { fakeContext } from './context';
-import { rollDay } from './roll';
+import { rollDay, rollReplacement } from './roll';
 import { DEFAULT_SETTINGS } from './settings';
 import { template, type Template } from './templates/types';
 
@@ -84,5 +84,36 @@ describe('rollDay', () => {
       );
       expect(keys.some((key) => key.startsWith('a'))).toBe(false);
     }
+  });
+});
+
+describe('rollReplacement', () => {
+  const pool = [
+    fake('a1', 'a', 'easy'),
+    fake('b1', 'b', 'hard'),
+    fake('c1', 'c', 'hard'),
+    fake('d1', 'd', 'easy', false)
+  ];
+
+  test('prefers the same tier and an unused family', () => {
+    const rolled = rollReplacement(pool, fakeContext({}), DEFAULT_SETTINGS, 'hard', new Set(['b']));
+    expect(rolled?.template).toBe('c1');
+  });
+
+  test('falls back to another tier when the tier has nothing left', () => {
+    const rolled = rollReplacement(
+      pool,
+      fakeContext({}),
+      DEFAULT_SETTINGS,
+      'hard',
+      new Set(['b', 'c'])
+    );
+    expect(rolled?.template).toBe('a1');
+  });
+
+  test('never picks a switched-off template', () => {
+    const settings = { ...DEFAULT_SETTINGS, weights: { c1: 0 } };
+    const rolled = rollReplacement(pool, fakeContext({}), settings, 'hard', new Set(['b', 'a']));
+    expect(rolled).toBeNull();
   });
 });

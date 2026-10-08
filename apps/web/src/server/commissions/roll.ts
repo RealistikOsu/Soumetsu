@@ -86,3 +86,38 @@ export function rollDay(
   }
   return rolled;
 }
+
+// Stands in for a task whose template was switched off after the day was rolled. A template from the same tier is
+// preferred so the task keeps feeling like the one it replaces; the caller keeps the old points either way.
+export function rollReplacement(
+  templates: Template[],
+  ctx: PlayerContext,
+  settings: Settings,
+  tier: Template['tier'] | undefined,
+  usedFamilies: Set<string>,
+  random = Math.random
+): Rolled | null {
+  const skipped = new Set<string>();
+  const open = (candidate: Template) =>
+    !usedFamilies.has(candidate.family) &&
+    !skipped.has(candidate.key) &&
+    (settings.weights[candidate.key] ?? 1) > 0;
+
+  for (;;) {
+    const candidates = templates.filter(open);
+    const sameTier = candidates.filter((candidate) => candidate.tier === tier);
+    const chosen = weighted(sameTier.length ? sameTier : candidates, settings, random);
+    if (!chosen) return null;
+    const params = chosen.roll(ctx, settings, random);
+    if (params === null) {
+      skipped.add(chosen.key);
+      continue;
+    }
+    return {
+      template: chosen.key,
+      params,
+      points: settings.tierPoints[chosen.tier],
+      target: chosen.target(params)
+    };
+  }
+}
