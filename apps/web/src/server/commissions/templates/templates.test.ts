@@ -599,3 +599,40 @@ describe('leaderboard', () => {
     );
   });
 });
+
+describe('multiplayer', () => {
+  const ranked = (...rows: { won: boolean; roundsWon: number }[]) => ({
+    rankedPlay: async () => rows.map((row, matchId) => ({ matchId, ...row }))
+  });
+  const lobby = (...won: boolean[]) => ({
+    multiplayer: async () => won.map((w, game) => ({ matchId: 1, game, won: w }))
+  });
+  test('rp_play', async () => {
+    expect(await run('rp_play', fakeContext(ranked({ won: false, roundsWon: 0 })))).toBe(1);
+    expect(await run('rp_play', fakeContext({}))).toBe(0);
+  });
+  test('rp_win', async () => {
+    expect(await run('rp_win', fakeContext(ranked({ won: true, roundsWon: 2 })))).toBe(1);
+    expect(await run('rp_win', fakeContext(ranked({ won: false, roundsWon: 2 })))).toBe(0);
+  });
+  test('rp_rounds sums rounds won', async () => {
+    const ctx = fakeContext(ranked({ won: true, roundsWon: 2 }, { won: false, roundsWon: 1 }));
+    expect(await run('rp_rounds', ctx, { count: 3 })).toBe(3);
+    expect(await run('rp_rounds', fakeContext({}), { count: 3 })).toBe(0);
+  });
+  test('rp_three counts matches', async () => {
+    const row = { won: false, roundsWon: 0 };
+    expect(await run('rp_three', fakeContext(ranked(row, row, row)))).toBe(3);
+    expect(await run('rp_three', fakeContext({}))).toBe(0);
+  });
+  test('mp_play and mp_win', async () => {
+    expect(await run('mp_play', fakeContext(lobby(false)))).toBe(1);
+    expect(await run('mp_play', fakeContext({}))).toBe(0);
+    expect(await run('mp_win', fakeContext(lobby(false, true)))).toBe(1);
+    expect(await run('mp_win', fakeContext(lobby(false)))).toBe(0);
+  });
+  test('links point at the pages', () => {
+    expect(byKey.get('rp_win')!.link!({})).toBe('/ranked-play');
+    expect(byKey.get('mp_win')!.link!({})).toBe('/multiplayer');
+  });
+});

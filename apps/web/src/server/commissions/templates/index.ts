@@ -3,6 +3,7 @@ import { leaderboard } from './leaderboard';
 import { login } from './login';
 import { mapProperty } from './mapProperty';
 import { mods } from './mods';
+import { multiplayer } from './multiplayer';
 import { playCount } from './playCount';
 import { quality } from './quality';
 import { session } from './session';
@@ -16,7 +17,8 @@ export const templates: Template[] = [
   ...session,
   ...quality,
   ...mods,
-  ...leaderboard
+  ...leaderboard,
+  ...multiplayer
 ];
 
 export const byKey = new Map(templates.map((template) => [template.key, template]));
