@@ -143,5 +143,36 @@
     }
   ],
   "casino_line": "Line",
-  "casino_column": "Column"
+  "casino_column": "Column",
+  "casino_mines_count": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} mine",
+        "n=other": "{count} mines"
+      }
+    }
+  ],
+  "casino_reveal": "Reveal",
+  "casino_cash_out": "Cash out",
+  "casino_next_tile": "Next tile",
+  "casino_step": "Step",
+  "casino_crashed": "Crashed",
+  "casino_cashed_out": "Cashed out",
+  "casino_hit": "Hit",
+  "casino_stand": "Stand",
+  "casino_double": "Double",
+  "casino_dealer": "Dealer",
+  "casino_you": "You",
+  "casino_bj_blackjack": "Blackjack!",
+  "casino_bj_win": "You win",
+  "casino_bj_lose": "Dealer wins",
+  "casino_bj_bust": "Bust",
+  "casino_bj_dealer_bust": "Dealer busts",
+  "casino_fly": "Fly",
+  "casino_flying": "Flying",
+  "casino_err_game_pending": "Finish your current game first.",
+  "casino_err_no_game": "No game running.",
+  "casino_err_invalid_move": "You can't do that right now."
 }

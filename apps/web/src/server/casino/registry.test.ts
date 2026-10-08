@@ -5,6 +5,10 @@ mock.module('$server/db', () => ({ db: {} }));
 mock.module('$server/admin/log', () => ({ rapLog: async () => {} }));
 
 const { pokerInfo } = await import('./games/poker');
+const { minesInfo } = await import('./games/mines');
+const { chickenInfo } = await import('./games/chickenRoad');
+const { blackjackInfo } = await import('./games/blackjack');
+const { aviatorInfo } = await import('./games/aviator');
 const { rouletteInfo } = await import('./games/roulette');
 const { instantGames } = await import('./games/registry');
 const { oddsParsers } = await import('./games/odds');
@@ -92,6 +96,18 @@ const seeded: Record<string, unknown> = {
     }
   },
   bingo: { maxCalls: 25, lines: { '1': 1.5, '2': 3, '3': 5, '4': 8, '5': 15 } },
+  mines: { grid: 25, edgeBase: 0.75, edgeScale: 0.18, edgePower: 0.45 },
+  chicken_road: {
+    multipliers: [1.02, 1.05, 1.12, 1.25, 1.45, 1.8, 2.3, 3.2, 5.0, 10.0],
+    survival: [0.9, 0.82, 0.75, 0.65, 0.55, 0.45, 0.35, 0.25, 0.18, 0.1]
+  },
+  blackjack: { blackjack: 2.2, win: 2, dealerHitsSoft17: true },
+  aviator: {
+    instantCrash: 0.01,
+    numerator: 100,
+    maxCrash: 1000,
+    curve: { rate: 0.15, power: 1.2 }
+  },
   poker: {
     payouts: {
       royal_flush: 500,
@@ -120,10 +136,24 @@ describe('oddsParsers', () => {
   test('public info never leaks the odds internals', () => {
     for (const [game, raw] of Object.entries(seeded)) {
       const odds = parseOdds(game as (typeof GAMES)[number], raw);
-      const info =
-        game === 'poker' ? pokerInfo(odds as never) : instantGames[game as 'slots'].info(odds);
-      expect(JSON.stringify(info)).not.toMatch(/weights|wildLightningChance|deck/);
+      const stateful: Record<string, (o: never) => unknown> = {
+        poker: pokerInfo,
+        mines: minesInfo,
+        chicken_road: chickenInfo,
+        blackjack: blackjackInfo,
+        aviator: aviatorInfo
+      };
+      const info = stateful[game]
+        ? stateful[game](odds as never)
+        : instantGames[game as 'slots'].info(odds);
+      expect(JSON.stringify(info)).not.toMatch(
+        /weights|wildLightningChance|deck|survival|crashPoint|instantCrash|numerator|mines"/
+      );
     }
+  });
+
+  test('every seeded config parses', () => {
+    for (const game of GAMES) expect(parseOdds(game, seeded[game])).not.toBeNull();
   });
 
   test('roulette info has no slots key', () => {

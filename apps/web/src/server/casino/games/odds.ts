@@ -1,5 +1,9 @@
+import { aviatorMax, parseAviatorOdds } from './aviator';
 import { bingoMax, parseBingoOdds } from './bingo';
+import { blackjackMax, parseBlackjackOdds } from './blackjack';
+import { chickenMax, parseChickenOdds } from './chickenRoad';
 import { coinflipMax, parseCoinflipOdds } from './coinflip';
+import { minesMax, parseMinesOdds } from './mines';
 import { parsePlinkoOdds, plinkoMax } from './plinko';
 import { parsePokerOdds, pokerMax } from './poker';
 import { parseRouletteOdds, rouletteMax } from './roulette';
@@ -7,10 +11,6 @@ import { parseSlotsOdds, slotsMax } from './slots';
 import type { Game } from './types';
 import { parseWheelOdds, wheelMax } from './wheel';
 import { parseZeusOdds, zeusMax } from './zeus';
-
-// Games that aren't ported yet keep whatever object the admin saves.
-const passThrough = (raw: unknown) =>
-  raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
 
 export const oddsParsers: Record<Game, (raw: unknown) => unknown | null> = {
   coinflip: parseCoinflipOdds,
@@ -21,10 +21,10 @@ export const oddsParsers: Record<Game, (raw: unknown) => unknown | null> = {
   roulette: parseRouletteOdds,
   bingo: parseBingoOdds,
   poker: parsePokerOdds,
-  mines: passThrough,
-  chicken_road: passThrough,
-  aviator: passThrough,
-  blackjack: passThrough
+  mines: parseMinesOdds,
+  chicken_road: parseChickenOdds,
+  aviator: parseAviatorOdds,
+  blackjack: parseBlackjackOdds
 };
 
 export const maxMultipliers: Partial<Record<Game, (odds: never) => number>> = {
@@ -35,5 +35,9 @@ export const maxMultipliers: Partial<Record<Game, (odds: never) => number>> = {
   wheel: wheelMax,
   roulette: rouletteMax,
   bingo: bingoMax,
-  poker: pokerMax
+  poker: pokerMax,
+  mines: minesMax,
+  chicken_road: chickenMax,
+  blackjack: blackjackMax,
+  aviator: aviatorMax
 };

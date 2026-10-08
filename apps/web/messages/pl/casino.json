@@ -153,5 +153,38 @@
     }
   ],
   "casino_line": "Linia",
-  "casino_column": "Kolumna"
+  "casino_column": "Kolumna",
+  "casino_mines_count": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} mina",
+        "n=few": "{count} miny",
+        "n=many": "{count} min",
+        "n=other": "{count} miny"
+      }
+    }
+  ],
+  "casino_reveal": "Odkryj",
+  "casino_cash_out": "Wypłać",
+  "casino_next_tile": "Następne pole",
+  "casino_step": "Krok",
+  "casino_crashed": "Rozbił się",
+  "casino_cashed_out": "Wypłacono",
+  "casino_hit": "Dobierz",
+  "casino_stand": "Pas",
+  "casino_double": "Podwój",
+  "casino_dealer": "Krupier",
+  "casino_you": "Ty",
+  "casino_bj_blackjack": "Blackjack!",
+  "casino_bj_win": "Wygrywasz",
+  "casino_bj_lose": "Wygrywa krupier",
+  "casino_bj_bust": "Przekroczono 21",
+  "casino_bj_dealer_bust": "Krupier przekroczył 21",
+  "casino_fly": "Start",
+  "casino_flying": "Lecimy",
+  "casino_err_game_pending": "Najpierw skończ obecną grę.",
+  "casino_err_no_game": "Brak trwającej gry.",
+  "casino_err_invalid_move": "Teraz tego nie zrobisz."
 }

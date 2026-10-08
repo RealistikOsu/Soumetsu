@@ -1,3 +1,4 @@
+import { getToken } from '$lib/auth/token';
 import { siteApi } from './client';
 
 export type Game =
@@ -167,13 +168,13 @@ type PokerResult = {
   payout: number;
 };
 
-export interface GameInfo<I> {
+export interface GameInfo<I, P = { hand: Card[]; bet: number }> {
   game: Game;
   minBet: number;
   maxBet: number;
   enabled: boolean;
   info: I | null;
-  pending?: { hand: Card[]; bet: number } | null;
+  pending?: P | null;
 }
 
 export interface PlayResponse<R> {
@@ -183,8 +184,8 @@ export interface PlayResponse<R> {
   balance: number;
 }
 
-export const gameInfo = <I>(game: Game, signal?: AbortSignal) =>
-  siteApi.get<GameInfo<I>>(`/casino/games/${game}`, undefined, signal);
+export const gameInfo = <I, P = { hand: Card[]; bet: number }>(game: Game, signal?: AbortSignal) =>
+  siteApi.get<GameInfo<I, P>>(`/casino/games/${game}`, undefined, signal);
 
 export const playGame = <R>(game: Game, body: Record<string, unknown>) =>
   siteApi.post<PlayResponse<R>>(`/casino/play/${game}`, body);
@@ -194,3 +195,129 @@ export const pokerDeal = (bet: number) =>
 
 export const pokerDraw = (held: boolean[]) =>
   siteApi.post<PlayResponse<PokerResult>>('/casino/play/poker/draw', { held });
+
+export interface MinesInfo {
+  grid: number;
+}
+export interface ChickenInfo {
+  multipliers: number[];
+}
+export interface BlackjackInfo {
+  blackjack: number;
+  win: number;
+}
+export interface AviatorCurve {
+  rate: number;
+  power: number;
+}
+export interface AviatorInfo {
+  curve: AviatorCurve;
+}
+
+export interface MinesView {
+  bet: number;
+  count: number;
+  revealed: number[];
+  multiplier: number;
+  next: number | null;
+}
+export type MinesResult = {
+  mines: number[];
+  revealed: number[];
+  hit: number | null;
+  cashedOut: boolean;
+};
+export interface ChickenView {
+  bet: number;
+  step: number;
+  multiplier: number;
+  next: number | null;
+}
+export type ChickenResult = { steps: number; crashedAt?: number };
+export type BlackjackOutcome = 'blackjack' | 'win' | 'dealer_bust' | 'lose' | 'bust';
+export interface BlackjackView {
+  bet: number;
+  player: Card[];
+  playerScore: number;
+  dealer: Card[];
+  dealerScore: number;
+  canDouble: boolean;
+}
+export type BlackjackResult = {
+  player: Card[];
+  dealer: Card[];
+  playerScore: number;
+  dealerScore: number;
+  outcome: BlackjackOutcome;
+};
+export interface AviatorView {
+  bet: number;
+  startedAt: number;
+  curve: AviatorCurve;
+}
+export type AviatorResult = { crashPoint: number; cashOutAt: number | null; won: boolean };
+
+// A step keeps the game going; the last one settles it and carries the result.
+export type Step<V, R> =
+  | { view: V; balance?: number }
+  | { view: V; result: R; payout: number; multiplier: number; balance: number };
+export type Started<V> = { view: V; balance: number };
+export type Settled<V, R> = Extract<Step<V, R>, { result: R }>;
+
+export const isSettled = <V, R>(step: Step<V, R>): step is Settled<V, R> => 'result' in step;
+
+export const minesStart = (bet: number, mines: number) =>
+  siteApi.post<Started<MinesView>>('/casino/play/mines/start', { bet, mines });
+export const minesReveal = (tile: number) =>
+  siteApi.post<Step<MinesView, MinesResult>>('/casino/play/mines/reveal', { tile });
+export const minesCashout = () =>
+  siteApi.post<Settled<MinesView, MinesResult>>('/casino/play/mines/cashout');
+
+export const chickenStart = (bet: number) =>
+  siteApi.post<Started<ChickenView>>('/casino/play/chicken-road/start', { bet });
+export const chickenStep = () =>
+  siteApi.post<Step<ChickenView, ChickenResult>>('/casino/play/chicken-road/step');
+export const chickenCashout = () =>
+  siteApi.post<Settled<ChickenView, ChickenResult>>('/casino/play/chicken-road/cashout');
+
+export const blackjackStart = (bet: number) =>
+  siteApi.post<Step<BlackjackView, BlackjackResult> & { balance: number }>(
+    '/casino/play/blackjack/start',
+    { bet }
+  );
+export const blackjackHit = () =>
+  siteApi.post<Step<BlackjackView, BlackjackResult>>('/casino/play/blackjack/hit');
+export const blackjackStand = () =>
+  siteApi.post<Settled<BlackjackView, BlackjackResult>>('/casino/play/blackjack/stand');
+export const blackjackDouble = () =>
+  siteApi.post<Settled<BlackjackView, BlackjackResult>>('/casino/play/blackjack/double');
+
+export const aviatorStart = (bet: number) =>
+  siteApi.post<Started<AviatorView>>('/casino/play/aviator/start', { bet });
+export const aviatorCashout = () =>
+  siteApi.post<Settled<AviatorView, AviatorResult>>('/casino/play/aviator/cashout');
+
+export type AviatorEvent =
+  | { type: 'tick'; m: number }
+  | { type: 'crash'; crashPoint: number; balance: number }
+  | { type: 'done' };
+
+// Ends when the stream does; the page decides whether to open another.
+export async function aviatorStream(onEvent: (event: AviatorEvent) => void, signal: AbortSignal) {
+  const response = await fetch('/site-api/casino/play/aviator/stream', {
+    headers: { Authorization: `Bearer ${getToken()}` },
+    signal
+  });
+  if (!response.ok || !response.body) throw new Error(`stream ${response.status}`);
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return;
+    const events = (buffer + value).split('\n\n');
+    buffer = events.pop()!;
+    for (const event of events) {
+      if (event.startsWith('data: ')) onEvent(JSON.parse(event.slice(6)) as AviatorEvent);
+    }
+  }
+}

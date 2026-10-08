@@ -20,7 +20,7 @@ export const games: { key: Game; route: string; live: boolean }[] = (
 ).map((key) => ({
   key,
   route: `/casino/${key.replaceAll('_', '-')}`,
-  live: !['chicken_road', 'aviator', 'mines', 'blackjack'].includes(key)
+  live: true
 }));
 
 const titles: Record<Game, () => string> = {

@@ -153,5 +153,38 @@
     }
   ],
   "casino_line": "Линия",
-  "casino_column": "Столбец"
+  "casino_column": "Столбец",
+  "casino_mines_count": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} мина",
+        "n=few": "{count} мины",
+        "n=many": "{count} мин",
+        "n=other": "{count} мины"
+      }
+    }
+  ],
+  "casino_reveal": "Открыть",
+  "casino_cash_out": "Забрать",
+  "casino_next_tile": "Следующая клетка",
+  "casino_step": "Шаг",
+  "casino_crashed": "Разбился",
+  "casino_cashed_out": "Забрал",
+  "casino_hit": "Ещё",
+  "casino_stand": "Хватит",
+  "casino_double": "Удвоить",
+  "casino_dealer": "Дилер",
+  "casino_you": "Ты",
+  "casino_bj_blackjack": "Блэкджек!",
+  "casino_bj_win": "Ты выиграл",
+  "casino_bj_lose": "Дилер выиграл",
+  "casino_bj_bust": "Перебор",
+  "casino_bj_dealer_bust": "У дилера перебор",
+  "casino_fly": "Взлёт",
+  "casino_flying": "Летим",
+  "casino_err_game_pending": "Сначала закончи текущую игру.",
+  "casino_err_no_game": "Игра не запущена.",
+  "casino_err_invalid_move": "Сейчас так нельзя."
 }

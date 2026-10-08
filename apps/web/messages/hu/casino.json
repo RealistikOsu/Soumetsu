@@ -143,5 +143,36 @@
     }
   ],
   "casino_line": "Vonal",
-  "casino_column": "Oszlop"
+  "casino_column": "Oszlop",
+  "casino_mines_count": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} akna",
+        "n=other": "{count} akna"
+      }
+    }
+  ],
+  "casino_reveal": "Felfed",
+  "casino_cash_out": "Kivesz",
+  "casino_next_tile": "Következő mező",
+  "casino_step": "Lépés",
+  "casino_crashed": "Lezuhant",
+  "casino_cashed_out": "Kivéve",
+  "casino_hit": "Húzok",
+  "casino_stand": "Megállok",
+  "casino_double": "Duplázás",
+  "casino_dealer": "Osztó",
+  "casino_you": "Te",
+  "casino_bj_blackjack": "Blackjack!",
+  "casino_bj_win": "Nyertél",
+  "casino_bj_lose": "Az osztó nyert",
+  "casino_bj_bust": "Besokalltál",
+  "casino_bj_dealer_bust": "Az osztó besokallt",
+  "casino_fly": "Indulás",
+  "casino_flying": "Repülünk",
+  "casino_err_game_pending": "Előbb fejezd be a jelenlegi játékot.",
+  "casino_err_no_game": "Nincs futó játék.",
+  "casino_err_invalid_move": "Ezt most nem teheted."
 }

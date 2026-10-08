@@ -125,6 +125,9 @@ const messages: Record<string, Message> = {
   'casino.busy': m.casino_err_busy,
   'casino.hand_pending': m.casino_err_hand_pending,
   'casino.no_hand': m.casino_err_no_hand,
+  'casino.game_pending': m.casino_err_game_pending,
+  'casino.no_game': m.casino_err_no_game,
+  'casino.invalid_move': m.casino_err_invalid_move,
 
   network_error: m.common_error_network
 };
