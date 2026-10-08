@@ -442,6 +442,16 @@ export const commissionSettings = (signal?: AbortSignal) =>
 export const setCommissionSettings = (settings: CommissionSettings) =>
   siteApi.put('/admin/commissions/settings', settings);
 
+export interface CommissionTemplate {
+  key: string;
+  family: string;
+  tier: 'easy' | 'medium' | 'hard';
+  example: Record<string, string | number | boolean> | null;
+}
+
+export const commissionTemplates = (signal?: AbortSignal) =>
+  siteApi.get<CommissionTemplate[]>('/admin/commissions/templates', undefined, signal);
+
 export const dailyChallenges = (signal?: AbortSignal) =>
   siteApi.get<DailyChallenge[]>('/admin/daily-challenge', undefined, signal);
 

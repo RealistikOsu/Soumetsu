@@ -1,13 +1,15 @@
 <script lang="ts">
   import {
     commissionSettings,
+    commissionTemplates,
     setCommissionSettings,
-    type CommissionSettings
+    type CommissionSettings,
+    type CommissionTemplate
   } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
-  import { templateKeys } from '$lib/commissions';
+  import { taskText, templateKeys } from '$lib/commissions';
   import { flash } from '$lib/flash.svelte';
 
   interface Form {
@@ -28,6 +30,16 @@
     void version;
     return commissionSettings(signal);
   });
+
+  const templates = query((signal) => commissionTemplates(signal));
+  const infoOf = (key: string): CommissionTemplate | undefined =>
+    templates.state.status === 'ready'
+      ? templates.state.data.find((info) => info.key === key)
+      : undefined;
+  const describeTemplate = (key: string) => {
+    const info = infoOf(key);
+    return info?.example ? taskText({ template: key, params: info.example }) : key;
+  };
 
   const toForm = (data: CommissionSettings): Form => {
     const copy = structuredClone($state.snapshot(data));
@@ -179,12 +191,17 @@
   <div class="table-wrap">
     <table class="board admin-table c-green">
       <thead>
-        <tr><th>Template</th><th>Weight</th></tr>
+        <tr><th>Commission</th><th>Tier</th><th>Weight</th></tr>
       </thead>
       <tbody>
         {#each templateKeys as key (key)}
+          {@const info = infoOf(key)}
           <tr>
-            <td class="note">{key}</td>
+            <td>
+              {describeTemplate(key)}
+              <div class="note">{key}{info ? ` · ${info.family}` : ''}</div>
+            </td>
+            <td class="note">{info?.tier ?? ''}</td>
             <td>
               <input
                 type="number"

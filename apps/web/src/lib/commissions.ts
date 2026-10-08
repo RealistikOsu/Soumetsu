@@ -121,7 +121,7 @@ const texts: Record<string, (params: Params) => string> = {
 
 export const templateKeys = Object.keys(texts);
 
-export const taskText = (task: CommissionTask) =>
+export const taskText = (task: Pick<CommissionTask, 'template' | 'params'>) =>
   texts[task.template]?.(task.params) ?? task.template;
 
 export function taskHref(task: CommissionTask) {
