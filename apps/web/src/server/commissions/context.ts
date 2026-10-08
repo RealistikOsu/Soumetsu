@@ -255,7 +255,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
       if (score.source === 'stable') {
         const table = STABLE_TABLES[score.variant];
         const [row] = await db.$queryRaw<
-          { place: number; first: number | null; first_value: number | null }[]
+          { place: number; first: number | null; first_val: number | null }[]
         >(Prisma.sql`
           SELECT 1 + COUNT(*) AS place,
                  (SELECT userid FROM ${Prisma.raw(table)} f
@@ -265,7 +265,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
                  (SELECT f.pp FROM ${Prisma.raw(table)} f
                   INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
                   WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
-                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first_value
+                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first_val
           FROM ${Prisma.raw(table)} s
           INNER JOIN users u ON u.id = s.userid AND u.privileges & 1
           WHERE s.beatmap_md5 = ${score.md5} AND s.play_mode = ${score.mode} AND s.completed = 3
@@ -273,12 +273,12 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         return {
           rank: Number(row?.place ?? 1),
           previousFirst: row?.first == null ? null : Number(row.first),
-          previousFirstValue: row?.first_value == null ? null : Number(row.first_value)
+          previousFirstValue: row?.first_val == null ? null : Number(row.first_val)
         };
       }
       const byScore = score.variant === 0;
       const [row] = await optional(db.$queryRaw<
-        { place: number; first: number | null; first_value: number | null }[]
+        { place: number; first: number | null; first_val: number | null }[]
       >`
         SELECT 1 + COUNT(*) AS place,
                (SELECT user_id FROM lazer_scores f
@@ -290,7 +290,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
                 INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
                 WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
                   AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
-                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first_value
+                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first_val
         FROM (
           SELECT user_id, MAX(${byScore ? Prisma.sql`total_score` : Prisma.sql`pp`}) AS best
           FROM lazer_scores
@@ -303,7 +303,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
       return {
         rank: Number(row?.place ?? 1),
         previousFirst: row?.first == null ? null : Number(row.first),
-        previousFirstValue: row?.first_value == null ? null : Number(row.first_value)
+        previousFirstValue: row?.first_val == null ? null : Number(row.first_val)
       };
     }
   };
