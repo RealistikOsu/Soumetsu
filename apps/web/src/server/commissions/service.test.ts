@@ -1,5 +1,7 @@
-import { describe, expect, test } from 'bun:test';
-import { applyChecks, tierReached } from './service';
+import { describe, expect, mock, test } from 'bun:test';
+
+mock.module('$server/admin/console', () => ({ record: async () => {} }));
+const { applyChecks, tierReached } = await import('./service');
 import { DEFAULT_SETTINGS } from './settings';
 
 describe('applyChecks', () => {
@@ -28,5 +30,28 @@ describe('tierReached', () => {
     expect(tierReached(DEFAULT_SETTINGS.thresholds, 0)).toBe(0);
     expect(tierReached(DEFAULT_SETTINGS.thresholds, 150)).toBe(1);
     expect(tierReached(DEFAULT_SETTINGS.thresholds, 300)).toBe(3);
+  });
+});
+
+describe('runChecks', () => {
+  test('a failing check keeps its stored progress and the rest still run', async () => {
+    const { runChecks } = await import('./service');
+    const { byKey } = await import('./templates');
+    const keys = [...byKey.keys()];
+    const original = [byKey.get(keys[0])!.check, byKey.get(keys[1])!.check];
+    byKey.get(keys[0])!.check = async () => {
+      throw new Error('boom');
+    };
+    byKey.get(keys[1])!.check = async () => 1;
+    try {
+      const tasks = [
+        { template: keys[0], params: {}, progress: 2, completed_at: null },
+        { template: keys[1], params: {}, progress: 0, completed_at: null }
+      ];
+      expect(await runChecks(tasks, { id: 1 } as never)).toEqual([2, 1]);
+    } finally {
+      byKey.get(keys[0])!.check = original[0];
+      byKey.get(keys[1])!.check = original[1];
+    }
   });
 });

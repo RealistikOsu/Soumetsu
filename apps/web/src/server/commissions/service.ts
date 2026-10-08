@@ -1,7 +1,8 @@
+import { record } from '$server/admin/console';
 import { db } from '$server/db';
 import { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
-import { loadContext } from './context';
+import { loadContext, type PlayerContext } from './context';
 import { dayWindow, windowOf } from './day';
 import { rollDay } from './roll';
 import { loadSettings, type Settings, type Threshold } from './settings';
@@ -57,17 +58,44 @@ export function applyChecks<T extends TaskRow>(tasks: T[], results: number[]) {
 const lastChecked = new Map<number, number>();
 const CHECK_GAP = 30_000;
 
+function markChecked(userId: number, now: number) {
+  for (const [id, time] of lastChecked) if (time + CHECK_GAP <= now) lastChecked.delete(id);
+  lastChecked.set(userId, now);
+}
+
+// One broken template must not cost the player the rest of the pass, so a failed check keeps its stored progress.
+export function runChecks(
+  tasks: { template: string; params: unknown; progress: number; completed_at: Date | null }[],
+  ctx: PlayerContext
+) {
+  return Promise.all(
+    tasks.map((task) => {
+      const found = byKey.get(task.template);
+      if (task.completed_at || !found) return task.progress;
+      return found.check(ctx, task.params as Params).catch((error) => {
+        void record('error', ctx.id, error);
+        return task.progress;
+      });
+    })
+  );
+}
+
 const findDay = (userId: number, date: string) =>
   db.commission_days.findUnique({
     where: { user_id_day: { user_id: userId, day: new Date(date) } },
     include: { tasks: true }
   });
 
-async function rollIfMissing(userId: number, date: string, settings: Settings) {
+async function rollIfMissing(
+  userId: number,
+  date: string,
+  settings: Settings,
+  context: (() => Promise<PlayerContext>) | null = null
+) {
   const existing = await findDay(userId, date);
   if (existing) return existing;
 
-  const ctx = await loadContext(userId, windowOf(date));
+  const ctx = await (context ?? (() => loadContext(userId, windowOf(date))))();
   const rolled = rollDay(templates, ctx, settings);
   try {
     return await db.commission_days.create({
@@ -98,20 +126,16 @@ async function rollIfMissing(userId: number, date: string, settings: Settings) {
 export async function todayFor(userId: number, now = new Date()) {
   const settings = await loadSettings();
   const window = dayWindow(now);
-  let day = await rollIfMissing(userId, window.date, settings);
+  // Rolling and checking read the same context, so a first visit loads it once.
+  let loaded: Promise<PlayerContext> | undefined;
+  const context = () => (loaded ??= loadContext(userId, window));
+  let day = await rollIfMissing(userId, window.date, settings, context);
 
   const due = (lastChecked.get(userId) ?? 0) + CHECK_GAP <= now.getTime();
   const pending = day.tasks.filter((task) => !task.completed_at);
   if (due && pending.length) {
-    lastChecked.set(userId, now.getTime());
-    const ctx = await loadContext(userId, window);
-    const results = await Promise.all(
-      day.tasks.map((task) =>
-        task.completed_at
-          ? Promise.resolve(task.progress)
-          : (byKey.get(task.template)?.check(ctx, task.params as Params) ?? Promise.resolve(0))
-      )
-    );
+    markChecked(userId, now.getTime());
+    const results = await runChecks(day.tasks, await context());
     const { tasks, points } = applyChecks(day.tasks, results);
     const top = settings.thresholds[settings.thresholds.length - 1].points;
     const completedAt = day.completed_at ?? (points >= top ? now : null);
@@ -167,7 +191,9 @@ export async function claim(userId: number, tier: number, date?: string) {
   const settings = await loadSettings();
   if (!Number.isInteger(tier) || tier < 1 || tier > settings.thresholds.length)
     throw new Failure(400, 'site.invalid_request');
-  const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : dayWindow().date;
+  if (date !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(date))
+    throw new Failure(400, 'site.invalid_request');
+  const day = date ?? dayWindow().date;
   const coins = settings.thresholds[tier - 1].coins;
 
   return db.$transaction(async (tx) => {
