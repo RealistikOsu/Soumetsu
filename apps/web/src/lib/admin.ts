@@ -150,6 +150,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         needs: Privilege.AdminManageSetting
       },
       {
+        href: '/admin/shop',
+        label: 'Shop',
+        colour: 'c-pink',
+        icon: 'fa-store',
+        needs: Privilege.AdminManageSetting
+      },
+      {
         href: '/admin/clans',
         label: 'Clans',
         colour: 'c-purple',

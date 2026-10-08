@@ -16,44 +16,57 @@ export const GET = handle(async ({ request, params }) => {
   const user = await db.users.findUnique({ where: { id } });
   if (!user) throw new Failure(404, 'users.user_not_found');
 
-  const [stats, badges, allBadges, groupRows, history, ip, whitelisted, hwids, bans, clan, online] =
-    await Promise.all([
-      db.users_stats.findUnique({
-        where: { id },
-        select: { userpage_content: true, username_aka: true }
-      }),
-      db.user_badges.findMany({
-        where: { user: id },
-        orderBy: { id: 'asc' },
-        select: { badge: true }
-      }),
-      db.badges.findMany({ orderBy: { id: 'asc' }, select: { id: true, name: true } }),
-      db.privileges_groups.findMany({ orderBy: { id: 'asc' } }),
-      db.user_name_history.findMany({
-        where: { user_id: id },
-        orderBy: { replaced_at: 'desc' },
-        select: { username: true },
-        distinct: ['username']
-      }),
-      canViewIps
-        ? db.ip_user.findFirst({
-            where: { userid: id },
-            orderBy: { ip: 'desc' },
-            select: { ip: true }
-          })
-        : null,
-      db.whitelist.findUnique({ where: { user_id: id } }),
-      db.hw_user.count({ where: { userid: id } }),
-      db.$queryRaw<
-        { from_id: number; from_name: string; ts: number; summary: string; detail: string }[]
-      >`SELECT b.from_id, f.username AS from_name, UNIX_TIMESTAMP(b.ts) AS ts, b.summary, b.detail
+  const [
+    stats,
+    badges,
+    allBadges,
+    groupRows,
+    history,
+    ip,
+    whitelisted,
+    hwids,
+    bans,
+    clan,
+    online,
+    owned
+  ] = await Promise.all([
+    db.users_stats.findUnique({
+      where: { id },
+      select: { userpage_content: true, username_aka: true }
+    }),
+    db.user_badges.findMany({
+      where: { user: id },
+      orderBy: { id: 'asc' },
+      select: { badge: true }
+    }),
+    db.badges.findMany({ orderBy: { id: 'asc' }, select: { id: true, name: true } }),
+    db.privileges_groups.findMany({ orderBy: { id: 'asc' } }),
+    db.user_name_history.findMany({
+      where: { user_id: id },
+      orderBy: { replaced_at: 'desc' },
+      select: { username: true },
+      distinct: ['username']
+    }),
+    canViewIps
+      ? db.ip_user.findFirst({
+          where: { userid: id },
+          orderBy: { ip: 'desc' },
+          select: { ip: true }
+        })
+      : null,
+    db.whitelist.findUnique({ where: { user_id: id } }),
+    db.hw_user.count({ where: { userid: id } }),
+    db.$queryRaw<
+      { from_id: number; from_name: string; ts: number; summary: string; detail: string }[]
+    >`SELECT b.from_id, f.username AS from_name, UNIX_TIMESTAMP(b.ts) AS ts, b.summary, b.detail
         FROM ban_logs b INNER JOIN users f ON f.id = b.from_id WHERE b.to_id = ${id}
         ORDER BY b.id DESC`,
-      db.$queryRaw<{ id: number; name: string; tag: string }[]>`
+    db.$queryRaw<{ id: number; name: string; tag: string }[]>`
         SELECT c.id, c.name, c.tag FROM user_clans uc INNER JOIN clans c ON c.id = uc.clan
         WHERE uc.user = ${id} LIMIT 1`,
-      isOnline(id)
-    ]);
+    isOnline(id),
+    db.user_decorations.findMany({ where: { user_id: id }, select: { decoration: true } })
+  ]);
 
   const privileges = Number(user.privileges);
   const groups = await groupsFor([privileges]);
@@ -84,7 +97,8 @@ export const GET = handle(async ({ request, params }) => {
       ip: ip?.ip ?? null,
       previousNames: history.map((h) => h.username),
       badges: slots,
-      clan: clan[0] ?? null
+      clan: clan[0] ?? null,
+      owned: owned.map((o) => o.decoration)
     },
     groups: groupRows.map((g) => ({ privileges: Number(g.privileges), name: g.name })),
     badgeChoices: allBadges,

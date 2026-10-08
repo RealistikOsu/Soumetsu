@@ -84,7 +84,7 @@ export const siteApi = {
     request<T>('GET', siteUrl(path, params), { signal }),
   post: <T = null>(path: string, body?: unknown) => request<T>('POST', siteUrl(path), { body }),
   put: <T = null>(path: string, body?: unknown) => request<T>('PUT', siteUrl(path), { body }),
-  delete: <T = null>(path: string) => request<T>('DELETE', siteUrl(path))
+  delete: <T = null>(path: string, body?: unknown) => request<T>('DELETE', siteUrl(path), { body })
 };
 
 export const api = {

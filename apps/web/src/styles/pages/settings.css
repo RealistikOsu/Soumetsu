@@ -532,6 +532,17 @@
   color: var(--link);
 }
 
+.swatch-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.swatch-buy {
+  color: var(--link);
+  font-size: 12px;
+  text-align: center;
+}
+
 .swatch.locked {
   opacity: 0.4;
 }

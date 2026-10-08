@@ -68,7 +68,7 @@
       label: m.common_header_play(),
       colour: 'c-red',
       icon: 'fa-gamepad',
-      prefixes: ['/daily-challenge', '/commissions'],
+      prefixes: ['/daily-challenge', '/commissions', '/shop'],
       items: [
         {
           href: '/daily-challenge',
@@ -85,7 +85,8 @@
                   done !== null && tasks
                     ? m.commissions_header_badge({ done, total: tasks.length })
                     : undefined
-              }
+              },
+              { href: '/shop', icon: 'fa-store', text: m.common_header_shop() }
             ]
           : [])
       ]

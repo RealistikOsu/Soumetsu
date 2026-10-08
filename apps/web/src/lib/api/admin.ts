@@ -85,6 +85,7 @@ export interface AdminUserDetail {
     previousNames: string[];
     badges: number[];
     clan: { id: number; name: string; tag: string } | null;
+    owned: string[];
   };
   groups: { privileges: number; name: string }[];
   badgeChoices: { id: number; name: string }[];
@@ -457,3 +458,54 @@ export const addPoolEntry = (ruleset: number, beatmapId: number, stars?: number)
 
 export const removePoolEntry = (ruleset: number, beatmapId: number) =>
   siteApi.delete(`/admin/lazer/pool?ruleset=${ruleset}&beatmap=${beatmapId}`);
+
+export interface ShopItemRow {
+  id: number;
+  type: string;
+  item_key: string | null;
+  name: string;
+  price: number;
+  enabled: boolean;
+  sort_order: number;
+}
+
+export interface ShopSettings {
+  supporterPrice: number;
+  spotlight: { key: string; from: string; until: string }[];
+  supporterPins: Record<string, string[]>;
+  picks: { month: string; keys: string[] };
+}
+
+export interface ShopPurchaseRow {
+  id: number;
+  user_id: number;
+  username: string;
+  item: { type: string; key: string | null; name: string };
+  price_paid: number;
+  bought_at: string;
+}
+
+export const shopItems = (signal?: AbortSignal) =>
+  siteApi.get<ShopItemRow[]>('/admin/shop/items', undefined, signal);
+
+export const setShopItem = (item: Pick<ShopItemRow, 'id' | 'price' | 'enabled' | 'sort_order'>) =>
+  siteApi.put('/admin/shop/items', item);
+
+export const shopSettings = (signal?: AbortSignal) =>
+  siteApi.get<ShopSettings>('/admin/shop/settings', undefined, signal);
+
+export const setShopSettings = (settings: Omit<ShopSettings, 'picks'>) =>
+  siteApi.put<ShopSettings>('/admin/shop/settings', settings);
+
+export const shopPurchases = (page: number, signal?: AbortSignal) =>
+  siteApi.get<{ total: number; purchases: ShopPurchaseRow[] }>(
+    '/admin/shop/purchases',
+    { page },
+    signal
+  );
+
+export const grantDecoration = (userId: number, key: string) =>
+  siteApi.post(`/admin/users/${userId}/decorations`, { key });
+
+export const revokeDecoration = (userId: number, key: string) =>
+  siteApi.delete(`/admin/users/${userId}/decorations`, { key });

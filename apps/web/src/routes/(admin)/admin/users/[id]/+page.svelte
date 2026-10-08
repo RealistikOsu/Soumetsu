@@ -2,7 +2,13 @@
   import { countryName } from '$lib/countries';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { adminUser, saveAdminUser, userAction } from '$lib/api/admin';
+  import {
+    adminUser,
+    grantDecoration,
+    revokeDecoration,
+    saveAdminUser,
+    userAction
+  } from '$lib/api/admin';
   import type { UserEdit } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
@@ -15,6 +21,7 @@
   import Flag from '$lib/components/Flag.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { countries } from '$lib/countries';
+  import { decorations, shopDecorations, supporterDecorations } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
   import { fullDate, timeAgo } from '$lib/format';
   import { allowed, modeNames, relaxNames } from '$lib/modes';
@@ -35,6 +42,7 @@
   let ipOpen = $state(false);
   let allIpsOpen = $state(false);
   let saving = $state(false);
+  let grant = $state('');
 
   $effect(() => {
     if (detail.state.status !== 'ready') return;
@@ -82,6 +90,17 @@
       flash.show('error', describe(error));
     }
     saving = false;
+  }
+
+  async function decorate(action: typeof grantDecoration, key: string, success: string) {
+    try {
+      await action(id, key);
+      flash.show('success', success);
+      grant = '';
+      version++;
+    } catch (error) {
+      flash.show('error', describe(error));
+    }
   }
 
   const slots = [0, 1, 2, 3, 4, 5];
@@ -206,6 +225,41 @@
                 {/each}
               </select>
             {/each}
+          </div>
+        </div>
+        <div class="field">
+          <span class="label">Owned decorations</span>
+          <div class="tags">
+            {#each user.owned as key (key)}
+              <AdminTag colour="c-pink">
+                {decorations.find((d) => d.key === key)?.name ?? key}
+                <button
+                  type="button"
+                  aria-label="Revoke {key}"
+                  onclick={() => decorate(revokeDecoration, key, `Revoked ${key}.`)}
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </AdminTag>
+            {:else}
+              <span class="faint">None</span>
+            {/each}
+          </div>
+          <div class="inline-save">
+            <select aria-label="Decoration to grant" bind:value={grant}>
+              <option value="">Choose a decoration</option>
+              {#each [...supporterDecorations, ...shopDecorations].filter((d) => !user.owned.includes(d.key)) as deco (deco.key)}
+                <option value={deco.key}>{deco.name} ({deco.category})</option>
+              {/each}
+            </select>
+            <button
+              class="btn"
+              type="button"
+              disabled={!grant}
+              onclick={() => decorate(grantDecoration, grant, `Granted ${grant}.`)}
+            >
+              Grant
+            </button>
           </div>
         </div>
         <div class="field">

@@ -32,11 +32,9 @@
         category,
         items: decorations.filter((d) => d.category === category)
       }))
-      // Staff and shop styles stay hidden until unlocked; locked supporter ones are shown greyed out.
+      // Staff styles stay hidden until unlocked; locked supporter and shop ones are shown greyed out.
       .filter(
-        (group) =>
-          (group.category !== 'Staff' && group.category !== 'Shop') ||
-          group.items.some((d) => unlocked.includes(d.key))
+        (group) => group.category !== 'Staff' || group.items.some((d) => unlocked.includes(d.key))
       )
   );
 
@@ -79,16 +77,21 @@
         <div class="swatches">
           {#each group.items as item (item.key)}
             {@const locked = !unlocked.includes(item.key)}
-            <label class="swatch" class:locked>
-              <input
-                type="radio"
-                name="decoration"
-                value={item.key}
-                bind:group={chosen}
-                disabled={locked}
-              />
-              <span><b class="deco-{item.key}">{item.name}</b></span>
-            </label>
+            <div class="swatch-cell">
+              <label class="swatch" class:locked>
+                <input
+                  type="radio"
+                  name="decoration"
+                  value={item.key}
+                  bind:group={chosen}
+                  disabled={locked}
+                />
+                <span><b class="deco-{item.key}">{item.name}</b></span>
+              </label>
+              {#if locked && (group.category === 'Supporter' || group.category === 'Shop')}
+                <a class="swatch-buy" href="/shop">{m.settings_decoration_buy()}</a>
+              {/if}
+            </div>
           {/each}
         </div>
         {#if group.category === 'Supporter' && group.items.some((d) => !unlocked.includes(d.key))}

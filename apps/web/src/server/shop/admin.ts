@@ -2,6 +2,8 @@ import { db } from '$server/db';
 import { Failure } from '$server/respond';
 import { PAGE_SIZE } from '$server/admin/common';
 import { rapLog } from '$server/admin/log';
+import { loadShopSettings } from '$server/shop/settings';
+import { monthKey, supporterPicks } from '$server/shop/rotation';
 import { shopDecorations, supporterDecorations } from '$lib/decorations';
 
 export const listItems = () =>
@@ -93,4 +95,10 @@ export async function revokeDecoration(staffId: number, userId: number, raw: unk
     data: { name_decoration: null }
   });
   await rapLog(staffId, `revoked the ${key} decoration from ${username}`);
+}
+
+export async function settingsWithPicks() {
+  const settings = await loadShopSettings();
+  const now = new Date();
+  return { ...settings, picks: { month: monthKey(now), keys: supporterPicks(settings, now) } };
 }
