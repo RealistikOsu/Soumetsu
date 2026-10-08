@@ -118,6 +118,12 @@ const messages: Record<string, Message> = {
   'shop.username_invalid': m.shop_err_username_invalid,
   'shop.too_fast': m.shop_err_too_fast,
 
+  'casino.disabled': m.casino_err_disabled,
+  'casino.invalid_bet': m.casino_err_invalid_bet,
+  'casino.insufficient_coins': m.casino_err_insufficient,
+  'casino.too_fast': m.casino_err_too_fast,
+  'casino.busy': m.casino_err_busy,
+
   network_error: m.common_error_network
 };
 

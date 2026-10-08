@@ -270,5 +270,6 @@
   "common_error_report_needs_info": "Dodaj szczegóły przy „Inne”.",
   "common_error_report_already_sent": "Twoje zgłoszenie na tego gracza już dziś wpłynęło.",
   "common_header_commissions": "Zlecenia",
-  "common_header_shop": "Sklep"
+  "common_header_shop": "Sklep",
+  "common_header_casino": "Kasyno"
 }

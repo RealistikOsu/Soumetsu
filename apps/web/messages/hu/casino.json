@@ -1,0 +1,79 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "casino_title": "Kaszinó",
+  "casino_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} érme",
+        "n=other": "{count} érme"
+      }
+    }
+  ],
+  "casino_games": "Játékok",
+  "casino_coming_soon": "Hamarosan",
+  "casino_play": "Játék",
+  "casino_history_title": "Előzmények",
+  "casino_history_link": "Előzmények",
+  "casino_shop_link": "Bolt",
+  "casino_history_empty": "Még nem játszottál.",
+  "casino_bet": "Tét",
+  "casino_bet_half": "½",
+  "casino_bet_double": "2×",
+  "casino_bet_max": "Max",
+  "casino_coinflip_title": "Fej vagy írás",
+  "casino_heads": "Fej",
+  "casino_tails": "Írás",
+  "casino_flip": "Feldobás",
+  "casino_flipping": "Dobom…",
+  "casino_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Nyertél {count} érmét!",
+        "n=other": "Nyertél {count} érmét!"
+      }
+    }
+  ],
+  "casino_lost": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Vesztettél {count} érmét.",
+        "n=other": "Vesztettél {count} érmét."
+      }
+    }
+  ],
+  "casino_err_disabled": "Ez a játék most ki van kapcsolva.",
+  "casino_err_invalid_bet": "Ez a tét nem megengedett.",
+  "casino_err_insufficient": "Nincs elég érméd.",
+  "casino_err_too_fast": "Lassabban.",
+  "casino_err_busy": "Előbb fejezd be a jelenlegi játékot.",
+  "casino_game_coinflip": "Fej vagy írás",
+  "casino_game_coinflip_blurb": "Fej vagy írás. Duplázás vagy semmi.",
+  "casino_game_plinko": "Plinko",
+  "casino_game_plinko_blurb": "Dobj le egy golyót, és nézd, ahogy pattog.",
+  "casino_game_slots": "Nyerőgép",
+  "casino_game_slots_blurb": "Három tekercs, egy húzás.",
+  "casino_game_roulette": "Rulett",
+  "casino_game_roulette_blurb": "Válassz számot, színt, vagy játssz biztosra.",
+  "casino_game_wheel": "Szerencsekerék",
+  "casino_game_wheel_blurb": "Pörgesd meg a kereket.",
+  "casino_game_bingo": "Bingó",
+  "casino_game_bingo_blurb": "Jelöld a számokat a kártyádon, ahogy jönnek.",
+  "casino_game_chicken_road": "Csirke az úton",
+  "casino_game_chicken_road_blurb": "Menj át az úton, és vedd fel a nyereményt, mielőtt elütnek.",
+  "casino_game_aviator": "Aviator",
+  "casino_game_aviator_blurb": "Vedd fel a nyereményt, mielőtt a gép elrepül.",
+  "casino_game_mines": "Aknák",
+  "casino_game_mines_blurb": "Kerüld ki az aknákat, és szállj ki, amikor akarsz.",
+  "casino_game_poker": "Póker",
+  "casino_game_poker_blurb": "Bubi vagy jobb.",
+  "casino_game_zeus": "Zeusz",
+  "casino_game_zeus_blurb": "Villámok a tekercseken.",
+  "casino_game_blackjack": "Blackjack",
+  "casino_game_blackjack_blurb": "Győzd le az osztót 21-ig."
+}

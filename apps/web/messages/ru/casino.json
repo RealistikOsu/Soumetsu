@@ -1,0 +1,85 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "casino_title": "Казино",
+  "casino_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} монета",
+        "n=few": "{count} монеты",
+        "n=many": "{count} монет",
+        "n=other": "{count} монеты"
+      }
+    }
+  ],
+  "casino_games": "Игры",
+  "casino_coming_soon": "Скоро",
+  "casino_play": "Играть",
+  "casino_history_title": "История",
+  "casino_history_link": "История",
+  "casino_shop_link": "Магазин",
+  "casino_history_empty": "Пока нет игр.",
+  "casino_bet": "Ставка",
+  "casino_bet_half": "½",
+  "casino_bet_double": "2×",
+  "casino_bet_max": "Макс",
+  "casino_coinflip_title": "Орёл и решка",
+  "casino_heads": "Орёл",
+  "casino_tails": "Решка",
+  "casino_flip": "Бросить",
+  "casino_flipping": "Бросаем…",
+  "casino_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Выигрыш: {count} монета!",
+        "n=few": "Выигрыш: {count} монеты!",
+        "n=many": "Выигрыш: {count} монет!",
+        "n=other": "Выигрыш: {count} монеты!"
+      }
+    }
+  ],
+  "casino_lost": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Проигрыш: {count} монета.",
+        "n=few": "Проигрыш: {count} монеты.",
+        "n=many": "Проигрыш: {count} монет.",
+        "n=other": "Проигрыш: {count} монеты."
+      }
+    }
+  ],
+  "casino_err_disabled": "Эта игра сейчас выключена.",
+  "casino_err_invalid_bet": "Такая ставка не подойдёт.",
+  "casino_err_insufficient": "Не хватает монет.",
+  "casino_err_too_fast": "Не так быстро.",
+  "casino_err_busy": "Сначала закончи текущую игру.",
+  "casino_game_coinflip": "Орёл и решка",
+  "casino_game_coinflip_blurb": "Орёл или решка. Удвой или потеряй.",
+  "casino_game_plinko": "Плинко",
+  "casino_game_plinko_blurb": "Брось шарик и смотри, как он скачет.",
+  "casino_game_slots": "Слоты",
+  "casino_game_slots_blurb": "Три барабана, одно вращение.",
+  "casino_game_roulette": "Рулетка",
+  "casino_game_roulette_blurb": "Выбери число, цвет или сыграй осторожно.",
+  "casino_game_wheel": "Колесо",
+  "casino_game_wheel_blurb": "Крути колесо.",
+  "casino_game_bingo": "Бинго",
+  "casino_game_bingo_blurb": "Отмечай числа в карточке, пока они выпадают.",
+  "casino_game_chicken_road": "Курица на дороге",
+  "casino_game_chicken_road_blurb": "Перейди дорогу и забери выигрыш, пока не сбили.",
+  "casino_game_aviator": "Авиатор",
+  "casino_game_aviator_blurb": "Забери выигрыш, пока самолёт не улетел.",
+  "casino_game_mines": "Мины",
+  "casino_game_mines_blurb": "Обходи мины и забирай выигрыш, когда захочешь.",
+  "casino_game_poker": "Покер",
+  "casino_game_poker_blurb": "Пара валетов и выше.",
+  "casino_game_zeus": "Зевс",
+  "casino_game_zeus_blurb": "Молнии на барабанах.",
+  "casino_game_blackjack": "Блэкджек",
+  "casino_game_blackjack_blurb": "Обыграй дилера до 21."
+}

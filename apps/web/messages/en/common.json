@@ -270,5 +270,6 @@
   "common_error_report_needs_info": "Add some details for \"Other\".",
   "common_error_report_already_sent": "You already reported this player today.",
   "common_header_commissions": "Commissions",
-  "common_header_shop": "Shop"
+  "common_header_shop": "Shop",
+  "common_header_casino": "Casino"
 }

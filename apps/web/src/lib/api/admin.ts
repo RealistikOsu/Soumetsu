@@ -1,3 +1,4 @@
+import type { Game } from './casino';
 import type { GradeName } from '$lib/grades';
 import type { Mod } from '$lib/mods';
 import { siteApi } from './site';
@@ -503,6 +504,20 @@ export const shopPurchases = (page: number, signal?: AbortSignal) =>
     { page },
     signal
   );
+
+export interface CasinoConfigRow {
+  game: Game;
+  minBet: number;
+  maxBet: number;
+  enabled: boolean;
+  odds: Record<string, unknown> | null;
+}
+
+export const casinoConfig = (signal?: AbortSignal) =>
+  siteApi.get<CasinoConfigRow[]>('/admin/casino/config', undefined, signal);
+
+export const saveCasinoConfig = (row: CasinoConfigRow) =>
+  siteApi.put<CasinoConfigRow[]>('/admin/casino/config', row);
 
 export const grantDecoration = (userId: number, key: string) =>
   siteApi.post(`/admin/users/${userId}/decorations`, { key });

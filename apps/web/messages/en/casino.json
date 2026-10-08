@@ -1,0 +1,79 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "casino_title": "Casino",
+  "casino_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} coin",
+        "n=other": "{count} coins"
+      }
+    }
+  ],
+  "casino_games": "Games",
+  "casino_coming_soon": "Coming soon",
+  "casino_play": "Play",
+  "casino_history_title": "History",
+  "casino_history_link": "History",
+  "casino_shop_link": "Shop",
+  "casino_history_empty": "No plays yet.",
+  "casino_bet": "Bet",
+  "casino_bet_half": "½",
+  "casino_bet_double": "2×",
+  "casino_bet_max": "Max",
+  "casino_coinflip_title": "Coin flip",
+  "casino_heads": "Heads",
+  "casino_tails": "Tails",
+  "casino_flip": "Flip",
+  "casino_flipping": "Flipping…",
+  "casino_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "You won {count} coin!",
+        "n=other": "You won {count} coins!"
+      }
+    }
+  ],
+  "casino_lost": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Lost {count} coin.",
+        "n=other": "Lost {count} coins."
+      }
+    }
+  ],
+  "casino_err_disabled": "This game is off right now.",
+  "casino_err_invalid_bet": "That bet isn't allowed.",
+  "casino_err_insufficient": "Not enough coins.",
+  "casino_err_too_fast": "Slow down a bit.",
+  "casino_err_busy": "Finish your current play first.",
+  "casino_game_coinflip": "Coin flip",
+  "casino_game_coinflip_blurb": "Heads or tails. Double or nothing.",
+  "casino_game_plinko": "Plinko",
+  "casino_game_plinko_blurb": "Drop a ball, watch it bounce.",
+  "casino_game_slots": "Slots",
+  "casino_game_slots_blurb": "Three reels, one pull.",
+  "casino_game_roulette": "Roulette",
+  "casino_game_roulette_blurb": "Pick a number, a colour, or play it safe.",
+  "casino_game_wheel": "Wheel",
+  "casino_game_wheel_blurb": "Spin the wheel.",
+  "casino_game_bingo": "Bingo",
+  "casino_game_bingo_blurb": "Mark your card as the numbers drop.",
+  "casino_game_chicken_road": "Chicken Road",
+  "casino_game_chicken_road_blurb": "Cross the road, cash out before you get hit.",
+  "casino_game_aviator": "Aviator",
+  "casino_game_aviator_blurb": "Cash out before the plane flies away.",
+  "casino_game_mines": "Mines",
+  "casino_game_mines_blurb": "Dodge the mines, cash out whenever.",
+  "casino_game_poker": "Poker",
+  "casino_game_poker_blurb": "Jacks or better.",
+  "casino_game_zeus": "Zeus",
+  "casino_game_zeus_blurb": "Lightning on the reels.",
+  "casino_game_blackjack": "Blackjack",
+  "casino_game_blackjack_blurb": "Beat the dealer to 21."
+}

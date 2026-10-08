@@ -1,0 +1,85 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "casino_title": "Kasyno",
+  "casino_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} moneta",
+        "n=few": "{count} monety",
+        "n=many": "{count} monet",
+        "n=other": "{count} monety"
+      }
+    }
+  ],
+  "casino_games": "Gry",
+  "casino_coming_soon": "Wkrótce",
+  "casino_play": "Graj",
+  "casino_history_title": "Historia",
+  "casino_history_link": "Historia",
+  "casino_shop_link": "Sklep",
+  "casino_history_empty": "Brak gier.",
+  "casino_bet": "Stawka",
+  "casino_bet_half": "½",
+  "casino_bet_double": "2×",
+  "casino_bet_max": "Max",
+  "casino_coinflip_title": "Rzut monetą",
+  "casino_heads": "Orzeł",
+  "casino_tails": "Reszka",
+  "casino_flip": "Rzuć",
+  "casino_flipping": "Rzucam…",
+  "casino_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Wygrana: {count} moneta!",
+        "n=few": "Wygrana: {count} monety!",
+        "n=many": "Wygrana: {count} monet!",
+        "n=other": "Wygrana: {count} monety!"
+      }
+    }
+  ],
+  "casino_lost": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Przegrana: {count} moneta.",
+        "n=few": "Przegrana: {count} monety.",
+        "n=many": "Przegrana: {count} monet.",
+        "n=other": "Przegrana: {count} monety."
+      }
+    }
+  ],
+  "casino_err_disabled": "Ta gra jest teraz wyłączona.",
+  "casino_err_invalid_bet": "Taka stawka odpada.",
+  "casino_err_insufficient": "Za mało monet.",
+  "casino_err_too_fast": "Wolniej.",
+  "casino_err_busy": "Najpierw dokończ obecną grę.",
+  "casino_game_coinflip": "Rzut monetą",
+  "casino_game_coinflip_blurb": "Orzeł czy reszka. Podwój albo strać.",
+  "casino_game_plinko": "Plinko",
+  "casino_game_plinko_blurb": "Wrzuć kulkę i patrz, jak skacze.",
+  "casino_game_slots": "Automaty",
+  "casino_game_slots_blurb": "Trzy bębny, jedno pociągnięcie.",
+  "casino_game_roulette": "Ruletka",
+  "casino_game_roulette_blurb": "Wybierz liczbę, kolor albo graj bezpiecznie.",
+  "casino_game_wheel": "Koło",
+  "casino_game_wheel_blurb": "Zakręć kołem.",
+  "casino_game_bingo": "Bingo",
+  "casino_game_bingo_blurb": "Zaznaczaj liczby na karcie, gdy wypadają.",
+  "casino_game_chicken_road": "Kurczak na drodze",
+  "casino_game_chicken_road_blurb": "Przejdź przez drogę i wypłać wygraną, zanim cię potrąci.",
+  "casino_game_aviator": "Aviator",
+  "casino_game_aviator_blurb": "Wypłać wygraną, zanim samolot odleci.",
+  "casino_game_mines": "Miny",
+  "casino_game_mines_blurb": "Omijaj miny i wypłać, kiedy chcesz.",
+  "casino_game_poker": "Poker",
+  "casino_game_poker_blurb": "Walety lub lepsze.",
+  "casino_game_zeus": "Zeus",
+  "casino_game_zeus_blurb": "Błyskawice na bębnach.",
+  "casino_game_blackjack": "Blackjack",
+  "casino_game_blackjack_blurb": "Pokonaj krupiera do 21."
+}

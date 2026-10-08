@@ -270,5 +270,6 @@
   "common_error_report_needs_info": "Az „Egyéb” mellé írj részleteket.",
   "common_error_report_already_sent": "Ma már jelentetted ezt a játékost.",
   "common_header_commissions": "Megbízások",
-  "common_header_shop": "Bolt"
+  "common_header_shop": "Bolt",
+  "common_header_casino": "Kaszinó"
 }
