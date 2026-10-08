@@ -102,6 +102,12 @@
   ) => run(() => setShopSettings({ ...base(current), ...change }), success);
 
   function saveSpotlight(current: ShopSettings) {
+    for (const w of windows) {
+      if (!w.from || !w.until || Date.parse(w.until) <= Date.parse(w.from)) {
+        flash.show('error', 'Fill in both dates.');
+        return;
+      }
+    }
     const spotlight = windows.map((w) => ({
       key: w.key,
       from: toIso(w.from),
@@ -149,10 +155,8 @@
       <tbody>
         {#each rows as row (row.id)}
           <tr>
-            <td
-              >{row.name}{#if row.item_key}
-                <span class="note">{row.item_key}</span>{/if}</td
-            >
+            <td>{row.name}</td>
+            <td class="note">{row.item_key ?? row.type}</td>
             <td>
               <input
                 type="number"

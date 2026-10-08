@@ -229,11 +229,12 @@
         </div>
         <div class="field">
           <span class="label">Owned decorations</span>
-          <div class="tags">
+          <div class="owned-chips">
             {#each user.owned as key (key)}
               <AdminTag colour="c-pink">
                 {decorations.find((d) => d.key === key)?.name ?? key}
                 <button
+                  class="chip-revoke"
                   type="button"
                   aria-label="Revoke {key}"
                   onclick={() => decorate(revokeDecoration, key, `Revoked ${key}.`)}
