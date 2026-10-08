@@ -1,10 +1,8 @@
-import { Privilege } from '$lib/auth/privileges';
+import { isPublic, isSupporter } from '$lib/auth/privileges';
 import { requireCaller } from '$server/auth';
 import { db } from '$server/db';
 import { publicConfig } from '$server/casino/config';
 import { handle, ok } from '$server/respond';
-
-const SUPPORTER = 4;
 
 export const GET = handle(async ({ request }) => {
   const caller = await requireCaller(request);
@@ -15,8 +13,8 @@ export const GET = handle(async ({ request }) => {
   const privileges = Number(user?.privileges ?? 0);
   return ok({
     balance: user?.coins ?? 0,
-    supporter: (privileges & SUPPORTER) !== 0,
-    restricted: (privileges & Privilege.Public) === 0,
+    supporter: isSupporter(privileges),
+    restricted: !isPublic(privileges),
     games
   });
 });

@@ -5,6 +5,8 @@ import { Failure } from '$server/respond';
 import { clearConfigCache, GAMES, parseOdds } from './config';
 import type { Game } from './config';
 
+const MAX_BET = 1_000_000;
+
 export interface CasinoConfigRow {
   game: Game;
   minBet: number;
@@ -41,6 +43,7 @@ export async function saveCasinoConfig(staffId: number, raw: unknown) {
     !Number.isInteger(maxBet) ||
     minBet < 1 ||
     maxBet < minBet ||
+    maxBet > MAX_BET ||
     typeof enabled !== 'boolean'
   )
     throw new Failure(400, 'site.invalid_request');

@@ -1,3 +1,4 @@
+import { isSupporter } from '$lib/auth/privileges';
 import { db } from '$server/db';
 import { GAMES } from './games/types';
 import type { CoinflipOdds, Game, GameConfig } from './games/types';
@@ -6,12 +7,11 @@ export { GAMES };
 export type { CoinflipOdds, Game, GameConfig };
 
 const TTL_MS = 60_000;
-const DONOR = 4;
 
 const cache: Partial<Record<Game, { value: GameConfig; at: number }>> = {};
 
 export function parseOdds(game: Game, raw: unknown): unknown | null {
-  if (!raw || typeof raw !== 'object') return null;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   if (game === 'coinflip') {
     const { multiplier } = raw as Record<string, unknown>;
     if (typeof multiplier !== 'number' || !Number.isFinite(multiplier)) return null;
@@ -55,4 +55,4 @@ export function clearConfigCache() {
 }
 
 export const donorBuff = (payout: number, privileges: number) =>
-  payout > 0 && privileges & DONOR ? Math.floor((payout * 11) / 10) : payout;
+  payout > 0 && isSupporter(privileges) ? Math.floor((payout * 11) / 10) : payout;
