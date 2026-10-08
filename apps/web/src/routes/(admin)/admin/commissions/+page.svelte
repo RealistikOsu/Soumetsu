@@ -20,6 +20,7 @@
     weights: Record<string, number | null>;
     artists: string;
     famousMaps: string;
+    lazerTasks: boolean;
   }
 
   let version = $state(0);
@@ -88,7 +89,8 @@
         .split('\n')
         .map((line) => line.trim())
         .filter(Boolean),
-      famousMaps
+      famousMaps,
+      lazerTasks: current.lazerTasks
     };
   }
 
@@ -113,6 +115,17 @@
 {#if form}
   <h2 class="section-title c-green"><i class="fa-solid fa-sliders"></i>Day</h2>
   <div class="panel form-panel admin-form settings-form c-green">
+    <div class="setting">
+      <div>
+        <b>Lazer commissions</b>
+        <p>
+          Off rolls no tasks that need lazer, and swaps out the ones players already rolled today.
+        </p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" bind:checked={form.lazerTasks} /><span></span>
+      </label>
+    </div>
     <div class="field-row">
       <div class="field">
         <label for="cm-tasks">Tasks per day</label>

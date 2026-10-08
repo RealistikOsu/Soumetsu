@@ -57,9 +57,12 @@ export const playCount: Template[] = [
     key: 'play_source',
     family: 'play_count',
     tier: 'easy',
-    roll: (_ctx, _settings, random) => ({ source: pick(['stable', 'lazer'], random) }),
+    roll: (_ctx, settings, random) => ({
+      source: settings.lazerTasks ? pick(['stable', 'lazer'], random) : 'stable'
+    }),
     target: () => 1,
-    check: (ctx, params) => any(ctx, (s) => s.source === params.source)
+    check: (ctx, params) => any(ctx, (s) => s.source === params.source),
+    lazer: (params) => params.source === 'lazer'
   }),
   template({
     key: 'play_not_favourite',
@@ -91,6 +94,7 @@ export const playCount: Template[] = [
     tier: 'medium',
     roll: once,
     target: () => 2,
-    check: (ctx) => distinct(ctx, (s) => s.source)
+    check: (ctx) => distinct(ctx, (s) => s.source),
+    lazer: () => true
   })
 ];

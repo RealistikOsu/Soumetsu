@@ -32,13 +32,16 @@ export const dailyChallenge: Template[] = [
   daily('daily_top50', 'medium', (ctx) => placed(ctx, 1)),
   daily('daily_top10', 'hard', (ctx) => placed(ctx, 2)),
   daily('daily_s', 'medium', (ctx) => onDaily(ctx, (s) => s.grade.startsWith('S'))),
-  daily(
-    'daily_both',
-    'hard',
-    async (ctx) =>
-      (await onDaily(ctx, (s) => s.source === 'stable')) &&
-      (await onDaily(ctx, (s) => s.source === 'lazer'))
-  ),
+  {
+    ...daily(
+      'daily_both',
+      'hard',
+      async (ctx) =>
+        (await onDaily(ctx, (s) => s.source === 'stable')) &&
+        (await onDaily(ctx, (s) => s.source === 'lazer'))
+    ),
+    lazer: () => true
+  },
   daily('daily_beat', 'medium', async (ctx) => {
     const row = await ctx.daily();
     if (!row) return 0;

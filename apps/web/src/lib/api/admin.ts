@@ -434,6 +434,7 @@ export interface CommissionSettings {
   weights: Record<string, number>;
   artists: string[];
   famousMaps: { beatmapId: number; name: string }[];
+  lazerTasks: boolean;
 }
 
 export const commissionSettings = (signal?: AbortSignal) =>

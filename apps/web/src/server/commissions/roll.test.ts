@@ -117,3 +117,21 @@ describe('rollReplacement', () => {
     expect(rolled).toBeNull();
   });
 });
+
+describe('lazer commissions off', () => {
+  const lazerOnly = { ...fake('l1', 'l', 'easy'), lazer: () => true };
+  const pool = [lazerOnly, fake('m1', 'm', 'easy'), fake('n1', 'n', 'medium')];
+  const off = { ...DEFAULT_SETTINGS, tasksPerDay: 3, minDayPoints: 0, lazerTasks: false };
+
+  test('never rolls a task that needs lazer', () => {
+    for (let seed = 1; seed < 30; seed++) {
+      const keys = rollDay(pool, fakeContext({}), off, seeded(seed)).map((task) => task.template);
+      expect(keys).not.toContain('l1');
+    }
+  });
+
+  test('never replaces with a task that needs lazer', () => {
+    const rolled = rollReplacement(pool, fakeContext({}), off, 'easy', new Set(['m', 'n']));
+    expect(rolled).toBeNull();
+  });
+});

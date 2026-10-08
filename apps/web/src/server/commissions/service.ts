@@ -89,8 +89,11 @@ const findDay = (userId: number, date: string) =>
     include: { tasks: true }
   });
 
-const switchedOff = (template: string, settings: Settings) =>
-  !byKey.has(template) || (settings.weights[template] ?? 1) <= 0;
+function switchedOff(template: string, params: unknown, settings: Settings) {
+  const found = byKey.get(template);
+  if (!found || (settings.weights[template] ?? 1) <= 0) return true;
+  return !settings.lazerTasks && !!found.lazer?.(params as Params);
+}
 
 type Day = NonNullable<Awaited<ReturnType<typeof findDay>>>;
 
@@ -102,7 +105,7 @@ async function replaceSwitchedOff(
   context: () => Promise<PlayerContext>
 ): Promise<Day> {
   const stale = day.tasks.filter(
-    (task) => !task.completed_at && switchedOff(task.template, settings)
+    (task) => !task.completed_at && switchedOff(task.template, task.params, settings)
   );
   if (!stale.length) return day;
 

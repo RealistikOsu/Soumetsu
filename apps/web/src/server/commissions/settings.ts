@@ -23,6 +23,7 @@ export interface Settings {
   weights: Record<string, number>;
   artists: string[];
   famousMaps: FamousMap[];
+  lazerTasks: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,7 +42,8 @@ export const DEFAULT_SETTINGS: Settings = {
     { beatmapId: 131891, name: "The Big Black [WHO'S AFRAID OF THE BIG BLACK]" },
     { beatmapId: 1215220, name: 'Blue Zenith [FOUR DIMENSIONS]' },
     { beatmapId: 252002, name: 'Image Material [Scorpiour]' }
-  ]
+  ],
+  lazerTasks: true
 };
 
 const positiveInt = (value: unknown) => Number.isInteger(value) && (value as number) > 0;
@@ -90,6 +92,9 @@ export function parseSettings(raw: unknown): Settings | null {
     if (!positiveInt(beatmapId) || typeof name !== 'string' || !name.trim()) return null;
   }
 
+  const lazerTasks = input.lazerTasks ?? true;
+  if (typeof lazerTasks !== 'boolean') return null;
+
   if (!positiveInt(input.tasksPerDay) || !positiveInt(input.minDayPoints)) return null;
   // A day rolled below the top threshold could never be finished.
   if ((input.minDayPoints as number) < (thresholds[2] as Threshold).points) return null;
@@ -105,7 +110,8 @@ export function parseSettings(raw: unknown): Settings | null {
     },
     weights: weights as Record<string, number>,
     artists: (artists as string[]).map((artist) => artist.trim()),
-    famousMaps: famousMaps as FamousMap[]
+    famousMaps: famousMaps as FamousMap[],
+    lazerTasks
   };
 }
 

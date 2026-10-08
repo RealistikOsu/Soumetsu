@@ -45,3 +45,11 @@ describe('parseSettings', () => {
     expect(parseSettings(null)).toBeNull();
   });
 });
+
+describe('lazerTasks', () => {
+  test('defaults to on and rejects non-booleans', () => {
+    expect(parseSettings({ ...DEFAULT_SETTINGS, lazerTasks: undefined })?.lazerTasks).toBe(true);
+    expect(parseSettings({ ...DEFAULT_SETTINGS, lazerTasks: false })?.lazerTasks).toBe(false);
+    expect(parseSettings({ ...DEFAULT_SETTINGS, lazerTasks: 'no' })).toBeNull();
+  });
+});

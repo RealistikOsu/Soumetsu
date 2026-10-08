@@ -12,6 +12,8 @@ export interface Template {
   target(params: Params): number;
   check(ctx: PlayerContext, params: Params): Promise<number>;
   link?(params: Params): string | null;
+  // True when the task can only be done on lazer, so it can be held back while lazer commissions are off.
+  lazer?(params: Params): boolean;
 }
 
 export const template = (t: Template) => t;

@@ -70,7 +70,7 @@ export function rollDay(
     const chosen = weighted(candidates, settings, random);
     if (!chosen) break;
     const params = chosen.roll(ctx, settings, random);
-    if (params === null) {
+    if (params === null || (!settings.lazerTasks && chosen.lazer?.(params))) {
       skipped.add(chosen.key);
       continue;
     }
@@ -109,7 +109,7 @@ export function rollReplacement(
     const chosen = weighted(sameTier.length ? sameTier : candidates, settings, random);
     if (!chosen) return null;
     const params = chosen.roll(ctx, settings, random);
-    if (params === null) {
+    if (params === null || (!settings.lazerTasks && chosen.lazer?.(params))) {
       skipped.add(chosen.key);
       continue;
     }
