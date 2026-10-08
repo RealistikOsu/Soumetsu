@@ -306,6 +306,7 @@
   padding-bottom: 14px;
 }
 
+.composer-note + .composer-note,
 .composer-note + .composer {
   border-top: 0;
 }

@@ -1,12 +1,13 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { Failure } from '$server/respond';
 import { Privilege } from '$lib/auth/privileges';
+import { parseChat } from '$lib/chat-format';
 
 mock.module('$server/db', () => ({ db: {} }));
 mock.module('$server/redis', () => ({ redis: {} }));
 mock.module('$server/admin/console', () => ({ record: async () => {} }));
 
-const { byName, channelName, fromPayload, listed, messageContent, payload } =
+const { byName, channelName, fromPayload, listed, messageContent, moderatedKey, payload } =
   await import('./channels');
 const { sendBlock } = await import('./messages');
 
@@ -73,6 +74,10 @@ describe('channelName', () => {
       expect(code(() => channelName(name))).toBe('site.invalid_request');
     }
   });
+});
+
+test('the moderation key is the one bancho sets', () => {
+  expect(moderatedKey('#osu')).toBe('rosu:chat_moderated:#osu');
 });
 
 describe('messageContent', () => {
@@ -147,6 +152,19 @@ describe('fromPayload', () => {
         time: '2026-10-08T12:00:00.000Z'
       }
     });
+  });
+
+  test('keeps /me as a CTCP action the page renders as one', () => {
+    const raw = JSON.stringify({
+      id: 8,
+      channel: '#osu',
+      sender_id: 1000,
+      sender_name: 'Aochi',
+      content: '\x01ACTION is playing Blue Zenith\x01'
+    });
+    const chat = parseChat(fromPayload(raw, now)!.message.content);
+    expect(chat.action).toBe(true);
+    expect(chat.parts).toEqual([{ text: 'is playing Blue Zenith' }]);
   });
 
   test('ignores junk', () => {

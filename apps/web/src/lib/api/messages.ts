@@ -106,6 +106,8 @@ const messages: Record<string, Message> = {
   'site.messages_too_fast': m.common_error_messages_too_fast,
   'site.channel_not_found': m.common_error_channel_not_found,
   'site.channel_no_commands': m.common_error_channel_no_commands,
+  'site.channel_moderated': m.common_error_channel_moderated,
+  'site.too_many_streams': m.common_error_too_many_streams,
   'site.report_needs_info': m.common_error_report_needs_info,
   'site.report_already_sent': m.common_error_report_already_sent,
 

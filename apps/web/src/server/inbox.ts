@@ -14,6 +14,7 @@ let subscriber: Redis | null = null;
 // A connection in subscriber mode can't run other commands, so it gets its own.
 function listen() {
   subscriber = redis.duplicate();
+  subscriber.on('error', (error) => console.error('inbox subscriber', error));
   subscriber.on('message', (_, payload) => {
     const { target_id, sender_id } = JSON.parse(payload);
     for (const listener of listeners) {

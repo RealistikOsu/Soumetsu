@@ -27,6 +27,9 @@
   let more = $state(false);
   let loading = $state(false);
   let loadingOlder = false;
+  // Too many streams open elsewhere, so this one gets no live updates.
+  let streamRefused = $state(false);
+  let load = 0;
   let draft = $state('');
   let sending = $state(false);
   let scroller = $state<HTMLElement>();
@@ -44,37 +47,35 @@
     messages = [...known, ...incoming].sort((a, b) => a.id - b.id);
   }
 
-  // A (re)connect may have missed messages, so the newest page is merged in, keeping older pages.
+  // Merged rather than replaced: live messages may land before the history does, and a (re)connect may have
+  // missed some, so both keep what's already there, older pages included.
   async function refresh(name: string, first: boolean) {
     const atBottom = nearBottom();
     const latest = await channelHistory(name);
     if (channel.name !== name) return;
-    if (first) {
-      messages = latest.messages;
-      more = latest.more;
-    } else {
-      add(latest.messages);
-    }
+    add(latest.messages);
+    if (first) more = latest.more;
     if (first || atBottom) scrollDown();
   }
 
   $effect(() => {
     const name = channel.name;
+    const token = ++load;
     messages = [];
     more = false;
     loading = true;
+    streamRefused = false;
     const controller = new AbortController();
-    let connected = false;
     untrack(() => refresh(name, true))
       .catch((error) => flash.show('error', describe(error)))
-      .finally(() => (loading = false));
+      .finally(() => {
+        if (token === load) loading = false;
+      });
     channelStream(
       name,
       (message) => {
         if (!message) {
-          // The first connect races the history load above, which already covers it.
-          if (connected) refresh(name, false).catch(() => null);
-          connected = true;
+          refresh(name, false).catch(() => null);
           return;
         }
         const atBottom = nearBottom();
@@ -82,7 +83,9 @@
         if (atBottom) scrollDown();
       },
       controller.signal
-    );
+    ).then((status) => {
+      if (status === 429 && token === load) streamRefused = true;
+    });
     return () => controller.abort();
   });
 
@@ -92,12 +95,16 @@
     loadingOlder = true;
     try {
       const height = scroller?.scrollHeight ?? 0;
-      const page = await channelHistory(channel.name, messages[0].id);
-      messages = [...page.messages, ...messages];
+      const name = channel.name;
+      const page = await channelHistory(name, messages[0].id);
+      if (channel.name !== name) return;
+      add(page.messages);
       more = page.more;
       requestAnimationFrame(() => {
         if (scroller) scroller.scrollTop = scroller.scrollHeight - height;
       });
+    } catch (error) {
+      flash.show('error', describe(error));
     } finally {
       loadingOlder = false;
     }
@@ -173,10 +180,13 @@
     {#if !loading}<p class="muted empty">{m.messages_channel_empty()}</p>{/if}
   {/each}
 </div>
+{#if streamRefused}
+  <p class="composer-note muted">{describe(new ApiError(429, 'site.too_many_streams'))}</p>
+{/if}
 {#if blocked}
   <p class="composer-note muted">{describe(new ApiError(403, blocked))}</p>
 {:else}
-  {#if command}<p class="composer-note muted">{m.messages_channel_commands()}</p>{/if}
+  {#if command}<p class="composer-note muted">{m.common_error_channel_no_commands()}</p>{/if}
   <form class="composer" onsubmit={send}>
     <textarea
       bind:value={draft}

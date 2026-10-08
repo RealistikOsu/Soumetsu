@@ -17,6 +17,7 @@ const open: Record<number, number> = {};
 // One subscription for the whole process, including the site's own posts so other viewers see them.
 function listen() {
   subscriber = redis.duplicate();
+  subscriber.on('error', (error) => console.error('channel feed subscriber', error));
   subscriber.on('message', (_, raw) => {
     const parsed = fromPayload(raw);
     if (!parsed) return;

@@ -266,6 +266,8 @@
   "common_error_messages_too_fast": "You're sending messages too fast.",
   "common_error_channel_not_found": "That channel doesn't exist.",
   "common_error_channel_no_commands": "Commands only work in game.",
+  "common_error_channel_moderated": "Only staff can talk in this channel right now.",
+  "common_error_too_many_streams": "Too many chats open. Close a few tabs and reload.",
   "common_error_upload_requests_full": "You already have too many open requests. Wait for a decision or withdraw one.",
   "common_error_upload_score_not_found": "Couldn't find a passed score of yours with that ID.",
   "common_error_upload_invalid_skin": "That skin link doesn't work. Use a direct .osk download or a link from a skin site.",

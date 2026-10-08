@@ -19,6 +19,5 @@
   "messages_channels": "Kanały",
   "messages_conversations": "Rozmowy",
   "messages_channel_empty": "Nic tu jeszcze nie ma.",
-  "messages_channel_commands": "Komendy działają tylko w grze.",
   "messages_channel_placeholder": "Wiadomość na #{channel}"
 }

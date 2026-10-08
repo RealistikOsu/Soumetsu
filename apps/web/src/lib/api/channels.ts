@@ -36,19 +36,19 @@ export const postToChannel = (name: string, content: string) =>
   siteApi.post<ChannelMessage>(path(name), { content });
 
 // Read by hand like the inbox stream. Calls back with null on every (re)connect, since anything may have been
-// said meanwhile, and gives up on a 4xx since retrying won't change the answer.
+// said meanwhile, and gives up on a 4xx since retrying won't change the answer, returning its status.
 export async function channelStream(
   name: string,
   onMessage: (message: ChannelMessage | null) => void,
   signal: AbortSignal
-) {
+): Promise<number | null> {
   while (!signal.aborted) {
     try {
       const response = await fetch(`/site-api${path(name)}/stream`, {
         headers: { Authorization: `Bearer ${getToken()}` },
         signal
       });
-      if (response.status >= 400 && response.status < 500) return;
+      if (response.status >= 400 && response.status < 500) return response.status;
       if (response.ok && response.body) {
         onMessage(null);
         const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -64,8 +64,9 @@ export async function channelStream(
         }
       }
     } catch {
-      if (signal.aborted) return;
+      if (signal.aborted) return null;
     }
     await new Promise((resolve) => setTimeout(resolve, 5_000));
   }
+  return null;
 }

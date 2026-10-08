@@ -266,6 +266,8 @@
   "common_error_messages_too_fast": "Za szybko wysyłasz wiadomości.",
   "common_error_channel_not_found": "Nie ma takiego kanału.",
   "common_error_channel_no_commands": "Komendy działają tylko w grze.",
+  "common_error_channel_moderated": "Teraz na tym kanale może pisać tylko staff.",
+  "common_error_too_many_streams": "Masz otwartych za dużo czatów. Zamknij kilka kart i odśwież.",
   "common_error_upload_requests_full": "Masz za dużo otwartych próśb. Poczekaj na decyzję albo wycofaj jedną.",
   "common_error_upload_score_not_found": "Nie znaleziono twojego zaliczonego wyniku z takim ID.",
   "common_error_upload_invalid_skin": "Ten link do skina nie działa. Użyj bezpośredniego linku do .osk albo linku ze strony ze skinami.",

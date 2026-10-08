@@ -19,6 +19,5 @@
   "messages_channels": "Csatornák",
   "messages_conversations": "Beszélgetések",
   "messages_channel_empty": "Még nincs itt üzenet.",
-  "messages_channel_commands": "A parancsok csak játékban működnek.",
   "messages_channel_placeholder": "Üzenet ide: #{channel}"
 }

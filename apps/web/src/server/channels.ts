@@ -72,6 +72,8 @@ export function messageContent(raw: unknown) {
   return content;
 }
 
+export const moderatedKey = (name: string) => `rosu:chat_moderated:${name}`;
+
 export const isAdmin = (privileges: number) => (privileges & STAFF) !== 0;
 
 export function payload(
@@ -179,6 +181,10 @@ export async function post(caller: Caller, name: string, raw: unknown) {
   const blocked = sendBlock(Number(user.privileges), user.silence_end);
   if (blocked) throw new Failure(403, blocked);
   await readable(name);
+  // Bancho sets this while a channel is moderated, where only staff may talk.
+  if (!isAdmin(caller.privileges) && (await redis.exists(moderatedKey(name)))) {
+    throw new Failure(403, 'site.channel_moderated');
+  }
   const content = messageContent(raw);
   await limitRate(caller.id);
 
@@ -196,7 +202,10 @@ export async function post(caller: Caller, name: string, raw: unknown) {
     { id: caller.id, username: user.username, privileges: caller.privileges },
     content
   );
-  await redis.publish(PUBLIC_CHANNEL, JSON.stringify(message));
+  // The row is already saved, so failing here would only make the player send it again.
+  await redis
+    .publish(PUBLIC_CHANNEL, JSON.stringify(message))
+    .catch((error) => console.error('channel publish failed', id, error));
   return {
     id,
     sender: { id: caller.id, username: user.username },

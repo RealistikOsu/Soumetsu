@@ -19,6 +19,5 @@
   "messages_channels": "Каналы",
   "messages_conversations": "Диалоги",
   "messages_channel_empty": "Здесь пока пусто.",
-  "messages_channel_commands": "Команды работают только в игре.",
   "messages_channel_placeholder": "Сообщение в #{channel}"
 }
