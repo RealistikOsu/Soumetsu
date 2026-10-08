@@ -74,5 +74,71 @@
   "casino_game_zeus": "Zeusz",
   "casino_game_zeus_blurb": "Villámok a hengereken.",
   "casino_game_blackjack": "Blackjack",
-  "casino_game_blackjack_blurb": "Verd meg az osztót 21 pontig."
+  "casino_game_blackjack_blurb": "Verd meg az osztót 21 pontig.",
+  "casino_rows": "Sorok",
+  "casino_risk": "Kockázat",
+  "casino_risk_low": "Alacsony",
+  "casino_risk_medium": "Közepes",
+  "casino_risk_high": "Magas",
+  "casino_drop": "Ejtés",
+  "casino_spin": "Pörgetés",
+  "casino_spinning": "Pörög…",
+  "casino_bet_type": "Tét",
+  "casino_rl_straight": "Egy szám",
+  "casino_rl_red": "Piros",
+  "casino_rl_black": "Fekete",
+  "casino_rl_even": "Páros",
+  "casino_rl_odd": "Páratlan",
+  "casino_rl_low": "1–18",
+  "casino_rl_high": "19–36",
+  "casino_rl_dozen1": "1. tucat",
+  "casino_rl_dozen2": "2. tucat",
+  "casino_rl_dozen3": "3. tucat",
+  "casino_rl_col1": "1. oszlop",
+  "casino_rl_col2": "2. oszlop",
+  "casino_rl_col3": "3. oszlop",
+  "casino_rl_number": "Szám",
+  "casino_no_line": "Most nincs vonal.",
+  "casino_deal": "Osztás",
+  "casino_draw": "Csere",
+  "casino_hold": "Marad",
+  "casino_held": "Marad",
+  "casino_hand_royal_flush": "Royal flush",
+  "casino_hand_straight_flush": "Színsor",
+  "casino_hand_four_of_a_kind": "Póker",
+  "casino_hand_full_house": "Full",
+  "casino_hand_flush": "Flush",
+  "casino_hand_straight": "Sor",
+  "casino_hand_three_of_a_kind": "Drill",
+  "casino_hand_two_pair": "Két pár",
+  "casino_hand_jacks_or_better": "Bubi vagy jobb",
+  "casino_hand_nothing": "Semmi",
+  "casino_paytable": "Nyerőtábla",
+  "casino_wins": "Nyeremények",
+  "casino_wild": "Joker",
+  "casino_jackpot": "Jackpot",
+  "casino_penalty": "Büntetés",
+  "casino_landed": "Ide esett: {label}",
+  "casino_err_hand_pending": "Előbb fejezd be a jelenlegi leosztást.",
+  "casino_err_no_hand": "Előbb osszál.",
+  "casino_lines_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} vonal",
+        "n=other": "{count} vonal"
+      }
+    }
+  ],
+  "casino_calls": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} húzás",
+        "n=other": "{count} húzás"
+      }
+    }
+  ]
 }

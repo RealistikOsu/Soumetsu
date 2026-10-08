@@ -1,5 +1,6 @@
 import { isSupporter } from '$lib/auth/privileges';
 import { db } from '$server/db';
+import { oddsParsers } from './games/registry';
 import { GAMES } from './games/types';
 import type { CoinflipOdds, Game, GameConfig } from './games/types';
 
@@ -10,17 +11,7 @@ const TTL_MS = 60_000;
 
 const cache: Partial<Record<Game, { value: GameConfig; at: number }>> = {};
 
-export function parseOdds(game: Game, raw: unknown): unknown | null {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
-  if (game === 'coinflip') {
-    const { multiplier } = raw as Record<string, unknown>;
-    if (typeof multiplier !== 'number' || !Number.isFinite(multiplier)) return null;
-    const m = Math.round(multiplier * 100) / 100;
-    if (m <= 1 || m > 9999.99) return null;
-    return { multiplier: m } satisfies CoinflipOdds;
-  }
-  return raw;
-}
+export const parseOdds = (game: Game, raw: unknown): unknown | null => oddsParsers[game](raw);
 
 export async function gameConfig<O>(game: Game): Promise<GameConfig<O>> {
   const hit = cache[game];

@@ -1,0 +1,34 @@
+import { requireCaller } from '$server/auth';
+import { gameConfig } from '$server/casino/config';
+import { parsePokerOdds, pokerInfo } from '$server/casino/games/poker';
+import { pending } from '$server/casino/poker';
+import { instantEntry } from '$server/casino/routes';
+import { handle, ok } from '$server/respond';
+
+export const GET = handle(async ({ request, params }) => {
+  const caller = await requireCaller(request);
+  const game = params.game!;
+
+  if (game === 'poker') {
+    const cfg = await gameConfig('poker');
+    const odds = parsePokerOdds(cfg.odds);
+    return ok({
+      game,
+      minBet: cfg.minBet,
+      maxBet: cfg.maxBet,
+      enabled: cfg.enabled && odds !== null,
+      info: odds && pokerInfo(odds),
+      pending: await pending(caller.id)
+    });
+  }
+
+  const entry = instantEntry(game);
+  const cfg = await gameConfig<never>(game as 'coinflip');
+  return ok({
+    game,
+    minBet: cfg.minBet,
+    maxBet: cfg.maxBet,
+    enabled: cfg.enabled && cfg.odds !== null,
+    info: cfg.odds ? entry.info(cfg.odds) : null
+  });
+});

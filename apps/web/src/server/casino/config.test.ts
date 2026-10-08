@@ -36,9 +36,11 @@ describe('parseOdds', () => {
     expect(parseOdds('coinflip', null)).toBeNull();
   });
 
-  test('passes objects through for other games', () => {
-    expect(parseOdds('slots', { a: 1 })).toEqual({ a: 1 });
-    expect(parseOdds('slots', 5)).toBeNull();
+  test('passes objects through for games that are not ported yet', () => {
+    expect(parseOdds('mines', { a: 1 })).toEqual({ a: 1 });
+    expect(parseOdds('mines', [1])).toBeNull();
+    expect(parseOdds('mines', 5)).toBeNull();
+    expect(parseOdds('slots', { a: 1 })).toBeNull();
   });
 });
 

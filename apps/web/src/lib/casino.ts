@@ -2,9 +2,9 @@ import { m } from '$lib/paraglide/messages';
 import type { Game } from '$lib/api/casino';
 
 export const games: { key: Game; route: string; live: boolean }[] = [
-  { key: 'coinflip', route: '/casino/coinflip', live: true },
   ...(
     [
+      'coinflip',
       'plinko',
       'slots',
       'roulette',
@@ -17,7 +17,11 @@ export const games: { key: Game; route: string; live: boolean }[] = [
       'zeus',
       'blackjack'
     ] as const
-  ).map((key) => ({ key, route: `/casino/${key.replaceAll('_', '-')}`, live: false }))
+  ).map((key) => ({
+    key,
+    route: `/casino/${key.replaceAll('_', '-')}`,
+    live: !['chicken_road', 'aviator', 'mines', 'blackjack'].includes(key)
+  }))
 ];
 
 const titles: Record<Game, () => string> = {

@@ -80,5 +80,75 @@
   "casino_game_zeus": "Zeus",
   "casino_game_zeus_blurb": "Błyskawice na bębnach.",
   "casino_game_blackjack": "Blackjack",
-  "casino_game_blackjack_blurb": "Ogrywaj krupiera do 21 oczek."
+  "casino_game_blackjack_blurb": "Ogrywaj krupiera do 21 oczek.",
+  "casino_rows": "Rzędy",
+  "casino_risk": "Ryzyko",
+  "casino_risk_low": "Niskie",
+  "casino_risk_medium": "Średnie",
+  "casino_risk_high": "Wysokie",
+  "casino_drop": "Upuść",
+  "casino_spin": "Zakręć",
+  "casino_spinning": "Kręci się…",
+  "casino_bet_type": "Zakład",
+  "casino_rl_straight": "Pojedynczy numer",
+  "casino_rl_red": "Czerwone",
+  "casino_rl_black": "Czarne",
+  "casino_rl_even": "Parzyste",
+  "casino_rl_odd": "Nieparzyste",
+  "casino_rl_low": "1–18",
+  "casino_rl_high": "19–36",
+  "casino_rl_dozen1": "1. tuzin",
+  "casino_rl_dozen2": "2. tuzin",
+  "casino_rl_dozen3": "3. tuzin",
+  "casino_rl_col1": "Kolumna 1",
+  "casino_rl_col2": "Kolumna 2",
+  "casino_rl_col3": "Kolumna 3",
+  "casino_rl_number": "Numer",
+  "casino_no_line": "Tym razem bez linii.",
+  "casino_deal": "Rozdaj",
+  "casino_draw": "Dobierz",
+  "casino_hold": "Zatrzymaj",
+  "casino_held": "Zatrzymane",
+  "casino_hand_royal_flush": "Poker królewski",
+  "casino_hand_straight_flush": "Poker",
+  "casino_hand_four_of_a_kind": "Kareta",
+  "casino_hand_full_house": "Full",
+  "casino_hand_flush": "Kolor",
+  "casino_hand_straight": "Strit",
+  "casino_hand_three_of_a_kind": "Trójka",
+  "casino_hand_two_pair": "Dwie pary",
+  "casino_hand_jacks_or_better": "Walety lub lepiej",
+  "casino_hand_nothing": "Nic",
+  "casino_paytable": "Tabela wypłat",
+  "casino_wins": "Wygrane",
+  "casino_wild": "Dzikie",
+  "casino_jackpot": "Jackpot",
+  "casino_penalty": "Kara",
+  "casino_landed": "Wypadło: {label}",
+  "casino_err_hand_pending": "Najpierw dokończ obecne rozdanie.",
+  "casino_err_no_hand": "Najpierw rozdaj karty.",
+  "casino_lines_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} linia",
+        "n=few": "{count} linie",
+        "n=many": "{count} linii",
+        "n=other": "{count} linii"
+      }
+    }
+  ],
+  "casino_calls": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} kula",
+        "n=few": "{count} kule",
+        "n=many": "{count} kul",
+        "n=other": "{count} kuli"
+      }
+    }
+  ]
 }

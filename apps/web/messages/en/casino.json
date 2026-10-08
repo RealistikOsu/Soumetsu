@@ -74,5 +74,71 @@
   "casino_game_zeus": "Zeus",
   "casino_game_zeus_blurb": "Lightning on the reels.",
   "casino_game_blackjack": "Blackjack",
-  "casino_game_blackjack_blurb": "Beat the dealer to 21."
+  "casino_game_blackjack_blurb": "Beat the dealer to 21.",
+  "casino_rows": "Rows",
+  "casino_risk": "Risk",
+  "casino_risk_low": "Low",
+  "casino_risk_medium": "Medium",
+  "casino_risk_high": "High",
+  "casino_drop": "Drop",
+  "casino_spin": "Spin",
+  "casino_spinning": "Spinning…",
+  "casino_bet_type": "Bet",
+  "casino_rl_straight": "Straight",
+  "casino_rl_red": "Red",
+  "casino_rl_black": "Black",
+  "casino_rl_even": "Even",
+  "casino_rl_odd": "Odd",
+  "casino_rl_low": "1–18",
+  "casino_rl_high": "19–36",
+  "casino_rl_dozen1": "1st 12",
+  "casino_rl_dozen2": "2nd 12",
+  "casino_rl_dozen3": "3rd 12",
+  "casino_rl_col1": "Column 1",
+  "casino_rl_col2": "Column 2",
+  "casino_rl_col3": "Column 3",
+  "casino_rl_number": "Number",
+  "casino_no_line": "No line this time.",
+  "casino_deal": "Deal",
+  "casino_draw": "Draw",
+  "casino_hold": "Hold",
+  "casino_held": "Held",
+  "casino_hand_royal_flush": "Royal flush",
+  "casino_hand_straight_flush": "Straight flush",
+  "casino_hand_four_of_a_kind": "Four of a kind",
+  "casino_hand_full_house": "Full house",
+  "casino_hand_flush": "Flush",
+  "casino_hand_straight": "Straight",
+  "casino_hand_three_of_a_kind": "Three of a kind",
+  "casino_hand_two_pair": "Two pair",
+  "casino_hand_jacks_or_better": "Jacks or better",
+  "casino_hand_nothing": "Nothing",
+  "casino_paytable": "Paytable",
+  "casino_wins": "Wins",
+  "casino_wild": "Wild",
+  "casino_jackpot": "Jackpot",
+  "casino_penalty": "Penalty",
+  "casino_landed": "Landed on {label}",
+  "casino_err_hand_pending": "Finish your current hand first.",
+  "casino_err_no_hand": "Deal first.",
+  "casino_lines_won": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} line",
+        "n=other": "{count} lines"
+      }
+    }
+  ],
+  "casino_calls": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} call",
+        "n=other": "{count} calls"
+      }
+    }
+  ]
 }

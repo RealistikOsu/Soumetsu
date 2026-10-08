@@ -3,7 +3,8 @@ import { db } from '$server/db';
 import { rapLog } from '$server/admin/log';
 import { Failure } from '$server/respond';
 import { clearConfigCache, GAMES, parseOdds } from './config';
-import type { CoinflipOdds, Game } from './config';
+import type { Game } from './config';
+import { maxMultipliers } from './games/registry';
 
 const MAX_BET = 1_000_000;
 
@@ -36,9 +37,8 @@ const INT_MAX = 2_147_483_647;
 // Worst-case payout for one bet, with the supporter buff, which has to fit the
 // signed 32-bit coin columns.
 function maxPayout(game: Game, odds: unknown, maxBet: number) {
-  if (game === 'coinflip')
-    return Math.floor((maxBet * (odds as CoinflipOdds).multiplier * 11) / 10);
-  return 0;
+  const max = maxMultipliers[game];
+  return max ? Math.floor((maxBet * max(odds as never) * 11) / 10) : 0;
 }
 
 export function parseConfigRow(raw: unknown) {

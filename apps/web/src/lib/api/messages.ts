@@ -123,6 +123,8 @@ const messages: Record<string, Message> = {
   'casino.insufficient_coins': m.casino_err_insufficient,
   'casino.too_fast': m.casino_err_too_fast,
   'casino.busy': m.casino_err_busy,
+  'casino.hand_pending': m.casino_err_hand_pending,
+  'casino.no_hand': m.casino_err_no_hand,
 
   network_error: m.common_error_network
 };
