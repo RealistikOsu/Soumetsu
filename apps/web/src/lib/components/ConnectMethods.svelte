@@ -11,6 +11,36 @@
 </script>
 
 <div class="methods">
+  <section class="panel method c-green">
+    <header>
+      <i class="fa-solid fa-download"></i>
+      <div>
+        <h2>{m.auth_method_patcher()}</h2>
+        <p>{m.auth_method_patcher_desc()}</p>
+      </div>
+    </header>
+    <p class="needs">
+      <i class="fa-brands fa-windows"></i><i class="fa-brands fa-linux"
+      ></i>{m.auth_method_patcher_platforms()}
+    </p>
+    <ol class="steps">
+      <li>
+        <b>{m.auth_method_patcher_step1()}</b>
+        <span
+          ><a href="/patcher">{m.auth_method_patcher_step1_link()}</a
+          >{m.auth_method_patcher_step1_end()}</span
+        >
+      </li>
+      <li>
+        <b>{m.auth_method_patcher_step2()}</b>
+        <span>{m.auth_method_patcher_step2_text()}</span>
+      </li>
+    </ol>
+    <a class="btn btn-green" href="/patcher"
+      ><i class="fa-solid fa-download"></i>{m.auth_method_patcher_go()}</a
+    >
+  </section>
+
   <section class="panel method c-blue">
     <header>
       <i class="fa-solid fa-link"></i>
@@ -50,35 +80,5 @@
         <span>{m.auth_method_shortcut_step3_text()}</span>
       </li>
     </ol>
-  </section>
-
-  <section class="panel method c-green">
-    <header>
-      <i class="fa-solid fa-download"></i>
-      <div>
-        <h2>{m.auth_method_patcher()}</h2>
-        <p>{m.auth_method_patcher_desc()}</p>
-      </div>
-    </header>
-    <p class="needs">
-      <i class="fa-brands fa-windows"></i><i class="fa-brands fa-linux"
-      ></i>{m.auth_method_patcher_platforms()}
-    </p>
-    <ol class="steps">
-      <li>
-        <b>{m.auth_method_patcher_step1()}</b>
-        <span
-          ><a href="/patcher">{m.auth_method_patcher_step1_link()}</a
-          >{m.auth_method_patcher_step1_end()}</span
-        >
-      </li>
-      <li>
-        <b>{m.auth_method_patcher_step2()}</b>
-        <span>{m.auth_method_patcher_step2_text()}</span>
-      </li>
-    </ol>
-    <a class="btn btn-green" href="/patcher"
-      ><i class="fa-solid fa-download"></i>{m.auth_method_patcher_go()}</a
-    >
   </section>
 </div>
