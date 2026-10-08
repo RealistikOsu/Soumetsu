@@ -100,7 +100,7 @@ async function lockLoan(tx: Prisma.TransactionClient, userId: number) {
 }
 
 // Overdue days come out before anything else touches the loan, so the caller must hold both row locks.
-export async function applyDue(
+async function applyDue(
   tx: Prisma.TransactionClient,
   userId: number,
   user: { coins: number },
