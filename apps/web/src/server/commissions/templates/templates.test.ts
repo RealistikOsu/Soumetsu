@@ -715,3 +715,14 @@ describe('casino', () => {
     expect(byKey.get('casino_play')!.link!({})).toBe('casino');
   });
 });
+
+describe('meme', () => {
+  test('meme_combo is an exact combo', async () => {
+    expect(await run('meme_combo', ctxWith([score({ combo: 727 })]), { combo: 727 })).toBe(1);
+    expect(await run('meme_combo', ctxWith([score({ combo: 728 })]), { combo: 727 })).toBe(0);
+  });
+  test('meme_fail wants a failed play', async () => {
+    expect(await run('meme_fail', ctxWith([score({ passed: false })]))).toBe(1);
+    expect(await run('meme_fail', ctxWith([score()]))).toBe(0);
+  });
+});
