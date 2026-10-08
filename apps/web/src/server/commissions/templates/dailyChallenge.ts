@@ -9,7 +9,7 @@ async function placed(ctx: PlayerContext, atLeast: number) {
   return row.placement >= atLeast || row.stablePlacement >= atLeast ? 1 : 0;
 }
 
-async function onDaily(ctx: PlayerContext, predicate: (score: DayScore) => boolean) {
+async function onDaily(ctx: PlayerContext, predicate: (score: DayScore) => boolean = () => true) {
   const row = await ctx.daily();
   if (!row) return 0;
   const scores = await ctx.scores();
@@ -28,17 +28,17 @@ const daily = (key: string, tier: Template['tier'], check: Template['check']) =>
   });
 
 export const dailyChallenge: Template[] = [
-  daily('daily_play', 'easy', async (ctx) => {
-    const row = await ctx.daily();
-    return row && (row.bestScore > 0 || row.stableScore > 0) ? 1 : 0;
-  }),
+  daily('daily_play', 'easy', (ctx) => onDaily(ctx)),
   daily('daily_top50', 'medium', (ctx) => placed(ctx, 1)),
   daily('daily_top10', 'hard', (ctx) => placed(ctx, 2)),
   daily('daily_s', 'medium', (ctx) => onDaily(ctx, (s) => s.grade.startsWith('S'))),
-  daily('daily_both', 'hard', async (ctx) => {
-    const row = await ctx.daily();
-    return row && row.bestScore > 0 && row.stableScore > 0 ? 1 : 0;
-  }),
+  daily(
+    'daily_both',
+    'hard',
+    async (ctx) =>
+      (await onDaily(ctx, (s) => s.source === 'stable')) &&
+      (await onDaily(ctx, (s) => s.source === 'lazer'))
+  ),
   daily('daily_beat', 'medium', async (ctx) => {
     const row = await ctx.daily();
     if (!row) return 0;

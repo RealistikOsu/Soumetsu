@@ -61,8 +61,6 @@ const run = (
 
 const dailyRow = (overrides: Partial<DailyRow> = {}): DailyRow => ({
   beatmapId: 5,
-  bestScore: 0,
-  stableScore: 0,
   placement: 0,
   stablePlacement: 0,
   finalised: false,
@@ -81,9 +79,14 @@ describe('login', () => {
 
 describe('daily', () => {
   test('daily_play', async () => {
-    expect(await run('daily_play', dailyCtx(dailyRow({ stableScore: 5 })))).toBe(1);
-    expect(await run('daily_play', dailyCtx(dailyRow()))).toBe(0);
-    expect(await run('daily_play', dailyCtx(null))).toBe(0);
+    expect(await run('daily_play', dailyCtx(dailyRow(), [score({ source: 'lazer' })]))).toBe(1);
+    expect(await run('daily_play', dailyCtx(dailyRow(), [score({ passed: false })]))).toBe(0);
+    expect(await run('daily_play', dailyCtx(dailyRow(), [score({ beatmapId: 9 })]))).toBe(0);
+    expect(await run('daily_play', dailyCtx(null, [score()]))).toBe(0);
+  });
+  test('daily_play counts a stable pass with no daily challenge row of their own', async () => {
+    // Without their own challenge row the context reports no placements, which is all a stable-only player has.
+    expect(await run('daily_play', dailyCtx(dailyRow(), [score({ source: 'stable' })]))).toBe(1);
   });
   test('daily_top50 waits for finalisation', async () => {
     expect(await run('daily_top50', dailyCtx(dailyRow({ placement: 1, finalised: true })))).toBe(1);
@@ -103,9 +106,14 @@ describe('daily', () => {
       0
     );
   });
-  test('daily_both', async () => {
-    expect(await run('daily_both', dailyCtx(dailyRow({ bestScore: 1, stableScore: 1 })))).toBe(1);
-    expect(await run('daily_both', dailyCtx(dailyRow({ bestScore: 1 })))).toBe(0);
+  test('daily_both needs a pass from each source', async () => {
+    const both = [score(), score({ id: 2, source: 'lazer' })];
+    expect(await run('daily_both', dailyCtx(dailyRow(), both))).toBe(1);
+    expect(await run('daily_both', dailyCtx(dailyRow(), [score(), score({ id: 2 })]))).toBe(0);
+    expect(await run('daily_both', dailyCtx(dailyRow(), [score({ source: 'lazer' })]))).toBe(0);
+    const lazerFailed = [score(), score({ id: 2, source: 'lazer', passed: false })];
+    expect(await run('daily_both', dailyCtx(dailyRow(), lazerFailed))).toBe(0);
+    expect(await run('daily_both', dailyCtx(null, both))).toBe(0);
   });
   test('daily_beat needs a later higher score', async () => {
     const at = (minute: number) => new Date(Date.UTC(2026, 9, 8, 10, minute));

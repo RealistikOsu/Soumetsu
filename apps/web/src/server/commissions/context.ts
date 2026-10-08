@@ -5,8 +5,6 @@ import { loadDayScores, optional, type DayScore } from './scores';
 
 export interface DailyRow {
   beatmapId: number;
-  bestScore: number;
-  stableScore: number;
   placement: number;
   stablePlacement: number;
   finalised: boolean;
@@ -123,30 +121,22 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
     },
     scores,
     daily: cached(async () => {
+      // The challenge exists before the player's own row does, which is only written once they set a lazer score
+      // or the day finalises, so the map comes from the challenge and the placements are optional.
+      const [challenge] = await optional(db.$queryRaw<{ beatmap_id: number }[]>`
+        SELECT beatmap_id FROM lazer_daily_challenges WHERE challenge_date = ${window.date}`);
+      if (!challenge) return null;
       const [row] = await optional(db.$queryRaw<
-        {
-          beatmap_id: number;
-          best_score: number;
-          stable_score: number;
-          placement: number;
-          stable_placement: number;
-          finalised: number;
-        }[]
+        { placement: number; stable_placement: number; finalised: number }[]
       >`
-        SELECT c.beatmap_id, d.best_score, d.stable_score, d.placement, d.stable_placement, d.finalised
-        FROM lazer_daily_challenge_days d
-        INNER JOIN lazer_daily_challenges c ON c.challenge_date = d.challenge_date
-        WHERE d.user_id = ${id} AND d.challenge_date = ${window.date}`);
-      return row
-        ? {
-            beatmapId: Number(row.beatmap_id),
-            bestScore: Number(row.best_score),
-            stableScore: Number(row.stable_score),
-            placement: Number(row.placement),
-            stablePlacement: Number(row.stable_placement),
-            finalised: row.finalised === 1
-          }
-        : null;
+        SELECT placement, stable_placement, finalised FROM lazer_daily_challenge_days
+        WHERE user_id = ${id} AND challenge_date = ${window.date}`);
+      return {
+        beatmapId: Number(challenge.beatmap_id),
+        placement: Number(row?.placement ?? 0),
+        stablePlacement: Number(row?.stable_placement ?? 0),
+        finalised: Number(row?.finalised ?? 0) === 1
+      };
     }),
     rankedPlay: cached(async () => {
       const rows = await optional(db.$queryRaw<
