@@ -94,6 +94,22 @@ describe('start', () => {
     expect(keys[KEY]).toBeUndefined();
   });
 
+  test('the dealer peeks: a dealer natural ends the hand on the deal', async () => {
+    const played = await start(1, 100, stacked('TS AH 9D KC'));
+    expect(played).toMatchObject({
+      result: { outcome: 'dealer_blackjack', dealerScore: 21 },
+      payout: 0,
+      multiplier: 0
+    });
+    expect(keys[KEY]).toBeUndefined();
+  });
+
+  test('two naturals push', async () => {
+    const played = await start(1, 100, stacked('AS AH KD QC'));
+    expect(played).toMatchObject({ result: { outcome: 'push' }, payout: 100, multiplier: 1 });
+    expect(keys[KEY]).toBeUndefined();
+  });
+
   test('a natural on an odd bet records the real ratio', async () => {
     const played = await start(1, 15, stacked('AS 9H KD 5C'));
     expect(played).toMatchObject({ payout: 33, multiplier: 2.2 });
@@ -186,10 +202,10 @@ describe('stand', () => {
     });
   });
 
-  test('a tie loses', async () => {
+  test('a tie is a push and gives the bet back', async () => {
     table('TS 8H', 'TD 8C');
     const played = await stand(1);
-    expect(played).toMatchObject({ result: { outcome: 'lose' }, payout: 0, multiplier: 0 });
+    expect(played).toMatchObject({ result: { outcome: 'push' }, payout: 100, multiplier: 1 });
   });
 });
 

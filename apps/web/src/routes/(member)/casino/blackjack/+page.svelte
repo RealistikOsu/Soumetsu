@@ -42,7 +42,9 @@
     blackjack: m.casino_bj_blackjack,
     win: m.casino_bj_win,
     dealer_bust: m.casino_bj_dealer_bust,
+    push: m.casino_bj_push,
     lose: m.casino_bj_lose,
+    dealer_blackjack: m.casino_bj_dealer_blackjack,
     bust: m.casino_bj_bust
   };
 

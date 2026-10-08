@@ -237,7 +237,8 @@ export interface ChickenView {
   next: number | null;
 }
 export type ChickenResult = { steps: number; crashedAt?: number };
-export type BlackjackOutcome = 'blackjack' | 'win' | 'dealer_bust' | 'lose' | 'bust';
+export type BlackjackOutcome =
+  'blackjack' | 'win' | 'dealer_bust' | 'push' | 'lose' | 'dealer_blackjack' | 'bust';
 export interface BlackjackView {
   bet: number;
   player: Card[];

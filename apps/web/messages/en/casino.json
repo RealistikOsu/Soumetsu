@@ -170,6 +170,8 @@
   "casino_bj_blackjack": "Blackjack!",
   "casino_bj_win": "You win",
   "casino_bj_lose": "Dealer wins",
+  "casino_bj_push": "Push, bet back",
+  "casino_bj_dealer_blackjack": "Dealer blackjack",
   "casino_bj_bust": "Bust",
   "casino_bj_dealer_bust": "Dealer busts",
   "casino_fly": "Fly",

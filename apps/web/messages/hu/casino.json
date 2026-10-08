@@ -170,6 +170,8 @@
   "casino_bj_blackjack": "Blackjack!",
   "casino_bj_win": "Nyertél",
   "casino_bj_lose": "Az osztó nyert",
+  "casino_bj_push": "Döntetlen, a tét visszajár",
+  "casino_bj_dealer_blackjack": "Az osztónak blackjackje van",
   "casino_bj_bust": "Besokalltál",
   "casino_bj_dealer_bust": "Az osztó besokallt",
   "casino_fly": "Indulás",

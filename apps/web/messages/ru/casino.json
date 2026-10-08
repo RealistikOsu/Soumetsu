@@ -182,6 +182,8 @@
   "casino_bj_blackjack": "Блэкджек!",
   "casino_bj_win": "Победа",
   "casino_bj_lose": "Победа дилера",
+  "casino_bj_push": "Ничья, ставка возвращена",
+  "casino_bj_dealer_blackjack": "У дилера блэкджек",
   "casino_bj_bust": "Перебор",
   "casino_bj_dealer_bust": "У дилера перебор",
   "casino_fly": "Взлёт",

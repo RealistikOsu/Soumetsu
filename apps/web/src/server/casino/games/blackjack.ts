@@ -9,7 +9,8 @@ export interface BlackjackOdds {
   dealerHitsSoft17: boolean;
 }
 
-export type Outcome = 'blackjack' | 'win' | 'dealer_bust' | 'lose' | 'bust';
+export type Outcome =
+  'blackjack' | 'win' | 'dealer_bust' | 'push' | 'lose' | 'dealer_blackjack' | 'bust';
 
 export interface Hand {
   player: Card[];
@@ -76,17 +77,22 @@ export function stand(hand: Hand, odds: BlackjackOdds): { hand: Hand; outcome: O
   }
   const next = { ...hand, dealer, deck };
   const dealerScore = score(dealer);
+  const playerScore = score(hand.player);
   if (dealerScore > 21) return { hand: next, outcome: 'dealer_bust' };
-  // Ties go to the house, as in the casino.
-  return { hand: next, outcome: score(hand.player) > dealerScore ? 'win' : 'lose' };
+  if (playerScore === dealerScore) return { hand: next, outcome: 'push' };
+  return { hand: next, outcome: playerScore > dealerScore ? 'win' : 'lose' };
 }
 
 export const isNatural = (hand: Hand) => score(hand.player) === 21;
+
+// Only checked on the deal, while the dealer still holds two cards.
+export const dealerNatural = (hand: Hand) => score(hand.dealer) === 21;
 
 export const isBust = (hand: Hand) => score(hand.player) > 21;
 
 export function payout(odds: BlackjackOdds, bet: number, outcome: Outcome) {
   if (outcome === 'blackjack') return payoutFor(bet, odds.blackjack);
   if (outcome === 'win' || outcome === 'dealer_bust') return payoutFor(bet, odds.win);
+  if (outcome === 'push') return bet;
   return 0;
 }

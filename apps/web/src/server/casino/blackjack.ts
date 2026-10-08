@@ -3,6 +3,7 @@ import {
   deal,
   hit as draw,
   isBust,
+  dealerNatural,
   isNatural,
   payout,
   score,
@@ -60,7 +61,10 @@ function finish(
     dealerScore: score(dealer),
     outcome
   };
-  return { settle: { multiplier: base / bet, base, result }, view: show({ ...table, bet }, true) };
+  return {
+    settle: { multiplier: base / bet, base, result, refund: outcome === 'push' },
+    view: show({ ...table, bet }, true)
+  };
 }
 
 function standOn(table: Table, bet: number) {
@@ -75,7 +79,9 @@ export async function start(userId: number, rawBet: unknown, rng: () => number =
     rawBet,
     (odds: BlackjackOdds, bet, rng): Table | Settled<BlackjackView, BlackjackResult> => {
       const table = { ...deal(rng), bet, odds };
-      // A natural pays at once, without looking at the dealer's hand.
+      // The dealer peeks on the deal, so a dealer natural ends the hand before the player can act on it.
+      if (dealerNatural(table))
+        return finish(table, bet, isNatural(table) ? 'push' : 'dealer_blackjack');
       return isNatural(table) ? finish(table, bet, 'blackjack') : table;
     },
     view,

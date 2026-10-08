@@ -182,6 +182,8 @@
   "casino_bj_blackjack": "Blackjack!",
   "casino_bj_win": "Wygrywasz",
   "casino_bj_lose": "Wygrywa krupier",
+  "casino_bj_push": "Remis, stawka wraca",
+  "casino_bj_dealer_blackjack": "Krupier ma blackjacka",
   "casino_bj_bust": "Przekroczono 21",
   "casino_bj_dealer_bust": "Krupier przekroczył 21",
   "casino_fly": "Start",

@@ -113,8 +113,8 @@ describe('stand', () => {
     expect(outcome).toBe('win');
   });
 
-  test('a tie loses', () => {
-    expect(stand(hand('TS 8H', 'TD 8C'), odds).outcome).toBe('lose');
+  test('a tie is a push', () => {
+    expect(stand(hand('TS 8H', 'TD 8C'), odds).outcome).toBe('push');
   });
 
   test('a dealer over 21 is a dealer bust', () => {
@@ -123,6 +123,11 @@ describe('stand', () => {
 });
 
 describe('payout', () => {
+  test('a push gives the bet back', () => {
+    expect(payout(odds, 100, 'push')).toBe(100);
+    expect(payout(odds, 100, 'dealer_blackjack')).toBe(0);
+  });
+
   test('pays from the odds', () => {
     expect(payout(odds, 15, 'blackjack')).toBe(33);
     expect(payout(odds, 7, 'blackjack')).toBe(15);
