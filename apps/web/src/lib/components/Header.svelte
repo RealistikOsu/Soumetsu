@@ -247,7 +247,7 @@
               ><i class="fa-solid fa-user"></i>{m.common_header_profile()}</a
             >
             {#if coins.balance !== null}
-              <a class="me-coins" href="/casino">
+              <a class="me-coins" href="/shop">
                 <i class="fa-solid fa-coins"></i>{m.casino_balance({
                   count: coins.balance,
                   coins: number(coins.balance)
