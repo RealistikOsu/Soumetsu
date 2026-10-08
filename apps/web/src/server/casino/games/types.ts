@@ -39,6 +39,6 @@ export interface GameConfig<O = unknown> {
   odds: O | null;
 }
 
-// history.multiplier is DECIMAL(6,2), so payouts use the multiplier as it will be stored.
+// casino_game_history.multiplier is DECIMAL(6,2), so payouts use the multiplier as it will be stored.
 export const payoutFor = (bet: number, multiplier: number) =>
   Math.floor((bet * Math.round(multiplier * 100)) / 100);

@@ -14,14 +14,10 @@ export function parseOdds(game: Game, raw: unknown): unknown | null {
   if (!raw || typeof raw !== 'object') return null;
   if (game === 'coinflip') {
     const { multiplier } = raw as Record<string, unknown>;
-    if (
-      typeof multiplier !== 'number' ||
-      !Number.isFinite(multiplier) ||
-      multiplier <= 1 ||
-      multiplier >= 10000
-    )
-      return null;
-    return { multiplier } satisfies CoinflipOdds;
+    if (typeof multiplier !== 'number' || !Number.isFinite(multiplier)) return null;
+    const m = Math.round(multiplier * 100) / 100;
+    if (m <= 1 || m > 9999.99) return null;
+    return { multiplier: m } satisfies CoinflipOdds;
   }
   return raw;
 }
