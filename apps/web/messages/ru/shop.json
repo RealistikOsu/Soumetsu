@@ -1,7 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Магазин",
-  "shop_intro": "Трать монеты. Больше монет дают задания.",
+  "shop_intro": "Трать монеты. Их дают за игру на рейтинговых картах через патчер (1 монета за каждые 100 комбо, на Relax и Autopilot за 200) и за задания.",
   "shop_balance": [
     {
       "declarations": ["input count", "local n = count: plural"],

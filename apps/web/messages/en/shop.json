@@ -1,7 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Shop",
-  "shop_intro": "Spend your coins. Earn more with commissions.",
+  "shop_intro": "Spend your coins. Earn them by playing ranked maps with the patcher (1 coin per 100 combo, per 200 on Relax and Autopilot) and with commissions.",
   "shop_balance": [
     {
       "declarations": ["input count", "local n = count: plural"],

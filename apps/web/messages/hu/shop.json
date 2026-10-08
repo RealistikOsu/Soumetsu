@@ -1,7 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Bolt",
-  "shop_intro": "Költsd el az érméid. Többet a megbízásokkal szerezhetsz.",
+  "shop_intro": "Költsd el az érméid. Rangsorolt mapokon kapsz érmét a patcherrel (100 combónként 1-et, Relaxon és Autopiloton 200-anként), és a megbízásokért.",
   "shop_balance": [
     {
       "declarations": ["input count", "local n = count: plural"],

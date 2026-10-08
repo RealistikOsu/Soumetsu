@@ -79,7 +79,7 @@ export const decorations: Decoration[] = [
   entry('Shop', 'mint', m.common_decoration_mint, 'permanent'),
   entry('Shop', 'lava', m.common_decoration_lava, 'permanent'),
   entry('Shop', 'foil', m.common_decoration_foil, 'permanent'),
-  entry('Shop', 'glitch', m.common_decoration_glitch, 'permanent'),
+  entry('Shop', 'toxic', m.common_decoration_toxic, 'permanent'),
   entry('Shop', 'cash', m.common_decoration_cash, 'permanent'),
   entry('Shop', 'copper', m.common_decoration_copper, 'permanent'),
   entry('Shop', 'platinum', m.common_decoration_platinum, 'permanent'),

@@ -57,6 +57,7 @@
 .deco-mint,
 .deco-lava,
 .deco-foil,
+.deco-toxic,
 .deco-royal,
 .deco-coral,
 .deco-storm,
@@ -398,11 +399,11 @@
   animation: deco-aurora-shift 4.5s ease infinite;
 }
 
-.deco-glitch {
-  color: #f2f2f2;
-  text-shadow:
-    2px 0 #ff2bd6,
-    -2px 0 #19f0ff;
+.deco-toxic {
+  background-image: linear-gradient(90deg, #39ff14, #ccff00, #7cfc00, #00ff9c, #39ff14);
+  background-size: 300% 100%;
+  filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.45));
+  animation: deco-aurora-shift 5s ease infinite;
 }
 
 .deco-royal {

@@ -1,7 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Sklep",
-  "shop_intro": "Wydawaj monety. Więcej zdobędziesz ze zleceń.",
+  "shop_intro": "Wydawaj monety. Zdobywasz je, grając rankingowe mapy przez patcher (1 moneta za każde 100 combo, na Relax i Autopilot za 200), i ze zleceń.",
   "shop_balance": [
     {
       "declarations": ["input count", "local n = count: plural"],
