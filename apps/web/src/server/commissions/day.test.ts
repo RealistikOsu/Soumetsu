@@ -11,9 +11,10 @@ describe('dayWindow', () => {
     expect(window.endUnix).toBe('1791504000');
   });
   test('day window excludes the next day', () => {
-    const window = windowOf('2026-10-08');
-    const lastSecond = Math.floor(window.end.getTime() / 1000);
-    expect(String(lastSecond) >= window.endUnix).toBe(true);
-    expect(String(lastSecond - 1) < window.endUnix).toBe(true);
+    const today = windowOf('2026-10-08');
+    expect(today.endUnix).toBe(windowOf('2026-10-09').startUnix);
+    // scores.time is compared as text, so the last second of the day must sort below endUnix and the next day's first second must not.
+    expect('1791503999' < today.endUnix).toBe(true);
+    expect('1791504000' >= today.endUnix).toBe(true);
   });
 });
