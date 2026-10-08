@@ -10,7 +10,7 @@
   import RoomBoard from '$lib/components/RoomBoard.svelte';
   import RoomMods from '$lib/components/RoomMods.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
-  import { dateTime, number, utcDay } from '$lib/format';
+  import { dateTime, fromIso, number, timeUntil, utcDay } from '$lib/format';
   import { tabInk } from '@soumetsu/ui';
   import { m } from '$lib/paraglide/messages';
 
@@ -23,10 +23,6 @@
   );
   const target = (src: DailySource, p: number) =>
     `?date=${date}${src === 'lazer' ? '&source=lazer' : ''}${p > 1 ? `&p=${p}` : ''}`;
-
-  const DAY = 86_400_000;
-  // Only worth saying when the challenge doesn't start at midnight UTC.
-  const customStart = (start: string) => Date.parse(start) % DAY !== 0;
 
   const challenge = query((signal) => dailyChallenge(date, signal));
   const result = $derived(challenge.state);
@@ -77,12 +73,16 @@
         {#if day.freemod}
           <p class="muted">{m.rooms_daily_freemod()}</p>
         {/if}
-        {#if customStart(day.starts_at)}
-          <p class="muted">
-            {m.rooms_daily_window({
-              start: dateTime(Date.parse(day.starts_at) / 1000),
-              end: dateTime(Date.parse(day.ends_at) / 1000)
-            })}
+        {@const starts = fromIso(day.starts_at)}
+        {@const ends = fromIso(day.ends_at)}
+        {@const now = Date.now() / 1000}
+        {#if now < starts}
+          <p class="muted" title={dateTime(starts)}>
+            {m.rooms_daily_starts({ when: timeUntil(starts) })}
+          </p>
+        {:else if now < ends}
+          <p class="muted" title={dateTime(ends)}>
+            {m.rooms_daily_ends({ when: timeUntil(ends) })}
           </p>
         {/if}
       {:else if missing}
