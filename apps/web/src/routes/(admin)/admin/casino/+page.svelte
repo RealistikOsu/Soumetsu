@@ -9,44 +9,45 @@
 
   const label = (game: string) => game[0].toUpperCase() + game.slice(1).replaceAll('_', ' ');
 
-  let version = $state(0);
   let busy = $state(false);
   let rows = $state<Draft[]>([]);
 
-  const config = query((signal) => {
-    void version;
-    return casinoConfig(signal);
+  const config = query((signal) => casinoConfig(signal));
+
+  const draft = (row: CasinoConfigRow): Draft => ({
+    ...row,
+    odds: row.odds ? JSON.stringify(row.odds, null, 2) : ''
   });
 
   $effect(() => {
-    if (config.state.status !== 'ready') return;
-    rows = config.state.data.map((row) => ({
-      ...row,
-      odds: row.odds ? JSON.stringify(row.odds, null, 2) : ''
-    }));
+    if (config.state.status === 'ready') rows = config.state.data.map(draft);
   });
 
   async function save(row: Draft) {
-    let odds: CasinoConfigRow['odds'] = null;
-    if (row.odds.trim()) {
-      try {
-        odds = JSON.parse(row.odds);
-      } catch {
-        flash.show('error', `Odds for ${label(row.game)} aren't valid JSON.`);
-        return;
-      }
+    if (!row.odds.trim()) {
+      flash.show('error', `Fill in the odds for ${label(row.game)}.`);
+      return;
+    }
+    let odds: CasinoConfigRow['odds'];
+    try {
+      odds = JSON.parse(row.odds);
+    } catch {
+      flash.show('error', `Odds for ${label(row.game)} aren't valid JSON.`);
+      return;
     }
     busy = true;
     try {
-      await saveCasinoConfig({
+      const saved = await saveCasinoConfig({
         game: row.game,
         minBet: Number(row.minBet),
         maxBet: Number(row.maxBet),
         enabled: row.enabled,
         odds
       });
+      // Only the saved row is replaced, so unsaved edits in the others survive.
+      const fresh = saved.find((r) => r.game === row.game);
+      if (fresh) rows = rows.map((r) => (r.game === row.game ? draft(fresh) : r));
       flash.show('success', `Saved ${label(row.game)}.`);
-      version++;
     } catch (error) {
       flash.show('error', describe(error));
     }
@@ -95,6 +96,7 @@
                 rows="3"
                 spellcheck="false"
                 aria-label="Odds for {row.game}"
+                placeholder={row.game === 'coinflip' ? '{"multiplier": 2}' : undefined}
                 bind:value={row.odds}></textarea>
             </td>
             <td>

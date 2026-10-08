@@ -72,7 +72,7 @@
                 <span class="cs-play">{m.casino_play()}</span>
               </a>
             {:else}
-              <div class="panel cs-card off" aria-disabled="true">
+              <div class="panel cs-card off">
                 <i class="fa-solid {icons[card.key]}"></i>
                 <b>{gameTitle(card.key)}</b>
                 <small class="muted">{gameBlurb(card.key)}</small>

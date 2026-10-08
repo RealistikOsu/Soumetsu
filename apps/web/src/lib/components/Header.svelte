@@ -67,6 +67,7 @@
 
   $effect(() => {
     if (user) coins.refresh().catch(() => {});
+    else coins.clear();
   });
 
   const menus: Menu[] = $derived([

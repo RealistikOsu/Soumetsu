@@ -11,6 +11,10 @@ class Coins {
     this.#balance = n;
   }
 
+  clear() {
+    this.#balance = null;
+  }
+
   async refresh() {
     this.#balance = (await casinoBalance()).balance;
   }

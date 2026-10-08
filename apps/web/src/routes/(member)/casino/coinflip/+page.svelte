@@ -32,6 +32,8 @@
 
   async function flip(event: SubmitEvent) {
     event.preventDefault();
+    // A cleared field leaves the bound value empty until it loses focus.
+    if (!Number.isFinite(bet) && limits) bet = limits.minBet;
     pending = true;
     last = null;
     const placed = bet;
@@ -110,7 +112,7 @@
         <button
           class="btn btn-blue cs-go"
           type="submit"
-          disabled={pending || data.restricted || !limits.enabled}
+          disabled={pending || data.restricted || !limits.enabled || balance < limits.minBet}
         >
           {pending ? m.casino_flipping() : m.casino_flip()}
         </button>
