@@ -85,10 +85,6 @@ const pages: Record<string, PageInfo> = {
     title: 'Documentation',
     description: 'Rules, guides and answers to common questions about RealistikOsu.'
   },
-  '/playlists': {
-    title: 'Playlists',
-    description: 'Browse the playlists on RealistikOsu and play them for a place on their boards.'
-  },
   '/daily-challenge': {
     title: 'Daily challenge',
     description: 'A new beatmap to play every day on RealistikOsu.'
@@ -305,33 +301,6 @@ async function daily(date: string) {
   };
 }
 
-async function playlist(id: string) {
-  const found = await getJson<{
-    room: {
-      name: string;
-      host: UserRef | null;
-      item_count: number;
-      first_beatmap: BeatmapRef | null;
-    };
-  }>(api(`/playlists/${id}`));
-  if (!found) return site;
-  const { room } = found;
-  const description = [
-    room.host && `Hosted by ${room.host.username}`,
-    count(room.item_count, 'map')
-  ]
-    .filter(Boolean)
-    .join(' · ');
-  if (!room.first_beatmap) return { ...site, title: room.name, description };
-  return {
-    title: room.name,
-    description,
-    image: cover(room.first_beatmap.set_id),
-    alt: `${room.name} cover`,
-    wide: true
-  };
-}
-
 async function match(kind: 'ranked-play' | 'multiplayer', id: string) {
   const found = await getJson<{ match: MatchSummary }>(api(`/${kind}/matches/${id}`));
   if (!found) return site;
@@ -369,7 +338,6 @@ const dynamic: [RegExp, (hit: string[], url: URL) => Promise<Preview>][] = [
   [/^\/c\/(\d+)$/, ([, id]) => clan(id)],
   [/^\/beatmaps\/(\d+)$/, ([, id]) => beatmap(id)],
   [/^\/beatmapsets\/(\d+)$/, ([, id]) => beatmapset(id)],
-  [/^\/playlists\/(\d+)$/, ([, id]) => playlist(id)],
   [
     /^\/scores\/(\d+)$/,
     ([, id], url) =>

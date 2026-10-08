@@ -55,14 +55,13 @@
       label: m.common_header_rooms(),
       colour: 'c-red',
       icon: 'fa-door-open',
-      prefixes: ['/daily-challenge', '/playlists'],
+      prefixes: ['/daily-challenge'],
       items: [
         {
           href: '/daily-challenge',
           icon: 'fa-calendar-day',
           text: m.common_header_daily_challenge()
-        },
-        { href: '/playlists', icon: 'fa-list-ul', text: m.common_header_playlists() }
+        }
       ]
     },
     {
