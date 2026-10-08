@@ -9,9 +9,11 @@
     "build": "prisma generate && vite build",
     "start": "bun ./build/index.js",
     "check": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy cookie preferredLanguage baseLocale --silent && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "API_URL=http://localhost APP_BASE_URL=http://localhost DATABASE_URL=mysql://localhost/test REDIS_URL=redis://localhost bun test --preload ./test/preload.ts src",
     "postinstall": "prisma generate"
   },
   "devDependencies": {
+    "@types/bun": "^1.2.0",
     "@inlang/paraglide-js": "2.25.4",
     "@inlang/plugin-message-format": "4.4.4",
     "@sveltejs/kit": "2",
