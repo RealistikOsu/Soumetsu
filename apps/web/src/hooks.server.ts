@@ -4,6 +4,26 @@ import { config } from '$server/config';
 import { previewFor } from '$server/preview';
 import { resolveUser } from '$server/users';
 
+const LOCALES = ['en', 'ru', 'pl', 'hu'];
+
+// Pages about the signed-in player, or forms, have nothing for a search engine.
+const PRIVATE = [
+  '/admin',
+  '/settings',
+  '/messages',
+  '/friends',
+  '/followers',
+  '/commissions',
+  '/login',
+  '/register',
+  '/pwreset',
+  '/clan/manage',
+  '/clans/create',
+  '/rank-request'
+];
+const isPrivate = (pathname: string) =>
+  PRIVATE.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+
 const escape = (text: string) =>
   text.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 
@@ -54,6 +74,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const preview = await previewFor(event.url);
   const url = `${config.appBaseUrl}${event.url.pathname}`;
+  const locale = event.cookies.get('PARAGLIDE_LOCALE');
+  const lang = locale && LOCALES.includes(locale) ? locale : 'en';
   const tags = [
     ['property', 'og:type', 'website'],
     ['property', 'og:site_name', 'RealistikOsu'],
@@ -67,15 +89,21 @@ export const handle: Handle = async ({ event, resolve }) => {
     ['name', 'twitter:title', preview.title],
     ['name', 'twitter:description', preview.description],
     ['name', 'twitter:image', preview.image],
-    ['name', 'twitter:image:alt', preview.alt]
+    ['name', 'twitter:image:alt', preview.alt],
+    ...(isPrivate(event.url.pathname) ? [['name', 'robots', 'noindex']] : [])
   ]
     .map(
       ([attribute, name, content]) => `<meta ${attribute}="${name}" content="${escape(content)}" />`
     )
     .join('\n    ');
+  // The page sets its own title once it renders; crawlers that don't run scripts get this one.
+  const head = `<title>${escape(preview.title)}</title>\n    <link rel="canonical" href="${escape(url)}" />\n    ${tags}`;
 
   const response = await resolve(event, {
-    transformPageChunk: ({ html }) => html.replace('</head>', `    ${tags}\n  </head>`)
+    transformPageChunk: ({ html }) =>
+      html
+        .replace('<html lang="en">', `<html lang="${lang}">`)
+        .replace('</head>', `    ${head}\n  </head>`)
   });
   // The preload list for heavy pages like profiles outgrows nginx's proxy buffer and turns into a 502.
   response.headers.delete('link');

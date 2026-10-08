@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /admin
+Disallow: /site-api/
+Disallow: /settings
+Disallow: /messages
+Disallow: /friends
+Disallow: /followers
+Disallow: /commissions
+Disallow: /login
+Disallow: /register
+Disallow: /pwreset
+
+Sitemap: https://ussr.pl/sitemap.xml
