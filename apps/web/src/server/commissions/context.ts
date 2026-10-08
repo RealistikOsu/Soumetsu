@@ -193,10 +193,15 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
       }));
     }),
     casinoPurchases: cached(async () => {
-      const [row] = await optional(db.$queryRaw<{ n: number }[]>`
-        SELECT COUNT(*) AS n FROM casino_shop_purchases
-        WHERE user_id = ${id} AND purchased_at >= ${window.start} AND purchased_at < ${window.end}`);
-      return Number(row?.n ?? 0);
+      const [[casino], [site]] = await Promise.all([
+        optional(db.$queryRaw<{ n: number }[]>`
+          SELECT COUNT(*) AS n FROM casino_shop_purchases
+          WHERE user_id = ${id} AND purchased_at >= ${window.start} AND purchased_at < ${window.end}`),
+        db.$queryRaw<{ n: number }[]>`
+          SELECT COUNT(*) AS n FROM shop_purchases
+          WHERE user_id = ${id} AND bought_at >= ${window.start} AND bought_at < ${window.end}`
+      ]);
+      return Number(casino?.n ?? 0) + Number(site?.n ?? 0);
     }),
     weekGames: cached(async () => {
       const weekAgo = new Date(window.start.getTime() - 7 * 86_400_000);

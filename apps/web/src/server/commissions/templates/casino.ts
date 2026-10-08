@@ -71,7 +71,7 @@ export const casino: Template[] = [
     roll: once,
     target: () => 1,
     check: async (ctx) => ((await ctx.casinoPurchases()) >= 1 ? 1 : 0),
-    link: () => 'casino'
+    link: () => '/shop'
   }),
   game('casino_lose', 'easy', (rows) => some(rows, (row) => row.payout < row.bet))
 ];

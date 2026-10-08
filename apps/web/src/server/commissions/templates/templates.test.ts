@@ -772,6 +772,7 @@ describe('casino', () => {
   });
   test('links use the casino marker', () => {
     expect(byKey.get('casino_play')!.link!({})).toBe('casino');
+    expect(byKey.get('casino_shop')!.link!({})).toBe('/shop');
   });
 });
 
