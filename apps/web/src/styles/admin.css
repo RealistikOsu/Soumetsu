@@ -429,6 +429,24 @@
     color: var(--faint);
   }
 
+  .user-summary .past-name {
+    gap: 2px;
+    padding: 1px 2px 1px 8px;
+    border-radius: 4px;
+    background: var(--panel-2);
+  }
+
+  .user-summary .forget-name {
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .user-summary .forget-name:hover i {
+    color: var(--red);
+  }
+
   .user-summary .tags {
     display: flex;
     flex-wrap: wrap;

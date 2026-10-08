@@ -146,7 +146,22 @@
         </span>
         {#if user.previousNames.length}
           <span>
-            <i class="fa-solid fa-signature"></i>Previously {user.previousNames.join(', ')}
+            <i class="fa-solid fa-signature"></i>Previously
+            {#each user.previousNames as name (name)}
+              <span class="past-name">
+                {name}
+                <button
+                  type="button"
+                  class="forget-name"
+                  title="Remove from their name history"
+                  aria-label="Remove {name} from their name history"
+                  onclick={() =>
+                    confirm(`Remove ${name} from their past usernames?`) &&
+                    run({ action: 'forget-name', username: name }, 'Past username removed.')}
+                  ><i class="fa-solid fa-xmark"></i></button
+                >
+              </span>
+            {/each}
           </span>
         {/if}
       </div>
