@@ -218,6 +218,7 @@ export interface AviatorInfo {
 export interface MinesView {
   bet: number;
   count: number;
+  grid: number;
   revealed: number[];
   multiplier: number;
   next: number | null;
@@ -231,6 +232,7 @@ export type MinesResult = {
 export interface ChickenView {
   bet: number;
   step: number;
+  multipliers: number[];
   multiplier: number;
   next: number | null;
 }

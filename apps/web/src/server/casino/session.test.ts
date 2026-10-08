@@ -365,12 +365,11 @@ describe('step', () => {
     ).rejects.toMatchObject({ code: 'casino.no_hand' });
   });
 
-  test('counts towards the limit unless told not to', async () => {
+  test('never counts towards the limit', async () => {
     store({ bet: 100, n: 0, top: 500 });
     await step(1, 'poker', advance);
-    expect(limitHits).toBe(1);
-    await step(1, 'poker', advance, undefined, { skipLimit: true });
-    expect(limitHits).toBe(1);
+    await step(1, 'poker', advance);
+    expect(limitHits).toBe(0);
   });
 
   test('swaps the next state in over the one it read', async () => {

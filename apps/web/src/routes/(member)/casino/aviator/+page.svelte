@@ -15,7 +15,7 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { payoutPreview, wait } from '$lib/casino';
+  import { payoutFor, wait } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
@@ -132,8 +132,9 @@
       while (!control.signal.aborted) {
         try {
           await aviatorStream((event) => heard(event, view.startedAt), control.signal);
-        } catch {
-          // Dropped; reconnect below while the flight is still ours.
+        } catch (error) {
+          // A refusal won't change on a retry; a dropped connection or a server error might.
+          if (isApiError(error) && error.status >= 400 && error.status < 500) return;
         }
         if (control.signal.aborted) return;
         await wait(RETRY, control.signal);
@@ -317,7 +318,7 @@
           />
           <button class="btn cs-go cs-cash" type="submit" disabled={pending}>
             {m.casino_cash_out()}
-            <span><i class="fa-solid fa-coins"></i>{number(payoutPreview(current.bet, live))}</span>
+            <span><i class="fa-solid fa-coins"></i>{number(payoutFor(current.bet, live))}</span>
           </button>
         </form>
       {:else}

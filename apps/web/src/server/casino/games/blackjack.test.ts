@@ -5,13 +5,13 @@ import {
   blackjackMax,
   deal,
   hit,
-  makeDeck,
   parseBlackjackOdds,
   payout,
   score,
   stand
 } from './blackjack';
 import type { BlackjackOdds, Hand } from './blackjack';
+import { makeDeck } from './cards';
 
 const odds = parseBlackjackOdds({
   blackjack: 2.2,

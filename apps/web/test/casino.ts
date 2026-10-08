@@ -17,27 +17,44 @@ interface Store {
 
 // The db and redis a stateful game's session touches, kept in memory.
 export function mockCasinoStore(store: Store) {
-  const tx = {
-    $queryRaw: async () => {
-      const user = store.user();
-      return user ? [user] : [];
-    },
-    $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
-      store.updates().push(values);
-      return 1;
-    },
-    casino_game_history: {
-      create: async ({ data }: { data: Record<string, unknown> }) => {
-        store.history().push(data);
-        return data;
+  // Like a real transaction, writes land only once the callback resolves.
+  const transaction = () => {
+    const updates: unknown[][] = [];
+    const history: Record<string, unknown>[] = [];
+    const client = {
+      $queryRaw: async () => {
+        const user = store.user();
+        return user ? [user] : [];
+      },
+      $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
+        updates.push(values);
+        return 1;
+      },
+      casino_game_history: {
+        create: async ({ data }: { data: Record<string, unknown> }) => {
+          history.push(data);
+          return data;
+        }
       }
-    }
+    };
+    const commit = () => {
+      store.updates().push(...updates);
+      store.history().push(...history);
+    };
+    return { client, commit };
   };
 
   mock.module('$server/db', () => ({
     db: {
       casino_game_config: { findUnique: async () => store.config() },
-      $transaction: async <T>(fn: (client: typeof tx) => Promise<T>) => fn(tx)
+      $transaction: async <T>(
+        fn: (client: ReturnType<typeof transaction>['client']) => Promise<T>
+      ) => {
+        const { client, commit } = transaction();
+        const result = await fn(client);
+        commit();
+        return result;
+      }
     }
   }));
 

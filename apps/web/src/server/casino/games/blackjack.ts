@@ -2,7 +2,6 @@ import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor, shuffle, toHundredths } 
 import { makeDeck, type Card } from './cards';
 
 export type { Card };
-export { makeDeck };
 
 export interface BlackjackOdds {
   blackjack: number;

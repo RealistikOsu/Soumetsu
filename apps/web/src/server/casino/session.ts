@@ -47,9 +47,6 @@ const CODES: Codes = { pending: 'casino.game_pending', missing: 'casino.no_game'
 
 export interface StepOptions {
   codes?: Codes;
-  // For settles nobody asked for, such as a crash noticed by a stream, which mustn't wait on the
-  // player's own limit.
-  skipLimit?: boolean;
 }
 
 export interface BeginOptions<O, I> {
@@ -167,11 +164,10 @@ export async function step<S extends SessionState, V, R extends Prisma.InputJson
   game: Game,
   fn: (state: S, rng: () => number) => StepOutcome<S, V, R>,
   rng: () => number = cryptoRng,
-  { codes = CODES, skipLimit = false }: StepOptions = {}
+  { codes = CODES }: StepOptions = {}
 ): Promise<StepResult<V, R>> {
-  // Doesn't read the config, so a game that's paid for always finishes, even once it's disabled
-  // or its odds are cleared.
-  if (!skipLimit) await checkLimit(game, userId);
+  // Doesn't read the config or the rate limit, so a game that's paid for always finishes: only
+  // starting one counts towards the limit, and a throttled move could otherwise cost the game.
   const key = stateKey(game, userId);
 
   return withLock(userId, async () => {

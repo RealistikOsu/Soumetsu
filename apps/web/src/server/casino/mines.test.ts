@@ -40,7 +40,7 @@ describe('start', () => {
   test('takes the bet and places the mines', async () => {
     const started = await start(1, { bet: 100, mines: 3 }, inOrder);
     expect(started).toEqual({
-      view: { bet: 100, count: 3, revealed: [], multiplier: 1, next: 0.9 },
+      view: { bet: 100, count: 3, grid: 25, revealed: [], multiplier: 1, next: 0.9 },
       balance: 900
     });
     expect(updates).toEqual([[100, 1]]);
@@ -79,7 +79,7 @@ describe('reveal', () => {
     board([0, 1, 2]);
     const played = await reveal(1, 10);
     expect(played).toEqual({
-      view: { bet: 100, count: 3, revealed: [10], multiplier: 0.9, next: 1.05 }
+      view: { bet: 100, count: 3, grid: 25, revealed: [10], multiplier: 0.9, next: 1.05 }
     });
     expect(JSON.stringify(played)).not.toContain('mines');
     expect(JSON.parse(keys[KEY]).revealed).toEqual([10]);

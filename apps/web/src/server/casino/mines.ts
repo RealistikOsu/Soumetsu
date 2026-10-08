@@ -29,6 +29,8 @@ export function view({ bet, count, revealed, odds }: Board) {
     bet,
     count,
     revealed,
+    // The board's own grid, so a running game keeps its shape if the odds change mid-game.
+    grid: odds.grid,
     multiplier: minesMultiplier(odds, count, revealed.length),
     next: left > 0 ? minesMultiplier(odds, count, revealed.length + 1) : null
   };

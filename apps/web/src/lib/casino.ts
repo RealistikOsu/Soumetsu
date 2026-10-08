@@ -57,10 +57,7 @@ export const gameBlurb = (key: Game) => blurbs[key]?.() ?? key;
 
 export const multiplier = (value: number) => `×${decimal(value)}`;
 
-// What a cash out pays at m, before any supporter bonus. m is rounded to hundredths
-// first so 1.1 × 100 gives 110, not 109.
-export const payoutPreview = (bet: number, m: number) =>
-  Math.floor((bet * Math.round(m * 100)) / 100);
+export { payoutFor } from './payout';
 
 // Resolves early on abort, so a page that's left still applies the play it already has.
 export const wait = (time: number, signal?: AbortSignal) =>

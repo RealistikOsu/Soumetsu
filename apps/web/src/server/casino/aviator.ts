@@ -8,6 +8,8 @@ import type { StepOutcome } from './session';
 
 interface Flight {
   bet: number;
+  // Every timing check compares this with Date.now() on whichever process serves the request, so
+  // it assumes one clock: fine while the site runs as a single Bun process.
   startedAt: number;
   crashPoint: number;
   curve: AviatorCurve;
@@ -48,19 +50,12 @@ const read = (userId: number) => session.pending(userId, 'aviator', (flight: Fli
 
 const failed = (e: unknown, ...codes: string[]) => e instanceof Failure && codes.includes(e.code);
 
-// Nobody asked for this settle, so it doesn't count against the player's limit.
 async function settleCrash(userId: number, now: number) {
-  const played = await session.step(
-    userId,
-    'aviator',
-    (flight: Flight) => {
-      // A new flight took the old one's place between the read and the lock.
-      if (!crashed(flight, now)) throw new Failure(409, 'casino.not_crashed');
-      return lost(flight);
-    },
-    undefined,
-    { skipLimit: true }
-  );
+  const played = await session.step(userId, 'aviator', (flight: Flight) => {
+    // A new flight took the old one's place between the read and the lock.
+    if (!crashed(flight, now)) throw new Failure(409, 'casino.not_crashed');
+    return lost(flight);
+  });
   if (!('result' in played)) throw new Error('A crash always settles');
   return played;
 }

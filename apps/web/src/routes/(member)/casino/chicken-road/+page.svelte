@@ -14,7 +14,7 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { multiplier, payoutPreview, wait } from '$lib/casino';
+  import { multiplier, payoutFor, wait } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
@@ -165,7 +165,7 @@
             {m.casino_cash_out()}
             <span
               ><i class="fa-solid fa-coins"></i>{number(
-                payoutPreview(current.bet, current.multiplier)
+                payoutFor(current.bet, current.multiplier)
               )}</span
             >
           </button>
@@ -201,7 +201,7 @@
           <div class="cs-kerb">
             {#if at === 0}<span class="cs-chicken">🐔</span>{/if}
           </div>
-          {#each info.multipliers as value, i (i)}
+          {#each current?.multipliers ?? info.multipliers as value, i (i)}
             {@const lane = i + 1}
             <button
               type="button"

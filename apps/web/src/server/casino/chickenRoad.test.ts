@@ -41,7 +41,7 @@ beforeEach(() => {
 test('start takes the bet', async () => {
   const started = await start(1, 100);
   expect(started).toEqual({
-    view: { bet: 100, step: 0, multiplier: 1, next: 1.02 },
+    view: { bet: 100, step: 0, multipliers: odds.multipliers, multiplier: 1, next: 1.02 },
     balance: 900
   });
   expect(updates).toEqual([[100, 1]]);
@@ -52,7 +52,9 @@ describe('advance', () => {
   test('crosses a lane below the survival odds', async () => {
     run(0);
     const played = await advance(1, sequence([0.8999]));
-    expect(played).toEqual({ view: { bet: 100, step: 1, multiplier: 1.02, next: 1.05 } });
+    expect(played).toEqual({
+      view: { bet: 100, step: 1, multipliers: odds.multipliers, multiplier: 1.02, next: 1.05 }
+    });
     expect(played).not.toHaveProperty('view.survival');
     expect(JSON.parse(keys[KEY]).step).toBe(1);
     expect(updates).toEqual([]);

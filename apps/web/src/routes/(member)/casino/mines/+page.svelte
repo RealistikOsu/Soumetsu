@@ -13,7 +13,7 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { multiplier, payoutPreview } from '$lib/casino';
+  import { multiplier, payoutFor } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
@@ -122,7 +122,12 @@
   }
 </script>
 
-<GameShell game="mines">
+<GameShell
+  game="mines"
+  onready={(limits) => {
+    if (limits.info) mines = Math.min(mines, limits.info.grid - 1);
+  }}
+>
   {#snippet children({
     limits,
     info,
@@ -135,6 +140,7 @@
     blocked: boolean;
   })}
     {@const current = active(limits)}
+    {@const grid = current?.grid ?? info.grid}
     <section class="panel cs-game">
       {#if current}
         <form
@@ -156,7 +162,7 @@
             {m.casino_cash_out()}
             <span
               ><i class="fa-solid fa-coins"></i>{number(
-                payoutPreview(current.bet, current.multiplier)
+                payoutFor(current.bet, current.multiplier)
               )}</span
             >
           </button>
@@ -195,8 +201,8 @@
             <span>{m.casino_next_tile()} {multiplier(current.next)}</span>
           {/if}
         </div>
-        <div class="cs-mines" style="--cols: {Math.ceil(Math.sqrt(info.grid))}">
-          {#each { length: info.grid }, i (i)}
+        <div class="cs-mines" style="--cols: {Math.ceil(Math.sqrt(grid))}">
+          {#each { length: grid }, i (i)}
             {@const face = tile(i, current)}
             <button
               type="button"

@@ -1,4 +1,4 @@
-import { MAX_MULTIPLIER, isRecord } from './types';
+import { MAX_MULTIPLIER, isPositive, isRecord } from './types';
 
 export interface AviatorCurve {
   rate: number;
@@ -11,9 +11,6 @@ export interface AviatorOdds {
   maxCrash: number;
   curve: AviatorCurve;
 }
-
-const isPositive = (v: unknown): v is number =>
-  typeof v === 'number' && Number.isFinite(v) && v > 0;
 
 export function parseAviatorOdds(raw: unknown): AviatorOdds | null {
   if (!isRecord(raw)) return null;

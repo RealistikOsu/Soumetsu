@@ -22,6 +22,8 @@ export function view({ bet, step, odds }: Run) {
   return {
     bet,
     step,
+    // The run's own lanes, so a running game keeps them if the odds change mid-game.
+    multipliers: odds.multipliers,
     multiplier: step > 0 ? odds.multipliers[step - 1] : 1,
     next: odds.multipliers[step] ?? null
   };

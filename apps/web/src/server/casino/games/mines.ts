@@ -1,5 +1,5 @@
 import { Failure } from '$server/respond';
-import { MAX_MULTIPLIER, isRecord, shuffle } from './types';
+import { MAX_MULTIPLIER, isPositive, isRecord, shuffle } from './types';
 
 export interface MinesOdds {
   grid: number;
@@ -7,9 +7,6 @@ export interface MinesOdds {
   edgeScale: number;
   edgePower: number;
 }
-
-const isPositive = (v: unknown): v is number =>
-  typeof v === 'number' && Number.isFinite(v) && v > 0;
 
 export function parseMinesOdds(raw: unknown): MinesOdds | null {
   if (!isRecord(raw)) return null;
