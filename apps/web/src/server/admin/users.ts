@@ -285,7 +285,7 @@ export async function changePassword(userId: number, password: string) {
   await redis.publish('peppy:change_pass', JSON.stringify({ user_id: userId }));
 }
 
-async function takenBy(username: string, ignore: number) {
+export async function takenBy(username: string, ignore: number) {
   const current = await db.users.findFirst({ where: { username }, select: { id: true } });
   if (current) return current.id;
   const old = await db.user_name_history.findFirst({
