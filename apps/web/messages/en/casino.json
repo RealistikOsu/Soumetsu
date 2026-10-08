@@ -140,5 +140,7 @@
         "n=other": "{count} calls"
       }
     }
-  ]
+  ],
+  "casino_line": "Line",
+  "casino_column": "Column"
 }

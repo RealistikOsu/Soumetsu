@@ -282,6 +282,344 @@ a.cs-card:hover {
   cursor: not-allowed;
 }
 
+.cs-game {
+  display: grid;
+  grid-template:
+    'controls stage' auto
+    'controls table' 1fr / minmax(260px, 340px) 1fr;
+  align-items: start;
+  gap: 24px;
+  padding: 24px;
+}
+
+.cs-controls {
+  grid-area: controls;
+  max-width: none;
+}
+
+.cs-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cs-seg {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.cs-sides.cs-seg button {
+  padding: 8px 6px;
+  font-size: 14px;
+}
+
+.cs-sides button:disabled:not(.active) {
+  opacity: 0.5;
+}
+
+.cs-sides button.active:disabled {
+  opacity: 1;
+}
+
+.cs-outcome {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-2);
+  text-align: center;
+}
+
+.cs-mult {
+  font-size: 1.6rem;
+}
+
+.cs-mult.win {
+  color: var(--green);
+}
+
+.cs-mult.loss {
+  color: var(--red);
+}
+
+.cs-stage {
+  grid-area: stage;
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  min-width: 0;
+}
+
+.cs-stage h2 {
+  font-size: 1rem;
+}
+
+/* plinko */
+
+.cs-plinko {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1;
+  container-type: inline-size;
+}
+
+.cs-peg,
+.cs-ball,
+.cs-bucket {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.cs-peg {
+  width: calc(var(--pitch) * 0.2cqw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--faint);
+}
+
+.cs-ball {
+  z-index: 1;
+  width: calc(var(--pitch) * 0.45cqw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgb(255 255 255 / 0.6);
+  pointer-events: none;
+}
+
+.cs-bucket {
+  display: grid;
+  place-items: center;
+  width: calc(var(--pitch) * 0.92cqw);
+  height: calc(var(--pitch) * 0.8cqw);
+  border-radius: 3px;
+  font-size: max(8px, calc(var(--pitch) * 0.3cqw));
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cs-bucket.gold {
+  background: var(--yellow);
+  color: #3d2e00;
+}
+
+.cs-bucket.good {
+  background: var(--green);
+  color: #fff;
+}
+
+.cs-bucket.even {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.cs-bucket.poor {
+  background: rgb(219 40 40 / 0.75);
+  color: #fff;
+}
+
+.cs-bucket.hit {
+  outline: 2px solid #fff;
+}
+
+.motion .cs-bucket.hit {
+  animation: cs-hit 0.5s ease-out;
+}
+
+@keyframes cs-hit {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  40% {
+    transform: translate(-50%, -30%) scale(1.15);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* slots and zeus */
+
+.cs-reels,
+.cs-zeus {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.cs-reels {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 360px;
+}
+
+.cs-zeus {
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 520px;
+}
+
+.cs-reel {
+  --cell: clamp(64px, 22vw, 100px);
+  display: grid;
+  gap: 4px;
+  height: calc(var(--cell) * 3 + 8px);
+  overflow: hidden;
+}
+
+.cs-cell {
+  display: grid;
+  place-items: center;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: var(--panel-2);
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.cs-reel .cs-cell {
+  height: var(--cell);
+}
+
+.cs-zeus .cs-cell {
+  aspect-ratio: 1;
+  font-size: clamp(1.3rem, 6vw, 2.4rem);
+}
+
+.cs-cell.idle {
+  opacity: 0.35;
+}
+
+.cs-cell.won {
+  border-color: var(--green);
+  background: rgb(33 186 69 / 0.2);
+}
+
+.cs-cell.wild {
+  border-color: var(--yellow);
+}
+
+.cs-strip {
+  display: grid;
+  gap: 4px;
+}
+
+.motion .cs-strip {
+  animation: cs-reel calc(var(--cells) * 70ms) linear infinite;
+}
+
+/* The strip holds its cycle twice, so half its height plus half a gap loops seamlessly. */
+@keyframes cs-reel {
+  from {
+    transform: translateY(calc(-50% - 2px));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.motion .cs-reel .cs-cell.landed {
+  animation: cs-land 0.25s ease-out;
+}
+
+@keyframes cs-land {
+  from {
+    transform: translateY(-30%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.motion .cs-zeus.spinning .cs-cell {
+  animation: cs-pulse 0.45s ease-in-out infinite alternate;
+}
+
+.motion .cs-zeus.spinning .cs-cell:nth-child(odd) {
+  animation-delay: 0.15s;
+}
+
+@keyframes cs-pulse {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+}
+
+.cs-glyph {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.cs-paytable {
+  grid-area: table;
+  justify-self: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.cs-paytable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cs-paytable th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cs-paytable th,
+.cs-paytable td {
+  padding: 6px 8px;
+  text-align: right;
+}
+
+.cs-paytable td:first-child {
+  text-align: left;
+}
+
+.cs-paytable tr + tr td {
+  border-top: 1px solid var(--line);
+}
+
+.cs-wins h2 {
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.cs-wins ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cs-wins li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 800px) {
+  .cs-game {
+    grid-template: 'stage' 'controls' 'table' / 1fr;
+    padding: 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .cs-history li {
     grid-template-columns: 1fr auto;

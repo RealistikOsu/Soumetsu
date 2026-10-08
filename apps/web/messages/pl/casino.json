@@ -150,5 +150,7 @@
         "n=other": "{count} kuli"
       }
     }
-  ]
+  ],
+  "casino_line": "Linia",
+  "casino_column": "Kolumna"
 }

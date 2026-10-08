@@ -140,5 +140,7 @@
         "n=other": "{count} húzás"
       }
     }
-  ]
+  ],
+  "casino_line": "Vonal",
+  "casino_column": "Oszlop"
 }
