@@ -107,14 +107,6 @@
     <SectionTitle colour="c-orange" icon="fa-star">{m.support_team_credits_title()}</SectionTitle>
     <ul class="panel credits c-orange">
       <li>
-        <b>Franc[e]sco</b>
-        {m.support_team_credits_and()} <b>cmyui</b>{m.support_team_credits_pp_for()}
-        <a href="https://github.com/Francesco149/oppai-ng">oppai-ng</a>
-        {m.support_team_credits_pp_by()}
-        <a href="https://github.com/osuAkatsuki/akatsuki-pp">{m.support_team_credits_pp_link()}</a>
-        {m.support_team_credits_pp_after()}
-      </li>
-      <li>
         <b>Akatsuki</b>{m.support_team_credits_akatsuki_for()}
         <a href="https://github.com/osuAkatsuki/akatsuki-pp-rs">akatsuki-pp-rs</a
         >{m.support_team_credits_akatsuki_after()}
