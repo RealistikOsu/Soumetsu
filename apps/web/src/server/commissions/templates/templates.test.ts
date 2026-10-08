@@ -617,6 +617,10 @@ describe('leaderboard', () => {
       boardQueries.priorBest = async () => 90;
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(1);
     });
+    test('does not pay when an earlier best of 250 beats the other player at 200', async () => {
+      boardQueries.priorBest = async () => 250;
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 200)))).toBe(0);
+    });
     test('does not pay when the player already held first', async () => {
       boardQueries.priorBest = async () => 120;
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(0);

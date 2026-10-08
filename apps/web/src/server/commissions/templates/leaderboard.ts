@@ -18,13 +18,13 @@ const TABLES = ['scores', 'scores_relax', 'scores_ap'];
 
 // Separate from the checks so tests can stand in for the database.
 export const queries = {
-  // The player's best board metric (pp, or total score on the vanilla lazer board) from before the day.
+  // Any earlier pass counts: setting a new best demotes the old one below completed = 3.
   async priorBest(ctx: PlayerContext, play: DayScore): Promise<number | null> {
     if (play.source === 'stable') {
       const [row] = await db.$queryRaw<{ best: number | null }[]>(Prisma.sql`
         SELECT MAX(pp) AS best FROM ${Prisma.raw(TABLES[play.variant])}
         WHERE userid = ${ctx.id} AND beatmap_md5 = ${play.md5} AND play_mode = ${play.mode}
-          AND completed = 3 AND time < ${ctx.window.startUnix}`);
+          AND completed >= 1 AND time < ${ctx.window.startUnix}`);
       return row?.best == null ? null : Number(row.best);
     }
     const metric = play.variant === 0 ? Prisma.sql`total_score` : Prisma.sql`pp`;
