@@ -115,6 +115,11 @@
         {m.support_team_credits_pp_after()}
       </li>
       <li>
+        <b>Akatsuki</b>{m.support_team_credits_akatsuki_for()}
+        <a href="https://github.com/osuAkatsuki/akatsuki-pp-rs">akatsuki-pp-rs</a
+        >{m.support_team_credits_akatsuki_after()}
+      </li>
+      <li>
         <a href="https://ripple.moe"><b>Ripple</b></a>{m.support_team_credits_ripple()}
         <a href="https://github.com/osuripple">{m.support_team_credits_ripple_link()}</a
         >{m.support_team_credits_ripple_after()}
