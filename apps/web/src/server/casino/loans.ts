@@ -6,7 +6,7 @@ import { checkLimit } from './limits';
 
 const DAY = 86400;
 
-export const LOAN = { interest: 0.15, min: 100, max: 25_000, termDays: 7 } as const;
+export const LOAN = { interestPercent: 15, min: 100, max: 25_000, termDays: 7 } as const;
 
 export interface Loan {
   id: number;
@@ -32,10 +32,8 @@ interface LoanRow {
 
 const unix = (date: Date) => Math.floor(date.getTime() / 1000);
 
-// Integer maths so the result never depends on how 1.15 rounds in floating point.
 export function terms(amount: number) {
-  const percent = 100 + Math.round(LOAN.interest * 100);
-  const totalOwed = Math.ceil((amount * percent) / 100);
+  const totalOwed = Math.ceil((amount * (100 + LOAN.interestPercent)) / 100);
   return { totalOwed, dailyPayment: Math.ceil(totalOwed / LOAN.termDays) };
 }
 
@@ -101,32 +99,44 @@ async function lockLoan(tx: Prisma.TransactionClient, userId: number) {
   return row ?? null;
 }
 
+// Overdue days come out before anything else touches the loan, so the caller must hold both row locks.
+export async function applyDue(
+  tx: Prisma.TransactionClient,
+  userId: number,
+  user: { coins: number },
+  loan: LoanRow,
+  at: number
+) {
+  const { payments, lastPaymentAt } = dueSchedule(
+    {
+      remaining: loan.remaining,
+      dailyPayment: loan.daily_payment,
+      lastPaymentAt: loan.last_payment_at
+    },
+    user.coins,
+    at
+  );
+  const paid = payments.reduce((sum, pay) => sum + pay, 0);
+  const result = { coins: user.coins - paid, remaining: loan.remaining - paid };
+  if (lastPaymentAt === loan.last_payment_at) return result;
+
+  if (paid > 0) await tx.$executeRaw`UPDATE users SET coins = coins - ${paid} WHERE id = ${userId}`;
+  await tx.casino_loans.update({
+    where: { id: loan.id },
+    data: {
+      remaining: result.remaining,
+      paid_off: result.remaining === 0,
+      last_payment_at: lastPaymentAt
+    }
+  });
+  return result;
+}
+
 export async function processDue(userId: number, now = new Date()) {
-  const at = unix(now);
   await db.$transaction(async (tx) => {
     const user = await lockUser(tx, userId);
     const loan = await lockLoan(tx, userId);
-    if (!loan) return;
-
-    const { payments, lastPaymentAt } = dueSchedule(
-      {
-        remaining: loan.remaining,
-        dailyPayment: loan.daily_payment,
-        lastPaymentAt: loan.last_payment_at
-      },
-      user.coins,
-      at
-    );
-    if (lastPaymentAt === loan.last_payment_at) return;
-
-    const paid = payments.reduce((sum, pay) => sum + pay, 0);
-    const remaining = loan.remaining - paid;
-    if (paid > 0)
-      await tx.$executeRaw`UPDATE users SET coins = coins - ${paid} WHERE id = ${userId}`;
-    await tx.casino_loans.update({
-      where: { id: loan.id },
-      data: { remaining, paid_off: remaining === 0, last_payment_at: lastPaymentAt }
-    });
+    if (loan) await applyDue(tx, userId, user, loan, unix(now));
   });
 }
 
@@ -151,7 +161,7 @@ export async function take(userId: number, amount: number): Promise<Loan> {
           user_id: userId,
           principal: totalOwed,
           remaining: totalOwed,
-          interest_rate: LOAN.interest,
+          interest_rate: LOAN.interestPercent / 100,
           daily_payment: dailyPayment,
           taken_at: now,
           last_payment_at: now
@@ -168,31 +178,37 @@ export async function take(userId: number, amount: number): Promise<Loan> {
   }
 }
 
-export async function repay(
+export async function settleRepayment(
+  tx: Prisma.TransactionClient,
   userId: number,
-  amount: number
+  amount: number,
+  at: number
 ): Promise<{ loan: Loan | null; balance: number }> {
+  const user = await lockUser(tx, userId);
+  const loan = await lockLoan(tx, userId);
+  if (!loan) throw new Failure(404, 'casino.no_loan');
+
+  const due = await applyDue(tx, userId, user, loan, at);
+  if (due.remaining === 0) throw new Failure(404, 'casino.no_loan');
+
+  const pay = Math.min(amount, due.remaining);
+  if (due.coins < pay) throw new Failure(402, 'casino.insufficient_coins');
+
+  const remaining = due.remaining - pay;
+  await tx.$executeRaw`UPDATE users SET coins = coins - ${pay} WHERE id = ${userId}`;
+  const row = await tx.casino_loans.update({
+    where: { id: loan.id },
+    data: { remaining, paid_off: remaining === 0, last_payment_at: at }
+  });
+
+  return { loan: remaining === 0 ? null : toLoan(row, at), balance: due.coins - pay };
+}
+
+export async function repay(userId: number, amount: number) {
   await checkLimit('loan_repay', userId);
   if (!Number.isInteger(amount) || amount < 1) throw new Failure(400, 'casino.invalid_amount');
-  const now = unix(new Date());
-
-  return db.$transaction(async (tx) => {
-    const user = await lockUser(tx, userId);
-    const loan = await lockLoan(tx, userId);
-    if (!loan) throw new Failure(404, 'casino.no_loan');
-
-    const pay = Math.min(amount, loan.remaining);
-    if (user.coins < pay) throw new Failure(402, 'casino.insufficient_coins');
-
-    const remaining = loan.remaining - pay;
-    await tx.$executeRaw`UPDATE users SET coins = coins - ${pay} WHERE id = ${userId}`;
-    const row = await tx.casino_loans.update({
-      where: { id: loan.id },
-      data: { remaining, paid_off: remaining === 0, last_payment_at: now }
-    });
-
-    return { loan: remaining === 0 ? null : toLoan(row, now), balance: user.coins - pay };
-  });
+  const at = unix(new Date());
+  return db.$transaction((tx) => settleRepayment(tx, userId, amount, at));
 }
 
 export async function status(userId: number) {
