@@ -34,7 +34,11 @@ export interface Streaks {
 }
 
 export const commissions = (signal?: AbortSignal) =>
-  siteApi.get<{ day: CommissionDay; streaks: Streaks }>('/commissions', undefined, signal);
+  siteApi.get<{ day: CommissionDay; previous: CommissionDay | null; streaks: Streaks }>(
+    '/commissions',
+    undefined,
+    signal
+  );
 
 export const claimTier = (tier: number, day?: string) =>
   siteApi.post<{ balance: number }>('/commissions/claim', { tier, day });

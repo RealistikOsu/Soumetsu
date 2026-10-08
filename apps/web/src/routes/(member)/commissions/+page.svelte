@@ -10,20 +10,20 @@
 
   const info = query((signal) => commissions(signal));
   const day = $derived(info.state.status === 'ready' ? info.state.data.day : null);
+  const previous = $derived(info.state.status === 'ready' ? info.state.data.previous : null);
   const streaks = $derived(info.state.status === 'ready' ? info.state.data.streaks : null);
   let busy = $state(false);
 
   const top = (d: CommissionDay) => d.thresholds[d.thresholds.length - 1].points;
   const percent = (d: CommissionDay) => Math.min(100, Math.round((d.points / top(d)) * 100));
 
-  async function claim(tier: number) {
-    if (!day) return;
+  async function claim(d: CommissionDay, tier: number) {
     busy = true;
     try {
-      await claimTier(tier, day.date);
+      await claimTier(tier, d.date);
       flash.show(
         'success',
-        m.commissions_claimed_toast({ coins: number(day.thresholds[tier - 1].coins) })
+        m.commissions_claimed_toast({ coins: number(d.thresholds[tier - 1].coins) })
       );
       info.reload();
     } catch (error) {
@@ -32,6 +32,33 @@
     busy = false;
   }
 </script>
+
+{#snippet bar(d: CommissionDay)}
+  <div class="cm-track"><span style="width: {percent(d)}%"></span></div>
+  <ol class="cm-tiers">
+    {#each d.thresholds as threshold, index (threshold.points)}
+      {@const tier = index + 1}
+      {@const reached = d.points >= threshold.points}
+      {@const claimable = reached && d.claimedTier === tier - 1}
+      <li class:reached class:claimed={d.claimedTier >= tier}>
+        <span>{m.commissions_points({ points: number(threshold.points) })}</span>
+        {#if d.claimedTier >= tier}
+          <b>{m.commissions_claimed()}</b>
+        {:else}
+          <button
+            class="btn btn-blue"
+            type="button"
+            disabled={!claimable || busy}
+            onclick={() => claim(d, tier)}
+          >
+            {m.commissions_claim({ coins: number(threshold.coins) })}
+          </button>
+        {/if}
+      </li>
+    {/each}
+  </ol>
+  <b class="cm-total">{m.commissions_points({ points: number(d.points) })}</b>
+{/snippet}
 
 <svelte:head><title>{m.commissions_title()} · RealistikOsu</title></svelte:head>
 
@@ -43,31 +70,23 @@
       {m.commissions_intro()} <span class="muted">{m.commissions_resets()}</span>
     </p>
 
+    {#if previous}
+      <section class="cm-bar panel">
+        <h2 class="cm-day">
+          {m.commissions_yesterday()}
+          <span class="muted"
+            >{m.commissions_header_badge({
+              done: previous.tasks.filter((task) => task.completed).length,
+              total: previous.tasks.length
+            })}</span
+          >
+        </h2>
+        {@render bar(previous)}
+      </section>
+    {/if}
+
     <section class="cm-bar panel">
-      <div class="cm-track"><span style="width: {percent(day)}%"></span></div>
-      <ol class="cm-tiers">
-        {#each day.thresholds as threshold, index (threshold.points)}
-          {@const tier = index + 1}
-          {@const reached = day.points >= threshold.points}
-          {@const claimable = reached && day.claimedTier === tier - 1}
-          <li class:reached class:claimed={day.claimedTier >= tier}>
-            <span>{m.commissions_points({ points: number(threshold.points) })}</span>
-            {#if day.claimedTier >= tier}
-              <b>{m.commissions_claimed()}</b>
-            {:else}
-              <button
-                class="btn btn-blue"
-                type="button"
-                disabled={!claimable || busy}
-                onclick={() => claim(tier)}
-              >
-                {m.commissions_claim({ coins: number(threshold.coins) })}
-              </button>
-            {/if}
-          </li>
-        {/each}
-      </ol>
-      <b class="cm-total">{m.commissions_points({ points: number(day.points) })}</b>
+      {@render bar(day)}
     </section>
 
     <ul class="cm-tasks">

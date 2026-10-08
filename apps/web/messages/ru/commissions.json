@@ -216,5 +216,6 @@
   "commissions_task_casino_shop": "Купи что-нибудь в магазине",
   "commissions_task_casino_lose": "Проиграй раунд (казино благодарит)",
   "commissions_task_meme_combo": "Набери комбо ровно {combo}",
-  "commissions_task_meme_fail": "Зафейли карту"
+  "commissions_task_meme_fail": "Зафейли карту",
+  "commissions_yesterday": "Вчера"
 }

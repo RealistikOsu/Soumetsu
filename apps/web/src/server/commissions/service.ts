@@ -54,14 +54,17 @@ export function applyChecks<T extends TaskRow>(tasks: T[], results: number[]) {
   return { tasks: updated, points };
 }
 
-// The checks are repeated at most every 30 seconds per player; refreshing the page does nothing in between.
-const lastChecked = new Map<number, number>();
+// The checks are repeated at most every 30 seconds per player and day; refreshing the page does nothing in between.
+const lastChecked = new Map<string, number>();
 const CHECK_GAP = 30_000;
 
-function markChecked(userId: number, now: number) {
+function markChecked(key: string, now: number) {
   for (const [id, time] of lastChecked) if (time + CHECK_GAP <= now) lastChecked.delete(id);
-  lastChecked.set(userId, now);
+  lastChecked.set(key, now);
 }
+
+// A request that arrives while another is still checking waits for it, so it never shows the progress from before.
+const inFlight = new Map<number, Promise<unknown>>();
 
 // One broken template must not cost the player the rest of the pass, so a failed check keeps its stored progress.
 export function runChecks(
@@ -123,48 +126,106 @@ async function rollIfMissing(
   }
 }
 
-export async function todayFor(userId: number, now = new Date()) {
-  const settings = await loadSettings();
+type Day = Awaited<ReturnType<typeof rollIfMissing>>;
+
+async function checkDay(
+  userId: number,
+  day: Day,
+  settings: Settings,
+  context: () => Promise<PlayerContext>,
+  now: Date
+): Promise<Day> {
+  const key = `${userId}:${day.day.toISOString().slice(0, 10)}`;
+  const due = (lastChecked.get(key) ?? 0) + CHECK_GAP <= now.getTime();
+  if (!due || day.tasks.every((task) => task.completed_at)) return day;
+  markChecked(key, now.getTime());
+
+  const results = await runChecks(day.tasks, await context());
+  const { tasks, points } = applyChecks(day.tasks, results);
+  const top = settings.thresholds[settings.thresholds.length - 1].points;
+  const completedNow = !day.completed_at && points >= top;
+
+  await db.$transaction([
+    ...tasks
+      .filter(
+        (task, index) =>
+          task.progress !== day.tasks[index].progress ||
+          task.completed_at !== day.tasks[index].completed_at
+      )
+      .map((task) =>
+        db.commission_tasks.update({
+          where: { id: task.id },
+          data: {
+            progress: task.progress,
+            ...(task.completed_at && { completed_at: task.completed_at })
+          }
+        })
+      ),
+    db.commission_days.update({
+      where: { id: day.id },
+      data: { points, ...(completedNow && { completed_at: now }) }
+    })
+  ]);
+  return { ...day, tasks, points, completed_at: completedNow ? now : day.completed_at };
+}
+
+const previousDate = (date: string) =>
+  new Date(new Date(date).getTime() - 86_400_000).toISOString().slice(0, 10);
+
+// Yesterday gets checked again until it's complete, since some tasks (daily challenge placements) only settle at
+// the rollover. It is never rolled after the fact.
+async function checkPass(userId: number, now: Date, settings: Settings) {
   const window = dayWindow(now);
+  const before = previousDate(window.date);
   // Rolling and checking read the same context, so a first visit loads it once.
   let loaded: Promise<PlayerContext> | undefined;
   const context = () => (loaded ??= loadContext(userId, window));
-  let day = await rollIfMissing(userId, window.date, settings, context);
-
-  const due = (lastChecked.get(userId) ?? 0) + CHECK_GAP <= now.getTime();
-  const pending = day.tasks.filter((task) => !task.completed_at);
-  if (due && pending.length) {
-    markChecked(userId, now.getTime());
-    const results = await runChecks(day.tasks, await context());
-    const { tasks, points } = applyChecks(day.tasks, results);
-    const top = settings.thresholds[settings.thresholds.length - 1].points;
-    const completedAt = day.completed_at ?? (points >= top ? now : null);
-
-    await db.$transaction([
-      ...tasks
-        .filter(
-          (task, index) =>
-            task.progress !== day.tasks[index].progress ||
-            task.completed_at !== day.tasks[index].completed_at
-        )
-        .map((task) =>
-          db.commission_tasks.update({
-            where: { id: task.id },
-            data: { progress: task.progress, completed_at: task.completed_at }
-          })
-        ),
-      db.commission_days.update({
-        where: { id: day.id },
-        data: { points, completed_at: completedAt }
-      })
-    ]);
-    day = { ...day, tasks, points, completed_at: completedAt };
-  }
-
-  return { day: view(day, settings), streaks: await streaksFor(userId, now) };
+  const [today, previous] = await Promise.all([
+    rollIfMissing(userId, window.date, settings, context),
+    findDay(userId, before)
+  ]);
+  return Promise.all([
+    checkDay(userId, today, settings, context, now),
+    previous &&
+      checkDay(userId, previous, settings, () => loadContext(userId, windowOf(before)), now)
+  ]);
 }
 
-function view(day: Awaited<ReturnType<typeof rollIfMissing>>, settings: Settings): DayView {
+async function currentDays(userId: number, now: Date, settings: Settings) {
+  const running = inFlight.get(userId);
+  if (running) {
+    await running.catch(() => {});
+    const window = dayWindow(now);
+    return Promise.all([
+      rollIfMissing(userId, window.date, settings),
+      findDay(userId, previousDate(window.date))
+    ]);
+  }
+  const pass = checkPass(userId, now, settings);
+  inFlight.set(userId, pass);
+  try {
+    return await pass;
+  } finally {
+    inFlight.delete(userId);
+  }
+}
+
+export async function todayFor(userId: number, now = new Date()) {
+  const settings = await loadSettings();
+  const [today, previous] = await currentDays(userId, now, settings);
+  const open =
+    previous &&
+    (previous.tasks.some((task) => !task.completed_at) ||
+      tierReached(settings.thresholds, previous.points) > previous.claimed_tier);
+
+  return {
+    day: view(today, settings),
+    previous: open ? view(previous, settings) : null,
+    streaks: await streaksFor(userId, now)
+  };
+}
+
+function view(day: Day, settings: Settings): DayView {
   return {
     date: day.day.toISOString().slice(0, 10),
     points: day.points,

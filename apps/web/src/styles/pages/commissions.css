@@ -17,6 +17,13 @@
   padding: 16px;
 }
 
+.cm-day {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 1rem;
+}
+
 .cm-track {
   height: 12px;
   overflow: hidden;

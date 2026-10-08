@@ -216,5 +216,6 @@
   "commissions_task_casino_shop": "Kup coś w sklepie",
   "commissions_task_casino_lose": "Przegraj rundę (kasyno dziękuje)",
   "commissions_task_meme_combo": "Zbij combo dokładnie {combo}",
-  "commissions_task_meme_fail": "Oblej mapę"
+  "commissions_task_meme_fail": "Oblej mapę",
+  "commissions_yesterday": "Wczoraj"
 }
