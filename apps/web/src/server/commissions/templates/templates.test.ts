@@ -551,3 +551,51 @@ describe('mods', () => {
     expect(await run('mods_relax_stars', ctxWith([withMap({ stars: 5 }, { variant: 2 })]))).toBe(0);
   });
 });
+
+describe('leaderboard', () => {
+  const ranked = (rank: number, previousFirst: number | null = null) => ({
+    leaderboardRank: async () => ({ rank, previousFirst })
+  });
+  test('leaderboard_first', async () => {
+    expect(await run('leaderboard_first', ctxWith([score()], ranked(1)))).toBe(1);
+    expect(await run('leaderboard_first', ctxWith([score()], ranked(2)))).toBe(0);
+  });
+  test('only best passed plays are looked up', async () => {
+    expect(await run('leaderboard_first', ctxWith([score({ isBest: false })], ranked(1)))).toBe(0);
+    expect(await run('leaderboard_first', ctxWith([score({ passed: false })], ranked(1)))).toBe(0);
+  });
+  test('lookups are capped at the 20 strongest plays', async () => {
+    let calls = 0;
+    const plays = Array.from({ length: 30 }, (_, id) => score({ id, pp: id }));
+    const ctx = ctxWith(plays, {
+      leaderboardRank: async (s) => {
+        calls++;
+        return { rank: s.pp >= 10 ? 5 : 1, previousFirst: null };
+      }
+    });
+    expect(await run('leaderboard_first', ctx)).toBe(0);
+    expect(calls).toBe(20);
+  });
+  test('leaderboard_three_firsts', async () => {
+    const plays = [1, 2, 3].map((id) => score({ id }));
+    expect(await run('leaderboard_three_firsts', ctxWith(plays, ranked(1)))).toBe(3);
+    expect(await run('leaderboard_three_firsts', ctxWith(plays, ranked(2)))).toBe(0);
+  });
+  test('leaderboard_steal needs someone else to have held first', async () => {
+    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77)))).toBe(1);
+    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, null)))).toBe(0);
+    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 1)))).toBe(0);
+    expect(await run('leaderboard_steal', ctxWith([score()], ranked(2, 77)))).toBe(0);
+  });
+  test('leaderboard_top10', async () => {
+    expect(await run('leaderboard_top10', ctxWith([score()], ranked(10)))).toBe(1);
+    expect(await run('leaderboard_top10', ctxWith([score()], ranked(11)))).toBe(0);
+  });
+  test('leaderboard_top50_stars', async () => {
+    expect(await run('leaderboard_top50_stars', ctxWith([score()], ranked(50)))).toBe(1);
+    expect(await run('leaderboard_top50_stars', ctxWith([score()], ranked(51)))).toBe(0);
+    expect(await run('leaderboard_top50_stars', ctxWith([withMap({ stars: 4 })], ranked(5)))).toBe(
+      0
+    );
+  });
+});

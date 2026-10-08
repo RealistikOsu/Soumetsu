@@ -1,4 +1,5 @@
 import { dailyChallenge } from './dailyChallenge';
+import { leaderboard } from './leaderboard';
 import { login } from './login';
 import { mapProperty } from './mapProperty';
 import { mods } from './mods';
@@ -14,7 +15,8 @@ export const templates: Template[] = [
   ...mapProperty,
   ...session,
   ...quality,
-  ...mods
+  ...mods,
+  ...leaderboard
 ];
 
 export const byKey = new Map(templates.map((template) => [template.key, template]));
