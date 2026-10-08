@@ -1,0 +1,87 @@
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
+
+let counters: Record<string, number> = {};
+let locks: Record<string, string> = {};
+let expiries: Record<string, number> = {};
+mock.module('$server/redis', () => ({
+  redis: {
+    incr: async (key: string) => (counters[key] = (counters[key] ?? 0) + 1),
+    pexpire: async (key: string, ms: number) => {
+      expiries[key] = ms;
+      return 1;
+    },
+    set: async (key: string, value: string) => {
+      if (key in locks) return null;
+      locks[key] = value;
+      return 'OK';
+    },
+    del: async (key: string) => {
+      delete locks[key];
+      return 1;
+    }
+  }
+}));
+
+const { checkLimit, withLock } = await import('./limits');
+
+beforeEach(() => {
+  counters = {};
+  locks = {};
+  expiries = {};
+});
+
+describe('checkLimit', () => {
+  test('allows 30 calls then throws 429 on the 31st', async () => {
+    for (let i = 0; i < 30; i++) await checkLimit('coinflip', 1);
+    expect(checkLimit('coinflip', 1)).rejects.toMatchObject({
+      status: 429,
+      code: 'casino.too_fast'
+    });
+  });
+
+  test('sets the window only on the first hit', async () => {
+    await checkLimit('coinflip', 1);
+    expect(expiries['casino:limit:coinflip:1']).toBe(45_000);
+    expiries = {};
+    await checkLimit('coinflip', 1);
+    expect(expiries).toEqual({});
+  });
+
+  test('plinko allows 150', async () => {
+    for (let i = 0; i < 150; i++) await checkLimit('plinko', 1);
+    expect(checkLimit('plinko', 1)).rejects.toMatchObject({ status: 429 });
+  });
+
+  test('users are counted separately', async () => {
+    for (let i = 0; i < 30; i++) await checkLimit('coinflip', 1);
+    await checkLimit('coinflip', 2);
+  });
+
+  test('an unknown key is a programmer error', () => {
+    expect(checkLimit('nope', 1)).rejects.toThrow('No casino limit');
+  });
+});
+
+describe('withLock', () => {
+  test('rejects with 409 while the lock is held', async () => {
+    locks['casino:lock:1'] = '1';
+    expect(withLock(1, async () => 'x')).rejects.toMatchObject({
+      status: 409,
+      code: 'casino.busy'
+    });
+  });
+
+  test('returns the result and releases the lock', async () => {
+    expect(await withLock(1, async () => 'x')).toBe('x');
+    expect(locks).toEqual({});
+  });
+
+  test('releases the lock when fn throws', async () => {
+    await expect(
+      withLock(1, async () => {
+        throw new Error('boom');
+      })
+    ).rejects.toThrow('boom');
+    expect(locks).toEqual({});
+  });
+});
