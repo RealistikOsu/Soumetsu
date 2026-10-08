@@ -5,6 +5,7 @@ import type { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
 import { donorBuff, gameConfig } from './config';
 import type { Game } from './config';
+import type { GameConfig } from './games/types';
 import { recordPlay } from './history';
 import { checkLimit, withLock } from './limits';
 
@@ -40,9 +41,10 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
   rawBet: unknown,
   input: I,
   run: GameRunner<O, I, R>,
-  rng: () => number = cryptoRng
+  rng: () => number = cryptoRng,
+  config?: GameConfig<O>
 ): Promise<{ result: R; payout: number; multiplier: number; balance: number }> {
-  const cfg = await gameConfig<O>(game);
+  const cfg = config ?? (await gameConfig<O>(game));
   if (!cfg.enabled || cfg.odds === null) throw new Failure(403, 'casino.disabled');
   const odds = cfg.odds;
   const bet = parseBet(rawBet, cfg);

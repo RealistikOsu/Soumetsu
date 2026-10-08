@@ -103,6 +103,8 @@ export interface SlotsInfo {
 export interface ZeusInfo {
   symbols: string[];
   multipliers: Record<string, number>;
+  cols: number;
+  rows: number;
 }
 export interface WheelInfo {
   segments: [string, number, 'multiplier' | 'penalty' | 'jackpot'][];

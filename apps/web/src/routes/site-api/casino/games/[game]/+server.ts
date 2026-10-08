@@ -1,4 +1,5 @@
 import { requireCaller } from '$server/auth';
+import type { Game } from '$server/casino/config';
 import { gameConfig } from '$server/casino/config';
 import { parsePokerOdds, pokerInfo } from '$server/casino/games/poker';
 import { pending } from '$server/casino/poker';
@@ -23,7 +24,7 @@ export const GET = handle(async ({ request, params }) => {
   }
 
   const entry = instantEntry(game);
-  const cfg = await gameConfig<never>(game as 'coinflip');
+  const cfg = await gameConfig(game as Game);
   return ok({
     game,
     minBet: cfg.minBet,

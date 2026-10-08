@@ -1,7 +1,8 @@
+import type { Prisma } from '$server/generated/client';
+import { play } from '../play';
 import type { GameRunner } from '../play';
 import { bingo, bingoInfo, bingoMax, parseBingoInput, parseBingoOdds } from './bingo';
-import { coinflip, parseCoinflipInput } from './coinflip';
-import type { CoinflipInput } from './coinflip';
+import { coinflip, coinflipMax, parseCoinflipInput, parseCoinflipOdds } from './coinflip';
 import { parsePokerOdds, pokerMax } from './poker';
 import { parsePlinkoInput, parsePlinkoOdds, plinko, plinkoInfo, plinkoMax } from './plinko';
 import {
@@ -12,35 +13,43 @@ import {
   rouletteMax
 } from './roulette';
 import { parseSlotsInput, parseSlotsOdds, slots, slotsInfo, slotsMax } from './slots';
-import { isRecord, MAX_MULTIPLIER } from './types';
-import type { CoinflipOdds, Game } from './types';
+import type { Game, GameConfig } from './types';
 import { parseWheelInput, parseWheelOdds, wheel, wheelInfo, wheelMax } from './wheel';
 import { parseZeusInput, parseZeusOdds, zeus, zeusInfo, zeusMax } from './zeus';
 
 export type InstantGame = 'coinflip' | 'plinko' | 'slots' | 'zeus' | 'wheel' | 'roulette' | 'bingo';
 
 interface InstantEntry {
-  parseInput(raw: unknown, odds: never): unknown;
-  // The odds were parsed from the same config row, so each entry's own type holds.
-  run: GameRunner<never, never, never>;
-  info(odds: never): unknown;
-  max(odds: never): number;
+  info(odds: unknown): unknown;
+  max(odds: unknown): number;
+  // Parses the body against the odds first, so a bad body never reaches the rate limit.
+  prepare(
+    raw: unknown,
+    cfg: GameConfig
+  ): (userId: number, game: Game, bet: unknown) => ReturnType<typeof play>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const entry = <O, I, R extends Record<string, any>>(e: {
+const entry = <O, I, R extends Prisma.InputJsonObject>(e: {
   parseInput: (raw: unknown, odds: O) => I;
   run: GameRunner<O, I, R>;
   info: (odds: O) => unknown;
   max: (odds: O) => number;
-}) => e as unknown as InstantEntry;
+}): InstantEntry => ({
+  info: (odds) => e.info(odds as O),
+  max: (odds) => e.max(odds as O),
+  prepare: (raw, cfg) => {
+    const input = e.parseInput(raw, cfg.odds as O);
+    return (userId, game, bet) =>
+      play(userId, game, bet, input, e.run, undefined, cfg as GameConfig<O>);
+  }
+});
 
 export const instantGames: Record<InstantGame, InstantEntry> = {
   coinflip: entry({
-    parseInput: parseCoinflipInput as (raw: unknown, odds: CoinflipOdds) => CoinflipInput,
+    parseInput: parseCoinflipInput,
     run: coinflip,
     info: () => ({}),
-    max: (o: CoinflipOdds) => o.multiplier
+    max: coinflipMax
   }),
   plinko: entry({
     parseInput: parsePlinkoInput,
@@ -65,15 +74,6 @@ export const instantGames: Record<InstantGame, InstantEntry> = {
   bingo: entry({ parseInput: parseBingoInput, run: bingo, info: bingoInfo, max: bingoMax })
 };
 
-function parseCoinflipOdds(raw: unknown): CoinflipOdds | null {
-  if (!isRecord(raw)) return null;
-  const { multiplier } = raw;
-  if (typeof multiplier !== 'number' || !Number.isFinite(multiplier)) return null;
-  const m = Math.round(multiplier * 100) / 100;
-  if (m <= 1 || m > MAX_MULTIPLIER) return null;
-  return { multiplier: m };
-}
-
 // Games that aren't ported yet keep whatever object the admin saves.
 const passThrough = (raw: unknown) =>
   raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
@@ -94,7 +94,7 @@ export const oddsParsers: Record<Game, (raw: unknown) => unknown | null> = {
 };
 
 export const maxMultipliers: Partial<Record<Game, (odds: never) => number>> = {
-  coinflip: instantGames.coinflip.max,
+  coinflip: coinflipMax,
   plinko: plinkoMax,
   slots: slotsMax,
   zeus: zeusMax,

@@ -4,6 +4,7 @@ import { GAMES } from './games/types';
 mock.module('$server/db', () => ({ db: {} }));
 mock.module('$server/admin/log', () => ({ rapLog: async () => {} }));
 
+const { pokerInfo } = await import('./games/poker');
 const { instantGames, oddsParsers } = await import('./games/registry');
 const { parseOdds } = await import('./config');
 const { parseConfigRow } = await import('./admin');
@@ -112,6 +113,15 @@ describe('oddsParsers', () => {
   test('every seeded config parses', () => {
     for (const [game, raw] of Object.entries(seeded))
       expect(parseOdds(game as (typeof GAMES)[number], raw)).not.toBeNull();
+  });
+
+  test('public info never leaks the odds internals', () => {
+    for (const [game, raw] of Object.entries(seeded)) {
+      const odds = parseOdds(game as (typeof GAMES)[number], raw);
+      const info =
+        game === 'poker' ? pokerInfo(odds as never) : instantGames[game as 'slots'].info(odds);
+      expect(JSON.stringify(info)).not.toMatch(/weights|wildLightningChance|deck/);
+    }
   });
 
   test('ported games reject an empty object', () => {

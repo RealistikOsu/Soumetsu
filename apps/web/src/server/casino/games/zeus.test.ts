@@ -153,7 +153,12 @@ describe('zeusMax and zeusInfo', () => {
   });
 
   test('info has no weights or wild chance', () => {
-    expect(zeusInfo(odds)).toEqual({ symbols: seeded.symbols, multipliers: seeded.multipliers });
+    expect(zeusInfo(odds)).toEqual({
+      symbols: seeded.symbols,
+      multipliers: seeded.multipliers,
+      cols: 5,
+      rows: 3
+    });
     const json = JSON.stringify(zeusInfo(odds));
     expect(json).not.toContain('weights');
     expect(json).not.toContain('wildLightningChance');

@@ -49,7 +49,12 @@ export const zeusMax = (o: ZeusOdds) =>
     o.symbols.filter((s) => s !== WILD).reduce((sum, s) => sum + o.multipliers[s], 0) * (o.cols - 2)
   );
 
-export const zeusInfo = (o: ZeusOdds) => ({ symbols: o.symbols, multipliers: o.multipliers });
+export const zeusInfo = (o: ZeusOdds) => ({
+  symbols: o.symbols,
+  multipliers: o.multipliers,
+  cols: o.cols,
+  rows: o.rows
+});
 
 export const parseZeusInput = (): ZeusInput => ({});
 
