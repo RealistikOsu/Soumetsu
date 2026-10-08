@@ -500,3 +500,37 @@ model whitelist {
   modes   Int @default(511) @db.UnsignedInt
 }
 
+
+model commission_days {
+  id           BigInt             @id @default(autoincrement())
+  user_id      Int
+  day          DateTime           @db.Date
+  points       Int                @default(0)
+  claimed_tier Int                @default(0) @db.TinyInt
+  completed_at DateTime?          @db.DateTime(0)
+  rolled_at    DateTime           @db.DateTime(0)
+  tasks        commission_tasks[]
+
+  @@unique([user_id, day], map: "uq_commission_days_user_day")
+  @@index([user_id, completed_at], map: "idx_commission_days_user_completed")
+}
+
+model commission_tasks {
+  id           BigInt          @id @default(autoincrement())
+  day_id       BigInt
+  template     String          @db.VarChar(48)
+  params       Json
+  points       Int             @db.SmallInt
+  target       Int
+  progress     Int             @default(0)
+  completed_at DateTime?       @db.DateTime(0)
+  day          commission_days @relation(fields: [day_id], references: [id], onDelete: Cascade, map: "fk_commission_tasks_day")
+
+  @@index([day_id], map: "idx_commission_tasks_day")
+}
+
+model commission_settings {
+  id         Int      @id @db.TinyInt
+  settings   Json
+  updated_at DateTime @db.DateTime(0)
+}
