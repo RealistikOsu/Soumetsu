@@ -2,11 +2,26 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Shop",
   "shop_intro": "Spend your coins. Earn more with commissions.",
-  "shop_balance": "{coins} coins",
+  "shop_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{coins} coin",
+        "n=other": "{coins} coins"
+      }
+    }
+  ],
   "shop_section_decorations": "Decorations",
   "shop_section_spotlight": "Spotlight",
   "shop_section_supporter": "Supporter picks this month",
   "shop_section_account": "Account",
+  "shop_item_username_change": "Username change",
+  "shop_item_username_change_desc": "Change your username once",
+  "shop_item_custom_badge": "Custom badge",
+  "shop_item_custom_badge_desc": "Unlock a custom profile badge",
+  "shop_item_score_wipe": "Score wipe",
+  "shop_item_score_wipe_desc": "Reset your scores and stats for a mode and variant",
   "shop_buy": "Buy for {price}",
   "shop_owned": "Owned",
   "shop_leaves": [
@@ -20,7 +35,16 @@
     }
   ],
   "shop_included_supporter": "Included with supporter",
-  "shop_confirm": "Buy {name} for {price} coins?",
+  "shop_confirm": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Buy {name} for {price} coin?",
+        "n=other": "Buy {name} for {price} coins?"
+      }
+    }
+  ],
   "shop_bought": "Bought {name}.",
   "shop_username_new": "New username",
   "shop_username_hint": "2-15 characters: letters, numbers, spaces, _ [ ] -",
@@ -28,6 +52,7 @@
   "shop_wipe_variant": "Variant",
   "shop_wipe_all": "All",
   "shop_wipe_warning": "This deletes your scores and can't be undone.",
+  "shop_wipe_confirm": "I understand this can't be undone",
   "shop_purchases_title": "Your purchases",
   "shop_purchases_empty": "Nothing bought yet.",
   "shop_err_insufficient": "Not enough coins.",

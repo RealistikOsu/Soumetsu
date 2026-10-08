@@ -137,6 +137,16 @@
   outline: none;
 }
 
+.sh-form .sh-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sh-form .sh-check input {
+  padding: 0;
+}
+
 .sh-warning {
   color: var(--red);
 }
@@ -145,6 +155,24 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.sh-history {
+  display: grid;
+  margin: 0;
+  padding: 4px 16px;
+  list-style: none;
+}
+
+.sh-history li {
+  display: grid;
+  grid-template-columns: 8em 1fr auto;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.sh-history li + li {
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 600px) {

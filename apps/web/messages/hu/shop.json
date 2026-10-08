@@ -2,11 +2,26 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Bolt",
   "shop_intro": "Költsd el az érméid. Többet a megbízásokkal szerezhetsz.",
-  "shop_balance": "{coins} érme",
+  "shop_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{coins} érme",
+        "n=other": "{coins} érme"
+      }
+    }
+  ],
   "shop_section_decorations": "Díszek",
   "shop_section_spotlight": "Reflektorfényben",
   "shop_section_supporter": "E havi támogatói válogatás",
   "shop_section_account": "Fiók",
+  "shop_item_username_change": "Névváltás",
+  "shop_item_username_change_desc": "Egyszer megváltoztathatod a neved",
+  "shop_item_custom_badge": "Egyedi jelvény",
+  "shop_item_custom_badge_desc": "Egyedi profiljelvényt old fel",
+  "shop_item_score_wipe": "Pontszámtörlés",
+  "shop_item_score_wipe_desc": "Törli a pontszámaidat és statisztikáidat egy módban és változatban",
   "shop_buy": "Vétel {price} érméért",
   "shop_owned": "Megvan",
   "shop_leaves": [
@@ -20,7 +35,16 @@
     }
   ],
   "shop_included_supporter": "A támogatói csomag része",
-  "shop_confirm": "Megveszed a(z) {name} díszt {price} érméért?",
+  "shop_confirm": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Megveszed ezt: {name}, {price} érméért?",
+        "n=other": "Megveszed ezt: {name}, {price} érméért?"
+      }
+    }
+  ],
   "shop_bought": "Megvetted: {name}.",
   "shop_username_new": "Új név",
   "shop_username_hint": "2-15 karakter: betűk, számok, szóköz, _ [ ] -",
@@ -28,6 +52,7 @@
   "shop_wipe_variant": "Változat",
   "shop_wipe_all": "Mind",
   "shop_wipe_warning": "Ez törli a pontszámaidat, és nem lehet visszavonni.",
+  "shop_wipe_confirm": "Értem, hogy ezt nem lehet visszavonni",
   "shop_purchases_title": "Vásárlásaid",
   "shop_purchases_empty": "Még nem vettél semmit.",
   "shop_err_insufficient": "Nincs elég érméd.",

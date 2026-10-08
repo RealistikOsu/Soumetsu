@@ -1,12 +1,29 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "shop_title": "Sklep",
-  "shop_intro": "Wydawaj monety. Więcej zdobędziesz z zadań.",
-  "shop_balance": "{coins} monet",
+  "shop_intro": "Wydawaj monety. Więcej zdobędziesz ze zleceń.",
+  "shop_balance": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{coins} moneta",
+        "n=few": "{coins} monety",
+        "n=many": "{coins} monet",
+        "n=other": "{coins} monety"
+      }
+    }
+  ],
   "shop_section_decorations": "Ozdoby",
   "shop_section_spotlight": "W centrum uwagi",
-  "shop_section_supporter": "Wybór supporterów w tym miesiącu",
+  "shop_section_supporter": "Style supporterów: wybór na ten miesiąc",
   "shop_section_account": "Konto",
+  "shop_item_username_change": "Zmiana nicku",
+  "shop_item_username_change_desc": "Zmień nick jeden raz",
+  "shop_item_custom_badge": "Własna odznaka",
+  "shop_item_custom_badge_desc": "Odblokowuje własną odznakę na profilu",
+  "shop_item_score_wipe": "Reset wyników",
+  "shop_item_score_wipe_desc": "Resetuje wyniki i statystyki dla trybu i wariantu",
   "shop_buy": "Kup za {price}",
   "shop_owned": "Masz to",
   "shop_leaves": [
@@ -22,7 +39,18 @@
     }
   ],
   "shop_included_supporter": "W cenie supportera",
-  "shop_confirm": "Kupić {name} za {price} monet?",
+  "shop_confirm": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Kupić {name} za {price} monetę?",
+        "n=few": "Kupić {name} za {price} monety?",
+        "n=many": "Kupić {name} za {price} monet?",
+        "n=other": "Kupić {name} za {price} monety?"
+      }
+    }
+  ],
   "shop_bought": "Kupiono: {name}.",
   "shop_username_new": "Nowy nick",
   "shop_username_hint": "2-15 znaków: litery, cyfry, spacje, _ [ ] -",
@@ -30,6 +58,7 @@
   "shop_wipe_variant": "Wariant",
   "shop_wipe_all": "Wszystkie",
   "shop_wipe_warning": "To usuwa twoje wyniki i nie da się tego cofnąć.",
+  "shop_wipe_confirm": "Rozumiem, że tego nie da się cofnąć",
   "shop_purchases_title": "Twoje zakupy",
   "shop_purchases_empty": "Jeszcze nic nie kupiono.",
   "shop_err_insufficient": "Za mało monet.",

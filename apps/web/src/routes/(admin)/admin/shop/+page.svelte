@@ -160,7 +160,7 @@
             <td>
               <input
                 type="number"
-                min="0"
+                min="1"
                 step="1"
                 aria-label="Price for {row.name}"
                 bind:value={row.price}
