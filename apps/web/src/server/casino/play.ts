@@ -23,12 +23,6 @@ export type GameRunner<O, I, R extends Prisma.InputJsonObject> = (
 
 export const cryptoRng = () => randomBytes(4).readUInt32BE(0) / 2 ** 32;
 
-// history.multiplier is DECIMAL(6,2), so payouts use the multiplier as it will be stored.
-const hundredths = (multiplier: number) => Math.round(multiplier * 100);
-
-export const payoutFor = (bet: number, multiplier: number) =>
-  Math.floor((bet * hundredths(multiplier)) / 100);
-
 export function parseBet(raw: unknown, cfg: { minBet: number; maxBet: number }) {
   if (
     typeof raw !== 'number' ||
@@ -65,7 +59,7 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
 
       const outcome = run(odds, input, bet, rng);
       const payout = donorBuff(outcome.payout, privileges);
-      const multiplier = outcome.payout > 0 ? hundredths(outcome.multiplier) / 100 : 0;
+      const multiplier = outcome.payout > 0 ? Math.round(outcome.multiplier * 100) / 100 : 0;
 
       await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;
       await recordPlay(tx, { userId, game, bet, multiplier, payout, result: outcome.result });

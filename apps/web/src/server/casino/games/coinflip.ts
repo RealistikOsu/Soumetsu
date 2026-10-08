@@ -1,6 +1,6 @@
 import { Failure } from '$server/respond';
-import { payoutFor } from '../play';
 import type { GameRunner } from '../play';
+import { payoutFor } from './types';
 import type { CoinflipOdds } from './types';
 
 type Side = 'heads' | 'tails';

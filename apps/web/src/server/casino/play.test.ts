@@ -49,7 +49,7 @@ mock.module('$server/redis', () => ({
 }));
 
 const { clearConfigCache } = await import('./config');
-const { parseBet, payoutFor, play } = await import('./play');
+const { parseBet, play } = await import('./play');
 const { coinflip } = await import('./games/coinflip');
 
 const cfg = { minBet: 10, maxBet: 1000 };
@@ -72,14 +72,6 @@ describe('parseBet', () => {
     expect(() => parseBet(0, { minBet: 0, maxBet: 10 })).toThrow(
       expect.objectContaining({ code: 'casino.invalid_bet' })
     );
-  });
-});
-
-describe('payoutFor', () => {
-  test('uses the multiplier in hundredths', () => {
-    expect(payoutFor(100, 1.15)).toBe(115);
-    expect(payoutFor(100, 1.75)).toBe(175);
-    expect(payoutFor(3, 1.75)).toBe(5);
   });
 });
 
