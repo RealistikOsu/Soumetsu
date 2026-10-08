@@ -56,6 +56,13 @@ describe('parsePokerOdds', () => {
       expect(parsePokerOdds(raw)).toBeNull();
   });
 
+  test('rounds payouts to hundredths', () => {
+    const parsed = parsePokerOdds({
+      payouts: { ...seeded.payouts, two_pair: 1.234 }
+    });
+    expect(parsed?.payouts.two_pair).toBe(1.23);
+  });
+
   test('max and info', () => {
     expect(pokerMax(odds)).toBe(500);
     expect(pokerInfo(odds)).toEqual({ payouts: { ...seeded.payouts, nothing: 0 } });

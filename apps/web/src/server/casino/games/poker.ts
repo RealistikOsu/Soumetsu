@@ -1,5 +1,5 @@
 import { Failure } from '$server/respond';
-import { MAX_MULTIPLIER, isAmount, isRecord } from './types';
+import { MAX_MULTIPLIER, isAmount, isRecord, toHundredths } from './types';
 
 export const HAND_RANKS = [
   'royal_flush',
@@ -33,8 +33,10 @@ export function parsePokerOdds(raw: unknown): PokerOdds | null {
   const payouts = {} as PokerOdds['payouts'];
   for (const rank of HAND_RANKS) {
     const value = rank === 'nothing' && given[rank] === undefined ? 0 : given[rank];
-    if (!isAmount(value) || value > MAX_MULTIPLIER) return null;
-    payouts[rank] = value;
+    if (!isAmount(value)) return null;
+    // Rounded the way history stores it, so the response, the row and payoutFor all agree.
+    payouts[rank] = toHundredths(value);
+    if (payouts[rank] > MAX_MULTIPLIER) return null;
   }
   return { payouts };
 }

@@ -7,10 +7,13 @@ let updates: unknown[][] = [];
 let history: object[] = [];
 let keys: Record<string, string> = {};
 let failSet = false;
+let failExecute = false;
+let failCommit = false;
 
 const tx = {
   $queryRaw: async () => (user ? [user] : []),
   $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
+    if (failExecute) throw new Error('update failed');
     updates.push(values);
     return 1;
   },
@@ -25,7 +28,11 @@ const tx = {
 mock.module('$server/db', () => ({
   db: {
     casino_game_config: { findUnique: async () => config },
-    $transaction: async <T>(fn: (client: typeof tx) => Promise<T>) => fn(tx)
+    $transaction: async <T>(fn: (client: typeof tx) => Promise<T>) => {
+      const result = await fn(tx);
+      if (failCommit) throw new Error('commit failed');
+      return result;
+    }
   }
 }));
 
@@ -33,6 +40,11 @@ mock.module('$server/redis', () => ({
   redis: {
     incr: async () => 1,
     get: async (key: string) => keys[key] ?? null,
+    getdel: async (key: string) => {
+      const value = keys[key] ?? null;
+      delete keys[key];
+      return value;
+    },
     del: async (key: string) => {
       const had = key in keys;
       delete keys[key];
@@ -78,6 +90,8 @@ beforeEach(() => {
   history = [];
   keys = {};
   failSet = false;
+  failExecute = false;
+  failCommit = false;
 });
 
 describe('deal', () => {
@@ -110,6 +124,26 @@ describe('deal', () => {
     await expect(deal(1, 100)).rejects.toThrow('redis down');
     expect(updates).toEqual([]);
     expect(keys[KEY]).toBeUndefined();
+  });
+
+  test('a failed deduction leaves no hand behind', async () => {
+    failExecute = true;
+    await expect(deal(1, 100)).rejects.toThrow('update failed');
+    expect(keys[KEY]).toBeUndefined();
+    expect(history).toEqual([]);
+  });
+
+  test('a failed commit leaves no hand behind', async () => {
+    failCommit = true;
+    await expect(deal(1, 100)).rejects.toThrow('commit failed');
+    expect(keys[KEY]).toBeUndefined();
+    expect(history).toEqual([]);
+  });
+
+  test('a pending hand is a 409 even without the coins for another', async () => {
+    await deal(1, 100);
+    user = { coins: 50, privileges: 1n };
+    await expect(deal(1, 100)).rejects.toMatchObject({ status: 409 });
   });
 
   test('not enough coins is a 402', async () => {
@@ -202,8 +236,28 @@ describe('draw', () => {
     await deal(1, 100, inOrder);
     clearConfigCache();
     config = { min_bet: 10, max_bet: 1000, enabled: false, config_json: { payouts } };
+    updates = [];
     await draw(1, [true, true, true, true, true]);
     expect(keys[KEY]).toBeUndefined();
+    expect(updates).toHaveLength(1);
+    expect(history).toMatchObject([{ bet_amount: 100 }]);
+  });
+
+  test('a failed payout puts the hand back as it was', async () => {
+    await deal(1, 100, inOrder);
+    const stored = keys[KEY];
+    failExecute = true;
+    await expect(draw(1, [true, true, true, true, true])).rejects.toThrow('update failed');
+    expect(keys[KEY]).toBe(stored);
+    expect(history).toEqual([]);
+  });
+
+  test('a failed commit puts the hand back as it was', async () => {
+    await deal(1, 100, inOrder);
+    const stored = keys[KEY];
+    failCommit = true;
+    await expect(draw(1, [true, true, true, true, true])).rejects.toThrow('commit failed');
+    expect(keys[KEY]).toBe(stored);
   });
 
   test('bad holds are a 400', async () => {
