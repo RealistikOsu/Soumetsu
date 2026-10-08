@@ -303,3 +303,44 @@ describe('map', () => {
     expect(await run('map_set_three', ctxWith([]))).toBe(0);
   });
 });
+
+describe('session', () => {
+  const at = (minute: number) => new Date(Date.UTC(2026, 9, 8, 10, minute));
+  test('session_streak is the longest run of passes in time order', async () => {
+    const plays = [
+      score({ id: 1, at: at(1) }),
+      score({ id: 2, passed: false, at: at(2) }),
+      score({ id: 3, at: at(3) }),
+      score({ id: 4, at: at(4) }),
+      score({ id: 5, at: at(5) })
+    ];
+    expect(await run('session_streak', ctxWith(plays), { count: 3 })).toBe(3);
+    expect(await run('session_streak', ctxWith(plays.slice(0, 2)), { count: 3 })).toBe(1);
+    expect(await run('session_streak', ctxWith([]), { count: 3 })).toBe(0);
+  });
+  test('session_retry needs a fail then a pass on the same map', async () => {
+    const retry = [score({ id: 1, passed: false, at: at(1) }), score({ id: 2, at: at(2) })];
+    expect(await run('session_retry', ctxWith(retry))).toBe(1);
+    const wrongOrder = [score({ id: 1, at: at(1) }), score({ id: 2, passed: false, at: at(2) })];
+    expect(await run('session_retry', ctxWith(wrongOrder))).toBe(0);
+    const otherMap = [
+      score({ id: 1, passed: false, at: at(1) }),
+      score({ id: 2, md5: 'x', at: at(2) })
+    ];
+    expect(await run('session_retry', ctxWith(otherMap))).toBe(0);
+  });
+  test('session_minutes adjusts for rate and skips fails', async () => {
+    const plays = [
+      withMap({ length: 600 }, { rate: 1.5 }),
+      withMap({ length: 600 }, { id: 2, passed: false })
+    ];
+    expect(await run('session_minutes', ctxWith(plays), { minutes: 20 })).toBe(6);
+    expect(await run('session_minutes', ctxWith([]), { minutes: 20 })).toBe(0);
+  });
+  test('session_climb needs three rising star ratings in a row', async () => {
+    const rising = [1, 2, 3].map((n) => withMap({ stars: n }, { id: n, at: at(n) }));
+    expect(await run('session_climb', ctxWith(rising))).toBe(1);
+    const flat = [1, 3, 2].map((n, i) => withMap({ stars: n }, { id: i, at: at(i) }));
+    expect(await run('session_climb', ctxWith(flat))).toBe(0);
+  });
+});
