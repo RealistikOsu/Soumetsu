@@ -35,6 +35,11 @@ describe('parseSettings', () => {
     ).toBeNull();
   });
 
+  test('rejects a day minimum below the top threshold', () => {
+    expect(parseSettings({ ...DEFAULT_SETTINGS, minDayPoints: 299 })).toBeNull();
+    expect(parseSettings({ ...DEFAULT_SETTINGS, minDayPoints: 300 })).not.toBeNull();
+  });
+
   test('falls back to defaults on bad settings', () => {
     expect(parseSettings('garbage')).toBeNull();
     expect(parseSettings(null)).toBeNull();

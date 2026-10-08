@@ -91,6 +91,8 @@ export function parseSettings(raw: unknown): Settings | null {
   }
 
   if (!positiveInt(input.tasksPerDay) || !positiveInt(input.minDayPoints)) return null;
+  // A day rolled below the top threshold could never be finished.
+  if ((input.minDayPoints as number) < (thresholds[2] as Threshold).points) return null;
 
   return {
     tasksPerDay: input.tasksPerDay as number,
