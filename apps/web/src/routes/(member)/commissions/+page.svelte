@@ -93,7 +93,8 @@
       {#each day.tasks as task (task.id)}
         {@const href = taskHref(task)}
         <li class="panel cm-task" class:done={task.completed}>
-          <i class="fa-solid {task.completed ? 'fa-circle-check' : 'fa-circle'}"></i>
+          <i class="fa-solid {task.completed ? 'fa-circle-check' : 'fa-circle'}" aria-hidden="true"
+          ></i>
           <div>
             {#if href}<a {href}>{taskText(task)}</a>{:else}<span>{taskText(task)}</span>{/if}
             {#if task.template.startsWith('daily_top')}<small>{m.commissions_settles()}</small>{/if}
