@@ -45,6 +45,9 @@ const score = (overrides: Partial<DayScore> = {}): DayScore => ({
   ...overrides
 });
 
+const withMap = (map: Partial<DayScore['map']>, overrides: Partial<DayScore> = {}) =>
+  score({ map: { ...score().map, ...map }, ...overrides });
+
 const ctxWith = (scores: DayScore[], overrides: Partial<PlayerContext> = {}) =>
   fakeContext({ scores: async () => scores, ...overrides });
 
@@ -174,5 +177,129 @@ describe('play_count', () => {
       await run('play_both_sources', ctxWith([score(), score({ id: 2, source: 'lazer' })]))
     ).toBe(2);
     expect(await run('play_both_sources', ctxWith([score()]))).toBe(1);
+  });
+});
+
+describe('map', () => {
+  test('map_stars', async () => {
+    expect(await run('map_stars', ctxWith([withMap({ stars: 6.2 })]), { stars: 6 })).toBe(1);
+    expect(await run('map_stars', ctxWith([score()]), { stars: 6 })).toBe(0);
+  });
+  test('map_stars_hard', async () => {
+    expect(await run('map_stars_hard', ctxWith([withMap({ stars: 7 })]), { stars: 7 })).toBe(1);
+    expect(
+      await run('map_stars_hard', ctxWith([withMap({ stars: 7 }, { passed: false })]), { stars: 7 })
+    ).toBe(0);
+  });
+  test('map_stars rolls around the usual stars', () => {
+    const ctx = fakeContext({ usualStars: 4 });
+    expect(byKey.get('map_stars')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({ stars: 5 });
+    expect(byKey.get('map_stars_hard')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
+      stars: 6
+    });
+  });
+  test('map_easy_nomod', async () => {
+    expect(await run('map_easy_nomod', ctxWith([withMap({ stars: 2 })]))).toBe(1);
+    expect(await run('map_easy_nomod', ctxWith([withMap({ stars: 2 }, { mods: ['HD'] })]))).toBe(0);
+  });
+  test('map_bpm', async () => {
+    expect(await run('map_bpm', ctxWith([withMap({ bpm: 210 })]), { bpm: 200 })).toBe(1);
+    expect(await run('map_bpm', ctxWith([score()]), { bpm: 200 })).toBe(0);
+  });
+  test('map_long', async () => {
+    expect(await run('map_long', ctxWith([withMap({ length: 250 })]), { minutes: 4 })).toBe(1);
+    expect(await run('map_long', ctxWith([withMap({ length: 230 })]), { minutes: 4 })).toBe(0);
+  });
+  test('map_short', async () => {
+    expect(await run('map_short', ctxWith([withMap({ length: 45 })]))).toBe(1);
+    expect(await run('map_short', ctxWith([score()]))).toBe(0);
+  });
+  test('map_ar', async () => {
+    expect(await run('map_ar', ctxWith([withMap({ ar: 9.7 })]))).toBe(1);
+    expect(await run('map_ar', ctxWith([withMap({ ar: 9.5 })]))).toBe(0);
+  });
+  test('map_od', async () => {
+    expect(await run('map_od', ctxWith([withMap({ od: 9 })]))).toBe(1);
+    expect(await run('map_od', ctxWith([score()]))).toBe(0);
+  });
+  test('map_combo', async () => {
+    expect(await run('map_combo', ctxWith([withMap({ maxCombo: 1200 })]))).toBe(1);
+    expect(await run('map_combo', ctxWith([score()]))).toBe(0);
+  });
+  test('map_diffname', async () => {
+    expect(await run('map_diffname', ctxWith([withMap({ diffName: "Sky's EXTRA" })]))).toBe(1);
+    expect(await run('map_diffname', ctxWith([score()]))).toBe(0);
+  });
+  test('map_artist ignores case and rolls null without artists', async () => {
+    expect(
+      await run('map_artist', ctxWith([withMap({ artist: 'camellia' })]), { artist: 'Camellia' })
+    ).toBe(1);
+    expect(await run('map_artist', ctxWith([score()]), { artist: 'Camellia' })).toBe(0);
+    const t = byKey.get('map_artist')!;
+    expect(t.roll(fakeContext({}), { ...DEFAULT_SETTINGS, artists: [] }, Math.random)).toBeNull();
+    expect(t.roll(fakeContext({}), { ...DEFAULT_SETTINGS, artists: ['xi'] }, Math.random)).toEqual({
+      artist: 'xi'
+    });
+  });
+  test('map_famous', async () => {
+    expect(
+      await run('map_famous', ctxWith([score({ beatmapId: 129891 })]), { beatmapId: 129891 })
+    ).toBe(1);
+    expect(await run('map_famous', ctxWith([score()]), { beatmapId: 129891 })).toBe(0);
+    const t = byKey.get('map_famous')!;
+    expect(t.link!({ beatmapId: 129891 })).toBe('/beatmaps/129891');
+    expect(
+      t.roll(fakeContext({}), { ...DEFAULT_SETTINGS, famousMaps: [] }, Math.random)
+    ).toBeNull();
+  });
+  test('map_local', async () => {
+    expect(await run('map_local', ctxWith([withMap({ mapperId: 1000 })]))).toBe(1);
+    expect(await run('map_local', ctxWith([score()]))).toBe(0);
+  });
+  test('map_loved', async () => {
+    expect(await run('map_loved', ctxWith([withMap({ ranked: 5 })]))).toBe(1);
+    expect(await run('map_loved', ctxWith([score()]))).toBe(0);
+  });
+  test('map_new', async () => {
+    const seen = new Map([['abc', new Date('2026-01-01')]]);
+    expect(await run('map_new', ctxWith([score()]))).toBe(1);
+    expect(await run('map_new', ctxWith([score()], { playedBefore: async () => seen }))).toBe(0);
+    expect(await run('map_new', ctxWith([]))).toBe(0);
+  });
+  test('map_revisit needs a play older than 30 days', async () => {
+    const old = new Map([['abc', new Date('2026-08-01')]]);
+    const recent = new Map([['abc', new Date('2026-10-01')]]);
+    expect(await run('map_revisit', ctxWith([score()], { playedBefore: async () => old }))).toBe(1);
+    expect(await run('map_revisit', ctxWith([score()], { playedBefore: async () => recent }))).toBe(
+      0
+    );
+  });
+  test('map_top_again', async () => {
+    expect(await run('map_top_again', ctxWith([score()], { topMaps: async () => ['abc'] }))).toBe(
+      1
+    );
+    expect(await run('map_top_again', ctxWith([score()], { topMaps: async () => ['zzz'] }))).toBe(
+      0
+    );
+    const t = byKey.get('map_top_again')!;
+    expect(t.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)).toBeNull();
+    expect(
+      t.roll(
+        fakeContext({ bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }) }),
+        DEFAULT_SETTINGS,
+        Math.random
+      )
+    ).toEqual({});
+  });
+  test('map_set_three counts distinct difficulties in one set', async () => {
+    const same = [score({ md5: 'a' }), score({ id: 2, md5: 'b' }), score({ id: 3, md5: 'c' })];
+    expect(await run('map_set_three', ctxWith(same))).toBe(3);
+    const split = [
+      score({ md5: 'a' }),
+      score({ id: 2, md5: 'a' }),
+      score({ id: 3, md5: 'c', setId: 11 })
+    ];
+    expect(await run('map_set_three', ctxWith(split))).toBe(1);
+    expect(await run('map_set_three', ctxWith([]))).toBe(0);
   });
 });
