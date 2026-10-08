@@ -1,81 +1,40 @@
-import { Privilege } from '$lib/auth/privileges';
-import { db } from '$server/db';
-import { redis } from '$server/redis';
-import { Failure } from '$server/respond';
-import { donorBuff, gameConfig } from './config';
 import { dealHand, drawHand, parseHeld } from './games/poker';
 import type { Card, PokerOdds } from './games/poker';
 import { payoutFor } from './games/types';
-import { recordPlay } from './history';
-import { checkLimit, withLock } from './limits';
-import { cryptoRng, lockUser, parseBet } from './play';
+import { cryptoRng } from './play';
+import * as session from './session';
 
-interface Pending {
+interface Hand {
   hand: Card[];
   deck: Card[];
   bet: number;
   payouts: PokerOdds['payouts'];
 }
 
-const handKey = (userId: number) => `casino:poker:${userId}`;
+const codes = { pending: 'casino.hand_pending', missing: 'casino.no_hand' };
 
-async function load(userId: number): Promise<Pending | null> {
-  const raw = await redis.get(handKey(userId));
-  return raw ? (JSON.parse(raw) as Pending) : null;
-}
+const view = ({ hand, bet }: Hand) => ({ hand, bet });
 
 export async function deal(userId: number, rawBet: unknown, rng: () => number = cryptoRng) {
-  const cfg = await gameConfig<PokerOdds>('poker');
-  if (!cfg.enabled || !cfg.odds) throw new Failure(403, 'casino.disabled');
-  const { payouts } = cfg.odds;
-  const bet = parseBet(rawBet, cfg);
-  await checkLimit('poker', userId);
-  const key = handKey(userId);
-
-  return withLock(userId, async () => {
-    let claimed = false;
-    try {
-      return await db.$transaction(async (tx) => {
-        const user = await lockUser(tx, userId);
-        if ((Number(user.privileges) & Privilege.Public) === 0)
-          throw new Failure(403, 'site.forbidden');
-
-        const { hand, deck } = dealHand(rng);
-        // Stored before the deduction so a pending hand never costs a second bet, and before the
-        // coins check so a pending hand is a 409 rather than a 402.
-        const stored = await redis.set(
-          key,
-          JSON.stringify({ hand, deck, bet, payouts } satisfies Pending),
-          'NX'
-        );
-        if (stored !== 'OK') throw new Failure(409, 'casino.hand_pending');
-        claimed = true;
-        if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
-
-        await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} WHERE id = ${userId}`;
-        return { hand, bet, balance: user.coins - bet };
-      });
-    } catch (e) {
-      // The bet never went through, so the hand mustn't stay playable for free.
-      if (claimed) await redis.del(key).catch(() => {});
-      throw e;
-    }
-  });
+  const dealt = await session.begin(
+    userId,
+    'poker',
+    rawBet,
+    ({ payouts }: PokerOdds, bet, rng): Hand => ({ ...dealHand(rng), bet, payouts }),
+    view,
+    rng,
+    codes
+  );
+  return { ...dealt.view, balance: dealt.balance };
 }
 
 export async function draw(userId: number, rawHeld: unknown, rng: () => number = cryptoRng) {
-  // Pays from the payouts stored at the deal, so a hand that's paid for always finishes, even
-  // once the game is disabled or its odds are cleared.
   const held = parseHeld(rawHeld);
-  await checkLimit('poker', userId);
-  const key = handKey(userId);
-
-  return withLock(userId, async () => {
-    // Taken out of Redis before paying, so a hand can only ever be paid once.
-    const raw = await redis.getdel(key);
-    if (!raw) throw new Failure(404, 'casino.no_hand');
-    try {
-      const state = JSON.parse(raw) as Pending;
+  const played = await session.step(
+    userId,
+    'poker',
+    (state: Hand, rng) => {
+      // Pays from the payouts stored at the deal.
       const { bet, payouts } = state;
       const { hand, handRank, multiplier } = drawHand(
         state.hand,
@@ -85,26 +44,17 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
         rng
       );
       const base = payoutFor(bet, multiplier);
-
-      return await db.$transaction(async (tx) => {
-        const user = await lockUser(tx, userId);
-        const payout = donorBuff(base, Number(user.privileges));
-        const result = { hand, handRank, multiplier, payout: base };
-        const stored = payout > 0 ? multiplier : 0;
-
-        await tx.$executeRaw`UPDATE users SET coins = coins + ${payout} WHERE id = ${userId}`;
-        await recordPlay(tx, { userId, game: 'poker', bet, multiplier: stored, payout, result });
-        return { result, payout, multiplier: stored, balance: user.coins + payout };
-      });
-    } catch (e) {
-      // Nothing was paid, so give the hand back to be drawn again.
-      await redis.set(key, raw, 'NX').catch(() => {});
-      throw e;
-    }
-  });
+      return {
+        settle: { multiplier, base, result: { hand, handRank, multiplier, payout: base } },
+        view: { hand, bet }
+      };
+    },
+    rng,
+    codes
+  );
+  if (!('result' in played)) throw new Error('A poker draw always settles');
+  const { result, payout, multiplier, balance } = played;
+  return { result, payout, multiplier, balance };
 }
 
-export async function pending(userId: number) {
-  const state = await load(userId);
-  return state && { hand: state.hand, bet: state.bet };
-}
+export const pending = (userId: number) => session.pending(userId, 'poker', view);
