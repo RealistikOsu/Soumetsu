@@ -1,8 +1,13 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError, ServerInit } from '@sveltejs/kit';
 import { record } from '$server/admin/console';
+import { startCommissionNotices } from '$server/commissions/notices';
 import { config } from '$server/config';
 import { previewFor } from '$server/preview';
 import { resolveUser } from '$server/users';
+
+export const init: ServerInit = () => {
+  startCommissionNotices();
+};
 
 const LOCALES = ['en', 'ru', 'pl', 'hu'];
 

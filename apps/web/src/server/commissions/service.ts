@@ -280,6 +280,27 @@ export async function todayFor(userId: number, now = new Date()) {
   };
 }
 
+// A score was just submitted, so today's tasks are checked straight away rather than waiting out the gap, and the
+// caller learns what this check completed.
+export async function recheckToday(userId: number, now = new Date()) {
+  const settings = await loadSettings();
+  const date = dayWindow(now).date;
+  const before = await findDay(userId, date);
+  const doneBefore = new Set(
+    before?.tasks.filter((task) => task.completed_at).map((task) => Number(task.id)) ?? []
+  );
+  const tierBefore = before ? tierReached(settings.thresholds, before.points) : 0;
+
+  lastChecked.delete(`${userId}:${date}`);
+  const [today] = await currentDays(userId, now, settings);
+  const day = view(today, settings);
+  return {
+    day,
+    completed: day.tasks.filter((task) => task.completed && !doneBefore.has(task.id)),
+    tiers: settings.thresholds.slice(tierBefore, tierReached(settings.thresholds, day.points))
+  };
+}
+
 function view(day: Day, settings: Settings): DayView {
   return {
     date: day.day.toISOString().slice(0, 10),
