@@ -49,6 +49,10 @@ export const site: Preview = {
 };
 
 const pages: Record<string, PageInfo> = {
+  '/shop': {
+    title: 'Shop',
+    description: 'Spend your coins on username decorations and more.'
+  },
   '/leaderboard': {
     title: 'Leaderboard',
     description: 'The top players on RealistikOsu, ranked by pp in every mode.'
