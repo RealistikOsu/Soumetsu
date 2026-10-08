@@ -636,3 +636,82 @@ describe('multiplayer', () => {
     expect(byKey.get('mp_win')!.link!({})).toBe('/multiplayer');
   });
 });
+
+describe('casino', () => {
+  type Row = { game: string; bet: number; multiplier: number; payout: number };
+  const row = (game: string, bet: number, multiplier: number): Row => ({
+    game,
+    bet,
+    multiplier,
+    payout: bet * multiplier
+  });
+  const played = (...rows: Row[]) => fakeContext({ casino: async () => rows });
+  test('casino_play', async () => {
+    expect(await run('casino_play', played(row('slots', 10, 0)))).toBe(1);
+    expect(await run('casino_play', played())).toBe(0);
+  });
+  test('casino_three_games counts distinct games', async () => {
+    expect(
+      await run('casino_three_games', played(row('a', 1, 1), row('b', 1, 1), row('a', 1, 1)))
+    ).toBe(2);
+    expect(await run('casino_three_games', played())).toBe(0);
+  });
+  test('casino_new_game', async () => {
+    const ctx = (week: string[]) => ({
+      ...played(row('slots', 10, 0)),
+      weekGames: async () => week
+    });
+    expect(await run('casino_new_game', ctx(['blackjack']))).toBe(1);
+    expect(await run('casino_new_game', ctx(['slots']))).toBe(0);
+    expect(await run('casino_new_game', played())).toBe(0);
+  });
+  test('casino_wager sums bets and scales with coins', async () => {
+    expect(
+      await run('casino_wager', played(row('slots', 30, 0), row('slots', 40, 0)), { coins: 100 })
+    ).toBe(70);
+    expect(await run('casino_wager', played(), { coins: 100 })).toBe(0);
+    const t = byKey.get('casino_wager')!;
+    expect(t.roll(fakeContext({ coins: 100 }), DEFAULT_SETTINGS, Math.random)).toEqual({
+      coins: 50
+    });
+    expect(t.roll(fakeContext({ coins: 2000 }), DEFAULT_SETTINGS, Math.random)).toEqual({
+      coins: 200
+    });
+  });
+  test('casino_big_win', async () => {
+    expect(await run('casino_big_win', played(row('slots', 10, 3)))).toBe(1);
+    expect(await run('casino_big_win', played(row('slots', 10, 2.9)))).toBe(0);
+  });
+  test('casino_blackjack', async () => {
+    expect(await run('casino_blackjack', played(row('blackjack', 10, 2)))).toBe(1);
+    expect(await run('casino_blackjack', played(row('blackjack', 10, 1)))).toBe(0);
+    expect(await run('casino_blackjack', played(row('slots', 10, 2)))).toBe(0);
+  });
+  test('casino_slots_10x', async () => {
+    expect(await run('casino_slots_10x', played(row('slots', 10, 10)))).toBe(1);
+    expect(await run('casino_slots_10x', played(row('slots', 10, 5)))).toBe(0);
+  });
+  test('casino_aviator', async () => {
+    expect(await run('casino_aviator', played(row('aviator', 10, 2)))).toBe(1);
+    expect(await run('casino_aviator', played(row('aviator', 10, 0)))).toBe(0);
+  });
+  test('casino_chicken', async () => {
+    expect(await run('casino_chicken', played(row('chicken_road', 10, 2)))).toBe(1);
+    expect(await run('casino_chicken', played(row('chicken_road', 10, 1.2)))).toBe(0);
+  });
+  test('casino_profit needs a net gain', async () => {
+    expect(await run('casino_profit', played(row('slots', 100, 2), row('slots', 50, 0)))).toBe(1);
+    expect(await run('casino_profit', played(row('slots', 100, 2), row('slots', 100, 0)))).toBe(0);
+  });
+  test('casino_shop', async () => {
+    expect(await run('casino_shop', fakeContext({ casinoPurchases: async () => 1 }))).toBe(1);
+    expect(await run('casino_shop', fakeContext({}))).toBe(0);
+  });
+  test('casino_lose', async () => {
+    expect(await run('casino_lose', played(row('slots', 10, 0)))).toBe(1);
+    expect(await run('casino_lose', played(row('slots', 10, 1)))).toBe(0);
+  });
+  test('links use the casino marker', () => {
+    expect(byKey.get('casino_play')!.link!({})).toBe('casino');
+  });
+});
