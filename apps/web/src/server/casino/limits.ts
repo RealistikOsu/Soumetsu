@@ -26,12 +26,17 @@ export async function checkLimit(key: string, userId: number) {
   if (hits > limit.count) throw new Failure(429, 'casino.too_fast');
 }
 
+const RELEASE =
+  "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+
 export async function withLock<T>(userId: number, fn: () => Promise<T>) {
   const key = `casino:lock:${userId}`;
-  if ((await redis.set(key, '1', 'EX', 10, 'NX')) === null) throw new Failure(409, 'casino.busy');
+  const token = crypto.randomUUID();
+  if ((await redis.set(key, token, 'EX', 10, 'NX')) !== 'OK') throw new Failure(409, 'casino.busy');
   try {
     return await fn();
   } finally {
-    await redis.del(key);
+    // The lock may have expired and been taken by someone else while fn ran.
+    await redis.eval(RELEASE, 1, key, token);
   }
 }

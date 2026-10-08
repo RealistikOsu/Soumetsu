@@ -15,7 +15,8 @@ mock.module('$server/redis', () => ({
       locks[key] = value;
       return 'OK';
     },
-    del: async (key: string) => {
+    eval: async (_script: string, _n: number, key: string, token: string) => {
+      if (locks[key] !== token) return 0;
       delete locks[key];
       return 1;
     }
@@ -33,7 +34,7 @@ beforeEach(() => {
 describe('checkLimit', () => {
   test('allows 30 calls then throws 429 on the 31st', async () => {
     for (let i = 0; i < 30; i++) await checkLimit('coinflip', 1);
-    expect(checkLimit('coinflip', 1)).rejects.toMatchObject({
+    await expect(checkLimit('coinflip', 1)).rejects.toMatchObject({
       status: 429,
       code: 'casino.too_fast'
     });
@@ -49,7 +50,7 @@ describe('checkLimit', () => {
 
   test('plinko allows 150', async () => {
     for (let i = 0; i < 150; i++) await checkLimit('plinko', 1);
-    expect(checkLimit('plinko', 1)).rejects.toMatchObject({ status: 429 });
+    await expect(checkLimit('plinko', 1)).rejects.toMatchObject({ status: 429 });
   });
 
   test('users are counted separately', async () => {
@@ -57,15 +58,15 @@ describe('checkLimit', () => {
     await checkLimit('coinflip', 2);
   });
 
-  test('an unknown key is a programmer error', () => {
-    expect(checkLimit('nope', 1)).rejects.toThrow('No casino limit');
+  test('an unknown key is a programmer error', async () => {
+    await expect(checkLimit('nope', 1)).rejects.toThrow('No casino limit');
   });
 });
 
 describe('withLock', () => {
   test('rejects with 409 while the lock is held', async () => {
-    locks['casino:lock:1'] = '1';
-    expect(withLock(1, async () => 'x')).rejects.toMatchObject({
+    locks['casino:lock:1'] = 'other';
+    await expect(withLock(1, async () => 'x')).rejects.toMatchObject({
       status: 409,
       code: 'casino.busy'
     });
@@ -83,5 +84,12 @@ describe('withLock', () => {
       })
     ).rejects.toThrow('boom');
     expect(locks).toEqual({});
+  });
+
+  test('does not release a lock another holder took over', async () => {
+    await withLock(1, async () => {
+      locks['casino:lock:1'] = 'other';
+    });
+    expect(locks).toEqual({ 'casino:lock:1': 'other' });
   });
 });

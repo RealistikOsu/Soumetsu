@@ -5,9 +5,9 @@ let reads = 0;
 mock.module('$server/db', () => ({
   db: {
     casino_game_config: {
-      findUnique: async () => {
+      findUnique: async ({ where }: { where: { game_type: string } }) => {
         reads++;
-        return row;
+        return where.game_type === 'coinflip' ? row : null;
       }
     }
   }
@@ -79,6 +79,7 @@ describe('gameConfig', () => {
     row = { min_bet: 10, max_bet: 500, enabled: true, config_json: { multiplier: 1.9 } };
     const list = await publicConfig();
     expect(list).toHaveLength(12);
-    for (const entry of list) expect('odds' in entry).toBe(false);
+    for (const entry of list)
+      expect(Object.keys(entry).sort()).toEqual(['enabled', 'game', 'maxBet', 'minBet']);
   });
 });

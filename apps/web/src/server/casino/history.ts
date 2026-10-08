@@ -12,7 +12,7 @@ export async function recordPlay(
     bet: number;
     multiplier: number;
     payout: number;
-    result: unknown;
+    result: Prisma.InputJsonValue;
   }
 ) {
   await tx.casino_game_history.create({
@@ -22,7 +22,7 @@ export async function recordPlay(
       bet_amount: row.bet,
       multiplier: row.multiplier,
       payout: row.payout,
-      result_data: row.result as Prisma.InputJsonValue
+      result_data: row.result
     }
   });
 }
@@ -45,7 +45,7 @@ export async function historyFor(userId: number, page: number) {
     db.casino_game_history.findMany({
       where,
       orderBy: [{ played_at: 'desc' }, { id: 'desc' }],
-      skip: Math.max(0, page) * PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE
     })
   ]);
