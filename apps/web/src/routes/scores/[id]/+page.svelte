@@ -2,6 +2,7 @@
   import { env } from '$env/dynamic/public';
   import { page } from '$app/state';
   import { scoreDetail } from '$lib/api/lazerScores';
+  import { mirrorSet } from '$lib/api/mirror';
   import { query } from '$lib/api/query.svelte';
   import { profile } from '$lib/api/users';
   import { coverUrl, replayUrl } from '$lib/assets';
@@ -43,6 +44,19 @@
     );
   });
   const clan = $derived(owner.state.status === 'ready' ? (owner.state.data?.clan ?? null) : null);
+
+  // Only maps uploaded here have a mapper in the database; everything else asks the mirror.
+  const fromMirror = query(async (signal) =>
+    !score || score.beatmap.creator
+      ? null
+      : mirrorSet(score.beatmap.beatmapset_id, signal).then(
+          (set) => set.creator,
+          () => null
+        )
+  );
+  const creator = $derived(
+    score?.beatmap.creator || (fromMirror.state.status === 'ready' ? fromMirror.state.data : null)
+  );
 
   const lazerUrl = (env.PUBLIC_LAZER_URL ?? '').replace(/\/$/, '');
   const replayHref = $derived(
@@ -90,8 +104,9 @@
           <Stars value={score.beatmap.stars} />
           <span>
             <a href="/beatmaps/{score.beatmap.beatmap_id}">[{score.beatmap.version}]</a>
-            {m.beatmaps_mapped_by()}
-            <b>{score.beatmap.creator}</b>
+            {#if creator}
+              {m.beatmaps_mapped_by()} <b>{creator}</b>
+            {/if}
           </span>
         </p>
       </header>
