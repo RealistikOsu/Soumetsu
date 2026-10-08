@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { normaliseLazer, normaliseStable, type LazerRow, type StableRow } from './scores';
+import {
+  markLazerBests,
+  normaliseLazer,
+  normaliseStable,
+  type LazerRow,
+  type StableRow
+} from './scores';
 
 const map = {
   beatmapset_id: 10,
@@ -54,6 +60,14 @@ describe('normaliseStable', () => {
     expect(score.map.artist).toBe('Camellia');
     expect(score.at.toISOString()).toBe('2026-10-08T00:40:00.000Z');
   });
+  test('falls back to the mod rate when playback_rate is missing', () => {
+    expect(normaliseStable({ ...row, mods: 64, playback_rate: null }).rate).toBe(1.5);
+    expect(normaliseStable({ ...row, mods: 0, playback_rate: null }).rate).toBe(1);
+  });
+  test('prefers the aliased map max combo', () => {
+    expect(normaliseStable({ ...row, map_max_combo: 999 }).map.maxCombo).toBe(999);
+    expect(normaliseStable(row).map.maxCombo).toBe(400);
+  });
   test('a failed play is not passed', () => {
     expect(normaliseStable({ ...row, completed: 0 }).passed).toBe(false);
   });
@@ -87,5 +101,19 @@ describe('normaliseLazer', () => {
     expect(score.c300).toBe(300);
     expect(score.grade).toBe('A');
     expect(score.source).toBe('lazer');
+  });
+
+  test('only ranked-mods passed plays can be best', () => {
+    const unranked = normaliseLazer({ ...row, id: 3, ranked_mods: 0, pp: 300 });
+    const ranked = normaliseLazer({ ...row, id: 4, ranked_mods: 1, pp: 200 });
+    markLazerBests([unranked, ranked]);
+    expect(unranked.rankedMods).toBe(false);
+    expect(unranked.isBest).toBe(false);
+    expect(ranked.isBest).toBe(true);
+  });
+  test('a lone unranked play is not best', () => {
+    const lone = normaliseLazer({ ...row, ranked_mods: 0 });
+    markLazerBests([lone]);
+    expect(lone.isBest).toBe(false);
   });
 });

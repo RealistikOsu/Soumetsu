@@ -17,6 +17,8 @@ interface MapColumns {
   ar: number;
   od: number;
   max_combo: number;
+  // The stable and lazer queries alias the beatmap's max_combo so it doesn't collide with the score's.
+  map_max_combo?: number;
   diff_name: string;
   song_name: string;
   ranked: number;
@@ -84,6 +86,7 @@ export interface DayScore {
   rate: number;
   passed: boolean;
   grade: GradeName;
+  rankedMods: boolean;
   isBest: boolean;
   at: Date;
   map: {
@@ -116,6 +119,13 @@ export const optional = <T>(query: Promise<T[]>) =>
     throw error;
   });
 
+const rateOf = (mods: string[]) =>
+  mods.includes('DT') || mods.includes('NC')
+    ? 1.5
+    : mods.includes('HT') || mods.includes('DC')
+      ? 0.75
+      : 1;
+
 function mapOf(row: MapColumns, mode: number): DayScore['map'] {
   const [artist] = row.song_name.split(' - ', 1);
   return {
@@ -124,7 +134,7 @@ function mapOf(row: MapColumns, mode: number): DayScore['map'] {
     length: row.hit_length,
     ar: row.ar,
     od: row.od,
-    maxCombo: Number((row as unknown as { map_max_combo?: number }).map_max_combo ?? row.max_combo),
+    maxCombo: Number(row.map_max_combo ?? row.max_combo),
     diffName: row.diff_name,
     songName: row.song_name,
     artist: artist.trim(),
@@ -155,7 +165,7 @@ export function normaliseStable(row: StableRow): DayScore {
     c100: row.count_100,
     c50: row.count_50,
     mods,
-    rate: Number(row.playback_rate) || 1,
+    rate: Number(row.playback_rate) || rateOf(mods),
     passed: row.completed >= 1,
     grade: gradeOf({
       completed: row.completed,
@@ -167,6 +177,7 @@ export function normaliseStable(row: StableRow): DayScore {
       count_misses: row.count_misses,
       accuracy
     }),
+    rankedMods: true,
     isBest: row.completed === 3,
     at: new Date(Number(row.time) * 1000),
     map: mapOf(row, row.play_mode)
@@ -183,12 +194,7 @@ export function normaliseLazer(row: LazerRow): DayScore {
     .map((mod) => mod.acronym)
     .filter((acronym) => !['CL', 'RX', 'AP'].includes(acronym));
   const rate =
-    modList.find((mod) => mod.settings?.speed_change)?.settings?.speed_change ??
-    (mods.includes('DT') || mods.includes('NC')
-      ? 1.5
-      : mods.includes('HT') || mods.includes('DC')
-        ? 0.75
-        : 1);
+    modList.find((mod) => mod.settings?.speed_change)?.settings?.speed_change ?? rateOf(mods);
   return {
     id: Number(row.id),
     source: 'lazer',
@@ -209,17 +215,18 @@ export function normaliseLazer(row: LazerRow): DayScore {
     rate,
     passed: row.passed === 1,
     grade: row.passed === 1 ? gradeFromRank(row.rank) : 'F',
+    rankedMods: row.ranked_mods === 1,
     isBest: false,
     at: row.ended_at,
     map: mapOf(row, row.ruleset_id)
   };
 }
 
-// Lazer has no "best" flag, so the best play on a map today is the highest ranked-mods pp among passed plays.
-function markLazerBests(scores: DayScore[]) {
+// Lazer has no "best" flag, so the best play on a map today is the highest pp among passed plays with ranked mods.
+export function markLazerBests(scores: DayScore[]) {
   const best = new Map<string, DayScore>();
   for (const score of scores) {
-    if (score.source !== 'lazer' || !score.passed) continue;
+    if (score.source !== 'lazer' || !score.passed || !score.rankedMods) continue;
     const key = `${score.md5}:${score.variant}:${score.mode}`;
     const current = best.get(key);
     if (!current || score.pp > current.pp) best.set(key, score);
