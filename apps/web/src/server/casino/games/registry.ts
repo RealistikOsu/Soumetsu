@@ -1,21 +1,14 @@
 import type { Prisma } from '$server/generated/client';
 import { play } from '../play';
 import type { GameRunner } from '../play';
-import { bingo, bingoInfo, bingoMax, parseBingoInput, parseBingoOdds } from './bingo';
-import { coinflip, coinflipMax, parseCoinflipInput, parseCoinflipOdds } from './coinflip';
-import { parsePokerOdds, pokerMax } from './poker';
-import { parsePlinkoInput, parsePlinkoOdds, plinko, plinkoInfo, plinkoMax } from './plinko';
-import {
-  parseRouletteInput,
-  parseRouletteOdds,
-  roulette,
-  rouletteInfo,
-  rouletteMax
-} from './roulette';
-import { parseSlotsInput, parseSlotsOdds, slots, slotsInfo, slotsMax } from './slots';
+import { bingo, bingoInfo, bingoMax, parseBingoInput } from './bingo';
+import { coinflip, coinflipMax, parseCoinflipInput } from './coinflip';
+import { parsePlinkoInput, plinko, plinkoInfo, plinkoMax } from './plinko';
+import { parseRouletteInput, roulette, rouletteInfo, rouletteMax } from './roulette';
+import { parseSlotsInput, slots, slotsInfo, slotsMax } from './slots';
 import type { Game, GameConfig } from './types';
-import { parseWheelInput, parseWheelOdds, wheel, wheelInfo, wheelMax } from './wheel';
-import { parseZeusInput, parseZeusOdds, zeus, zeusInfo, zeusMax } from './zeus';
+import { parseWheelInput, wheel, wheelInfo, wheelMax } from './wheel';
+import { parseZeusInput, zeus, zeusInfo, zeusMax } from './zeus';
 
 export type InstantGame = 'coinflip' | 'plinko' | 'slots' | 'zeus' | 'wheel' | 'roulette' | 'bingo';
 
@@ -72,34 +65,4 @@ export const instantGames: Record<InstantGame, InstantEntry> = {
     max: rouletteMax
   }),
   bingo: entry({ parseInput: parseBingoInput, run: bingo, info: bingoInfo, max: bingoMax })
-};
-
-// Games that aren't ported yet keep whatever object the admin saves.
-const passThrough = (raw: unknown) =>
-  raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
-
-export const oddsParsers: Record<Game, (raw: unknown) => unknown | null> = {
-  coinflip: parseCoinflipOdds,
-  plinko: parsePlinkoOdds,
-  slots: parseSlotsOdds,
-  zeus: parseZeusOdds,
-  wheel: parseWheelOdds,
-  roulette: parseRouletteOdds,
-  bingo: parseBingoOdds,
-  poker: parsePokerOdds,
-  mines: passThrough,
-  chicken_road: passThrough,
-  aviator: passThrough,
-  blackjack: passThrough
-};
-
-export const maxMultipliers: Partial<Record<Game, (odds: never) => number>> = {
-  coinflip: coinflipMax,
-  plinko: plinkoMax,
-  slots: slotsMax,
-  zeus: zeusMax,
-  wheel: wheelMax,
-  roulette: rouletteMax,
-  bingo: bingoMax,
-  poker: pokerMax
 };

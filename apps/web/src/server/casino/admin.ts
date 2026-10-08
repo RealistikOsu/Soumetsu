@@ -4,7 +4,7 @@ import { rapLog } from '$server/admin/log';
 import { Failure } from '$server/respond';
 import { clearConfigCache, GAMES, parseOdds } from './config';
 import type { Game } from './config';
-import { maxMultipliers } from './games/registry';
+import { maxMultipliers } from './games/odds';
 
 const MAX_BET = 1_000_000;
 

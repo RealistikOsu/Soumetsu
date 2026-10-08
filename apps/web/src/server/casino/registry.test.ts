@@ -5,7 +5,8 @@ mock.module('$server/db', () => ({ db: {} }));
 mock.module('$server/admin/log', () => ({ rapLog: async () => {} }));
 
 const { pokerInfo } = await import('./games/poker');
-const { instantGames, oddsParsers } = await import('./games/registry');
+const { instantGames } = await import('./games/registry');
+const { oddsParsers } = await import('./games/odds');
 const { parseOdds } = await import('./config');
 const { parseConfigRow } = await import('./admin');
 const { instantEntry } = await import('./routes');

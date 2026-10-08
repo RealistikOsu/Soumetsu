@@ -1,6 +1,6 @@
 import { isSupporter } from '$lib/auth/privileges';
 import { db } from '$server/db';
-import { oddsParsers } from './games/registry';
+import { oddsParsers } from './games/odds';
 import { GAMES } from './games/types';
 import type { CoinflipOdds, Game, GameConfig } from './games/types';
 
