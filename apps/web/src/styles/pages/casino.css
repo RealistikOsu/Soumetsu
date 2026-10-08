@@ -613,6 +613,311 @@ a.cs-card:hover {
   gap: 10px;
 }
 
+.cs-landed {
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cs-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  text-align: right;
+}
+
+/* wheel */
+
+.cs-wheel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1;
+  padding-top: 10px;
+}
+
+.cs-wheel-disc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--line);
+}
+
+.motion .cs-wheel-disc {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.15, 0.6, 0.2, 1);
+}
+
+.cs-pointer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  border: 12px solid transparent;
+  border-top: 22px solid #fff;
+  border-bottom: 0;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.5));
+}
+
+.cs-slice {
+  stroke: var(--bg);
+  stroke-width: 0.6;
+}
+
+.cs-slice.low {
+  fill: #3b82f6;
+}
+
+.cs-slice.mid {
+  fill: #10b981;
+}
+
+.cs-slice.high {
+  fill: #f59e0b;
+}
+
+.cs-slice.jackpot {
+  fill: var(--yellow);
+}
+
+.cs-slice.penalty {
+  fill: #ef4444;
+}
+
+.cs-slice.void {
+  fill: #7c3aed;
+}
+
+.cs-slice.hit {
+  stroke: #fff;
+  stroke-width: 1.6;
+}
+
+.cs-slice-label {
+  fill: #fff;
+  font-size: 7.5px;
+  font-weight: 700;
+  dominant-baseline: central;
+  text-transform: uppercase;
+}
+
+.cs-slice-label.jackpot {
+  fill: #3d2e00;
+}
+
+.cs-hub {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+/* roulette */
+
+.cs-bets {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.cs-sides.cs-bets button {
+  display: grid;
+  gap: 2px;
+  padding: 6px 4px;
+  font-size: 13px;
+}
+
+.cs-bets button.wide {
+  grid-column: 1 / -1;
+}
+
+.cs-bets small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cs-num {
+  display: grid;
+  place-items: center;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cs-num.red {
+  background: #c62828;
+}
+
+.cs-num.black {
+  background: #1d1d22;
+}
+
+.cs-num.green {
+  background: #15803d;
+}
+
+.cs-numbers {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.cs-numbers .cs-num {
+  padding: 6px 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cs-numbers .cs-num:first-child {
+  grid-column: 1 / -1;
+}
+
+.cs-num.active {
+  border-color: var(--yellow);
+}
+
+.cs-landed .cs-num {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  font-size: 1.8rem;
+}
+
+.cs-tape {
+  position: relative;
+  width: 100%;
+  height: calc(var(--cell) + 24px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.cs-tape-strip {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  display: flex;
+}
+
+.cs-tape-strip .cs-num {
+  flex: none;
+  width: var(--cell);
+  height: var(--cell);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.cs-tape-strip .cs-num.hit {
+  box-shadow: inset 0 0 0 3px var(--yellow);
+}
+
+.cs-marker {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 3px;
+  background: var(--yellow);
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px var(--yellow);
+}
+
+/* bingo */
+
+.cs-bingo {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 380px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.cs-bingo-col {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+}
+
+.cs-bingo-col b {
+  color: var(--yellow);
+  font-size: 1.3rem;
+}
+
+.cs-ball-cell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: var(--panel-2);
+  font-weight: 700;
+}
+
+.cs-ball-cell.marked {
+  background: rgb(33 186 69 / 0.35);
+}
+
+.cs-ball-cell.free {
+  color: var(--yellow);
+}
+
+.cs-ball-cell.won {
+  border-color: var(--yellow);
+}
+
+.motion .cs-ball-cell.marked:not(.free) {
+  animation: cs-mark 0.3s ease-out;
+}
+
+@keyframes cs-mark {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.cs-called {
+  width: 100%;
+  max-width: 380px;
+}
+
+.cs-called h2 {
+  margin-bottom: 6px;
+}
+
+.cs-called-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 30px;
+}
+
+.cs-called-list span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cs-called-list span.hit {
+  background: var(--green);
+  color: #fff;
+}
+
 @media (max-width: 800px) {
   .cs-game {
     grid-template: 'stage' 'controls' 'table' / 1fr;
