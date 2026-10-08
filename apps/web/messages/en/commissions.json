@@ -68,7 +68,16 @@
   ],
   "commissions_task_play_maps": "Play {count} different maps",
   "commissions_task_play_mode": "Play {count} {mode} maps",
-  "commissions_task_play_variant": "Set {count} scores on {variant}",
+  "commissions_task_play_variant": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Set {count} score on {variant}",
+        "n=other": "Set {count} scores on {variant}"
+      }
+    }
+  ],
   "commissions_task_play_source": "Set a score on {source}",
   "commissions_task_play_not_favourite": "Play a mode that isn't your main",
   "commissions_task_play_all_modes": "Play all four modes",
@@ -92,7 +101,16 @@
   "commissions_task_map_revisit": "Replay a map you haven't touched in a month",
   "commissions_task_map_top_again": "Replay one of your top 10 maps",
   "commissions_task_map_set_three": "Play three difficulties from one mapset",
-  "commissions_task_session_streak": "Pass {count} maps in a row",
+  "commissions_task_session_streak": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Pass {count} map in a row",
+        "n=other": "Pass {count} maps in a row"
+      }
+    }
+  ],
   "commissions_task_session_retry": "Fail a map, then pass it",
   "commissions_task_session_minutes": "Play {minutes} minutes of maps",
   "commissions_task_session_climb": "Pass three maps of rising star rating in a row",
@@ -105,7 +123,16 @@
   "commissions_task_quality_fc_stars": "Full combo a map rated 4★ or harder",
   "commissions_task_quality_acc": "Get 98% accuracy or better",
   "commissions_task_quality_acc_stars": "Get 95% on a map rated 5★ or harder",
-  "commissions_task_quality_misses": "Pass a map with {misses} misses or fewer",
+  "commissions_task_quality_misses": [
+    {
+      "declarations": ["input misses", "local n = misses: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Pass a map with {misses} miss or fewer",
+        "n=other": "Pass a map with {misses} misses or fewer"
+      }
+    }
+  ],
   "commissions_task_quality_choke": "Pass a map with exactly one miss",
   "commissions_task_quality_combo": "Hit a {combo}x combo",
   "commissions_task_quality_300s": "Hit 2000 300s in one play",
@@ -136,14 +163,32 @@
   "commissions_task_leaderboard_top50_stars": "Get a top 50 on a 5★ map or harder",
   "commissions_task_rp_play": "Play a ranked play match",
   "commissions_task_rp_win": "Win a ranked play match",
-  "commissions_task_rp_rounds": "Win {count} ranked play rounds",
+  "commissions_task_rp_rounds": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Win {count} ranked play round",
+        "n=other": "Win {count} ranked play rounds"
+      }
+    }
+  ],
   "commissions_task_rp_three": "Play three ranked play matches",
   "commissions_task_mp_play": "Play a multiplayer match",
   "commissions_task_mp_win": "Win a multiplayer game",
   "commissions_task_casino_play": "Play a round in the casino",
   "commissions_task_casino_three_games": "Play three different casino games",
   "commissions_task_casino_new_game": "Play a casino game you haven't played this week",
-  "commissions_task_casino_wager": "Wager {coins} coins in the casino",
+  "commissions_task_casino_wager": [
+    {
+      "declarations": ["input coins", "local n = coins: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Wager {coins} coin in the casino",
+        "n=other": "Wager {coins} coins in the casino"
+      }
+    }
+  ],
   "commissions_task_casino_big_win": "Win a casino round at 3x or more",
   "commissions_task_casino_blackjack": "Win a hand of blackjack",
   "commissions_task_casino_slots_10x": "Hit 10x on slots",

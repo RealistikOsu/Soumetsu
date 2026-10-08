@@ -68,7 +68,16 @@
   ],
   "commissions_task_play_maps": "Játssz {count} különböző mapen",
   "commissions_task_play_mode": "Játssz {count} mapen {mode} módban",
-  "commissions_task_play_variant": "Érj el {count} eredményt {variant} módon",
+  "commissions_task_play_variant": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Érj el {count} eredményt {variant} módon",
+        "n=other": "Érj el {count} eredményt {variant} módon"
+      }
+    }
+  ],
   "commissions_task_play_source": "Érj el eredményt {source} kliensen",
   "commissions_task_play_not_favourite": "Játssz egy olyan módban, ami nem a fő módod",
   "commissions_task_play_all_modes": "Játssz mind a négy módban",
@@ -92,7 +101,16 @@
   "commissions_task_map_revisit": "Játssz újra egy mapet, amihez egy hónapja nem nyúltál",
   "commissions_task_map_top_again": "Játssz újra egyet a top 10 mapjeid közül",
   "commissions_task_map_set_three": "Játssz három nehézséget egy mapsetből",
-  "commissions_task_session_streak": "Teljesíts {count} mapet egymás után",
+  "commissions_task_session_streak": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Teljesíts {count} mapet egymás után",
+        "n=other": "Teljesíts {count} mapet egymás után"
+      }
+    }
+  ],
   "commissions_task_session_retry": "Bukj el egy mapen, aztán teljesítsd",
   "commissions_task_session_minutes": "Játssz {minutes} percet",
   "commissions_task_session_climb": "Teljesíts három egyre magasabb star ratingű mapet egymás után",
@@ -105,7 +123,16 @@
   "commissions_task_quality_fc_stars": "Csinálj FC-t egy 4★ vagy nehezebb mapen",
   "commissions_task_quality_acc": "Érj el 98% vagy jobb pontosságot",
   "commissions_task_quality_acc_stars": "Érj el 95%-ot egy 5★ vagy nehezebb mapen",
-  "commissions_task_quality_misses": "Teljesíts egy mapet legfeljebb {misses} misszel",
+  "commissions_task_quality_misses": [
+    {
+      "declarations": ["input misses", "local n = misses: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Teljesíts egy mapet legfeljebb {misses} misszel",
+        "n=other": "Teljesíts egy mapet legfeljebb {misses} misszel"
+      }
+    }
+  ],
   "commissions_task_quality_choke": "Teljesíts egy mapet pontosan egy misszel",
   "commissions_task_quality_combo": "Érj el {combo}x combót",
   "commissions_task_quality_300s": "Üss 2000 darab 300-ast egy játékban",
@@ -136,14 +163,32 @@
   "commissions_task_leaderboard_top50_stars": "Kerülj top 50-be egy 5★ vagy nehezebb mapen",
   "commissions_task_rp_play": "Játssz egy ranked play meccset",
   "commissions_task_rp_win": "Nyerj egy ranked play meccset",
-  "commissions_task_rp_rounds": "Nyerj {count} ranked play kört",
+  "commissions_task_rp_rounds": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Nyerj {count} ranked play kört",
+        "n=other": "Nyerj {count} ranked play kört"
+      }
+    }
+  ],
   "commissions_task_rp_three": "Játssz három ranked play meccset",
   "commissions_task_mp_play": "Játssz egy multiplayer meccset",
   "commissions_task_mp_win": "Nyerj egy multiplayer játékot",
   "commissions_task_casino_play": "Játssz egy kört a kaszinóban",
   "commissions_task_casino_three_games": "Játssz három különböző kaszinójátékkal",
   "commissions_task_casino_new_game": "Játssz egy kaszinójátékkal, amivel a héten még nem",
-  "commissions_task_casino_wager": "Tegyél fel {coins} érmét a kaszinóban",
+  "commissions_task_casino_wager": [
+    {
+      "declarations": ["input coins", "local n = coins: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Tegyél fel {coins} érmét a kaszinóban",
+        "n=other": "Tegyél fel {coins} érmét a kaszinóban"
+      }
+    }
+  ],
   "commissions_task_casino_big_win": "Nyerj egy kaszinókört 3x vagy nagyobb szorzóval",
   "commissions_task_casino_blackjack": "Nyerj egy blackjack leosztást",
   "commissions_task_casino_slots_10x": "Üss 10x-et a nyerőgépen",

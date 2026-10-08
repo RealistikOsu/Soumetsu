@@ -76,7 +76,18 @@
   ],
   "commissions_task_play_maps": "Zagraj na {count} różnych mapach",
   "commissions_task_play_mode": "Zagraj na {count} mapach w trybie {mode}",
-  "commissions_task_play_variant": "Zdobądź {count} wyników na {variant}",
+  "commissions_task_play_variant": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Zdobądź {count} wynik na {variant}",
+        "n=few": "Zdobądź {count} wyniki na {variant}",
+        "n=many": "Zdobądź {count} wyników na {variant}",
+        "n=other": "Zdobądź {count} wyniku na {variant}"
+      }
+    }
+  ],
   "commissions_task_play_source": "Zdobądź wynik na {source}",
   "commissions_task_play_not_favourite": "Zagraj w trybie, który nie jest twoim głównym",
   "commissions_task_play_all_modes": "Zagraj we wszystkich czterech trybach",
@@ -100,7 +111,18 @@
   "commissions_task_map_revisit": "Wróć do mapy, do której nie zaglądasz od miesiąca",
   "commissions_task_map_top_again": "Zagraj jeszcze raz jedną ze swoich top 10 map",
   "commissions_task_map_set_three": "Zagraj trzy trudności z jednego mapsetu",
-  "commissions_task_session_streak": "Zalicz {count} mapy z rzędu",
+  "commissions_task_session_streak": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Zalicz {count} mapę z rzędu",
+        "n=few": "Zalicz {count} mapy z rzędu",
+        "n=many": "Zalicz {count} map z rzędu",
+        "n=other": "Zalicz {count} mapy z rzędu"
+      }
+    }
+  ],
   "commissions_task_session_retry": "Oblej mapę, a potem ją zalicz",
   "commissions_task_session_minutes": "Graj przez {minutes} min",
   "commissions_task_session_climb": "Zalicz z rzędu trzy mapy o rosnącym star rating",
@@ -113,7 +135,18 @@
   "commissions_task_quality_fc_stars": "Zrób FC na mapie od 4★",
   "commissions_task_quality_acc": "Zdobądź 98% dokładności lub więcej",
   "commissions_task_quality_acc_stars": "Zdobądź 95% na mapie od 5★",
-  "commissions_task_quality_misses": "Zalicz mapę z maksymalnie {misses} missami",
+  "commissions_task_quality_misses": [
+    {
+      "declarations": ["input misses", "local n = misses: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Zalicz mapę z maksymalnie {misses} missem",
+        "n=few": "Zalicz mapę z maksymalnie {misses} missami",
+        "n=many": "Zalicz mapę z maksymalnie {misses} missami",
+        "n=other": "Zalicz mapę z maksymalnie {misses} missami"
+      }
+    }
+  ],
   "commissions_task_quality_choke": "Zalicz mapę z dokładnie jednym missem",
   "commissions_task_quality_combo": "Zbij combo {combo}x",
   "commissions_task_quality_300s": "Trafij 2000 trzystek w jednej grze",
@@ -144,14 +177,36 @@
   "commissions_task_leaderboard_top50_stars": "Wejdź do top 50 na mapie od 5★",
   "commissions_task_rp_play": "Zagraj mecz w grze rankingowej",
   "commissions_task_rp_win": "Wygraj mecz w grze rankingowej",
-  "commissions_task_rp_rounds": "Wygraj {count} rundy w grze rankingowej",
+  "commissions_task_rp_rounds": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Wygraj {count} rundę w grze rankingowej",
+        "n=few": "Wygraj {count} rundy w grze rankingowej",
+        "n=many": "Wygraj {count} rund w grze rankingowej",
+        "n=other": "Wygraj {count} rundy w grze rankingowej"
+      }
+    }
+  ],
   "commissions_task_rp_three": "Zagraj trzy mecze w grze rankingowej",
   "commissions_task_mp_play": "Zagraj mecz w multiplayerze",
   "commissions_task_mp_win": "Wygraj grę w multiplayerze",
   "commissions_task_casino_play": "Zagraj rundę w kasynie",
   "commissions_task_casino_three_games": "Zagraj w trzy różne gry w kasynie",
   "commissions_task_casino_new_game": "Zagraj w kasynie w grę, która jest dla ciebie nowa w tym tygodniu",
-  "commissions_task_casino_wager": "Postaw {coins} monet w kasynie",
+  "commissions_task_casino_wager": [
+    {
+      "declarations": ["input coins", "local n = coins: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Postaw {coins} monetę w kasynie",
+        "n=few": "Postaw {coins} monety w kasynie",
+        "n=many": "Postaw {coins} monet w kasynie",
+        "n=other": "Postaw {coins} monety w kasynie"
+      }
+    }
+  ],
   "commissions_task_casino_big_win": "Wygraj rundę w kasynie z mnożnikiem 3x lub więcej",
   "commissions_task_casino_blackjack": "Wygraj rozdanie w blackjacka",
   "commissions_task_casino_slots_10x": "Trafij 10x na slotach",
