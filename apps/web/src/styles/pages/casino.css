@@ -931,6 +931,107 @@ a.cs-card:hover {
   color: #fff;
 }
 
+/* poker */
+
+.cs-hand {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(6px, 2vw, 12px);
+  width: 100%;
+  max-width: 520px;
+  padding: 16px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  perspective: 800px;
+}
+
+.cs-playing {
+  position: relative;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 2px;
+  aspect-ratio: 5 / 7;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background: #f4f4f4;
+  color: #1e1e1f;
+  font: inherit;
+  line-height: 1;
+}
+
+.cs-playing b {
+  font-size: clamp(1.2rem, 5vw, 2rem);
+}
+
+.cs-playing span {
+  font-size: clamp(1.3rem, 6vw, 2.4rem);
+}
+
+.cs-playing.red {
+  color: var(--red);
+}
+
+.cs-playing.back {
+  border-color: var(--line);
+  background: var(--panel-2);
+}
+
+button.cs-playing {
+  cursor: pointer;
+}
+
+.cs-playing small {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cs-playing.held {
+  border-color: var(--yellow);
+  translate: 0 -8px;
+}
+
+.cs-playing.held small {
+  color: var(--yellow);
+}
+
+.cs-stage:has(button.cs-playing) .cs-hand {
+  padding-bottom: 36px;
+}
+
+.motion .cs-playing:not(.back) {
+  animation: cs-card 0.3s ease-out backwards;
+}
+
+.motion button.cs-playing {
+  transition: translate 0.15s ease-out;
+}
+
+@keyframes cs-card {
+  from {
+    opacity: 0;
+    transform: rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0);
+  }
+}
+
+.cs-paytable tr.hit td {
+  color: var(--yellow);
+  font-weight: 600;
+}
+
 @media (max-width: 800px) {
   .cs-game {
     grid-template: 'stage' 'controls' 'table' / 1fr;
