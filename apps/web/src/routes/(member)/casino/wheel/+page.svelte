@@ -140,7 +140,11 @@
               </text>
             {/each}
             {#if last}
-              <path class="cs-slice-ring" d={slice(last.index, info.segments.length)} />
+              <path
+                class="cs-slice-ring"
+                transform="scale(0.992)"
+                d={slice(last.index, info.segments.length)}
+              />
             {/if}
             <circle class="cs-hub" r="14" />
           </svg>

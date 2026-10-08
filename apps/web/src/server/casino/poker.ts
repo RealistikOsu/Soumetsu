@@ -101,7 +101,7 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
       });
     } catch (e) {
       // Nothing was paid, so give the hand back to be drawn again.
-      await redis.set(key, raw, 'EX', HAND_TTL).catch(() => {});
+      await redis.set(key, raw, 'EX', HAND_TTL, 'NX').catch(() => {});
       throw e;
     }
   });

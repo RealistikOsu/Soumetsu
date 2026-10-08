@@ -84,7 +84,7 @@
     balance: number;
     blocked: boolean;
   })}
-    <section class="panel cs-game wide">
+    <section class="panel cs-game cs-wide">
       <form class="cs-form cs-controls" onsubmit={(e) => spin(e, limits.minBet)}>
         <BetInput
           bind:value={bet}

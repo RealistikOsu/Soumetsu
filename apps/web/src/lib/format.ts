@@ -7,6 +7,11 @@ export const number = (value: number, decimals = 0) =>
     maximumFractionDigits: decimals
   });
 
+export const compact = (value: number) =>
+  new Intl.NumberFormat(intlLocale(), { notation: 'compact', maximumFractionDigits: 1 }).format(
+    value
+  );
+
 // Up to two decimals, without trailing zeros: 0.5, 2.25, 10.
 export const decimal = (value: number) => {
   const rounded = Math.round(value * 100) / 100;

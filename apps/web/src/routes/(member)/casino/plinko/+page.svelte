@@ -13,7 +13,7 @@
   import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { decimal } from '$lib/format';
+  import { compact, decimal } from '$lib/format';
   import { ms, reducedMotion } from '$lib/motion';
   import { m } from '$lib/paraglide/messages';
 
@@ -51,7 +51,7 @@
 
   const tone = (value: number) =>
     value >= 10 ? 'gold' : value >= 2 ? 'good' : value >= 1 ? 'even' : 'poor';
-  const label = (value: number) => (value >= 1000 ? `${decimal(value / 1000)}k` : decimal(value));
+  const label = (value: number) => (value >= 1000 ? compact(value) : decimal(value));
 
   function land(ball: { id: number; path: number[]; play: Play }) {
     lit = { index: ball.path.reduce((a, b) => a + b, 0), seq: (lit?.seq ?? 0) + 1 };

@@ -457,7 +457,7 @@ a.cs-card:hover {
   background: var(--bg);
 }
 
-.cs-game.wide {
+.cs-game.cs-wide {
   --board: 520px;
 }
 
@@ -467,7 +467,7 @@ a.cs-card:hover {
 }
 
 .cs-zeus {
-  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
   max-width: var(--board);
 }
 
@@ -752,7 +752,7 @@ a.cs-card:hover {
 }
 
 .cs-num.black {
-  background: #1d1d22;
+  background: #34343a;
   box-shadow: inset 0 0 0 1px var(--line);
 }
 

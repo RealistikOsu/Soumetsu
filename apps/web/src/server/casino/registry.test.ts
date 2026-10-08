@@ -5,6 +5,7 @@ mock.module('$server/db', () => ({ db: {} }));
 mock.module('$server/admin/log', () => ({ rapLog: async () => {} }));
 
 const { pokerInfo } = await import('./games/poker');
+const { rouletteInfo } = await import('./games/roulette');
 const { instantGames } = await import('./games/registry');
 const { oddsParsers } = await import('./games/odds');
 const { parseOdds } = await import('./config');
@@ -123,6 +124,11 @@ describe('oddsParsers', () => {
         game === 'poker' ? pokerInfo(odds as never) : instantGames[game as 'slots'].info(odds);
       expect(JSON.stringify(info)).not.toMatch(/weights|wildLightningChance|deck/);
     }
+  });
+
+  test('roulette info has no slots key', () => {
+    const odds = parseOdds('roulette', seeded.roulette);
+    expect(rouletteInfo(odds as never)).not.toHaveProperty('slots');
   });
 
   test('ported games reject an empty object', () => {
