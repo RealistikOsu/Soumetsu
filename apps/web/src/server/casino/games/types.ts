@@ -59,7 +59,6 @@ export interface SymbolOdds {
   multipliers: Record<string, number>;
 }
 
-// Slots and zeus share this: an ordered symbol list with a weight and a multiplier for each.
 export function parseSymbolOdds(raw: Record<string, unknown>): SymbolOdds | null {
   const { symbols, weights, multipliers } = raw;
   if (!Array.isArray(symbols) || symbols.length === 0) return null;

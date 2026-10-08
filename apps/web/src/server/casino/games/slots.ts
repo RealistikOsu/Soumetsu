@@ -23,7 +23,7 @@ export type SlotsResult = {
   payout: number;
 };
 
-// grid[col][row]; each line names the row it reads in columns 0, 1 and 2.
+// grid[col][row]
 const LINES = [
   { name: 'top', rows: [0, 0, 0] },
   { name: 'middle', rows: [1, 1, 1] },
@@ -47,7 +47,11 @@ export function parseSlotsOdds(raw: unknown): SlotsOdds | null {
 }
 
 export const slotsMax = (o: SlotsOdds) =>
-  Math.max(...o.symbols.map((s) => toHundredths(5 * o.multipliers[s] + 3 * columnLine(o, s))));
+  Math.max(
+    ...o.symbols.map((s) =>
+      toHundredths(5 * o.multipliers[s] + (s === UNPAID_COLUMN ? 0 : 3 * columnLine(o, s)))
+    )
+  );
 
 export const slotsInfo = (o: SlotsOdds) => ({
   symbols: o.symbols,

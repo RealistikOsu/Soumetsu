@@ -28,18 +28,17 @@ export type ZeusResult = {
 
 const WILD = 'WILD';
 const LIGHTNING = 'LIGHTNING';
-// Only the middle row of the casino's 5x3 grid ever scored.
 const SCORING_ROW = 1;
 
-const isSize = (v: unknown, min: number): v is number =>
-  typeof v === 'number' && Number.isInteger(v) && v >= min && v <= 10;
+const isCols = (v: unknown): v is number =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 3 && v <= 10;
 
 export function parseZeusOdds(raw: unknown): ZeusOdds | null {
   if (!isRecord(raw)) return null;
   const symbols = parseSymbolOdds(raw);
   const { wildLightningChance, cols, rows } = raw;
   if (!symbols || !isAmount(wildLightningChance) || wildLightningChance > 1) return null;
-  if (!isSize(cols, 3) || !isSize(rows, SCORING_ROW + 1)) return null;
+  if (!isCols(cols) || rows !== 3) return null;
   const odds = { ...symbols, wildLightningChance, cols, rows };
   return zeusMax(odds) > MAX_MULTIPLIER ? null : odds;
 }

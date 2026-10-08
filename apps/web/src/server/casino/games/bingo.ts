@@ -63,9 +63,10 @@ export function parseBingoOdds(raw: unknown): BingoOdds | null {
   return { maxCalls: maxCalls as number, lines: outLines };
 }
 
+// The 5-line rate can't actually pay: one call completes at most three lines.
 export const bingoMax = (o: BingoOdds) => Math.max(...Object.values(o.lines));
 
-export const bingoInfo = (o: BingoOdds) => ({ lines: o.lines });
+export const bingoInfo = (o: BingoOdds) => ({ maxCalls: o.maxCalls, lines: o.lines });
 
 export const parseBingoInput = (): BingoInput => ({});
 

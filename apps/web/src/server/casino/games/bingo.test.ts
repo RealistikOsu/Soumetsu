@@ -1,19 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import { bingo, bingoInfo, bingoMax, parseBingoOdds } from './bingo';
 import type { BingoOdds } from './bingo';
 
 const seeded = { maxCalls: 25, lines: { '1': 1.5, '2': 3, '3': 5, '4': 8, '5': 15 } };
 
 const odds = parseBingoOdds(seeded) as BingoOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 const range = (start: number, length: number) => Array.from({ length }, (_, i) => start + i);
 
@@ -144,7 +136,7 @@ describe('bingoMax and bingoInfo', () => {
     expect(bingoMax(odds)).toBe(15);
   });
 
-  test('info is the line multipliers', () => {
-    expect(bingoInfo(odds)).toEqual({ lines: seeded.lines });
+  test('info is the call limit and line multipliers', () => {
+    expect(bingoInfo(odds)).toEqual(seeded);
   });
 });

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import {
   BET_TYPES,
   parseRouletteInput,
@@ -30,15 +31,6 @@ const seeded = {
 };
 
 const odds = parseRouletteOdds(seeded) as RouletteOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 // floor(rng * 38) picks the pocket, so (n + 0.5) / 38 lands on n.
 const pocket = (n: number) => sequence([(n + 0.5) / 38]);
@@ -174,10 +166,11 @@ describe('parseRouletteOdds', () => {
       { ...seeded, slots: 37 },
       { ...seeded, slots: '38' },
       { ...seeded, red: undefined },
-      { ...seeded, red: [0, 1] },
-      { ...seeded, red: [1, 1] },
-      { ...seeded, red: [37] },
-      { ...seeded, red: [1.5] },
+      { ...seeded, red: [0, ...seeded.red.slice(1)] },
+      { ...seeded, red: seeded.red.slice(1) },
+      { ...seeded, red: [3, ...seeded.red.slice(1)] },
+      { ...seeded, red: [37, ...seeded.red.slice(1)] },
+      { ...seeded, red: [1.5, ...seeded.red.slice(1)] },
       { ...seeded, payouts: undefined },
       { ...seeded, payouts: { ...seeded.payouts, col3: undefined } },
       { ...seeded, payouts: { ...seeded.payouts, red: -2 } },

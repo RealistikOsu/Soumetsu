@@ -88,7 +88,8 @@ export function parseRouletteOdds(raw: unknown): RouletteOdds | null {
   if (!isRecord(raw)) return null;
   const { slots, red, payouts } = raw;
   if (slots !== SLOTS) return null;
-  if (!Array.isArray(red) || !red.every((n) => isPocket(n) && n > 0)) return null;
+  if (!Array.isArray(red) || red.length !== 18 || !red.every((n) => isPocket(n) && n > 0))
+    return null;
   if (new Set(red).size !== red.length) return null;
   if (!isRecord(payouts)) return null;
 

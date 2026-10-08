@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import { parseZeusInput, parseZeusOdds, zeus, zeusInfo, zeusMax } from './zeus';
 import type { ZeusOdds } from './zeus';
 
@@ -21,15 +22,6 @@ const seeded = {
 };
 
 const odds = parseZeusOdds(seeded) as ZeusOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 // Weights total 67, walked in symbol order: ZEUS (0,1], LIGHTNING (1,3], TEMPLE (3,7],
 // THUNDER (7,14], COIN (14,36], EAGLE (36,52], OWL (52,66], WILD (66,67).
@@ -146,6 +138,8 @@ describe('parseZeusOdds', () => {
       { ...seeded, cols: 2 },
       { ...seeded, cols: 5.5 },
       { ...seeded, rows: 1 },
+      { ...seeded, rows: 2 },
+      { ...seeded, rows: 4 },
       { ...seeded, rows: '3' },
       { ...seeded, multipliers: { ...seeded.multipliers, ZEUS: 5000 } }
     ])

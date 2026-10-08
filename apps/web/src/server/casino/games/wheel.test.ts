@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import { parseWheelOdds, wheel, wheelInfo, wheelMax } from './wheel';
 import type { WheelOdds } from './wheel';
 
@@ -33,15 +34,6 @@ const seeded = {
 };
 
 const odds = parseWheelOdds(seeded) as WheelOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 // Weights: 10 penalties at 5 = 50, the jackpot 0.05, 10x and 7x at 0.15, 5x and 4x at 0.25,
 // 2x, 3x, 2.5x and 2x at 0.4, and the five under 2x at 1: 50 + 0.05 + 0.3 + 0.5 + 1.6 + 5 = 57.45.
@@ -102,6 +94,7 @@ describe('parseWheelOdds', () => {
       withSegments([['2x', -2, 'multiplier']]),
       withSegments([['2x', '2', 'multiplier']]),
       withSegments([[2, 2, 'multiplier']]),
+      withSegments([['', 2, 'multiplier']]),
       withSegments([['big', 1e5, 'jackpot']]),
       { ...seeded, weights: undefined },
       { ...seeded, weights: { ...seeded.weights, ge7: undefined } },

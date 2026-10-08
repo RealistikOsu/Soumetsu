@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import { parseSlotsInput, parseSlotsOdds, slots, slotsInfo, slotsMax } from './slots';
 import type { SlotsOdds } from './slots';
 
@@ -10,15 +11,6 @@ const seeded = {
 };
 
 const odds = parseSlotsOdds(seeded) as SlotsOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 // Weights total 45, walked in symbol order: Cherry (0,30], Lemon (30,40], Orange (40,43],
 // Grape (43,44], Diamond (44,45). So 0.1 -> 4.5 Cherry, 0.8 -> 36 Lemon, 0.92 -> 41.4 Orange,

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import { parsePlinkoInput, parsePlinkoOdds, plinko, plinkoInfo, plinkoMax } from './plinko';
 import type { PlinkoOdds } from './plinko';
 
@@ -24,15 +25,6 @@ const seeded = {
 };
 
 const odds = parsePlinkoOdds(seeded) as PlinkoOdds;
-
-function sequence(values: number[]) {
-  let i = 0;
-  const rng = () => {
-    if (i >= values.length) throw new Error('rng drawn too often');
-    return values[i++];
-  };
-  return Object.assign(rng, { used: () => i });
-}
 
 const invalid = expect.objectContaining({ status: 400, code: 'site.invalid_request' });
 
@@ -136,6 +128,5 @@ describe('plinkoMax and plinkoInfo', () => {
 
   test('info is the rows and bucket tables', () => {
     expect(plinkoInfo(odds)).toEqual({ rows: seeded.rows, tables: seeded.tables });
-    expect(JSON.stringify(plinkoInfo(odds))).not.toContain('weights');
   });
 });

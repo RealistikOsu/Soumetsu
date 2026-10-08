@@ -24,6 +24,7 @@ const isSegment = (v: unknown): v is [string, number, SegmentType] =>
   Array.isArray(v) &&
   v.length === 3 &&
   typeof v[0] === 'string' &&
+  v[0] !== '' &&
   isAmount(v[1]) &&
   v[1] <= MAX_MULTIPLIER &&
   TYPES.includes(v[2]);
