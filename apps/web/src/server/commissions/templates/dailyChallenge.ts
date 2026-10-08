@@ -42,8 +42,20 @@ export const dailyChallenge: Template[] = [
   daily('daily_beat', 'medium', async (ctx) => {
     const row = await ctx.daily();
     if (!row) return 0;
-    const plays = (await ctx.scores()).filter((s) => s.passed && s.beatmapId === row.beatmapId);
-    return plays.some((play, i) => plays.slice(0, i).some((earlier) => play.score > earlier.score))
+    // Stable and lazer scores are on different scales, so only compare like with like.
+    const plays = (await ctx.scores())
+      .filter((s) => s.passed && s.beatmapId === row.beatmapId)
+      .sort((a, b) => a.at.getTime() - b.at.getTime());
+    return plays.some((play, i) =>
+      plays
+        .slice(0, i)
+        .some(
+          (earlier) =>
+            earlier.source === play.source &&
+            earlier.variant === play.variant &&
+            play.score > earlier.score
+        )
+    )
       ? 1
       : 0;
   }),

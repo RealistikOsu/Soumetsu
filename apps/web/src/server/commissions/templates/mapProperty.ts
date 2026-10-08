@@ -76,7 +76,7 @@ export const mapProperty: Template[] = [
       return map ? { beatmapId: map.beatmapId, name: map.name } : null;
     },
     target: () => 1,
-    check: (ctx, params) => any(ctx, (s) => s.beatmapId === params.beatmapId),
+    check: (ctx, params) => any(ctx, (s) => s.beatmapId === Number(params.beatmapId)),
     link: (params) => `/beatmaps/${params.beatmapId}`
   }),
   on('map_local', 'medium', (map) => map.mapperId > 0),
@@ -112,7 +112,7 @@ export const mapProperty: Template[] = [
     key: 'map_top_again',
     family: 'map',
     tier: 'medium',
-    roll: (ctx) => (ctx.bestTopPp() ? {} : null),
+    roll: (ctx) => (ctx.topPp(ctx.favouriteMode, 0) > 0 ? {} : null),
     target: () => 1,
     check: async (ctx) => {
       const md5s = await passedMd5s(ctx);

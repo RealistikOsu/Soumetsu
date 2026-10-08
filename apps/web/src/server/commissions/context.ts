@@ -46,7 +46,11 @@ export interface PlayerContext {
   weekGames: () => Promise<string[]>;
   playedBefore: (md5s: string[]) => Promise<Map<string, Date>>;
   topMaps: (n: number) => Promise<string[]>;
-  leaderboardRank: (score: DayScore) => Promise<{ rank: number; previousFirst: number | null }>;
+  leaderboardRank: (score: DayScore) => Promise<{
+    rank: number;
+    previousFirst: number | null;
+    previousFirstValue: number | null;
+  }>;
 }
 
 export function median(values: number[]) {
@@ -227,39 +231,66 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
       return last;
     },
     topMaps: async (n) => {
-      const rows = await db.$queryRaw<{ beatmap_md5: string }[]>`
-        SELECT beatmap_md5 FROM scores WHERE userid = ${id} AND play_mode = ${favouriteMode} AND completed = 3
-        ORDER BY pp DESC LIMIT ${n}`;
-      return rows.map((row) => row.beatmap_md5);
+      const [stable, lazer] = await Promise.all([
+        db.$queryRaw<{ beatmap_md5: string; pp: number }[]>`
+          SELECT beatmap_md5, MAX(pp) AS pp FROM scores
+          WHERE userid = ${id} AND play_mode = ${favouriteMode} AND completed = 3
+          GROUP BY beatmap_md5 ORDER BY pp DESC LIMIT ${n}`,
+        optional(db.$queryRaw<{ beatmap_md5: string; pp: number }[]>`
+          SELECT beatmap_md5, MAX(pp) AS pp FROM lazer_scores
+          WHERE user_id = ${id} AND ruleset_id = ${favouriteMode} AND variant = 0 AND passed = 1 AND ranked_mods = 1
+          GROUP BY beatmap_md5 ORDER BY pp DESC LIMIT ${n}`)
+      ]);
+      const best: Record<string, number> = {};
+      for (const row of [...stable, ...lazer])
+        best[row.beatmap_md5] = Math.max(best[row.beatmap_md5] ?? 0, Number(row.pp));
+      return Object.entries(best)
+        .sort((x, y) => y[1] - x[1])
+        .slice(0, n)
+        .map(([md5]) => md5);
     },
     leaderboardRank: async (score) => {
       // Stable boards rank best plays by pp with restricted players hidden, the way the site's beatmap page does;
       // lazer boards rank by score (vanilla) or pp (relax/autopilot), one play per player.
       if (score.source === 'stable') {
         const table = STABLE_TABLES[score.variant];
-        const [row] = await db.$queryRaw<{ place: number; first: number | null }[]>(Prisma.sql`
+        const [row] = await db.$queryRaw<
+          { place: number; first: number | null; first_value: number | null }[]
+        >(Prisma.sql`
           SELECT 1 + COUNT(*) AS place,
                  (SELECT userid FROM ${Prisma.raw(table)} f
                   INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
                   WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
-                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first
+                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first,
+                 (SELECT f.pp FROM ${Prisma.raw(table)} f
+                  INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
+                  WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
+                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first_value
           FROM ${Prisma.raw(table)} s
           INNER JOIN users u ON u.id = s.userid AND u.privileges & 1
           WHERE s.beatmap_md5 = ${score.md5} AND s.play_mode = ${score.mode} AND s.completed = 3
             AND s.userid <> ${id} AND (s.pp > ${score.pp} OR (s.pp = ${score.pp} AND s.id < ${score.id}))`);
         return {
           rank: Number(row?.place ?? 1),
-          previousFirst: row?.first == null ? null : Number(row.first)
+          previousFirst: row?.first == null ? null : Number(row.first),
+          previousFirstValue: row?.first_value == null ? null : Number(row.first_value)
         };
       }
       const byScore = score.variant === 0;
-      const [row] = await optional(db.$queryRaw<{ place: number; first: number | null }[]>`
+      const [row] = await optional(db.$queryRaw<
+        { place: number; first: number | null; first_value: number | null }[]
+      >`
         SELECT 1 + COUNT(*) AS place,
                (SELECT user_id FROM lazer_scores f
                 INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
                 WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
                   AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
-                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first
+                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first,
+               (SELECT ${byScore ? Prisma.sql`f.total_score` : Prisma.sql`f.pp`} FROM lazer_scores f
+                INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
+                WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
+                  AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
+                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first_value
         FROM (
           SELECT user_id, MAX(${byScore ? Prisma.sql`total_score` : Prisma.sql`pp`}) AS best
           FROM lazer_scores
@@ -271,7 +302,8 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         WHERE o.best > ${byScore ? score.score : score.pp}`);
       return {
         rank: Number(row?.place ?? 1),
-        previousFirst: row?.first == null ? null : Number(row.first)
+        previousFirst: row?.first == null ? null : Number(row.first),
+        previousFirstValue: row?.first_value == null ? null : Number(row.first_value)
       };
     }
   };
@@ -297,7 +329,7 @@ export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
     weekGames: async () => [],
     playedBefore: async () => new Map(),
     topMaps: async () => [],
-    leaderboardRank: async () => ({ rank: 1, previousFirst: null }),
+    leaderboardRank: async () => ({ rank: 1, previousFirst: null, previousFirstValue: null }),
     ...overrides
   };
 }

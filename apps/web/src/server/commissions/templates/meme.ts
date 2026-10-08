@@ -7,7 +7,7 @@ export const meme: Template[] = [
     tier: 'easy',
     roll: (_ctx, _settings, random) => ({ combo: pick([69, 420, 727], random) }),
     target: () => 1,
-    check: (ctx, params) => any(ctx, (s) => s.combo === params.combo)
+    check: (ctx, params) => any(ctx, (s) => s.combo === Number(params.combo))
   }),
   template({
     key: 'meme_fail',

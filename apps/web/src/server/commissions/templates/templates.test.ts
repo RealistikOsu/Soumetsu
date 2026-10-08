@@ -3,6 +3,7 @@ import { fakeContext, type DailyRow, type PlayerContext } from '../context';
 import type { DayScore } from '../scores';
 import { DEFAULT_SETTINGS } from '../settings';
 import { byKey, templates } from './index';
+import { queries as boardQueries } from './leaderboard';
 import { queries } from './quality';
 
 const score = (overrides: Partial<DayScore> = {}): DayScore => ({
@@ -107,9 +108,25 @@ describe('daily', () => {
     expect(await run('daily_both', dailyCtx(dailyRow({ bestScore: 1 })))).toBe(0);
   });
   test('daily_beat needs a later higher score', async () => {
-    const plays = [score({ id: 1, score: 100 }), score({ id: 2, score: 200 })];
+    const at = (minute: number) => new Date(Date.UTC(2026, 9, 8, 10, minute));
+    const plays = [
+      score({ id: 1, score: 100, at: at(1) }),
+      score({ id: 2, score: 200, at: at(2) })
+    ];
     expect(await run('daily_beat', dailyCtx(dailyRow(), plays))).toBe(1);
-    expect(await run('daily_beat', dailyCtx(dailyRow(), plays.reverse()))).toBe(0);
+    expect(await run('daily_beat', dailyCtx(dailyRow(), [...plays].reverse()))).toBe(1);
+    const worse = [
+      score({ id: 1, score: 200, at: at(1) }),
+      score({ id: 2, score: 100, at: at(2) })
+    ];
+    expect(await run('daily_beat', dailyCtx(dailyRow(), worse))).toBe(0);
+  });
+  test('daily_beat does not compare lazer and stable scores', async () => {
+    const plays = [
+      score({ id: 1, source: 'lazer', score: 900000, at: new Date('2026-10-08T10:00:00Z') }),
+      score({ id: 2, source: 'stable', score: 1000000, at: new Date('2026-10-08T10:05:00Z') })
+    ];
+    expect(await run('daily_beat', dailyCtx(dailyRow(), plays))).toBe(0);
   });
   test('daily_no_miss', async () => {
     expect(await run('daily_no_miss', dailyCtx(dailyRow(), [score({ misses: 0 })]))).toBe(1);
@@ -286,7 +303,10 @@ describe('map', () => {
     expect(t.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)).toBeNull();
     expect(
       t.roll(
-        fakeContext({ bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }) }),
+        fakeContext({
+          favouriteMode: 3,
+          topPp: (mode, variant) => (mode === 3 && variant === 0 ? 200 : 0)
+        }),
         DEFAULT_SETTINGS,
         Math.random
       )
@@ -553,8 +573,12 @@ describe('mods', () => {
 });
 
 describe('leaderboard', () => {
-  const ranked = (rank: number, previousFirst: number | null = null) => ({
-    leaderboardRank: async () => ({ rank, previousFirst })
+  const ranked = (
+    rank: number,
+    previousFirst: number | null = null,
+    previousFirstValue: number | null = previousFirst === null ? null : 100
+  ) => ({
+    leaderboardRank: async () => ({ rank, previousFirst, previousFirstValue })
   });
   test('leaderboard_first', async () => {
     expect(await run('leaderboard_first', ctxWith([score()], ranked(1)))).toBe(1);
@@ -570,7 +594,7 @@ describe('leaderboard', () => {
     const ctx = ctxWith(plays, {
       leaderboardRank: async (s) => {
         calls++;
-        return { rank: s.pp >= 10 ? 5 : 1, previousFirst: null };
+        return { rank: s.pp >= 10 ? 5 : 1, previousFirst: null, previousFirstValue: null };
       }
     });
     expect(await run('leaderboard_first', ctx)).toBe(0);
@@ -581,11 +605,27 @@ describe('leaderboard', () => {
     expect(await run('leaderboard_three_firsts', ctxWith(plays, ranked(1)))).toBe(3);
     expect(await run('leaderboard_three_firsts', ctxWith(plays, ranked(2)))).toBe(0);
   });
-  test('leaderboard_steal needs someone else to have held first', async () => {
-    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77)))).toBe(1);
-    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, null)))).toBe(0);
-    expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 1)))).toBe(0);
-    expect(await run('leaderboard_steal', ctxWith([score()], ranked(2, 77)))).toBe(0);
+  describe('leaderboard_steal', () => {
+    const real = { ...boardQueries };
+    afterEach(() => Object.assign(boardQueries, real));
+
+    test('pays when the player had never played the map', async () => {
+      boardQueries.priorBest = async () => null;
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77)))).toBe(1);
+    });
+    test('pays when the earlier best was below the other player', async () => {
+      boardQueries.priorBest = async () => 90;
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(1);
+    });
+    test('does not pay when the player already held first', async () => {
+      boardQueries.priorBest = async () => 120;
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(0);
+    });
+    test('needs first place and another player on the board', async () => {
+      boardQueries.priorBest = async () => null;
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, null)))).toBe(0);
+      expect(await run('leaderboard_steal', ctxWith([score()], ranked(2, 77)))).toBe(0);
+    });
   });
   test('leaderboard_top10', async () => {
     expect(await run('leaderboard_top10', ctxWith([score()], ranked(10)))).toBe(1);
@@ -846,7 +886,11 @@ describe('registry', () => {
       expect(t.family).toBeTruthy();
       expect(['easy', 'medium', 'hard']).toContain(t.tier);
       const params = t.roll(
-        fakeContext({ bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }), usualStars: 4 }),
+        fakeContext({
+          bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }),
+          topPp: () => 300,
+          usualStars: 4
+        }),
         DEFAULT_SETTINGS,
         () => 0.5
       );

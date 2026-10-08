@@ -8,15 +8,14 @@ const TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const A_OR_BETTER = ['A', 'S', 'SH', 'SS', 'SSH'];
 const CANDIDATES = 20;
 
-// Kept apart so tests can stand in for the database.
+// Separate from the checks so tests can stand in for the database.
 export const queries = {
-  // Best pp on the map before the day started, or null when it hadn't been passed.
   async previousBest(ctx: PlayerContext, play: DayScore): Promise<number | null> {
     if (play.source === 'stable') {
       const [row] = await db.$queryRaw<{ pp: number | null }[]>(Prisma.sql`
         SELECT MAX(pp) AS pp FROM ${Prisma.raw(TABLES[play.variant])}
         WHERE userid = ${ctx.id} AND beatmap_md5 = ${play.md5} AND completed >= 1
-          AND time < ${ctx.window.startUnix}`);
+          AND play_mode = ${play.mode} AND time < ${ctx.window.startUnix}`);
       return row?.pp == null ? null : Number(row.pp);
     }
     const [row] = await optional(db.$queryRaw<{ pp: number | null }[]>`
@@ -26,7 +25,6 @@ export const queries = {
     return row?.pp == null ? null : Number(row.pp);
   },
 
-  // The pp of the player's nth best play in a mode and variant, or 0 when they have fewer.
   async nthBest(
     ctx: PlayerContext,
     source: DayScore['source'],
@@ -78,7 +76,9 @@ const ppTask = (key: string, tier: Template['tier'], fraction: number) =>
     key,
     tier,
     (s, params) =>
-      s.mode === params.mode && s.variant === params.variant && s.pp >= Number(params.pp),
+      s.mode === Number(params.mode) &&
+      s.variant === Number(params.variant) &&
+      s.pp >= Number(params.pp),
     (ctx) => scaledPp(ctx, fraction)
   );
 
@@ -94,7 +94,7 @@ const rankTask = (key: string, tier: Template['tier'], n: number) =>
     target: () => 1,
     check: async (ctx, params) => {
       const plays = (await bests(ctx)).filter(
-        (s) => s.mode === params.mode && s.variant === params.variant
+        (s) => s.mode === Number(params.mode) && s.variant === Number(params.variant)
       );
       for (const source of ['stable', 'lazer'] as const) {
         const ofSource = plays.filter((s) => s.source === source);

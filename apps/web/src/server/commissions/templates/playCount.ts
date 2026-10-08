@@ -40,7 +40,7 @@ export const playCount: Template[] = [
       count: pick([2, 3], random)
     }),
     target: (params) => Number(params.count),
-    check: (ctx, params) => count(ctx, (s) => s.mode === params.mode)
+    check: (ctx, params) => count(ctx, (s) => s.mode === Number(params.mode))
   }),
   template({
     key: 'play_variant',
@@ -51,7 +51,7 @@ export const playCount: Template[] = [
       count: pick([2, 3], random)
     }),
     target: (params) => Number(params.count),
-    check: (ctx, params) => count(ctx, (s) => s.variant === params.variant)
+    check: (ctx, params) => count(ctx, (s) => s.variant === Number(params.variant))
   }),
   template({
     key: 'play_source',
