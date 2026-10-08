@@ -91,7 +91,7 @@
   "commissions_task_play_source": "Поставь скор на {source}",
   "commissions_task_play_not_favourite": "Сыграй в режиме, который не твой основной",
   "commissions_task_play_all_modes": "Сыграй во всех четырёх режимах",
-  "commissions_task_play_two_variants": "Сыграй на двух из Vanilla, Relax и Autopilot",
+  "commissions_task_play_two_variants": "Поставь скор на двух из этих: Vanilla, Relax, Autopilot",
   "commissions_task_play_both_sources": "Поставь скор и на stable, и на lazer",
   "commissions_task_map_stars": "Пройди карту от {stars}★",
   "commissions_task_map_stars_hard": "Пройди карту от {stars}★",
