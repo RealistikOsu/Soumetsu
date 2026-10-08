@@ -71,6 +71,7 @@ const fakeDb = {
   $transaction: (calls: Promise<unknown>[]) => Promise.all(calls)
 };
 let contextsLoaded: string[] = [];
+let failContextFor: string | null = null;
 
 mock.module('$server/admin/console', () => ({ record: async () => {} }));
 mock.module('$server/db', () => ({ db: fakeDb }));
@@ -79,6 +80,7 @@ mock.module('./context', () => ({
   ...real,
   loadContext: async (id: number, window: PlayerContext['window']) => {
     contextsLoaded.push(window.date);
+    if (window.date === failContextFor) throw new Error('context failed');
     return real.fakeContext({ id, window });
   }
 }));
@@ -179,6 +181,7 @@ describe('todayFor', () => {
     days = [];
     created = [];
     contextsLoaded = [];
+    failContextFor = null;
     checkResult = async () => 1;
   });
 
@@ -194,6 +197,18 @@ describe('todayFor', () => {
     expect(previous?.tasks.every((t) => t.completed)).toBe(true);
     expect(contextsLoaded).toEqual(['2026-10-07']);
     expect(days[1].points).toBe(200);
+  });
+
+  test("a failing recheck of yesterday keeps its stored row and today's page", async () => {
+    days = [
+      dayRow(1, 14, '2026-10-08', [task(61)]),
+      dayRow(2, 14, '2026-10-07', [task(71, true), task(72)])
+    ];
+    failContextFor = '2026-10-07';
+    const { day, previous } = await todayFor(14, now);
+    expect(day.tasks[0].completed).toBe(true);
+    expect(previous?.points).toBe(100);
+    expect(previous?.tasks[1].completed).toBe(false);
   });
 
   test('a missing yesterday is never rolled', async () => {

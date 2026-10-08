@@ -184,10 +184,16 @@ async function checkPass(userId: number, now: Date, settings: Settings) {
     rollIfMissing(userId, window.date, settings, context),
     findDay(userId, before)
   ]);
+  // A broken recheck of yesterday falls back to its stored row, so today's page still loads.
   return Promise.all([
     checkDay(userId, today, settings, context, now),
     previous &&
-      checkDay(userId, previous, settings, () => loadContext(userId, windowOf(before)), now)
+      checkDay(userId, previous, settings, () => loadContext(userId, windowOf(before)), now).catch(
+        (error) => {
+          void record('error', userId, error);
+          return previous;
+        }
+      )
   ]);
 }
 
