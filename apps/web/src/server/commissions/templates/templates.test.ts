@@ -490,3 +490,64 @@ describe('quality', () => {
     });
   });
 });
+
+describe('mods', () => {
+  test('mods_single matches the acronym and treats NC as DT', async () => {
+    expect(await run('mods_single', ctxWith([score({ mods: ['NC'] })]), { mod: 'DT' })).toBe(1);
+    expect(await run('mods_single', ctxWith([score({ mods: ['DC'] })]), { mod: 'HT' })).toBe(1);
+    expect(await run('mods_single', ctxWith([score({ mods: ['HD'] })]), { mod: 'DT' })).toBe(0);
+    expect(
+      await run('mods_single', ctxWith([score({ mods: ['HD'], passed: false })]), { mod: 'HD' })
+    ).toBe(0);
+  });
+  test('mods_single only rolls FI and MR for mania players', () => {
+    const t = byKey.get('mods_single')!;
+    const rolled = (favouriteMode: number) =>
+      [0, 0.999].map((r) => t.roll(fakeContext({ favouriteMode }), DEFAULT_SETTINGS, () => r)!.mod);
+    expect(rolled(3)).toEqual(['HD', 'MR']);
+    expect(rolled(0)).toEqual(['HD', 'SO']);
+  });
+  test('mods_two and mods_three count mods', async () => {
+    expect(await run('mods_two', ctxWith([score({ mods: ['HD', 'HR'] })]))).toBe(1);
+    expect(await run('mods_two', ctxWith([score({ mods: ['HD'] })]))).toBe(0);
+    expect(await run('mods_three', ctxWith([score({ mods: ['HD', 'HR', 'FL'] })]))).toBe(1);
+    expect(await run('mods_three', ctxWith([score({ mods: ['HD', 'HR'] })]))).toBe(0);
+  });
+  test('mods_hdhr and mods_hddt', async () => {
+    expect(await run('mods_hdhr', ctxWith([score({ mods: ['HD', 'HR'] })]))).toBe(1);
+    expect(await run('mods_hdhr', ctxWith([score({ mods: ['HD'] })]))).toBe(0);
+    expect(await run('mods_hddt', ctxWith([score({ mods: ['HD', 'NC'] })]))).toBe(1);
+    expect(await run('mods_hddt', ctxWith([score({ mods: ['HR', 'DT'] })]))).toBe(0);
+  });
+  test('mods_rate and mods_rate_range', async () => {
+    expect(await run('mods_rate', ctxWith([score({ rate: 1.5 })]))).toBe(1);
+    expect(await run('mods_rate', ctxWith([score()]))).toBe(0);
+    expect(await run('mods_rate_range', ctxWith([score({ rate: 1.2 })]))).toBe(1);
+    expect(await run('mods_rate_range', ctxWith([score({ rate: 1.5 })]))).toBe(0);
+  });
+  test('mods_ez_acc', async () => {
+    expect(await run('mods_ez_acc', ctxWith([score({ mods: ['EZ'], accuracy: 95 })]))).toBe(1);
+    expect(await run('mods_ez_acc', ctxWith([score({ mods: ['EZ'], accuracy: 90 })]))).toBe(0);
+  });
+  test('mods_ht_fc', async () => {
+    expect(await run('mods_ht_fc', ctxWith([score({ mods: ['HT'], misses: 0 })]))).toBe(1);
+    expect(await run('mods_ht_fc', ctxWith([score({ mods: ['HT'], misses: 2 })]))).toBe(0);
+  });
+  test('mods_dt_s', async () => {
+    expect(await run('mods_dt_s', ctxWith([score({ mods: ['NC'], grade: 'SH' })]))).toBe(1);
+    expect(await run('mods_dt_s', ctxWith([score({ mods: ['DT'], grade: 'A' })]))).toBe(0);
+  });
+  test('mods_fl_pass, mods_nf_pass, mods_sd_pass', async () => {
+    expect(await run('mods_fl_pass', ctxWith([score({ mods: ['FL'] })]))).toBe(1);
+    expect(await run('mods_fl_pass', ctxWith([score({ mods: ['FL'], passed: false })]))).toBe(0);
+    expect(await run('mods_nf_pass', ctxWith([score({ mods: ['NF'] })]))).toBe(1);
+    expect(await run('mods_nf_pass', ctxWith([score()]))).toBe(0);
+    expect(await run('mods_sd_pass', ctxWith([score({ mods: ['PF'] })]))).toBe(1);
+    expect(await run('mods_sd_pass', ctxWith([score({ mods: ['HD'] })]))).toBe(0);
+  });
+  test('mods_relax_stars', async () => {
+    expect(await run('mods_relax_stars', ctxWith([withMap({ stars: 6 }, { variant: 1 })]))).toBe(1);
+    expect(await run('mods_relax_stars', ctxWith([withMap({ stars: 7 })]))).toBe(0);
+    expect(await run('mods_relax_stars', ctxWith([withMap({ stars: 5 }, { variant: 2 })]))).toBe(0);
+  });
+});
