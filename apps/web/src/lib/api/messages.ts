@@ -107,6 +107,10 @@ const messages: Record<string, Message> = {
   'site.report_needs_info': m.common_error_report_needs_info,
   'site.report_already_sent': m.common_error_report_already_sent,
 
+  'commissions.tier_locked': m.commissions_claim_failed_locked,
+  'commissions.already_claimed': m.commissions_claim_failed_claimed,
+  'commissions.day_missing': m.commissions_claim_failed_missing,
+
   network_error: m.common_error_network
 };
 
