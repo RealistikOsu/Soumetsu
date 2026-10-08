@@ -1406,6 +1406,24 @@
     padding: 5px 8px;
   }
 
+  .casino-config input[type='number'] {
+    width: 110px;
+  }
+
+  .casino-config textarea {
+    width: 100%;
+    min-width: 220px;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font:
+      12px/1.4 ui-monospace,
+      monospace;
+    resize: vertical;
+  }
+
   .request-map {
     display: flex;
     align-items: center;

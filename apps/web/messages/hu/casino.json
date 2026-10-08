@@ -6,8 +6,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "{count} érme",
-        "n=other": "{count} érme"
+        "n=one": "{coins} érme",
+        "n=other": "{coins} érme"
       }
     }
   ],
@@ -31,8 +31,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Nyertél {count} érmét!",
-        "n=other": "Nyertél {count} érmét!"
+        "n=one": "Nyertél {coins} érmét!",
+        "n=other": "Nyertél {coins} érmét!"
       }
     }
   ],
@@ -41,8 +41,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Vesztettél {count} érmét.",
-        "n=other": "Vesztettél {count} érmét."
+        "n=one": "Vesztettél {coins} érmét.",
+        "n=other": "Vesztettél {coins} érmét."
       }
     }
   ],

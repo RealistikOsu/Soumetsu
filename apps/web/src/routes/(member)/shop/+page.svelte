@@ -4,6 +4,7 @@
   import { buyItem, purchases, shop, type ShopItemView } from '$lib/api/shop';
   import { isSupporter } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
+  import { coins } from '$lib/coins.svelte';
   import Banner from '$lib/components/Banner.svelte';
   import { decorationClass } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
@@ -51,7 +52,8 @@
   async function buy(item: ShopItemView, metadata?: Record<string, unknown>) {
     busy = true;
     try {
-      await buyItem(item.id, metadata);
+      const { balance } = await buyItem(item.id, metadata);
+      coins.set(balance);
       flash.show('success', m.shop_bought({ name: itemName(item) }));
       dialog?.close();
       view.reload();

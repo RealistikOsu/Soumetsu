@@ -6,10 +6,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "{count} монета",
-        "n=few": "{count} монеты",
-        "n=many": "{count} монет",
-        "n=other": "{count} монеты"
+        "n=one": "{coins} монета",
+        "n=few": "{coins} монеты",
+        "n=many": "{coins} монет",
+        "n=other": "{coins} монеты"
       }
     }
   ],
@@ -33,10 +33,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Выигрыш: {count} монета!",
-        "n=few": "Выигрыш: {count} монеты!",
-        "n=many": "Выигрыш: {count} монет!",
-        "n=other": "Выигрыш: {count} монеты!"
+        "n=one": "Выигрыш: {coins} монета!",
+        "n=few": "Выигрыш: {coins} монеты!",
+        "n=many": "Выигрыш: {coins} монет!",
+        "n=other": "Выигрыш: {coins} монеты!"
       }
     }
   ],
@@ -45,10 +45,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Проигрыш: {count} монета.",
-        "n=few": "Проигрыш: {count} монеты.",
-        "n=many": "Проигрыш: {count} монет.",
-        "n=other": "Проигрыш: {count} монеты."
+        "n=one": "Проигрыш: {coins} монета.",
+        "n=few": "Проигрыш: {coins} монеты.",
+        "n=many": "Проигрыш: {coins} монет.",
+        "n=other": "Проигрыш: {coins} монеты."
       }
     }
   ],

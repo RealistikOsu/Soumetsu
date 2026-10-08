@@ -1,0 +1,294 @@
+/* casino */
+
+.cs {
+  display: grid;
+  gap: 24px;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+.cs h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.cs-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px;
+}
+
+.cs-top nav {
+  display: flex;
+  gap: 16px;
+}
+
+.cs-top nav a,
+.cs-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-back {
+  justify-self: start;
+}
+
+.cs-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+}
+
+.cs-balance i {
+  color: var(--yellow);
+}
+
+.cs-restricted {
+  margin: 0;
+  color: var(--red);
+}
+
+.cs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cs-grid li {
+  display: grid;
+}
+
+.cs-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: 20px 16px;
+  color: var(--text);
+  text-align: center;
+}
+
+a.cs-card:hover {
+  background: var(--panel-2);
+}
+
+.cs-card > i {
+  margin-bottom: 4px;
+  color: var(--yellow);
+  font-size: 1.8rem;
+}
+
+.cs-card.off {
+  opacity: 0.55;
+}
+
+.cs-card.off > i {
+  color: var(--muted);
+}
+
+.cs-play {
+  margin-top: 6px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.cs-soon {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cs-history {
+  display: grid;
+  margin: 0;
+  padding: 4px 16px;
+  list-style: none;
+}
+
+.cs-history li {
+  display: grid;
+  grid-template-columns: 1fr 12em 8em 6em;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.cs-history li + li {
+  border-top: 1px solid var(--line);
+}
+
+.cs-net {
+  color: var(--muted);
+  font-weight: 600;
+  text-align: right;
+}
+
+.cs-net.win,
+.cs-result .win {
+  color: var(--green);
+}
+
+.cs-net.loss,
+.cs-result .loss {
+  color: var(--red);
+}
+
+.cs-flip {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  padding: 24px 16px;
+}
+
+.cs-coin {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  transform-style: preserve-3d;
+}
+
+.motion .cs-coin {
+  transition: transform 0.4s ease-out;
+}
+
+.cs-coin.tails {
+  transform: rotateY(180deg);
+}
+
+.motion .cs-coin.spinning {
+  animation: cs-spin 0.25s linear infinite;
+}
+
+.cs-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 6px solid #c99a06;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #3d2e00;
+  font-weight: 700;
+  backface-visibility: hidden;
+}
+
+.cs-face.tails {
+  transform: rotateY(180deg);
+}
+
+@keyframes cs-spin {
+  from {
+    transform: rotateY(0);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.cs-result {
+  min-height: 1.5em;
+  font-size: 1.1rem;
+}
+
+.cs-form {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.cs-bet {
+  display: grid;
+  gap: 10px;
+}
+
+.cs-bet label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cs-bet input {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.cs-bet input:focus {
+  border-color: var(--blue);
+  outline: none;
+}
+
+.cs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cs-chips button,
+.cs-sides button {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cs-chips button:hover,
+.cs-sides button:hover {
+  background: var(--active);
+}
+
+.cs-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cs-sides button {
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cs-sides button.active {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.cs-go {
+  justify-content: center;
+  padding: 12px;
+  font-size: 1.05rem;
+}
+
+.cs button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .cs-history li {
+    grid-template-columns: 1fr auto;
+    gap: 2px 12px;
+  }
+
+  .cs-balance {
+    font-size: 1.3rem;
+  }
+}

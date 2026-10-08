@@ -7,7 +7,9 @@
   import { flash } from '$lib/flash.svelte';
   import { inbox } from '$lib/inbox.svelte';
   import { commissions } from '$lib/api/commissions';
+  import { coins } from '$lib/coins.svelte';
   import { query } from '$lib/api/query.svelte';
+  import { number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import PlayerSearch from './PlayerSearch.svelte';
@@ -63,12 +65,16 @@
     };
   });
 
+  $effect(() => {
+    if (user) coins.refresh().catch(() => {});
+  });
+
   const menus: Menu[] = $derived([
     {
       label: m.common_header_play(),
       colour: 'c-red',
       icon: 'fa-gamepad',
-      prefixes: ['/daily-challenge', '/commissions', '/shop'],
+      prefixes: ['/daily-challenge', '/commissions', '/shop', '/casino'],
       items: [
         {
           href: '/daily-challenge',
@@ -86,7 +92,8 @@
                     ? m.commissions_header_badge({ done, total: tasks.length })
                     : undefined
               },
-              { href: '/shop', icon: 'fa-store', text: m.common_header_shop() }
+              { href: '/shop', icon: 'fa-store', text: m.common_header_shop() },
+              { href: '/casino', icon: 'fa-dice', text: m.common_header_casino() }
             ]
           : [])
       ]
@@ -238,6 +245,14 @@
             <a href="/users/{user.id}"
               ><i class="fa-solid fa-user"></i>{m.common_header_profile()}</a
             >
+            {#if coins.balance !== null}
+              <a class="me-coins" href="/casino">
+                <i class="fa-solid fa-coins"></i>{m.casino_balance({
+                  count: coins.balance,
+                  coins: number(coins.balance)
+                })}
+              </a>
+            {/if}
             <a href="/friends"><i class="fa-solid fa-user-group"></i>{m.common_header_friends()}</a>
             <a href="/settings"><i class="fa-solid fa-gear"></i>{m.common_header_settings()}</a>
             {#if isStaff(user.privileges)}

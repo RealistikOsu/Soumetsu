@@ -312,6 +312,17 @@
   text-align: center;
 }
 
+.me-menu .me-coins {
+  margin: 2px 4px 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.me-menu .me-coins i {
+  color: var(--yellow);
+}
+
 .search-results .restricted {
   margin-left: auto;
   color: var(--orange);

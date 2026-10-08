@@ -2,6 +2,7 @@
   import { claimTier, commissions, type CommissionDay } from '$lib/api/commissions';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
+  import { coins } from '$lib/coins.svelte';
   import { taskHref, taskText } from '$lib/commissions';
   import Banner from '$lib/components/Banner.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -20,7 +21,8 @@
   async function claim(d: CommissionDay, tier: number) {
     busy = true;
     try {
-      await claimTier(tier, d.date);
+      const { balance } = await claimTier(tier, d.date);
+      coins.set(balance);
       flash.show(
         'success',
         m.commissions_claimed_toast({ coins: number(d.thresholds[tier - 1].coins) })

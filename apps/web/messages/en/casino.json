@@ -6,8 +6,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "{count} coin",
-        "n=other": "{count} coins"
+        "n=one": "{coins} coin",
+        "n=other": "{coins} coins"
       }
     }
   ],
@@ -31,8 +31,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "You won {count} coin!",
-        "n=other": "You won {count} coins!"
+        "n=one": "You won {coins} coin!",
+        "n=other": "You won {coins} coins!"
       }
     }
   ],
@@ -41,8 +41,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Lost {count} coin.",
-        "n=other": "Lost {count} coins."
+        "n=one": "Lost {coins} coin.",
+        "n=other": "Lost {coins} coins."
       }
     }
   ],

@@ -6,10 +6,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "{count} moneta",
-        "n=few": "{count} monety",
-        "n=many": "{count} monet",
-        "n=other": "{count} monety"
+        "n=one": "{coins} moneta",
+        "n=few": "{coins} monety",
+        "n=many": "{coins} monet",
+        "n=other": "{coins} monety"
       }
     }
   ],
@@ -33,10 +33,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Wygrana: {count} moneta!",
-        "n=few": "Wygrana: {count} monety!",
-        "n=many": "Wygrana: {count} monet!",
-        "n=other": "Wygrana: {count} monety!"
+        "n=one": "Wygrana: {coins} moneta!",
+        "n=few": "Wygrana: {coins} monety!",
+        "n=many": "Wygrana: {coins} monet!",
+        "n=other": "Wygrana: {coins} monety!"
       }
     }
   ],
@@ -45,10 +45,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Przegrana: {count} moneta.",
-        "n=few": "Przegrana: {count} monety.",
-        "n=many": "Przegrana: {count} monet.",
-        "n=other": "Przegrana: {count} monety."
+        "n=one": "Przegrana: {coins} moneta.",
+        "n=few": "Przegrana: {coins} monety.",
+        "n=many": "Przegrana: {coins} monet.",
+        "n=other": "Przegrana: {coins} monety."
       }
     }
   ],
