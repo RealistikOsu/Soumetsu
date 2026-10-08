@@ -33,9 +33,11 @@ export async function casinoConfigRows(): Promise<CasinoConfigRow[]> {
 
 const INT_MAX = 2_147_483_647;
 
-// Worst-case payout for one bet, which has to fit the signed 32-bit coin columns.
+// Worst-case payout for one bet, with the supporter buff, which has to fit the
+// signed 32-bit coin columns.
 function maxPayout(game: Game, odds: unknown, maxBet: number) {
-  if (game === 'coinflip') return maxBet * (odds as CoinflipOdds).multiplier;
+  if (game === 'coinflip')
+    return Math.floor((maxBet * (odds as CoinflipOdds).multiplier * 11) / 10);
   return 0;
 }
 

@@ -39,7 +39,8 @@ describe('parseConfigRow', () => {
 
   test('rejects a coinflip payout that overflows an int', () => {
     expect(bad({ maxBet: 1_000_000, odds: { multiplier: 3000 } })).toThrow();
-    expect(parseConfigRow({ ...valid, maxBet: 1_000_000, odds: { multiplier: 2000 } }).maxBet).toBe(
+    expect(bad({ maxBet: 1_000_000, odds: { multiplier: 2000 } })).toThrow();
+    expect(parseConfigRow({ ...valid, maxBet: 1_000_000, odds: { multiplier: 1900 } }).maxBet).toBe(
       1_000_000
     );
   });
