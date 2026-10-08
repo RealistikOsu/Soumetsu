@@ -250,5 +250,6 @@
   "common_error_upload_score_not_found": "Не нашли твой пройденный скор с таким ID.",
   "common_error_upload_invalid_skin": "Эта ссылка на скин не подходит. Нужна прямая ссылка на .osk или ссылка с сайта скинов.",
   "common_error_report_needs_info": "Для «Другое» добавь подробности.",
-  "common_error_report_already_sent": "Сегодня жалоба на этого игрока от тебя уже есть."
+  "common_error_report_already_sent": "Сегодня жалоба на этого игрока от тебя уже есть.",
+  "common_header_commissions": "Задания"
 }

@@ -124,5 +124,9 @@
   "profile_daily_best_daily": "Legjobb napi sorozat",
   "profile_daily_best_weekly": "Legjobb heti sorozat",
   "profile_daily_top_10": "Top 10% helyezések",
-  "profile_daily_top_50": "Top 50% helyezések"
+  "profile_daily_top_50": "Top 50% helyezések",
+  "profile_commissions_label": "Megbízások",
+  "profile_commissions_total": "Teljes napok",
+  "profile_commissions_streak_daily": "Jelenlegi napi sorozat",
+  "profile_commissions_streak_weekly": "Jelenlegi heti sorozat"
 }

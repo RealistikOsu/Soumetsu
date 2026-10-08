@@ -317,3 +317,14 @@
   color: var(--orange);
   font-size: 11px;
 }
+
+.me-badge {
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+}

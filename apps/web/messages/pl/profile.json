@@ -130,5 +130,9 @@
   "profile_daily_best_daily": "Najlepsza seria dzienna",
   "profile_daily_best_weekly": "Najlepsza seria tygodniowa",
   "profile_daily_top_10": "Miejsca w top 10%",
-  "profile_daily_top_50": "Miejsca w top 50%"
+  "profile_daily_top_50": "Miejsca w top 50%",
+  "profile_commissions_label": "Zlecenia",
+  "profile_commissions_total": "Pełne dni",
+  "profile_commissions_streak_daily": "Obecna seria dni",
+  "profile_commissions_streak_weekly": "Obecna seria tygodni"
 }

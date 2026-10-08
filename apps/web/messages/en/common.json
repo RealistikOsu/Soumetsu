@@ -250,5 +250,6 @@
   "common_error_upload_score_not_found": "Couldn't find a passed score of yours with that ID.",
   "common_error_upload_invalid_skin": "That skin link doesn't work. Use a direct .osk download or a link from a skin site.",
   "common_error_report_needs_info": "Add some details for \"Other\".",
-  "common_error_report_already_sent": "You already reported this player today."
+  "common_error_report_already_sent": "You already reported this player today.",
+  "common_header_commissions": "Commissions"
 }

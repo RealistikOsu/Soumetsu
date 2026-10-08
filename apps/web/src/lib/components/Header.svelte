@@ -6,6 +6,8 @@
   import { session } from '$lib/auth/session.svelte';
   import { flash } from '$lib/flash.svelte';
   import { inbox } from '$lib/inbox.svelte';
+  import { commissions } from '$lib/api/commissions';
+  import { query } from '$lib/api/query.svelte';
   import { m } from '$lib/paraglide/messages';
   import Avatar from './Avatar.svelte';
   import PlayerSearch from './PlayerSearch.svelte';
@@ -27,6 +29,16 @@
 
   const user = $derived(session.user);
   const path = $derived(page.url.pathname);
+
+  const commissionsQuery = query((signal) =>
+    session.user ? commissions(signal) : Promise.resolve(null)
+  );
+  const tasks = $derived(
+    commissionsQuery.state.status === 'ready' && commissionsQuery.state.data
+      ? commissionsQuery.state.data.day.tasks
+      : null
+  );
+  const done = $derived(tasks ? tasks.filter((t) => t.completed).length : null);
 
   // Messages sent from the site arrive over the stream. The check now and then while the tab is in view
   // covers in-game ones, and mobile browsers freeze timers and streams in the background, so coming back
@@ -210,6 +222,12 @@
             <a href="/users/{user.id}"
               ><i class="fa-solid fa-user"></i>{m.common_header_profile()}</a
             >
+            <a href="/commissions">
+              <i class="fa-solid fa-clipboard-check"></i>{m.common_header_commissions()}
+              {#if done !== null && tasks}<span class="me-badge"
+                  >{m.commissions_header_badge({ done, total: tasks.length })}</span
+                >{/if}
+            </a>
             <a href="/friends"><i class="fa-solid fa-user-group"></i>{m.common_header_friends()}</a>
             <a href="/settings"><i class="fa-solid fa-gear"></i>{m.common_header_settings()}</a>
             {#if isStaff(user.privileges)}

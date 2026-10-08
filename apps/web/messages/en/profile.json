@@ -124,5 +124,9 @@
   "profile_daily_best_daily": "Best daily streak",
   "profile_daily_best_weekly": "Best weekly streak",
   "profile_daily_top_10": "Top 10% placements",
-  "profile_daily_top_50": "Top 50% placements"
+  "profile_daily_top_50": "Top 50% placements",
+  "profile_commissions_label": "Commissions",
+  "profile_commissions_total": "Full days",
+  "profile_commissions_streak_daily": "Current daily streak",
+  "profile_commissions_streak_weekly": "Current weekly streak"
 }

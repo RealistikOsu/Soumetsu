@@ -250,5 +250,6 @@
   "common_error_upload_score_not_found": "Nem találtunk ilyen ID-jú, teljesített eredményt a fiókodban.",
   "common_error_upload_invalid_skin": "Ez a skin link nem jó. Használj közvetlen .osk letöltési linket, vagy egy skin oldalról származót.",
   "common_error_report_needs_info": "Az „Egyéb” mellé írj részleteket.",
-  "common_error_report_already_sent": "Ma már jelentetted ezt a játékost."
+  "common_error_report_already_sent": "Ma már jelentetted ezt a játékost.",
+  "common_header_commissions": "Megbízások"
 }

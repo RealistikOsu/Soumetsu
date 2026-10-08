@@ -5,6 +5,8 @@
   import { number } from '$lib/format';
   import { level } from '$lib/level';
   import { m } from '$lib/paraglide/messages';
+  import type { Streaks } from '$lib/api/commissions';
+  import CommissionStats from './CommissionStats.svelte';
   import DailyStats from './DailyStats.svelte';
   import PeakCard from './PeakCard.svelte';
 
@@ -13,13 +15,15 @@
     country,
     peakRank,
     history,
-    daily
+    daily,
+    commissions
   }: {
     stats: UserStats;
     country: string;
     peakRank: { rank: number; time: number } | null;
     history: { time: number; value: number }[];
     daily: Daily | null;
+    commissions: Streaks | null;
   } = $props();
 
   const value = $derived(level(stats.total_score));
@@ -88,4 +92,8 @@
 
 {#if daily}
   <DailyStats {daily} />
+{/if}
+
+{#if commissions}
+  <CommissionStats stats={commissions} />
 {/if}

@@ -130,5 +130,9 @@
   "profile_daily_best_daily": "Лучшая дневная серия",
   "profile_daily_best_weekly": "Лучшая недельная серия",
   "profile_daily_top_10": "Места в топ 10%",
-  "profile_daily_top_50": "Места в топ 50%"
+  "profile_daily_top_50": "Места в топ 50%",
+  "profile_commissions_label": "Задания",
+  "profile_commissions_total": "Полных дней",
+  "profile_commissions_streak_daily": "Текущая серия по дням",
+  "profile_commissions_streak_weekly": "Текущая серия по неделям"
 }
