@@ -1,14 +1,21 @@
 import { config } from '$server/config';
+import { siteOnline } from '$server/presence';
 import { redis } from '$server/redis';
 
 export const kick = (userId: number, reason: string) =>
   redis.publish('peppy:disconnect', JSON.stringify({ userID: userId, reason }));
 
-export async function isOnline(userId: number) {
+export async function banchoOnline(userId: number) {
   const response = await fetch(`${config.banchoUrl}/api/status/${userId}`, {
     signal: AbortSignal.timeout(1500)
   }).catch(() => null);
   return response?.status === 200;
+}
+
+// In game or on the site.
+export async function isOnline(userId: number) {
+  const [bancho, site] = await Promise.all([banchoOnline(userId), siteOnline(userId)]);
+  return bancho || site;
 }
 
 const MODES = ['std', 'ctb', 'mania', 'taiko'];
