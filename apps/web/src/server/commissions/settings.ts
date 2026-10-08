@@ -24,7 +24,6 @@ export interface Settings {
   artists: string[];
   famousMaps: FamousMap[];
   lazerTasks: boolean;
-  dayStartHour: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -44,8 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
     { beatmapId: 1215220, name: 'Blue Zenith [FOUR DIMENSIONS]' },
     { beatmapId: 252002, name: 'Image Material [Scorpiour]' }
   ],
-  lazerTasks: true,
-  dayStartHour: 6
+  lazerTasks: true
 };
 
 const positiveInt = (value: unknown) => Number.isInteger(value) && (value as number) > 0;
@@ -96,13 +94,6 @@ export function parseSettings(raw: unknown): Settings | null {
 
   const lazerTasks = input.lazerTasks ?? true;
   if (typeof lazerTasks !== 'boolean') return null;
-  const dayStartHour = input.dayStartHour ?? DEFAULT_SETTINGS.dayStartHour;
-  if (
-    !Number.isInteger(dayStartHour) ||
-    (dayStartHour as number) < 0 ||
-    (dayStartHour as number) > 23
-  )
-    return null;
 
   if (!positiveInt(input.tasksPerDay) || !positiveInt(input.minDayPoints)) return null;
   // A day rolled below the top threshold could never be finished.
@@ -120,8 +111,7 @@ export function parseSettings(raw: unknown): Settings | null {
     weights: weights as Record<string, number>,
     artists: (artists as string[]).map((artist) => artist.trim()),
     famousMaps: famousMaps as FamousMap[],
-    lazerTasks,
-    dayStartHour: dayStartHour as number
+    lazerTasks
   };
 }
 

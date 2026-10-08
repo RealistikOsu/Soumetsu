@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { fakeContext, type DailyRow, type PlayerContext } from '../context';
 import type { DayScore } from '../scores';
-import { windowOf } from '../day';
+import { clockFrom } from '../day';
 import { DEFAULT_SETTINGS } from '../settings';
 import { byKey, templates } from './index';
 import { queries as boardQueries } from './leaderboard';
@@ -82,7 +82,7 @@ describe('login', () => {
   });
   test("today's activity doesn't complete yesterday's login", async () => {
     const today = Number(fakeContext({}).window.startUnix) + 60;
-    const yesterday = windowOf('2026-10-07', 0);
+    const yesterday = clockFrom([]).windowOf('2026-10-07');
     expect(await run('login', fakeContext({ window: yesterday, latestActivity: today }))).toBe(0);
     expect(await run('login', fakeContext({ latestActivity: today }))).toBe(1);
   });

@@ -1,6 +1,6 @@
 import { db } from '$server/db';
 import { Prisma } from '$server/generated/client';
-import { windowOf, type DayWindow } from './day';
+import { clockFrom, type DayWindow } from './day';
 import { loadDayScores, optional, type DayScore } from './scores';
 
 export interface DailyRow {
@@ -339,7 +339,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
 }
 
 export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
-  const window = overrides.window ?? windowOf('2026-10-08', 0);
+  const window = overrides.window ?? clockFrom([]).windowOf('2026-10-08');
   return {
     id: 1,
     window,

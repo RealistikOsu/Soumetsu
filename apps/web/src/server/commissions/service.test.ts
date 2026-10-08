@@ -75,6 +75,8 @@ let failContextFor: string | null = null;
 
 mock.module('$server/admin/console', () => ({ record: async () => {} }));
 mock.module('$server/db', () => ({ db: fakeDb }));
+const { clockFrom } = await import('./day');
+mock.module('./clock', () => ({ loadClock: async () => clockFrom([]) }));
 const real = await import('./context');
 mock.module('./context', () => ({
   ...real,

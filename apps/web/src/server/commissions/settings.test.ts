@@ -53,12 +53,3 @@ describe('lazerTasks', () => {
     expect(parseSettings({ ...DEFAULT_SETTINGS, lazerTasks: 'no' })).toBeNull();
   });
 });
-
-describe('dayStartHour', () => {
-  test('defaults to 6 and takes whole hours 0 to 23', () => {
-    expect(parseSettings({ ...DEFAULT_SETTINGS, dayStartHour: undefined })?.dayStartHour).toBe(6);
-    expect(parseSettings({ ...DEFAULT_SETTINGS, dayStartHour: 0 })?.dayStartHour).toBe(0);
-    expect(parseSettings({ ...DEFAULT_SETTINGS, dayStartHour: 24 })).toBeNull();
-    expect(parseSettings({ ...DEFAULT_SETTINGS, dayStartHour: 1.5 })).toBeNull();
-  });
-});

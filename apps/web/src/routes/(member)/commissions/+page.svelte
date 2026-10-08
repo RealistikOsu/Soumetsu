@@ -101,7 +101,7 @@
           <div>
             {#if href}<a {href}>{taskText(task)}</a>{:else}<span>{taskText(task)}</span>{/if}
             {#if task.template.startsWith('daily_top')}<small
-                >{m.commissions_settles({ when })}</small
+                >{m.commissions_settles({ when: timeUntil(fromIso(day.settlesAt)) })}</small
               >{/if}
           </div>
           <span class="cm-progress">

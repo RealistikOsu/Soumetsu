@@ -21,7 +21,6 @@
     artists: string;
     famousMaps: string;
     lazerTasks: boolean;
-    dayStartHour: number;
   }
 
   let version = $state(0);
@@ -91,8 +90,7 @@
         .map((line) => line.trim())
         .filter(Boolean),
       famousMaps,
-      lazerTasks: current.lazerTasks,
-      dayStartHour: Number(current.dayStartHour)
+      lazerTasks: current.lazerTasks
     };
   }
 
@@ -136,17 +134,6 @@
       <div class="field">
         <label for="cm-min">Minimum day points</label>
         <input id="cm-min" type="number" min="1" step="1" bind:value={form.minDayPoints} />
-      </div>
-      <div class="field">
-        <label for="cm-hour">New day at (hour, UTC)</label>
-        <input
-          id="cm-hour"
-          type="number"
-          min="0"
-          max="23"
-          step="1"
-          bind:value={form.dayStartHour}
-        />
       </div>
     </div>
   </div>
