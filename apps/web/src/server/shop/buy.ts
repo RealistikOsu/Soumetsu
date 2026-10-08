@@ -5,7 +5,14 @@ import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
-import { isShopDecoration, loanActive, onSale, SUPPORTER_PREFIX, type ItemType } from './listing';
+import {
+  isItemType,
+  isShopDecoration,
+  loanActive,
+  onSale,
+  SUPPORTER_PREFIX,
+  type ItemType
+} from './listing';
 import { supporterPicks } from './rotation';
 import { loadShopSettings, type ShopSettings } from './settings';
 
@@ -50,6 +57,16 @@ async function checkName(userId: number, name: string, current: string) {
   if (holders.length || reserved.length) throw new Failure(409, 'shop.username_taken');
 }
 
+// rename() can fail after it has written the new name (history cleanup, kick, action log). The player has
+// what they paid for by then, so the purchase stands.
+async function renameLanded(userId: number, name: string) {
+  const user = await db.users.findUnique({
+    where: { id: userId },
+    select: { username_safe: true }
+  });
+  return user?.username_safe === name.toLowerCase().replace(/ /g, '_');
+}
+
 interface Resolved {
   id: number;
   type: ItemType;
@@ -64,8 +81,9 @@ async function supporterRow(tx: Prisma.TransactionClient, key: string, settings:
   await tx.$executeRaw`
     INSERT IGNORE INTO shop_items (type, item_key, name, description, price, enabled, sort_order)
     VALUES ('decoration', ${key}, ${decoration.name}, 'Supporter decoration', ${settings.supporterPrice}, 0, 1000)`;
+  // A locking read sees a row another buyer committed after this transaction's snapshot was taken.
   const [row] = await tx.$queryRaw<{ id: number }[]>`
-    SELECT id FROM shop_items WHERE type = 'decoration' AND item_key = ${key}`;
+    SELECT id FROM shop_items WHERE type = 'decoration' AND item_key = ${key} FOR UPDATE`;
   return Number(row.id);
 }
 
@@ -94,7 +112,8 @@ async function resolve(
     ? await tx.shop_items.findUnique({ where: { id: item } })
     : null;
   if (!row || !row.enabled) throw new Failure(404, 'shop.unavailable');
-  const type = row.type as ItemType;
+  const type = row.type;
+  if (!isItemType(type)) throw new Failure(404, 'shop.unavailable');
   if (
     type === 'decoration' &&
     !(isShopDecoration(row.item_key) && onSale(settings, row.item_key, now))
@@ -175,11 +194,20 @@ export async function buy(
       await wipeStats(userId, scope);
     }
   } catch (error) {
-    await db.$transaction([
-      db.$executeRaw`UPDATE users SET coins = coins + ${bought.price} WHERE id = ${userId}`,
-      db.shop_purchases.delete({ where: { id: bought.purchase } })
-    ]);
+    let landed = false;
+    try {
+      landed = bought.type === 'username_change' && (await renameLanded(userId, username));
+      if (!landed) {
+        await db.$transaction([
+          db.$executeRaw`UPDATE users SET coins = coins + ${bought.price} WHERE id = ${userId}`,
+          db.shop_purchases.delete({ where: { id: bought.purchase } })
+        ]);
+      }
+    } catch (refundError) {
+      await record('error', userId, refundError);
+    }
     await record('error', userId, error);
+    if (landed) return { balance: bought.balance };
     throw error;
   }
 

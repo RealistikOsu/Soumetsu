@@ -6,7 +6,11 @@ import { ownedKeys } from './catalogue';
 import { inWindow, monthKey, supporterPicks } from './rotation';
 import { loadShopSettings, type ShopSettings } from './settings';
 
-export type ItemType = 'decoration' | 'username_change' | 'custom_badge' | 'score_wipe';
+export const ITEM_TYPES = ['decoration', 'username_change', 'custom_badge', 'score_wipe'] as const;
+export type ItemType = (typeof ITEM_TYPES)[number];
+
+export const isItemType = (type: string): type is ItemType =>
+  (ITEM_TYPES as readonly string[]).includes(type);
 
 export interface ShopItemView {
   id: number | string;
@@ -84,7 +88,8 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
 
   const items: ShopItemView[] = [];
   for (const row of rows) {
-    const type = row.type as ItemType;
+    const type = row.type;
+    if (!isItemType(type)) continue;
     if (type === 'decoration') {
       if (!isShopDecoration(row.item_key)) continue;
       const spotlight = shopDecorations.find((d) => d.key === row.item_key)?.stock === 'spotlight';
