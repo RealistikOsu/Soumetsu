@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import {
     playGame,
     type GameInfo,
@@ -9,9 +10,10 @@
   import { describe } from '$lib/api/messages';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
-  import GameShell, { decimal } from '$lib/components/casino/GameShell.svelte';
+  import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
+  import { decimal } from '$lib/format';
   import { ms, reducedMotion } from '$lib/motion';
   import { m } from '$lib/paraglide/messages';
 
@@ -26,37 +28,41 @@
   };
 
   let bet = $state(100);
-  let rows = $state(8);
+  let picked = $state<number | null>(null);
   let risk = $state<Risk>('medium');
   let pending = $state(false);
   let balls = $state.raw<Ball[]>([]);
   let last = $state.raw<Play | null>(null);
   let lit = $state.raw<{ index: number; seq: number } | null>(null);
   let nextId = 0;
+  // Balls can land out of order when the page is left, so only the newest play sets the balance.
+  let settled = -1;
 
   // The board is square and every peg, ball and bucket sits on the same pitch.
-  const pitch = $derived(100 / (rows + 2));
-  const rowY = (row: number, count: number) => ((row + 1) * 100) / (count + 2);
-  const pegs = $derived(
+  const pitchOf = (rows: number) => 100 / (rows + 2);
+  const rowY = (row: number, rows: number) => ((row + 1) * 100) / (rows + 2);
+  const pegsOf = (rows: number) =>
     Array.from({ length: rows }, (_, r) =>
       Array.from({ length: r + 3 }, (_, j) => ({
-        x: 50 + (j - (r + 2) / 2) * pitch,
+        x: 50 + (j - (r + 2) / 2) * pitchOf(rows),
         y: rowY(r, rows)
       }))
-    ).flat()
-  );
+    ).flat();
 
   const tone = (value: number) =>
     value >= 10 ? 'gold' : value >= 2 ? 'good' : value >= 1 ? 'even' : 'poor';
+  const label = (value: number) => (value >= 1000 ? `${decimal(value / 1000)}k` : decimal(value));
 
-  function land(ball: { rows: number; path: number[]; play: Play }) {
+  function land(ball: { id: number; path: number[]; play: Play }) {
+    lit = { index: ball.path.reduce((a, b) => a + b, 0), seq: (lit?.seq ?? 0) + 1 };
+    if (ball.id < settled) return;
+    settled = ball.id;
     last = ball.play;
     coins.set(ball.play.balance);
-    lit = { index: ball.path.reduce((a, b) => a + b, 0), seq: (lit?.seq ?? 0) + 1 };
   }
 
   function fall(node: HTMLElement, ball: Ball) {
-    const step = 100 / (ball.rows + 2);
+    const step = pitchOf(ball.rows);
     let x = 50;
     const frames: { left: string; top: string; easing?: string }[] = [
       { left: '50%', top: `${step * 0.2}%`, easing: 'ease-in' }
@@ -86,7 +92,10 @@
     return { destroy: finish };
   }
 
-  async function drop(event: SubmitEvent, minBet: number) {
+  let gone = false;
+  onDestroy(() => (gone = true));
+
+  async function drop(event: SubmitEvent, minBet: number, rows: number) {
     event.preventDefault();
     if (!Number.isFinite(bet)) bet = minBet;
     pending = true;
@@ -94,6 +103,7 @@
     try {
       const play = await playGame<PlinkoResult>('plinko', { bet: placed, rows, risk });
       const ball = {
+        id: nextId++,
         rows,
         path: play.result.path,
         play: {
@@ -103,14 +113,19 @@
           balance: play.balance
         }
       };
-      if (reducedMotion()) land(ball);
-      else balls = [...balls, { ...ball, id: nextId++, landed: false }];
+      if (gone || reducedMotion()) land(ball);
+      else balls = [...balls, { ...ball, landed: false }];
     } catch (error) {
       flash.show('error', describe(error));
       coins.refresh().catch(() => {});
     }
     pending = false;
   }
+
+  const pick = (apply: () => void) => {
+    apply();
+    lit = null;
+  };
 </script>
 
 <GameShell game="plinko">
@@ -125,10 +140,12 @@
     balance: number;
     blocked: boolean;
   })}
+    {@const rows = picked !== null && info.rows.includes(picked) ? picked : info.rows[0]}
+    {@const pitch = pitchOf(rows)}
     {@const table = info.tables[risk]?.[String(rows)] ?? []}
     {@const locked = pending || balls.length > 0}
     <section class="panel cs-game">
-      <form class="cs-form cs-controls" onsubmit={(e) => drop(e, limits.minBet)}>
+      <form class="cs-form cs-controls" onsubmit={(e) => drop(e, limits.minBet, rows)}>
         <BetInput
           bind:value={bet}
           min={limits.minBet}
@@ -146,7 +163,7 @@
                 aria-checked={rows === option}
                 class:active={rows === option}
                 disabled={locked}
-                onclick={() => (rows = option)}
+                onclick={() => pick(() => (picked = option))}
               >
                 {option}
               </button>
@@ -163,7 +180,7 @@
                 aria-checked={risk === option}
                 class:active={risk === option}
                 disabled={locked}
-                onclick={() => (risk = option)}
+                onclick={() => pick(() => (risk = option))}
               >
                 {riskLabel[option]()}
               </button>
@@ -180,7 +197,7 @@
 
       <div class="cs-stage">
         <div class="cs-plinko" style="--pitch: {pitch}">
-          {#each pegs as peg, i (i)}
+          {#each pegsOf(rows) as peg, i (i)}
             <span class="cs-peg" style="left: {peg.x}%; top: {peg.y}%"></span>
           {/each}
           {#each table as value, i (lit?.index === i ? `${i}:${lit.seq}` : i)}
@@ -189,7 +206,7 @@
               class:hit={lit?.index === i}
               style="left: {50 + (i - rows / 2) * pitch}%; top: {rowY(rows, rows)}%"
             >
-              {decimal(value)}
+              {label(value)}
             </span>
           {/each}
           {#each balls as ball (ball.id)}

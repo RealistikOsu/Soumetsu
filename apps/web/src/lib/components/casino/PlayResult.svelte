@@ -1,18 +1,16 @@
 <script lang="ts">
+  import { multiplier as times } from '$lib/casino';
   import { number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
-  import { multiplier as times } from './GameShell.svelte';
 
   let { bet, payout, multiplier }: { bet: number; payout: number; multiplier: number } = $props();
-
-  const won = $derived(payout >= bet);
 </script>
 
 <div class="cs-result cs-outcome" aria-live="polite">
-  <b class="cs-mult" class:win={won} class:loss={!won}>{times(multiplier)}</b>
-  {#if won}
+  <b class="cs-mult" class:win={payout > bet} class:loss={payout < bet}>{times(multiplier)}</b>
+  {#if payout > bet}
     <span class="win">{m.casino_won({ count: payout, coins: number(payout) })}</span>
-  {:else}
+  {:else if payout < bet}
     <span class="loss">{m.casino_lost({ count: bet - payout, coins: number(bet - payout) })}</span>
   {/if}
 </div>

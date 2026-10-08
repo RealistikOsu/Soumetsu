@@ -1,5 +1,6 @@
 import { m } from '$lib/paraglide/messages';
 import type { Game } from '$lib/api/casino';
+import { decimal } from '$lib/format';
 
 export const games: { key: Game; route: string; live: boolean }[] = [
   ...(
@@ -56,3 +57,20 @@ const blurbs: Record<Game, () => string> = {
 
 export const gameTitle = (key: Game) => titles[key]?.() ?? key;
 export const gameBlurb = (key: Game) => blurbs[key]?.() ?? key;
+
+export const multiplier = (value: number) => `×${decimal(value)}`;
+
+// Resolves early on abort, so a page that's left still applies the play it already has.
+export const wait = (time: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve) => {
+    if (signal?.aborted) return resolve();
+    const timer = setTimeout(resolve, time);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true }
+    );
+  });

@@ -1,12 +1,6 @@
 <script lang="ts" module>
-  import { intlLocale } from '$lib/i18n';
-
-  export const decimal = (value: number) =>
-    value.toLocaleString(intlLocale(), { maximumFractionDigits: 2 });
-
-  export const multiplier = (value: number) => `×${decimal(value)}`;
-
-  export const wait = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
+  // TODO: drop once the wheel, roulette and bingo pages import these from $lib/casino.
+  export { multiplier, wait } from '$lib/casino';
 </script>
 
 <script lang="ts" generics="I">

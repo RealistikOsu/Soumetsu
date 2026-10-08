@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { playGame, type GameInfo, type SlotsInfo, type SlotsResult } from '$lib/api/casino';
   import { describe } from '$lib/api/messages';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
-  import GameShell, { multiplier, wait } from '$lib/components/casino/GameShell.svelte';
+  import { multiplier, wait } from '$lib/casino';
+  import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
   import { ms } from '$lib/motion';
@@ -20,8 +22,6 @@
   };
   const glyph = (symbol: string) => glyphs[symbol] ?? symbol;
 
-  // The casino never paid a column of Cherries.
-  const UNPAID_COLUMN = 'Cherry';
   const STOPS = [800, 1300, 1800];
 
   const lines: Record<string, [number, number][]> = {
@@ -58,6 +58,9 @@
     return lines[line] ?? [];
   };
 
+  const leaving = new AbortController();
+  onDestroy(() => leaving.abort());
+
   let bet = $state(100);
   let pending = $state(false);
   let spinning = $state.raw([false, false, false]);
@@ -87,7 +90,7 @@
       grid = play.result.grid;
       await Promise.all(
         STOPS.map(async (stop, reel) => {
-          await wait(Math.max(0, ms(stop) - (performance.now() - started)));
+          await wait(Math.max(0, ms(stop) - (performance.now() - started)), leaving.signal);
           spinning = spinning.map((s, i) => (i === reel ? false : s));
         })
       );
@@ -179,11 +182,7 @@
               <tr>
                 <td class="cs-glyph" title={symbol}>{glyph(symbol)}</td>
                 <td>{multiplier(value)}</td>
-                <td>
-                  {symbol === UNPAID_COLUMN
-                    ? '–'
-                    : multiplier(Math.floor(value * info.columnFactor * 100) / 100)}
-                </td>
+                <td>{info.columns[symbol] == null ? '–' : multiplier(info.columns[symbol])}</td>
               </tr>
             {/each}
           </tbody>

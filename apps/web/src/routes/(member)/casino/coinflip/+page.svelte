@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { casino, playCoinflip, type CoinflipPlay } from '$lib/api/casino';
   import { describe } from '$lib/api/messages';
+  import { wait } from '$lib/casino';
   import { query } from '$lib/api/query.svelte';
   import { coins } from '$lib/coins.svelte';
   import Banner from '$lib/components/Banner.svelte';
@@ -24,11 +26,12 @@
 
   const face = $derived<Side>(last?.result.outcome ?? choice);
 
+  const leaving = new AbortController();
+  onDestroy(() => leaving.abort());
+
   $effect(() => {
     if (data) coins.set(data.balance);
   });
-
-  const wait = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
 
   async function flip(event: SubmitEvent) {
     event.preventDefault();
@@ -39,7 +42,10 @@
     const placed = bet;
     try {
       // The coin keeps spinning for at least a second even when the server answers sooner.
-      const [play] = await Promise.all([playCoinflip(placed, choice), wait(ms(1000))]);
+      const [play] = await Promise.all([
+        playCoinflip(placed, choice),
+        wait(ms(1000), leaving.signal)
+      ]);
       last = { ...play, bet: placed };
       coins.set(play.balance);
     } catch (error) {

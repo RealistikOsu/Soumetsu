@@ -283,6 +283,7 @@ a.cs-card:hover {
 }
 
 .cs-game {
+  --board: 360px;
   display: grid;
   grid-template:
     'controls stage' auto
@@ -393,10 +394,11 @@ a.cs-card:hover {
 .cs-bucket {
   display: grid;
   place-items: center;
-  width: calc(var(--pitch) * 0.92cqw);
+  width: calc(var(--pitch) * 0.96cqw);
   height: calc(var(--pitch) * 0.8cqw);
   border-radius: 3px;
-  font-size: max(8px, calc(var(--pitch) * 0.3cqw));
+  font-size: calc(var(--pitch) * 0.4cqw);
+  letter-spacing: -0.03em;
   font-weight: 700;
   overflow: hidden;
   white-space: nowrap;
@@ -455,14 +457,18 @@ a.cs-card:hover {
   background: var(--bg);
 }
 
+.cs-game.wide {
+  --board: 520px;
+}
+
 .cs-reels {
   grid-template-columns: repeat(3, 1fr);
-  max-width: 360px;
+  max-width: var(--board);
 }
 
 .cs-zeus {
-  grid-template-columns: repeat(5, 1fr);
-  max-width: 520px;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  max-width: var(--board);
 }
 
 .cs-reel {
@@ -565,7 +571,7 @@ a.cs-card:hover {
   grid-area: table;
   justify-self: center;
   width: 100%;
-  max-width: 360px;
+  max-width: var(--board);
 }
 
 .cs-paytable table {

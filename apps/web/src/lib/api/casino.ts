@@ -99,6 +99,8 @@ export interface SlotsInfo {
   symbols: string[];
   multipliers: Record<string, number>;
   columnFactor: number;
+  // A full column's multiplier per symbol, null where a column doesn't pay.
+  columns: Record<string, number | null>;
 }
 export interface ZeusInfo {
   symbols: string[];

@@ -7,6 +7,12 @@ export const number = (value: number, decimals = 0) =>
     maximumFractionDigits: decimals
   });
 
+// Up to two decimals, without trailing zeros: 0.5, 2.25, 10.
+export const decimal = (value: number) => {
+  const rounded = Math.round(value * 100) / 100;
+  return number(rounded, (String(rounded).split('.')[1] ?? '').length);
+};
+
 // Rounded to days, months and years; Intl words it ("yesterday", "3 дня назад") in the chosen language.
 export function timeAgo(unixSeconds: number) {
   const days = Math.floor((Date.now() / 1000 - unixSeconds) / 86_400);
