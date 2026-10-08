@@ -65,7 +65,7 @@ const STABLE_TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const STARS = ['difficulty_std', 'difficulty_taiko', 'difficulty_ctb', 'difficulty_mania'];
 
 export async function loadContext(id: number, window: DayWindow): Promise<PlayerContext> {
-  const [user, stats, tops, recent] = await Promise.all([
+  const [user, stats, tops] = await Promise.all([
     db.users.findUnique({ where: { id }, select: { coins: true, latest_activity: true } }),
     db.users_stats.findUnique({ where: { id }, select: { favourite_mode: true } }),
     // Top play per mode and variant, over the three stable tables and lazer.
@@ -82,11 +82,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
       optional(db.$queryRaw<{ mode: number; variant: number; pp: number }[]>`
         SELECT ruleset_id AS mode, variant, MAX(pp) AS pp FROM lazer_scores
         WHERE user_id = ${id} AND passed = 1 AND ranked_mods = 1 GROUP BY ruleset_id, variant`)
-    ]).then((groups) => groups.flat()),
-    db.$queryRaw<{ stars: number }[]>(Prisma.sql`
-      SELECT ${Prisma.raw(`b.${STARS[0]}`)} AS stars FROM scores s
-      INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
-      WHERE s.userid = ${id} AND s.completed >= 1 ORDER BY s.id DESC LIMIT 50`)
+    ]).then((groups) => groups.flat())
   ]);
 
   const favouriteMode = stats?.favourite_mode ?? 0;
@@ -97,13 +93,11 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
   }
 
   // The usual star range follows the favourite mode's difficulty column.
-  const usual =
-    favouriteMode === 0
-      ? recent
-      : await db.$queryRaw<{ stars: number }[]>(Prisma.sql`
-        SELECT ${Prisma.raw(`b.${STARS[favouriteMode]}`)} AS stars FROM scores s
-        INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
-        WHERE s.userid = ${id} AND s.play_mode = ${favouriteMode} AND s.completed >= 1 ORDER BY s.id DESC LIMIT 50`);
+  const usual = await db.$queryRaw<{ stars: number }[]>(Prisma.sql`
+    SELECT ${Prisma.raw(`b.${STARS[favouriteMode]}`)} AS stars FROM scores s
+    INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
+    WHERE s.userid = ${id} AND s.play_mode = ${favouriteMode} AND s.completed >= 1
+    ORDER BY s.id DESC LIMIT 50`);
 
   const scores = cached(() => loadDayScores(id, window));
 
@@ -141,11 +135,11 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         WHERE d.user_id = ${id} AND d.challenge_date = ${window.date}`);
       return row
         ? {
-            beatmapId: row.beatmap_id,
+            beatmapId: Number(row.beatmap_id),
             bestScore: Number(row.best_score),
             stableScore: Number(row.stable_score),
-            placement: row.placement,
-            stablePlacement: row.stable_placement,
+            placement: Number(row.placement),
+            stablePlacement: Number(row.stable_placement),
             finalised: row.finalised === 1
           }
         : null;
@@ -160,8 +154,8 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         WHERE u.user_id = ${id} AND m.ended_at >= ${window.start} AND m.ended_at < ${window.end}`);
       return rows.map((row) => ({
         matchId: Number(row.id),
-        won: row.winner_user_id === id,
-        roundsWon: row.rounds_won
+        won: Number(row.winner_user_id) === id,
+        roundsWon: Number(row.rounds_won)
       }));
     }),
     multiplayer: cached(async () => {
@@ -176,7 +170,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         WHERE s.user_id = ${id} AND g.ended_at >= ${window.start} AND g.ended_at < ${window.end}`);
       return rows.map((row) => ({
         matchId: Number(row.match_id),
-        game: row.game,
+        game: Number(row.game),
         won: Number(row.won) === 1
       }));
     }),
@@ -188,9 +182,9 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         WHERE user_id = ${id} AND played_at >= ${window.start} AND played_at < ${window.end}`);
       return rows.map((row) => ({
         game: row.game_type,
-        bet: row.bet_amount,
+        bet: Number(row.bet_amount),
         multiplier: Number(row.multiplier),
-        payout: row.payout
+        payout: Number(row.payout)
       }));
     }),
     casinoPurchases: cached(async () => {
@@ -247,13 +241,16 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
           SELECT 1 + COUNT(*) AS place,
                  (SELECT userid FROM ${Prisma.raw(table)} f
                   INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
-                  WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id}
+                  WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
                   ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first
           FROM ${Prisma.raw(table)} s
           INNER JOIN users u ON u.id = s.userid AND u.privileges & 1
           WHERE s.beatmap_md5 = ${score.md5} AND s.play_mode = ${score.mode} AND s.completed = 3
             AND s.userid <> ${id} AND (s.pp > ${score.pp} OR (s.pp = ${score.pp} AND s.id < ${score.id}))`);
-        return { rank: Number(row?.place ?? 1), previousFirst: row?.first ?? null };
+        return {
+          rank: Number(row?.place ?? 1),
+          previousFirst: row?.first == null ? null : Number(row.first)
+        };
       }
       const byScore = score.variant === 0;
       const [row] = await optional(db.$queryRaw<{ place: number; first: number | null }[]>`
@@ -261,7 +258,7 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
                (SELECT user_id FROM lazer_scores f
                 INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
                 WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
-                  AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id}
+                  AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
                 ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first
         FROM (
           SELECT user_id, MAX(${byScore ? Prisma.sql`total_score` : Prisma.sql`pp`}) AS best
@@ -272,7 +269,10 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         ) o
         INNER JOIN users u ON u.id = o.user_id AND u.privileges & 1
         WHERE o.best > ${byScore ? score.score : score.pp}`);
-      return { rank: Number(row?.place ?? 1), previousFirst: row?.first ?? null };
+      return {
+        rank: Number(row?.place ?? 1),
+        previousFirst: row?.first == null ? null : Number(row.first)
+      };
     }
   };
 }
