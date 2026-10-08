@@ -60,6 +60,12 @@
 .deco-royal,
 .deco-coral,
 .deco-storm,
+.deco-cash,
+.deco-copper,
+.deco-platinum,
+.deco-diamond,
+.deco-bullion,
+.deco-jackpot,
 .deco-staff-claude {
   background-clip: text;
   -webkit-background-clip: text;
@@ -415,4 +421,44 @@
   background-image: linear-gradient(90deg, #2c3e50, #6c7a89, #dfe9f3, #6c7a89, #2c3e50);
   background-size: 300% 100%;
   animation: deco-aurora-shift 6s ease infinite;
+}
+
+.deco-cash {
+  background-image: linear-gradient(90deg, #9ad27f, #2e7d32, #9ad27f);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 10s ease infinite;
+}
+
+.deco-copper {
+  background-image: linear-gradient(90deg, #d08a4e, #7a3e12);
+}
+
+.deco-platinum {
+  background-image: linear-gradient(90deg, #eef1f5, #9aa3b0, #f7f9fb);
+}
+
+.deco-diamond {
+  background-image: linear-gradient(90deg, #e6f7ff, #6fc8ff, #ffffff, #6fc8ff);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 5s ease infinite;
+}
+
+.deco-bullion {
+  background-image: linear-gradient(90deg, #ffe28a, #b8860b, #fff2b3, #b8860b);
+  background-size: 300% 100%;
+  animation: deco-aurora-shift 10s ease infinite;
+}
+
+.deco-jackpot {
+  background-image: repeating-linear-gradient(90deg, #ff3b3b 0 12px, #ffd43b 12px 24px);
+  background-size: 48px 100%;
+  animation: deco-jackpot-roll 3s linear infinite;
+}
+@keyframes deco-jackpot-roll {
+  0% {
+    background-position: 0 50%;
+  }
+  100% {
+    background-position: 48px 50%;
+  }
 }

@@ -80,6 +80,12 @@ export const decorations: Decoration[] = [
   entry('Shop', 'lava', m.common_decoration_lava, 'permanent'),
   entry('Shop', 'foil', m.common_decoration_foil, 'permanent'),
   entry('Shop', 'glitch', m.common_decoration_glitch, 'permanent'),
+  entry('Shop', 'cash', m.common_decoration_cash, 'permanent'),
+  entry('Shop', 'copper', m.common_decoration_copper, 'permanent'),
+  entry('Shop', 'platinum', m.common_decoration_platinum, 'permanent'),
+  entry('Shop', 'diamond', m.common_decoration_diamond, 'permanent'),
+  entry('Shop', 'bullion', m.common_decoration_bullion, 'permanent'),
+  entry('Shop', 'jackpot', m.common_decoration_jackpot, 'permanent'),
   entry('Shop', 'royal', m.common_decoration_royal, 'spotlight'),
   entry('Shop', 'coral', m.common_decoration_coral, 'spotlight'),
   entry('Shop', 'storm', m.common_decoration_storm, 'spotlight')

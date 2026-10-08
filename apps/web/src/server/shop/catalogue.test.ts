@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { shopDecorations } from '$lib/decorations';
 import { pickable } from './catalogue';
 
 const DONOR = 4;
@@ -26,6 +27,15 @@ describe('pickable', () => {
   test('shop styles are pickable only when owned', () => {
     expect(pickable('candy', { privileges: DONOR | ADMIN_ACCESS_RAP, owned: [] })).toBe(false);
     expect(pickable('candy', { privileges: 0, owned: ['candy'] })).toBe(true);
+  });
+
+  test('the coins-only styles are permanent shop stock', () => {
+    for (const key of ['cash', 'copper', 'platinum', 'diamond', 'bullion', 'jackpot']) {
+      expect(shopDecorations.find((d) => d.key === key)?.stock).toBe('permanent');
+      expect(pickable(key, { privileges: DONOR, owned: [] })).toBe(false);
+      expect(pickable(key, { privileges: 0, owned: [key] })).toBe(true);
+    }
+    expect(shopDecorations).toHaveLength(16);
   });
 
   test('unknown keys never are', () => {
