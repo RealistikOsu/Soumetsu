@@ -62,7 +62,6 @@
   "shop_purchases_title": "Twoje zakupy",
   "shop_purchases_empty": "Jeszcze nic nie kupiono.",
   "shop_err_insufficient": "Za mało monet.",
-  "shop_err_loan": "Najpierw spłać pożyczkę.",
   "shop_err_unavailable": "Tego nie ma w sprzedaży.",
   "shop_err_owned": "Już to masz.",
   "shop_err_username_taken": "Ten nick jest zajęty.",

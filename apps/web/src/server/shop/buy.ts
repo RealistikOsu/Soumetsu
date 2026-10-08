@@ -3,7 +3,6 @@ import { supporterDecorations } from '$lib/decorations';
 import { allowed } from '$lib/modes';
 import { record } from '$server/admin/console';
 import { rename, takenBy, wipeStats } from '$server/admin/users';
-import { activeLoan } from '$server/casino/loans';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { redis } from '$server/redis';
@@ -145,7 +144,6 @@ export async function buy(
     if (!user) throw new Failure(404, 'users.user_not_found');
     if ((Number(user.privileges) & Privilege.Public) === 0)
       throw new Failure(403, 'site.forbidden');
-    if (await activeLoan(userId, tx)) throw new Failure(403, 'shop.loan_active');
 
     const target = await resolve(tx, item, settings, now);
     if (target.type === 'decoration') {

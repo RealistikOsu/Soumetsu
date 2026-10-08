@@ -1,6 +1,5 @@
 import { Privilege } from '$lib/auth/privileges';
 import { shopDecorations, supporterDecorations } from '$lib/decorations';
-import { activeLoan } from '$server/casino/loans';
 import { db } from '$server/db';
 import { Failure } from '$server/respond';
 import { ownedKeys } from './catalogue';
@@ -27,7 +26,6 @@ export interface ShopItemView {
 
 export interface ShopView {
   balance: number;
-  loanActive: boolean;
   restricted: boolean;
   items: ShopItemView[];
   supporterPicks: { month: string; price: number; items: ShopItemView[] };
@@ -62,7 +60,7 @@ const nextMonth = (now: Date) =>
   new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
 
 export async function shopFor(userId: number, now = new Date()): Promise<ShopView> {
-  const [user, stats, settings, owned, rows, loan] = await Promise.all([
+  const [user, stats, settings, owned, rows] = await Promise.all([
     db.users.findUnique({ where: { id: userId }, select: { coins: true, privileges: true } }),
     db.users_stats.findUnique({ where: { id: userId }, select: { can_custom_badge: true } }),
     loadShopSettings(),
@@ -70,8 +68,7 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
     db.shop_items.findMany({
       where: { enabled: true },
       orderBy: [{ sort_order: 'asc' }, { id: 'asc' }]
-    }),
-    activeLoan(userId)
+    })
   ]);
   if (!user) throw new Failure(404, 'users.user_not_found');
 
@@ -132,7 +129,6 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
 
   return {
     balance: user.coins,
-    loanActive: loan !== null,
     restricted: (Number(user.privileges) & Privilege.Public) === 0,
     items,
     supporterPicks: { month: monthKey(now), price: settings.supporterPrice, items: picks },

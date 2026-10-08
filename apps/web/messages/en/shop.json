@@ -56,7 +56,6 @@
   "shop_purchases_title": "Your purchases",
   "shop_purchases_empty": "Nothing bought yet.",
   "shop_err_insufficient": "Not enough coins.",
-  "shop_err_loan": "Pay off your loan first.",
   "shop_err_unavailable": "This item isn't on sale.",
   "shop_err_owned": "You already own this.",
   "shop_err_username_taken": "That username is taken.",

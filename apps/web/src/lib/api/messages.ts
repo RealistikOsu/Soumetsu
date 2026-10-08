@@ -112,7 +112,6 @@ const messages: Record<string, Message> = {
   'commissions.day_missing': m.commissions_claim_failed_missing,
 
   'shop.insufficient_coins': m.shop_err_insufficient,
-  'shop.loan_active': m.shop_err_loan,
   'shop.unavailable': m.shop_err_unavailable,
   'shop.already_owned': m.shop_err_owned,
   'shop.username_taken': m.shop_err_username_taken,

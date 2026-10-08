@@ -590,22 +590,6 @@ model casino_game_history {
   @@index([played_at], map: "idx_played_at")
 }
 
-model casino_loans {
-  id              Int     @id @default(autoincrement())
-  user_id         Int
-  principal       Int
-  remaining       Int
-  interest_rate   Decimal @default(0.10) @db.Decimal(5, 2)
-  daily_payment   Int
-  taken_at        Int
-  last_payment_at Int
-  paid_off        Boolean @default(false)
-  // generated in the database, never written
-  active_user_id  Int?    @unique(map: "uq_one_active_loan_per_user")
-
-  @@index([user_id, paid_off], map: "idx_user_active")
-}
-
 model casino_game_config {
   id          Int       @id @default(autoincrement())
   game_type   String    @unique(map: "uq_casino_game_config_type") @db.VarChar(32)

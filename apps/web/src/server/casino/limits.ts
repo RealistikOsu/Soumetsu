@@ -11,9 +11,7 @@ const standard: Limit = { count: 30, windowMs: 45_000 };
 
 export const LIMITS: Record<string, Limit> = {
   ...Object.fromEntries(GAMES.map((game) => [game, standard])),
-  plinko: { count: 150, windowMs: 30_000 },
-  loan_take: { count: 3, windowMs: 60_000 },
-  loan_repay: { count: 5, windowMs: 60_000 }
+  plinko: { count: 150, windowMs: 30_000 }
 };
 
 export async function checkLimit(key: string, userId: number) {

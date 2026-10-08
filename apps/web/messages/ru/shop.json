@@ -62,7 +62,6 @@
   "shop_purchases_title": "Твои покупки",
   "shop_purchases_empty": "Пока ничего не куплено.",
   "shop_err_insufficient": "Не хватает монет.",
-  "shop_err_loan": "Сначала выплати кредит.",
   "shop_err_unavailable": "Этого нет в продаже.",
   "shop_err_owned": "Это у тебя уже есть.",
   "shop_err_username_taken": "Этот ник занят.",

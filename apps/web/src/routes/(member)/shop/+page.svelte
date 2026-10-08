@@ -39,7 +39,6 @@
 
   const canBuy = (item: ShopItemView) =>
     !!data &&
-    !data.loanActive &&
     !data.restricted &&
     !busy &&
     item.available &&
@@ -126,9 +125,7 @@
     </section>
 
     {#if data.restricted}
-      <p class="sh-loan">{m.common_error_forbidden()}</p>
-    {:else if data.loanActive}
-      <p class="sh-loan">{m.shop_err_loan()}</p>
+      <p class="sh-restricted">{m.common_error_forbidden()}</p>
     {/if}
 
     {#if decorations.length}

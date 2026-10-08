@@ -56,7 +56,6 @@
   "shop_purchases_title": "Vásárlásaid",
   "shop_purchases_empty": "Még nem vettél semmit.",
   "shop_err_insufficient": "Nincs elég érméd.",
-  "shop_err_loan": "Előbb fizesd vissza a kölcsönt.",
   "shop_err_unavailable": "Ez nincs eladásra.",
   "shop_err_owned": "Ez már megvan.",
   "shop_err_username_taken": "Ez a név foglalt.",
