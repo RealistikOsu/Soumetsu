@@ -27,8 +27,9 @@ describe('parseOdds', () => {
     expect(parseOdds('coinflip', { multiplier: 1.75 })).toEqual({ multiplier: 1.75 });
   });
 
-  test('rejects a low or missing multiplier', () => {
+  test('rejects a low, huge or missing multiplier', () => {
     expect(parseOdds('coinflip', { multiplier: 0.5 })).toBeNull();
+    expect(parseOdds('coinflip', { multiplier: 10000 })).toBeNull();
     expect(parseOdds('coinflip', {})).toBeNull();
     expect(parseOdds('coinflip', null)).toBeNull();
   });

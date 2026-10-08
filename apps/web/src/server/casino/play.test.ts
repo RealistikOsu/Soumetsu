@@ -4,9 +4,14 @@ let config: object | null = null;
 let user: { coins: number; privileges: bigint } | null = null;
 let updates: unknown[][] = [];
 let history: object[] = [];
+let reads: string[] = [];
+let hits = 0;
 
 const tx = {
-  $queryRaw: async () => (user ? [user] : []),
+  $queryRaw: async (sql: TemplateStringsArray) => {
+    reads.push(sql.join('?'));
+    return user ? [user] : [];
+  },
   $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
     updates.push(values);
     return 1;
@@ -29,7 +34,7 @@ mock.module('$server/db', () => ({
 const keys: Record<string, string> = {};
 mock.module('$server/redis', () => ({
   redis: {
-    incr: async () => 1,
+    incr: async () => ++hits,
     pexpire: async () => 1,
     set: async (key: string, value: string) => {
       if (key in keys) return null;
@@ -44,7 +49,7 @@ mock.module('$server/redis', () => ({
 }));
 
 const { clearConfigCache } = await import('./config');
-const { parseBet, play } = await import('./play');
+const { parseBet, payoutFor, play } = await import('./play');
 const { coinflip } = await import('./games/coinflip');
 
 const cfg = { minBet: 10, maxBet: 1000 };
@@ -62,6 +67,20 @@ describe('parseBet', () => {
         expect.objectContaining({ status: 400, code: 'casino.invalid_bet' })
       );
   });
+
+  test('never accepts a zero bet', () => {
+    expect(() => parseBet(0, { minBet: 0, maxBet: 10 })).toThrow(
+      expect.objectContaining({ code: 'casino.invalid_bet' })
+    );
+  });
+});
+
+describe('payoutFor', () => {
+  test('uses the multiplier in hundredths', () => {
+    expect(payoutFor(100, 1.15)).toBe(115);
+    expect(payoutFor(100, 1.75)).toBe(175);
+    expect(payoutFor(3, 1.75)).toBe(5);
+  });
 });
 
 describe('play', () => {
@@ -76,26 +95,20 @@ describe('play', () => {
     user = { coins: 1000, privileges: 1n | 4n };
     updates = [];
     history = [];
+    reads = [];
+    hits = 0;
   });
 
-  // Heads wins unless the crypto roll lands tails, so retry until a flip comes up heads.
-  async function win() {
-    for (;;) {
-      const played = await play(1, 'coinflip', 100, { choice: 'heads' as const }, coinflip);
-      if (played.result.won) return played;
-      updates = [];
-      history = [];
-    }
-  }
-
   test('a supporter win pays the buffed payout and records the raw result', async () => {
-    const played = await win();
+    const played = await play(1, 'coinflip', 100, { choice: 'heads' }, coinflip, () => 0.2);
     expect(played).toEqual({
       result: { outcome: 'heads', choice: 'heads', won: true },
       payout: 192,
       multiplier: 1.75,
       balance: 1092
     });
+    expect(reads).toHaveLength(1);
+    expect(reads[0]).toContain('FOR UPDATE');
     expect(updates).toEqual([[100, 192, 1]]);
     expect(history).toEqual([
       {
@@ -118,6 +131,26 @@ describe('play', () => {
     expect(played).toEqual({ result: { lost: true }, payout: 0, multiplier: 0, balance: 900 });
     expect(updates).toEqual([[100, 0, 1]]);
     expect(history).toMatchObject([{ multiplier: 0, payout: 0 }]);
+  });
+
+  test('stores the multiplier in hundredths', async () => {
+    const played = await play(1, 'coinflip', 100, { choice: 'heads' }, () => ({
+      result: {},
+      multiplier: 1.23456,
+      payout: 123
+    }));
+    expect(played.multiplier).toBe(1.23);
+    expect(history).toMatchObject([{ multiplier: 1.23 }]);
+  });
+
+  test('a missing user is a 404 and writes nothing', async () => {
+    user = null;
+    await expect(play(1, 'coinflip', 100, { choice: 'heads' }, coinflip)).rejects.toMatchObject({
+      status: 404,
+      code: 'users.user_not_found'
+    });
+    expect(updates).toEqual([]);
+    expect(history).toEqual([]);
   });
 
   test('not enough coins is a 402 and writes nothing', async () => {
@@ -145,6 +178,7 @@ describe('play', () => {
       status: 403,
       code: 'casino.disabled'
     });
+    expect(hits).toBe(0);
     expect(updates).toEqual([]);
     expect(history).toEqual([]);
   });
@@ -155,6 +189,7 @@ describe('play', () => {
       status: 403,
       code: 'casino.disabled'
     });
+    expect(hits).toBe(0);
   });
 
   test('an out of range bet is rejected before the transaction', async () => {
@@ -163,5 +198,6 @@ describe('play', () => {
       code: 'casino.invalid_bet'
     });
     expect(updates).toEqual([]);
+    expect(hits).toBe(0);
   });
 });

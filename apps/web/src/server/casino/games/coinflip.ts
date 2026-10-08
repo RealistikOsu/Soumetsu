@@ -1,4 +1,5 @@
 import { Failure } from '$server/respond';
+import { payoutFor } from '../play';
 import type { GameRunner } from '../play';
 import type { CoinflipOdds } from './types';
 
@@ -28,6 +29,6 @@ export const coinflip: GameRunner<CoinflipOdds, CoinflipInput, CoinflipResult> =
   return {
     result: { outcome, choice, won },
     multiplier: odds.multiplier,
-    payout: won ? Math.floor(bet * odds.multiplier) : 0
+    payout: won ? payoutFor(bet, odds.multiplier) : 0
   };
 };

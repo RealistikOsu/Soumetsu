@@ -23,8 +23,19 @@ export type GameRunner<O, I, R extends Prisma.InputJsonObject> = (
 
 export const cryptoRng = () => randomBytes(4).readUInt32BE(0) / 2 ** 32;
 
+// history.multiplier is DECIMAL(6,2), so payouts use the multiplier as it will be stored.
+const hundredths = (multiplier: number) => Math.round(multiplier * 100);
+
+export const payoutFor = (bet: number, multiplier: number) =>
+  Math.floor((bet * hundredths(multiplier)) / 100);
+
 export function parseBet(raw: unknown, cfg: { minBet: number; maxBet: number }) {
-  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < cfg.minBet || raw > cfg.maxBet)
+  if (
+    typeof raw !== 'number' ||
+    !Number.isInteger(raw) ||
+    raw < Math.max(1, cfg.minBet) ||
+    raw > cfg.maxBet
+  )
     throw new Failure(400, 'casino.invalid_bet');
   return raw;
 }
@@ -34,7 +45,8 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
   game: Game,
   rawBet: unknown,
   input: I,
-  run: GameRunner<O, I, R>
+  run: GameRunner<O, I, R>,
+  rng: () => number = cryptoRng
 ): Promise<{ result: R; payout: number; multiplier: number; balance: number }> {
   const cfg = await gameConfig<O>(game);
   if (!cfg.enabled || cfg.odds === null) throw new Failure(403, 'casino.disabled');
@@ -51,9 +63,9 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
       if ((privileges & Privilege.Public) === 0) throw new Failure(403, 'site.forbidden');
       if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
 
-      const outcome = run(odds, input, bet, cryptoRng);
+      const outcome = run(odds, input, bet, rng);
       const payout = donorBuff(outcome.payout, privileges);
-      const multiplier = outcome.payout > 0 ? outcome.multiplier : 0;
+      const multiplier = outcome.payout > 0 ? hundredths(outcome.multiplier) / 100 : 0;
 
       await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;
       await recordPlay(tx, { userId, game, bet, multiplier, payout, result: outcome.result });

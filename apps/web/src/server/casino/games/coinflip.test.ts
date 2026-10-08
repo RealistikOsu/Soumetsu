@@ -21,6 +21,10 @@ describe('coinflip', () => {
     expect(coinflip(odds, { choice: 'tails' }, 3, () => 0.7).payout).toBe(5);
   });
 
+  test('pays in whole hundredths of the multiplier', () => {
+    expect(coinflip({ multiplier: 1.15 }, { choice: 'heads' }, 100, () => 0.2).payout).toBe(115);
+  });
+
   test('a loss pays nothing', () => {
     const outcome = coinflip(odds, { choice: 'tails' }, 100, () => 0.2);
     expect(outcome.payout).toBe(0);
