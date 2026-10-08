@@ -143,6 +143,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         needs: Privilege.AdminManageBeatmap
       },
       {
+        href: '/admin/commissions',
+        label: 'Commissions',
+        colour: 'c-green',
+        icon: 'fa-clipboard-check',
+        needs: Privilege.AdminManageSetting
+      },
+      {
         href: '/admin/clans',
         label: 'Clans',
         colour: 'c-purple',

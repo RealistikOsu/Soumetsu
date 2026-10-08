@@ -424,6 +424,22 @@ export const lazerSettings = (signal?: AbortSignal) =>
 export const setLazerSettings = (settings: LazerSettings) =>
   siteApi.put('/admin/lazer/settings', settings);
 
+export interface CommissionSettings {
+  tasksPerDay: number;
+  minDayPoints: number;
+  thresholds: { points: number; coins: number }[];
+  tierPoints: { easy: number; medium: number; hard: number };
+  weights: Record<string, number>;
+  artists: string[];
+  famousMaps: { beatmapId: number; name: string }[];
+}
+
+export const commissionSettings = (signal?: AbortSignal) =>
+  siteApi.get<CommissionSettings>('/admin/commissions/settings', undefined, signal);
+
+export const setCommissionSettings = (settings: CommissionSettings) =>
+  siteApi.put('/admin/commissions/settings', settings);
+
 export const dailyChallenges = (signal?: AbortSignal) =>
   siteApi.get<DailyChallenge[]>('/admin/daily-challenge', undefined, signal);
 
