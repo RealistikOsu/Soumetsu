@@ -263,5 +263,6 @@
   "common_error_upload_invalid_skin": "Ten link do skina nie działa. Użyj bezpośredniego linku do .osk albo linku ze strony ze skinami.",
   "common_error_report_needs_info": "Dodaj szczegóły przy „Inne”.",
   "common_error_report_already_sent": "Twoje zgłoszenie na tego gracza już dziś wpłynęło.",
-  "common_header_commissions": "Zlecenia"
+  "common_header_commissions": "Zlecenia",
+  "common_header_shop": "Sklep"
 }

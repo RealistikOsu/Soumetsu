@@ -20,7 +20,8 @@
       "./messages/{locale}/rooms.json",
       "./messages/{locale}/multiplayer.json",
       "./messages/{locale}/scores.json",
-      "./messages/{locale}/commissions.json"
+      "./messages/{locale}/commissions.json",
+      "./messages/{locale}/shop.json"
     ]
   }
 }

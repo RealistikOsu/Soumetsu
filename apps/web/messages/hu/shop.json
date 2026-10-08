@@ -1,0 +1,40 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "shop_title": "Bolt",
+  "shop_intro": "Költsd el az érméid. Többet a megbízásokkal szerezhetsz.",
+  "shop_balance": "{coins} érme",
+  "shop_section_decorations": "Díszek",
+  "shop_section_spotlight": "Reflektorfényben",
+  "shop_section_supporter": "E havi támogatói válogatás",
+  "shop_section_account": "Fiók",
+  "shop_buy": "Vétel {price} érméért",
+  "shop_owned": "Megvan",
+  "shop_leaves": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "{count} nap múlva eltűnik",
+        "n=other": "{count} nap múlva eltűnik"
+      }
+    }
+  ],
+  "shop_included_supporter": "A támogatói csomag része",
+  "shop_confirm": "Megveszed a(z) {name} díszt {price} érméért?",
+  "shop_bought": "Megvetted: {name}.",
+  "shop_username_new": "Új név",
+  "shop_username_hint": "2-15 karakter: betűk, számok, szóköz, _ [ ] -",
+  "shop_wipe_mode": "Mód",
+  "shop_wipe_variant": "Változat",
+  "shop_wipe_all": "Mind",
+  "shop_wipe_warning": "Ez törli a pontszámaidat, és nem lehet visszavonni.",
+  "shop_purchases_title": "Vásárlásaid",
+  "shop_purchases_empty": "Még nem vettél semmit.",
+  "shop_err_insufficient": "Nincs elég érméd.",
+  "shop_err_loan": "Előbb fizesd vissza a kölcsönt.",
+  "shop_err_unavailable": "Ez nincs eladásra.",
+  "shop_err_owned": "Ez már megvan.",
+  "shop_err_username_taken": "Ez a név foglalt.",
+  "shop_err_username_invalid": "Ez a név nem engedélyezett.",
+  "shop_err_too_fast": "Lassabban, próbáld újra pár másodperc múlva."
+}

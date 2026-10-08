@@ -1,0 +1,40 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "shop_title": "Shop",
+  "shop_intro": "Spend your coins. Earn more with commissions.",
+  "shop_balance": "{coins} coins",
+  "shop_section_decorations": "Decorations",
+  "shop_section_spotlight": "Spotlight",
+  "shop_section_supporter": "Supporter picks this month",
+  "shop_section_account": "Account",
+  "shop_buy": "Buy for {price}",
+  "shop_owned": "Owned",
+  "shop_leaves": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Leaves in {count} day",
+        "n=other": "Leaves in {count} days"
+      }
+    }
+  ],
+  "shop_included_supporter": "Included with supporter",
+  "shop_confirm": "Buy {name} for {price} coins?",
+  "shop_bought": "Bought {name}.",
+  "shop_username_new": "New username",
+  "shop_username_hint": "2-15 characters: letters, numbers, spaces, _ [ ] -",
+  "shop_wipe_mode": "Mode",
+  "shop_wipe_variant": "Variant",
+  "shop_wipe_all": "All",
+  "shop_wipe_warning": "This deletes your scores and can't be undone.",
+  "shop_purchases_title": "Your purchases",
+  "shop_purchases_empty": "Nothing bought yet.",
+  "shop_err_insufficient": "Not enough coins.",
+  "shop_err_loan": "Pay off your loan first.",
+  "shop_err_unavailable": "This item isn't on sale.",
+  "shop_err_owned": "You already own this.",
+  "shop_err_username_taken": "That username is taken.",
+  "shop_err_username_invalid": "That username isn't allowed.",
+  "shop_err_too_fast": "Slow down, try again in a few seconds."
+}

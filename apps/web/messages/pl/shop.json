@@ -1,0 +1,42 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "shop_title": "Sklep",
+  "shop_intro": "Wydawaj monety. Więcej zdobędziesz z zadań.",
+  "shop_balance": "{coins} monet",
+  "shop_section_decorations": "Ozdoby",
+  "shop_section_spotlight": "W centrum uwagi",
+  "shop_section_supporter": "Wybór supporterów w tym miesiącu",
+  "shop_section_account": "Konto",
+  "shop_buy": "Kup za {price}",
+  "shop_owned": "Masz to",
+  "shop_leaves": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Znika za {count} dzień",
+        "n=few": "Znika za {count} dni",
+        "n=many": "Znika za {count} dni",
+        "n=other": "Znika za {count} dnia"
+      }
+    }
+  ],
+  "shop_included_supporter": "W cenie supportera",
+  "shop_confirm": "Kupić {name} za {price} monet?",
+  "shop_bought": "Kupiono: {name}.",
+  "shop_username_new": "Nowy nick",
+  "shop_username_hint": "2-15 znaków: litery, cyfry, spacje, _ [ ] -",
+  "shop_wipe_mode": "Tryb",
+  "shop_wipe_variant": "Wariant",
+  "shop_wipe_all": "Wszystkie",
+  "shop_wipe_warning": "To usuwa twoje wyniki i nie da się tego cofnąć.",
+  "shop_purchases_title": "Twoje zakupy",
+  "shop_purchases_empty": "Jeszcze nic nie kupiono.",
+  "shop_err_insufficient": "Za mało monet.",
+  "shop_err_loan": "Najpierw spłać pożyczkę.",
+  "shop_err_unavailable": "Tego nie ma w sprzedaży.",
+  "shop_err_owned": "Już to masz.",
+  "shop_err_username_taken": "Ten nick jest zajęty.",
+  "shop_err_username_invalid": "Taki nick jest niedozwolony.",
+  "shop_err_too_fast": "Wolniej, spróbuj za kilka sekund."
+}

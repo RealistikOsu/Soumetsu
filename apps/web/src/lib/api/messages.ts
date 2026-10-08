@@ -111,6 +111,14 @@ const messages: Record<string, Message> = {
   'commissions.already_claimed': m.commissions_claim_failed_claimed,
   'commissions.day_missing': m.commissions_claim_failed_missing,
 
+  'shop.insufficient_coins': m.shop_err_insufficient,
+  'shop.loan_active': m.shop_err_loan,
+  'shop.unavailable': m.shop_err_unavailable,
+  'shop.already_owned': m.shop_err_owned,
+  'shop.username_taken': m.shop_err_username_taken,
+  'shop.username_invalid': m.shop_err_username_invalid,
+  'shop.too_fast': m.shop_err_too_fast,
+
   network_error: m.common_error_network
 };
 

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "shop_title": "Магазин",
+  "shop_intro": "Трать монеты. Больше монет дают задания.",
+  "shop_balance": "{coins} монет",
+  "shop_section_decorations": "Украшения",
+  "shop_section_spotlight": "В центре внимания",
+  "shop_section_supporter": "Выбор саппортеров этого месяца",
+  "shop_section_account": "Аккаунт",
+  "shop_buy": "Купить за {price}",
+  "shop_owned": "Куплено",
+  "shop_leaves": [
+    {
+      "declarations": ["input count", "local n = count: plural"],
+      "selectors": ["n"],
+      "match": {
+        "n=one": "Уйдёт через {count} день",
+        "n=few": "Уйдёт через {count} дня",
+        "n=many": "Уйдёт через {count} дней",
+        "n=other": "Уйдёт через {count} дня"
+      }
+    }
+  ],
+  "shop_included_supporter": "Входит в саппортер",
+  "shop_confirm": "Купить {name} за {price} монет?",
+  "shop_bought": "Куплено: {name}.",
+  "shop_username_new": "Новый ник",
+  "shop_username_hint": "2-15 символов: латиница, цифры, пробел, _ [ ] -",
+  "shop_wipe_mode": "Режим",
+  "shop_wipe_variant": "Вариант",
+  "shop_wipe_all": "Все",
+  "shop_wipe_warning": "Это удалит твои скоры, назад не вернуть.",
+  "shop_purchases_title": "Твои покупки",
+  "shop_purchases_empty": "Пока ничего не куплено.",
+  "shop_err_insufficient": "Не хватает монет.",
+  "shop_err_loan": "Сначала выплати кредит.",
+  "shop_err_unavailable": "Этого нет в продаже.",
+  "shop_err_owned": "Оно у тебя уже есть.",
+  "shop_err_username_taken": "Этот ник занят.",
+  "shop_err_username_invalid": "Такой ник не подойдёт.",
+  "shop_err_too_fast": "Не так быстро, попробуй через пару секунд."
+}
