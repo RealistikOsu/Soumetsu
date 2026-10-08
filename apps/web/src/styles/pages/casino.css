@@ -728,7 +728,7 @@ a.cs-card:hover {
   font-size: 13px;
 }
 
-.cs-bets button.wide {
+.cs-bets button.cs-wide {
   grid-column: 1 / -1;
 }
 
@@ -938,20 +938,29 @@ a.cs-card:hover {
   grid-template-columns: repeat(5, 1fr);
   gap: clamp(6px, 2vw, 12px);
   width: 100%;
-  max-width: 520px;
-  padding: 16px 12px;
+  max-width: var(--board);
+  padding: 16px 12px 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--bg);
   perspective: 800px;
 }
 
+/* The tag row is always there, so the box doesn't grow when the hold phase starts. */
+.cs-slot {
+  display: grid;
+  grid-template-rows: auto 22px;
+  gap: 6px;
+  justify-items: center;
+  min-width: 0;
+}
+
 .cs-playing {
-  position: relative;
   display: grid;
   place-content: center;
   justify-items: center;
   gap: 2px;
+  width: 100%;
   aspect-ratio: 5 / 7;
   padding: 0;
   border: 3px solid transparent;
@@ -960,6 +969,11 @@ a.cs-card:hover {
   color: #1e1e1f;
   font: inherit;
   line-height: 1;
+}
+
+.cs .cs-playing:disabled {
+  opacity: 1;
+  cursor: default;
 }
 
 .cs-playing b {
@@ -979,20 +993,8 @@ a.cs-card:hover {
   background: var(--panel-2);
 }
 
-button.cs-playing {
+button.cs-playing:enabled {
   cursor: pointer;
-}
-
-.cs-playing small {
-  position: absolute;
-  bottom: -26px;
-  left: 50%;
-  translate: -50% 0;
-  color: var(--faint);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .cs-playing.held {
@@ -1000,12 +1002,17 @@ button.cs-playing {
   translate: 0 -8px;
 }
 
-.cs-playing.held small {
-  color: var(--yellow);
+.cs-hold-tag {
+  align-self: center;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.cs-stage:has(button.cs-playing) .cs-hand {
-  padding-bottom: 36px;
+.cs-hold-tag.held {
+  color: var(--yellow);
 }
 
 .motion .cs-playing:not(.back) {
@@ -1040,6 +1047,26 @@ button.cs-playing {
 }
 
 @media (max-width: 600px) {
+  .cs-hold-tag {
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .cs-hold-tag.held {
+    background: currentColor;
+  }
+
+  .cs-hold-tag span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .cs-history li {
     grid-template-columns: 1fr auto;
     gap: 2px 12px;

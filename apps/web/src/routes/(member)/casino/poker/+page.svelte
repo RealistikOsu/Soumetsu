@@ -64,6 +64,8 @@
   // Bumped on every deal so fresh cards remount and replay their entrance.
   let round = $state(0);
   let delays = $state.raw<number[]>([0, 0, 0, 0, 0]);
+  // True while replaced cards flip in, so the hold controls stay put until they land.
+  let settling = $state(false);
   let last = $state.raw<Play | null>(null);
   const leaving = new AbortController();
   onDestroy(() => leaving.abort());
@@ -125,9 +127,12 @@
       const play = await pokerDraw(keep);
       let order = 0;
       delays = keep.map((kept) => (kept ? 0 : order++ * ms(STAGGER)));
+      hand = current;
       shown = play.result.hand;
-      hand = null;
+      settling = true;
       await wait(order ? ms(STAGGER) * (order - 1) + ms(FLIP) : 0, leaving.signal);
+      hand = null;
+      settling = false;
       last = {
         bet: current.bet,
         payout: play.payout,
@@ -158,7 +163,7 @@
   })}
     {@const current = active(limits)}
     {@const visible = cards(limits)}
-    <section class="panel cs-game">
+    <section class="panel cs-game cs-wide">
       {#if current}
         <form
           class="cs-form cs-controls"
@@ -174,7 +179,7 @@
             balance={Math.max(balance, current.bet)}
             disabled
           />
-          <button class="btn btn-blue cs-go" type="submit" disabled={pending}>
+          <button class="btn btn-blue cs-go" type="submit" disabled={pending || settling}>
             {m.casino_draw()}
           </button>
         </form>
@@ -200,33 +205,32 @@
       <div class="cs-stage">
         <div class="cs-hand">
           {#if visible.length}
+            <!-- One button per card in every phase, so a held card keeps its element on the draw. -->
             {#each visible as card, i (`${round}-${i}-${card.rank}${card.suit}`)}
-              {@const red = card.suit === 'H' || card.suit === 'D'}
-              {#if current}
+              <div class="cs-slot">
                 <button
                   type="button"
                   class="cs-playing"
-                  class:red
-                  class:held={held[i]}
+                  class:red={card.suit === 'H' || card.suit === 'D'}
+                  class:held={current && held[i]}
                   style="animation-delay: {delays[i]}ms"
-                  aria-pressed={held[i]}
-                  disabled={pending}
+                  aria-pressed={current ? held[i] : undefined}
+                  disabled={!current || pending}
                   onclick={() => (held[i] = !held[i])}
                 >
                   <b>{face(card)}</b>
                   <span>{SUITS[card.suit]}</span>
-                  <small>{held[i] ? m.casino_held() : m.casino_hold()}</small>
                 </button>
-              {:else}
-                <div class="cs-playing" class:red style="animation-delay: {delays[i]}ms">
-                  <b>{face(card)}</b>
-                  <span>{SUITS[card.suit]}</span>
-                </div>
-              {/if}
+                {#if current}
+                  <small class="cs-hold-tag" class:held={held[i]}>
+                    <span>{held[i] ? m.casino_held() : m.casino_hold()}</span>
+                  </small>
+                {/if}
+              </div>
             {/each}
           {:else}
             {#each [0, 1, 2, 3, 4] as i (i)}
-              <div class="cs-playing back"></div>
+              <div class="cs-slot"><div class="cs-playing back"></div></div>
             {/each}
           {/if}
         </div>
