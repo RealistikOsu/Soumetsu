@@ -2,19 +2,13 @@ import { Privilege } from '$lib/auth/privileges';
 import { supporterDecorations } from '$lib/decorations';
 import { allowed } from '$lib/modes';
 import { record } from '$server/admin/console';
+import { activeLoan } from '$server/casino/loans';
 import { rename, takenBy, wipeStats } from '$server/admin/users';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
-import {
-  isItemType,
-  isShopDecoration,
-  loanActive,
-  onSale,
-  SUPPORTER_PREFIX,
-  type ItemType
-} from './listing';
+import { isItemType, isShopDecoration, onSale, SUPPORTER_PREFIX, type ItemType } from './listing';
 import { supporterPicks } from './rotation';
 import { loadShopSettings, type ShopSettings } from './settings';
 
@@ -151,7 +145,7 @@ export async function buy(
     if (!user) throw new Failure(404, 'users.user_not_found');
     if ((Number(user.privileges) & Privilege.Public) === 0)
       throw new Failure(403, 'site.forbidden');
-    if (await loanActive(tx, userId)) throw new Failure(403, 'shop.loan_active');
+    if (await activeLoan(userId, tx)) throw new Failure(403, 'shop.loan_active');
 
     const target = await resolve(tx, item, settings, now);
     if (target.type === 'decoration') {

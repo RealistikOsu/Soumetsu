@@ -1,7 +1,7 @@
 import { Privilege } from '$lib/auth/privileges';
 import { shopDecorations, supporterDecorations } from '$lib/decorations';
+import { activeLoan } from '$server/casino/loans';
 import { db } from '$server/db';
-import type { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
 import { ownedKeys } from './catalogue';
 import { inWindow, monthKey, supporterPicks } from './rotation';
@@ -34,21 +34,7 @@ export interface ShopView {
   owned: string[];
 }
 
-type Client = Prisma.TransactionClient | typeof db;
-
 export const SUPPORTER_PREFIX = 'supporter:';
-
-// casino_loans belongs to the casino, so a deployment without it simply has no loans.
-export async function loanActive(client: Client, userId: number) {
-  const rows = await client.$queryRaw<unknown[]>`
-    SELECT 1 FROM casino_loans WHERE user_id = ${userId} AND paid_off = 0 LIMIT 1`.catch(
-    (error) => {
-      if (String(error).includes("doesn't exist")) return [];
-      throw error;
-    }
-  );
-  return rows.length > 0;
-}
 
 export function isShopDecoration(key: string | null): key is string {
   return shopDecorations.some((d) => d.key === key);
@@ -85,7 +71,7 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
       where: { enabled: true },
       orderBy: [{ sort_order: 'asc' }, { id: 'asc' }]
     }),
-    loanActive(db, userId)
+    activeLoan(userId)
   ]);
   if (!user) throw new Failure(404, 'users.user_not_found');
 
@@ -146,7 +132,7 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
 
   return {
     balance: user.coins,
-    loanActive: loan,
+    loanActive: loan !== null,
     restricted: (Number(user.privileges) & Privilege.Public) === 0,
     items,
     supporterPicks: { month: monthKey(now), price: settings.supporterPrice, items: picks },
