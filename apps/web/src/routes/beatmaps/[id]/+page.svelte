@@ -13,7 +13,14 @@
   } from '$lib/api/beatmaps';
   import { mirrorBeatmap, mirrorSet, type MirrorBeatmap, type MirrorSet } from '$lib/api/mirror';
   import { query } from '$lib/api/query.svelte';
-  import { coverUrl, downloadUrl, isServerOnlySet, mirrors, replayUrl } from '$lib/assets';
+  import {
+    banchoUrl,
+    coverUrl,
+    downloadUrl,
+    isServerOnlySet,
+    mirrors,
+    replayUrl
+  } from '$lib/assets';
   import { mirrorStatusKey, statusOf, type Status } from '$lib/beatmaps';
   import Avatar from '$lib/components/Avatar.svelte';
   import Banner from '$lib/components/Banner.svelte';
@@ -369,6 +376,14 @@
                 <i class="fa-solid fa-download"></i>{mirror.name}
               </a>
             {/each}
+            <a
+              class="action bancho"
+              href={banchoUrl(loaded.setId, diff)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>{m.beatmaps_view_on_bancho()}
+            </a>
           {/if}
           <Preview setId={loaded.setId} class="action play">
             {#snippet children(playing)}

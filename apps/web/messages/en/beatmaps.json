@@ -2,6 +2,7 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "beatmaps_mapped_by": "mapped by",
   "beatmaps_download": "Download",
+  "beatmaps_view_on_bancho": "View on Bancho",
   "beatmaps_preview_play": "Play preview",
   "beatmaps_preview_pause": "Pause preview",
   "beatmaps_map_title_fallback": "Beatmap",

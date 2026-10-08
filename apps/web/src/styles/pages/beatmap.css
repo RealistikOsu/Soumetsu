@@ -378,3 +378,7 @@
   box-shadow: inset 3px 0 var(--red);
   color: var(--red);
 }
+
+.bancho {
+  background: #ff66aa;
+}

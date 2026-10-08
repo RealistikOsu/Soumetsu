@@ -23,6 +23,12 @@ export const mirrors = [
   { name: 'osu.direct', url: (setId: number) => `https://osu.direct/d/${setId}` }
 ];
 
+const banchoModes = ['osu', 'taiko', 'fruits', 'mania'];
+
+export const banchoUrl = (setId: number, diff: { id: number; mode: number } | null) =>
+  `https://osu.ppy.sh/beatmapsets/${setId}` +
+  (diff ? `#${banchoModes[diff.mode] ?? 'osu'}/${diff.id}` : '');
+
 export const flagUrl = (country: string) => `/img/flags/${country.toLowerCase()}.svg`;
 
 export const replayUrl = (scoreId: number) => `/web/replays/${scoreId}`;
