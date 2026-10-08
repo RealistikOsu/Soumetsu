@@ -50,5 +50,5 @@ const blurbs: Record<Game, () => string> = {
   blackjack: m.casino_game_blackjack_blurb
 };
 
-export const gameTitle = (key: Game) => titles[key]();
-export const gameBlurb = (key: Game) => blurbs[key]();
+export const gameTitle = (key: Game) => titles[key]?.() ?? key;
+export const gameBlurb = (key: Game) => blurbs[key]?.() ?? key;

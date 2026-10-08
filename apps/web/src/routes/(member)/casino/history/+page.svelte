@@ -8,8 +8,6 @@
   import { dateTime, fromIso, number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
 
-  const PAGE_SIZE = 50;
-
   let pageNo = $state(1);
   const history = query((signal) => casinoHistory(pageNo, signal));
 
@@ -37,11 +35,11 @@
           </li>
         {/each}
       </ul>
-      {#if data.total > PAGE_SIZE}
+      {#if data.total > data.pageSize}
         <Pager
           page={pageNo}
-          pages={Math.ceil(data.total / PAGE_SIZE)}
-          hasNext={pageNo * PAGE_SIZE < data.total}
+          pages={Math.ceil(data.total / data.pageSize)}
+          hasNext={pageNo * data.pageSize < data.total}
           onpage={(p) => (pageNo = p)}
         />
       {/if}

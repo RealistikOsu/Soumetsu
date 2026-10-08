@@ -53,7 +53,11 @@ export const casinoBalance = (signal?: AbortSignal) =>
   siteApi.get<{ balance: number }>('/casino/balance', undefined, signal);
 
 export const casinoHistory = (page: number, signal?: AbortSignal) =>
-  siteApi.get<{ total: number; rows: HistoryRow[] }>('/casino/history', { page }, signal);
+  siteApi.get<{ total: number; pageSize: number; rows: HistoryRow[] }>(
+    '/casino/history',
+    { page },
+    signal
+  );
 
 export const playCoinflip = (bet: number, choice: 'heads' | 'tails') =>
   siteApi.post<CoinflipPlay>('/casino/play/coinflip', { bet, choice });

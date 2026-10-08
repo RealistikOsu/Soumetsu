@@ -6,13 +6,16 @@ let expiries: Record<string, number> = {};
 mock.module('$server/redis', () => ({
   redis: {
     incr: async (key: string) => (counters[key] = (counters[key] ?? 0) + 1),
-    pexpire: async (key: string, ms: number) => {
-      expiries[key] = ms;
-      return 1;
-    },
-    set: async (key: string, value: string) => {
+    set: async (key: string, value: string | number, ...args: (string | number)[]) => {
+      if (key.startsWith('casino:limit:')) {
+        const px = args[args.indexOf('PX') + 1] as number;
+        if (key in counters) return null;
+        counters[key] = Number(value);
+        expiries[key] = px;
+        return 'OK';
+      }
       if (key in locks) return null;
-      locks[key] = value;
+      locks[key] = String(value);
       return 'OK';
     },
     eval: async (_script: string, _n: number, key: string, token: string) => {
@@ -40,12 +43,13 @@ describe('checkLimit', () => {
     });
   });
 
-  test('sets the window only on the first hit', async () => {
+  test('sets the window once, before counting', async () => {
     await checkLimit('coinflip', 1);
     expect(expiries['casino:limit:coinflip:1']).toBe(45_000);
     expiries = {};
     await checkLimit('coinflip', 1);
     expect(expiries).toEqual({});
+    expect(counters['casino:limit:coinflip:1']).toBe(2);
   });
 
   test('plinko allows 150', async () => {

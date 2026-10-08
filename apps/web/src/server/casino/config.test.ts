@@ -57,8 +57,13 @@ describe('donorBuff', () => {
 describe('gameConfig', () => {
   test('a missing row disables the game', async () => {
     const config = await gameConfig('coinflip');
-    expect(config.enabled).toBe(false);
-    expect(config.odds).toBeNull();
+    expect(config).toEqual({
+      game: 'coinflip',
+      minBet: 1,
+      maxBet: 5000,
+      enabled: false,
+      odds: null
+    });
   });
 
   test('reads the row and caches it', async () => {
@@ -84,5 +89,11 @@ describe('gameConfig', () => {
     expect(list).toHaveLength(12);
     for (const entry of list)
       expect(Object.keys(entry).sort()).toEqual(['enabled', 'game', 'maxBet', 'minBet']);
+  });
+
+  test('publicConfig shows a row with bad odds as off', async () => {
+    row = { min_bet: 10, max_bet: 500, enabled: true, config_json: { multiplier: 0.5 } };
+    const coinflip = (await publicConfig()).find((g) => g.game === 'coinflip');
+    expect(coinflip?.enabled).toBe(false);
   });
 });

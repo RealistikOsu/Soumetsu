@@ -3,7 +3,7 @@ import { db } from '$server/db';
 import { rapLog } from '$server/admin/log';
 import { Failure } from '$server/respond';
 import { clearConfigCache, GAMES, parseOdds } from './config';
-import type { Game } from './config';
+import type { CoinflipOdds, Game } from './config';
 
 const MAX_BET = 1_000_000;
 
@@ -31,7 +31,15 @@ export async function casinoConfigRows(): Promise<CasinoConfigRow[]> {
   });
 }
 
-export async function saveCasinoConfig(staffId: number, raw: unknown) {
+const INT_MAX = 2_147_483_647;
+
+// Worst-case payout for one bet, which has to fit the signed 32-bit coin columns.
+function maxPayout(game: Game, odds: unknown, maxBet: number) {
+  if (game === 'coinflip') return maxBet * (odds as CoinflipOdds).multiplier;
+  return 0;
+}
+
+export function parseConfigRow(raw: unknown) {
   const input = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const { game, minBet, maxBet, enabled } = input;
   if (typeof game !== 'string' || !(GAMES as readonly string[]).includes(game))
@@ -48,7 +56,13 @@ export async function saveCasinoConfig(staffId: number, raw: unknown) {
   )
     throw new Failure(400, 'site.invalid_request');
   const odds = parseOdds(game as Game, input.odds);
-  if (odds === null) throw new Failure(400, 'site.invalid_request');
+  if (odds === null || maxPayout(game as Game, odds, maxBet) > INT_MAX)
+    throw new Failure(400, 'site.invalid_request');
+  return { game: game as Game, minBet, maxBet, enabled, odds };
+}
+
+export async function saveCasinoConfig(staffId: number, raw: unknown) {
+  const { game, minBet, maxBet, enabled, odds } = parseConfigRow(raw);
 
   const data = {
     min_bet: minBet,

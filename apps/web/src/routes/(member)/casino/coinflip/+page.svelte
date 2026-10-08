@@ -44,6 +44,7 @@
       coins.set(play.balance);
     } catch (error) {
       flash.show('error', describe(error));
+      coins.refresh().catch(() => {});
     }
     pending = false;
   }

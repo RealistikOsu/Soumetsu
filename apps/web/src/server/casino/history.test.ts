@@ -37,8 +37,9 @@ const { historyFor } = await import('./history');
 
 describe('historyFor', () => {
   test('paginates from 1, newest first', async () => {
-    const { total } = await historyFor(1, 3);
+    const { total, pageSize } = await historyFor(1, 3);
     expect(total).toBe(120);
+    expect(pageSize).toBe(50);
     expect(args?.skip).toBe(100);
     expect(args?.take).toBe(50);
     expect(args?.orderBy).toEqual([{ played_at: 'desc' }, { id: 'desc' }]);

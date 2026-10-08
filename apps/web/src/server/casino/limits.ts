@@ -19,8 +19,9 @@ export async function checkLimit(key: string, userId: number) {
   if (!limit) throw new Error(`No casino limit for ${key}`);
 
   const redisKey = `casino:limit:${key}:${userId}`;
+  // Creating the key with its expiry first keeps INCR from leaving an immortal counter.
+  await redis.set(redisKey, 0, 'PX', limit.windowMs, 'NX');
   const hits = await redis.incr(redisKey);
-  if (hits === 1) await redis.pexpire(redisKey, limit.windowMs);
   if (hits > limit.count) throw new Failure(429, 'casino.too_fast');
 }
 

@@ -51,7 +51,7 @@ export const site: Preview = {
 const pages: Record<string, PageInfo> = {
   '/casino': {
     title: 'Casino',
-    description: 'Spend your coins on games'
+    description: 'Spend your coins on games.'
   },
   '/shop': {
     title: 'Shop',

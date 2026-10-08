@@ -35,7 +35,7 @@ export async function gameConfig<O>(game: Game): Promise<GameConfig<O>> {
         enabled: row.enabled,
         odds: parseOdds(game, row.config_json)
       }
-    : { game, minBet: 0, maxBet: 0, enabled: false, odds: null };
+    : { game, minBet: 1, maxBet: 5000, enabled: false, odds: null };
   cache[game] = { value, at: Date.now() };
   return value as GameConfig<O>;
 }
@@ -44,8 +44,8 @@ export async function gameConfig<O>(game: Game): Promise<GameConfig<O>> {
 export async function publicConfig() {
   return Promise.all(
     GAMES.map(async (game) => {
-      const { minBet, maxBet, enabled } = await gameConfig(game);
-      return { game, minBet, maxBet, enabled };
+      const { minBet, maxBet, enabled, odds } = await gameConfig(game);
+      return { game, minBet, maxBet, enabled: enabled && odds !== null };
     })
   );
 }

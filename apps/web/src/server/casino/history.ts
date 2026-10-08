@@ -59,5 +59,5 @@ export async function historyFor(userId: number, page: number) {
     playedAt: (row.played_at ?? new Date(0)).toISOString(),
     result: row.result_data
   }));
-  return { total, rows };
+  return { total, pageSize: PAGE_SIZE, rows };
 }
