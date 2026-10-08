@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 // bun test doesn't read svelte.config.js, so mirror the SvelteKit aliases the server code imports.
 const serverDir = resolve(import.meta.dir, '../src/server');
+const libDir = resolve(import.meta.dir, '../src/lib');
 
 plugin({
   name: 'sveltekit-aliases',
@@ -17,6 +18,9 @@ plugin({
     }));
     build.onResolve({ filter: /^\$server\// }, (args) => ({
       path: resolve(serverDir, args.path.slice('$server/'.length)) + '.ts'
+    }));
+    build.onResolve({ filter: /^\$lib\// }, (args) => ({
+      path: resolve(libDir, args.path.slice('$lib/'.length)) + '.ts'
     }));
   }
 });
