@@ -1039,6 +1039,215 @@ button.cs-playing:enabled {
   font-weight: 600;
 }
 
+/* mines and chicken road */
+
+.cs-cash {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.cs-cash:enabled:hover {
+  border-color: #16ab39;
+  background: #16ab39;
+}
+
+.cs-cash span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cs-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 16px;
+}
+
+.cs-stats b {
+  font-size: 1.6rem;
+}
+
+.cs-stats span {
+  color: var(--muted);
+}
+
+.cs-field input[type='range'] {
+  width: 100%;
+  accent-color: var(--yellow);
+}
+
+p.cs-field {
+  margin: 0;
+}
+
+.cs-mines {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: var(--board);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.cs-tile {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(1.3rem, 6vw, 2rem);
+  line-height: 1;
+}
+
+.cs .cs-tile:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.cs-tile.open {
+  cursor: pointer;
+}
+
+.cs-tile.open:enabled:hover {
+  background: var(--active);
+}
+
+.cs-tile.safe {
+  background: rgb(33 186 69 / 0.25);
+}
+
+.cs-tile.mine {
+  background: rgb(219 40 40 / 0.2);
+}
+
+.cs-tile.hit {
+  border-color: var(--red);
+  background: rgb(219 40 40 / 0.45);
+}
+
+.motion .cs-tile:is(.safe, .mine, .hit) {
+  animation: cs-mark 0.3s ease-out;
+}
+
+.cs-road {
+  display: flex;
+  width: 100%;
+  height: 260px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #2a2f3a;
+  overflow: hidden;
+}
+
+.cs-kerb,
+.cs-lane {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: space-between;
+  padding: 12px 0;
+}
+
+.cs-kerb {
+  flex: none;
+  width: 56px;
+  align-content: end;
+  background: var(--panel-2);
+}
+
+.cs-lane {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-left: 2px dashed rgb(255 255 255 / 0.15);
+  border-radius: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  overflow: hidden;
+}
+
+.cs .cs-lane:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.cs-lane.passed {
+  background: rgb(33 186 69 / 0.12);
+}
+
+.cs-lane.next {
+  cursor: pointer;
+}
+
+.cs-lane.next:enabled:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.cs-lane.crashed {
+  background: rgb(219 40 40 / 0.25);
+}
+
+.cs-bubble {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cs-lane.passed .cs-bubble {
+  background: var(--green);
+  color: #fff;
+}
+
+.cs-lane.next .cs-bubble {
+  box-shadow: 0 0 0 2px var(--yellow);
+}
+
+.cs-chicken {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.cs-truck {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  font-size: 2rem;
+  line-height: 1;
+  transform: translate(-50%, -100%);
+}
+
+.motion .cs-truck {
+  animation: cs-drive 0.6s linear forwards;
+}
+
+@keyframes cs-drive {
+  to {
+    transform: translate(-50%, 260px);
+  }
+}
+
+.motion .cs-chicken {
+  animation: cs-mark 0.25s ease-out;
+}
+
 @media (max-width: 800px) {
   .cs-game {
     grid-template: 'stage' 'controls' 'table' / 1fr;
@@ -1056,6 +1265,48 @@ button.cs-playing:enabled {
 
   .cs-hold-tag.held {
     background: currentColor;
+  }
+
+  /* The road runs up the screen, so the lanes stack from the kerb at the bottom. */
+  .cs-road {
+    flex-direction: column-reverse;
+    height: auto;
+  }
+
+  .cs-kerb,
+  .cs-lane {
+    grid-auto-flow: column;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .cs-kerb {
+    width: auto;
+  }
+
+  .cs-lane {
+    border-left: 0;
+    border-bottom: 2px dashed rgb(255 255 255 / 0.15);
+  }
+
+  .cs-chicken {
+    font-size: 1.5rem;
+  }
+
+  .cs-truck {
+    top: 50%;
+    left: 0;
+    font-size: 1.5rem;
+    transform: translate(-100%, -50%);
+  }
+
+  @keyframes cs-drive {
+    to {
+      transform: translate(100vw, -50%);
+    }
   }
 
   .cs-hold-tag span {
