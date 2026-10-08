@@ -121,8 +121,17 @@ describe('settleRepayment', () => {
     expect((error as Failure).code).toBe('casino.insufficient_coins');
   });
 
-  test('missed days that clear the loan leave nothing to repay', async () => {
-    const { tx } = fakeTx(1000, { remaining: 100, last_payment_at: last });
+  test('missed days that clear the loan are kept and nothing more is taken', async () => {
+    const { tx, state } = fakeTx(1000, { remaining: 100, last_payment_at: last });
+    const result = await settleRepayment(tx, 7, 50, last + DAY);
+    expect(result).toEqual({ loan: null, balance: 900 });
+    expect(state.coins).toBe(900);
+    expect(state.loan.paid_off).toBe(true);
+  });
+
+  test('no active loan at all', async () => {
+    const { tx, state } = fakeTx(1000, { remaining: 0, last_payment_at: last });
+    state.loan.paid_off = true;
     const error = await settleRepayment(tx, 7, 50, last + DAY).catch((e) => e);
     expect((error as Failure).code).toBe('casino.no_loan');
   });

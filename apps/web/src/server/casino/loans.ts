@@ -189,7 +189,7 @@ export async function settleRepayment(
   if (!loan) throw new Failure(404, 'casino.no_loan');
 
   const due = await applyDue(tx, userId, user, loan, at);
-  if (due.remaining === 0) throw new Failure(404, 'casino.no_loan');
+  if (due.remaining === 0) return { loan: null, balance: due.coins };
 
   const pay = Math.min(amount, due.remaining);
   if (due.coins < pay) throw new Failure(402, 'casino.insufficient_coins');
