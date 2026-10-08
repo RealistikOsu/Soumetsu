@@ -13,7 +13,7 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { multiplier } from '$lib/casino';
+  import { multiplier, payoutPreview } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
@@ -34,7 +34,16 @@
 
   const active = (limits: Limits) => (board === undefined ? (limits.pending ?? null) : board);
 
-  const payout = (view: MinesView) => Math.floor(view.bet * view.multiplier);
+  const faces: Record<string, () => string> = {
+    '💎': m.casino_tile_gem,
+    '💣': m.casino_tile_mine,
+    '💥': m.casino_tile_hit
+  };
+
+  function label(i: number, face: string, current: MinesView | null) {
+    if (face) return `${faces[face]()} ${i + 1}`;
+    return current ? `${m.casino_reveal()} ${i + 1}` : String(i + 1);
+  }
 
   function tile(i: number, current: MinesView | null) {
     if (current) return current.revealed.includes(i) ? '💎' : '';
@@ -145,7 +154,11 @@
           <p class="cs-field">{m.casino_mines_count({ count: current.count })}</p>
           <button class="btn cs-go cs-cash" type="submit" disabled={pending}>
             {m.casino_cash_out()}
-            <span><i class="fa-solid fa-coins"></i>{number(payout(current))}</span>
+            <span
+              ><i class="fa-solid fa-coins"></i>{number(
+                payoutPreview(current.bet, current.multiplier)
+              )}</span
+            >
           </button>
         </form>
       {:else}
@@ -175,7 +188,9 @@
 
       <div class="cs-stage">
         <div class="cs-stats" aria-live="polite">
-          <b>{multiplier(current?.multiplier ?? last?.multiplier ?? 1)}</b>
+          {#if current || last}
+            <b>{multiplier(current?.multiplier ?? last?.multiplier ?? 1)}</b>
+          {/if}
           {#if current?.next}
             <span>{m.casino_next_tile()} {multiplier(current.next)}</span>
           {/if}
@@ -191,10 +206,10 @@
               class:hit={face === '💥'}
               class:open={!!current && !face}
               disabled={!current || !!face || pending}
-              aria-label={current && !face ? `${m.casino_reveal()} ${i + 1}` : undefined}
+              aria-label={label(i, face, current)}
               onclick={() => reveal(i)}
             >
-              {face}
+              <span aria-hidden="true">{face}</span>
             </button>
           {/each}
         </div>

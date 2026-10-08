@@ -40,16 +40,16 @@ export const GET = handle(async ({ request, params }) => {
     };
   }
 
-  const stateful = {
+  const stateful: Record<string, () => Promise<unknown>> = {
     poker: () => withPending<PokerOdds>('poker', pokerInfo, pending),
     mines: () => withPending<MinesOdds>('mines', minesInfo, pendingMines),
     chicken_road: () => withPending<ChickenOdds>('chicken_road', chickenInfo, pendingChicken),
     blackjack: () => withPending<BlackjackOdds>('blackjack', blackjackInfo, pendingHand),
     aviator: () =>
       withPending<AviatorOdds>('aviator', aviatorInfo, (id) => pendingFlight(id, Date.now()))
-  } as Record<string, (() => Promise<unknown>) | undefined>;
+  };
 
-  if (Object.hasOwn(stateful, game)) return ok(await stateful[game]!());
+  if (Object.hasOwn(stateful, game)) return ok(await stateful[game]());
 
   const entry = instantEntry(game);
   const cfg = await gameConfig(game as Game);

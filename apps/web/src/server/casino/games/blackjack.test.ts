@@ -99,10 +99,11 @@ describe('stand', () => {
     expect(done.dealer).toEqual(cards('AD 6C 2S'));
   });
 
-  test('without dealerHitsSoft17 a soft 17 stands but a hard one still hits', () => {
-    const soft = { ...odds, dealerHitsSoft17: false };
-    expect(stand(hand('TS 9H', 'AD 6C', '2S'), soft).hand.dealer).toEqual(cards('AD 6C'));
-    expect(stand(hand('TS 9H', 'TD 7C', '2S'), soft).hand.dealer).toEqual(cards('TD 7C 2S'));
+  test('without dealerHitsSoft17 the dealer stands on every 17', () => {
+    const standing = { ...odds, dealerHitsSoft17: false };
+    expect(stand(hand('TS 9H', 'AD 6C', '2S'), standing).hand.dealer).toEqual(cards('AD 6C'));
+    expect(stand(hand('TS 9H', 'TD 7C', '2S'), standing).hand.dealer).toEqual(cards('TD 7C'));
+    expect(stand(hand('TS 9H', 'TD 6C', '2S'), standing).hand.dealer).toEqual(cards('TD 6C 2S'));
   });
 
   test('the dealer stands on 18', () => {

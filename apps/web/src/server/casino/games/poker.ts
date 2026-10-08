@@ -1,5 +1,8 @@
 import { Failure } from '$server/respond';
+import { makeDeck, type Card } from './cards';
 import { MAX_MULTIPLIER, isAmount, isRecord, shuffle, toHundredths } from './types';
+
+export type { Card, Suit } from './cards';
 
 const HAND_RANKS = [
   'royal_flush',
@@ -20,13 +23,6 @@ export interface PokerOdds {
   payouts: Record<HandRank, number>;
 }
 
-export type Suit = 'S' | 'H' | 'D' | 'C';
-
-// Rank 1 is the ace, 11 to 13 are J, Q and K.
-export type Card = { suit: Suit; rank: number };
-
-const SUITS: readonly Suit[] = ['S', 'H', 'D', 'C'];
-
 export function parsePokerOdds(raw: unknown): PokerOdds | null {
   if (!isRecord(raw) || !isRecord(raw.payouts)) return null;
   const given = raw.payouts;
@@ -44,12 +40,6 @@ export function parsePokerOdds(raw: unknown): PokerOdds | null {
 export const pokerMax = (o: PokerOdds) => Math.max(...Object.values(o.payouts));
 
 export const pokerInfo = (o: PokerOdds) => ({ payouts: o.payouts });
-
-function makeDeck() {
-  const deck: Card[] = [];
-  for (const suit of SUITS) for (let rank = 1; rank <= 13; rank++) deck.push({ suit, rank });
-  return deck;
-}
 
 export function dealHand(rng: () => number) {
   const deck = shuffle(makeDeck(), rng);

@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { mockCasinoStore } from '../../../test/casino';
 import { sequence } from '../../../test/rng';
 
 let config: object | null = null;
@@ -7,59 +8,13 @@ let updates: unknown[][] = [];
 let history: Record<string, unknown>[] = [];
 let keys: Record<string, string> = {};
 
-const tx = {
-  $queryRaw: async () => (user ? [user] : []),
-  $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
-    updates.push(values);
-    return 1;
-  },
-  casino_game_history: {
-    create: async ({ data }: { data: Record<string, unknown> }) => {
-      history.push(data);
-      return data;
-    }
-  }
-};
-
-mock.module('$server/db', () => ({
-  db: {
-    casino_game_config: { findUnique: async () => config },
-    $transaction: async <T>(fn: (client: typeof tx) => Promise<T>) => fn(tx)
-  }
-}));
-
-mock.module('$server/redis', () => ({
-  redis: {
-    incr: async () => 1,
-    get: async (key: string) => keys[key] ?? null,
-    getdel: async (key: string) => {
-      const value = keys[key] ?? null;
-      delete keys[key];
-      return value;
-    },
-    del: async (key: string) => {
-      const had = key in keys;
-      delete keys[key];
-      return had ? 1 : 0;
-    },
-    set: async (key: string, value: string, ...args: (string | number)[]) => {
-      if (args.includes('NX') && key in keys) return null;
-      if (args.includes('XX') && !(key in keys)) return null;
-      keys[key] = value;
-      return 'OK';
-    },
-    eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
-      if (to === undefined) {
-        if (keys[key] !== from) return 0;
-        delete keys[key];
-        return 1;
-      }
-      if (keys[key] !== from) return 0;
-      keys[key] = to;
-      return 1;
-    }
-  }
-}));
+mockCasinoStore({
+  config: () => config,
+  user: () => user,
+  updates: () => updates,
+  history: () => history,
+  keys: () => keys
+});
 
 const { clearConfigCache } = await import('./config');
 const { advance, cashout, pending, start } = await import('./chickenRoad');

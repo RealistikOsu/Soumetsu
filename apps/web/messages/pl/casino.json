@@ -14,7 +14,6 @@
     }
   ],
   "casino_games": "Gry",
-  "casino_coming_soon": "Wkrótce",
   "casino_play": "Graj",
   "casino_history_title": "Historia",
   "casino_shop_link": "Sklep",
@@ -167,10 +166,13 @@
     }
   ],
   "casino_reveal": "Odkryj",
+  "casino_tile_gem": "Klejnot",
+  "casino_tile_mine": "Mina",
+  "casino_tile_hit": "Wybuch",
   "casino_cash_out": "Wypłać",
   "casino_next_tile": "Następne pole",
   "casino_step": "Krok",
-  "casino_crashed": "Rozbił się",
+  "casino_crashed": "Katastrofa",
   "casino_cashed_out": "Wypłacono",
   "casino_hit": "Dobierz",
   "casino_stand": "Pas",

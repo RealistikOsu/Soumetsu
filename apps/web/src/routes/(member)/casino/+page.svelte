@@ -64,7 +64,7 @@
       <ul class="cs-grid">
         {#each cards as card (card.key)}
           <li>
-            {#if card.live && card.enabled}
+            {#if card.enabled}
               <a class="panel cs-card" href={card.route}>
                 <i class="fa-solid {icons[card.key]}"></i>
                 <b>{gameTitle(card.key)}</b>
@@ -76,9 +76,7 @@
                 <i class="fa-solid {icons[card.key]}"></i>
                 <b>{gameTitle(card.key)}</b>
                 <small class="muted">{gameBlurb(card.key)}</small>
-                <span class="cs-soon">
-                  {card.live ? m.casino_err_disabled() : m.casino_coming_soon()}
-                </span>
+                <span class="cs-soon">{m.casino_err_disabled()}</span>
               </div>
             {/if}
           </li>

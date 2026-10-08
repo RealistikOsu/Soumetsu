@@ -26,7 +26,7 @@ export function apiUrl(path: string, params?: Params) {
   return url;
 }
 
-function failureName(status: number, json: unknown) {
+export function failureName(status: number, json: unknown) {
   if (json && typeof json === 'object') {
     const body = json as { data?: unknown; detail?: unknown };
     if (typeof body.data === 'string') return body.data;

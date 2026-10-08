@@ -1,5 +1,6 @@
 import { getToken } from '$lib/auth/token';
-import { siteApi } from './client';
+import { failureName, siteApi } from './client';
+import { ApiError } from './errors';
 
 export type Game =
   | 'coinflip'
@@ -302,22 +303,34 @@ export type AviatorEvent =
   | { type: 'crash'; crashPoint: number; balance: number; startedAt: number }
   | { type: 'done' };
 
-// Ends when the stream does; the page decides whether to open another.
+// Resolves when the stream ends; the page decides whether to open another. Throws ApiError
+// on a refused stream or a network failure, and AbortError on abort, which callers ignore.
 export async function aviatorStream(onEvent: (event: AviatorEvent) => void, signal: AbortSignal) {
-  const response = await fetch('/site-api/casino/play/aviator/stream', {
-    headers: { Authorization: `Bearer ${getToken()}` },
-    signal
-  });
-  if (!response.ok || !response.body) throw new Error(`stream ${response.status}`);
+  let response: Response;
+  try {
+    response = await fetch('/site-api/casino/play/aviator/stream', {
+      headers: { Authorization: `Bearer ${getToken()}` },
+      signal
+    });
+  } catch (error) {
+    if (signal.aborted) throw error;
+    throw new ApiError(0, 'network_error');
+  }
+  if (!response.ok || !response.body) {
+    const json = await response.json().catch(() => null);
+    throw new ApiError(response.status, failureName(response.status, json));
+  }
   const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
   let buffer = '';
   for (;;) {
     const { done, value } = await reader.read();
     if (done) return;
-    const events = (buffer + value).split('\n\n');
-    buffer = events.pop()!;
-    for (const event of events) {
-      if (event.startsWith('data: ')) onEvent(JSON.parse(event.slice(6)) as AviatorEvent);
+    const blocks = (buffer + value).split('\n\n');
+    buffer = blocks.pop()!;
+    for (const block of blocks) {
+      for (const line of block.split('\n')) {
+        if (line.startsWith('data: ')) onEvent(JSON.parse(line.slice(6)) as AviatorEvent);
+      }
     }
   }
 }

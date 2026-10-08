@@ -12,7 +12,6 @@
     }
   ],
   "casino_games": "Games",
-  "casino_coming_soon": "Coming soon",
   "casino_play": "Play",
   "casino_history_title": "History",
   "casino_shop_link": "Shop",
@@ -155,6 +154,9 @@
     }
   ],
   "casino_reveal": "Reveal",
+  "casino_tile_gem": "Gem",
+  "casino_tile_mine": "Mine",
+  "casino_tile_hit": "Hit mine",
   "casino_cash_out": "Cash out",
   "casino_next_tile": "Next tile",
   "casino_step": "Step",

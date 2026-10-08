@@ -12,7 +12,6 @@
     }
   ],
   "casino_games": "Játékok",
-  "casino_coming_soon": "Hamarosan",
   "casino_play": "Játssz",
   "casino_history_title": "Előzmények",
   "casino_shop_link": "Bolt",
@@ -154,12 +153,15 @@
       }
     }
   ],
-  "casino_reveal": "Felfed",
-  "casino_cash_out": "Kivesz",
+  "casino_reveal": "Felfedés",
+  "casino_tile_gem": "Drágakő",
+  "casino_tile_mine": "Akna",
+  "casino_tile_hit": "Robbanás",
+  "casino_cash_out": "Kifizetés",
   "casino_next_tile": "Következő mező",
   "casino_step": "Lépés",
   "casino_crashed": "Lezuhant",
-  "casino_cashed_out": "Kivéve",
+  "casino_cashed_out": "Kifizetve",
   "casino_hit": "Húzok",
   "casino_stand": "Megállok",
   "casino_double": "Duplázás",

@@ -14,7 +14,7 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { multiplier, wait } from '$lib/casino';
+  import { multiplier, payoutPreview, wait } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
@@ -40,8 +40,6 @@
   onDestroy(() => leaving.abort());
 
   const active = (limits: Limits) => (run === undefined ? (limits.pending ?? null) : run);
-
-  const payout = (view: ChickenView) => Math.floor(view.bet * view.multiplier);
 
   // Lanes count from 1; 0 is the kerb the chicken starts on.
   const position = (current: ChickenView | null) =>
@@ -102,6 +100,10 @@
           truck = crashed;
           await wait(ms(TRUCK), leaving.signal);
           truck = null;
+          if (leaving.signal.aborted) {
+            coins.set(next.balance);
+            return;
+          }
         }
         settle(next);
       } else {
@@ -161,7 +163,11 @@
           </button>
           <button class="btn cs-go cs-cash" type="button" disabled={pending} onclick={cashOut}>
             {m.casino_cash_out()}
-            <span><i class="fa-solid fa-coins"></i>{number(payout(current))}</span>
+            <span
+              ><i class="fa-solid fa-coins"></i>{number(
+                payoutPreview(current.bet, current.multiplier)
+              )}</span
+            >
           </button>
         </form>
       {:else}
@@ -187,9 +193,11 @@
 
       <div class="cs-stage">
         <div class="cs-stats" aria-live="polite">
-          <b>{multiplier(current?.multiplier ?? last?.multiplier ?? 1)}</b>
+          {#if current || last}
+            <b>{multiplier(current?.multiplier ?? last?.multiplier ?? 1)}</b>
+          {/if}
         </div>
-        <div class="cs-road">
+        <div class="cs-road" style="--truck: {ms(TRUCK)}ms">
           <div class="cs-kerb">
             {#if at === 0}<span class="cs-chicken">🐔</span>{/if}
           </div>
@@ -198,7 +206,7 @@
             <button
               type="button"
               class="cs-lane"
-              class:passed={lane < at || (lane === at && !crashed)}
+              class:passed={lane < at || (lane === at && !crashed && truck === null)}
               class:next={!!current && lane === at + 1}
               class:crashed={lane === crashed}
               disabled={!current || lane !== at + 1 || pending}

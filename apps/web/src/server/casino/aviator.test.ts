@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
+import { beforeEach, describe, expect, spyOn, test } from 'bun:test';
+import { mockCasinoStore } from '../../../test/casino';
 import { sequence } from '../../../test/rng';
 
 let config: object | null = null;
@@ -11,68 +12,22 @@ let afterGet: (() => void) | null = null;
 let beforeGetdel: () => void = () => {};
 let hits = 0;
 
-const tx = {
-  $queryRaw: async () => (user ? [user] : []),
-  $executeRaw: async (_sql: TemplateStringsArray, ...values: unknown[]) => {
-    updates.push(values);
-    return 1;
+mockCasinoStore({
+  config: () => config,
+  user: () => user,
+  updates: () => updates,
+  history: () => history,
+  keys: () => keys,
+  incr: () => ++hits,
+  onGet: (key) => {
+    if (key === KEY && afterGet) {
+      const hook = afterGet;
+      afterGet = null;
+      hook();
+    }
   },
-  casino_game_history: {
-    create: async ({ data }: { data: Record<string, unknown> }) => {
-      history.push(data);
-      return data;
-    }
-  }
-};
-
-mock.module('$server/db', () => ({
-  db: {
-    casino_game_config: { findUnique: async () => config },
-    $transaction: async <T>(fn: (client: typeof tx) => Promise<T>) => fn(tx)
-  }
-}));
-
-mock.module('$server/redis', () => ({
-  redis: {
-    incr: async () => ++hits,
-    get: async (key: string) => {
-      const value = keys[key] ?? null;
-      if (key === KEY && afterGet) {
-        const hook = afterGet;
-        afterGet = null;
-        hook();
-      }
-      return value;
-    },
-    getdel: async (key: string) => {
-      beforeGetdel();
-      const value = keys[key] ?? null;
-      delete keys[key];
-      return value;
-    },
-    del: async (key: string) => {
-      const had = key in keys;
-      delete keys[key];
-      return had ? 1 : 0;
-    },
-    set: async (key: string, value: string, ...args: (string | number)[]) => {
-      if (args.includes('NX') && key in keys) return null;
-      if (args.includes('XX') && !(key in keys)) return null;
-      keys[key] = value;
-      return 'OK';
-    },
-    eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
-      if (to === undefined) {
-        if (keys[key] !== from) return 0;
-        delete keys[key];
-        return 1;
-      }
-      if (keys[key] !== from) return 0;
-      keys[key] = to;
-      return 1;
-    }
-  }
-}));
+  onGetdel: () => beforeGetdel()
+});
 
 const { clearConfigCache } = await import('./config');
 const { Failure } = await import('$server/respond');
@@ -411,5 +366,14 @@ describe('stream', () => {
     const seen = calls;
     await Bun.sleep(20);
     expect(calls).toBe(seen);
+  });
+
+  test('an abort closes the stream, so a waiting read finishes', async () => {
+    const controller = new AbortController();
+    const body = stream(1, controller.signal, forever, 1_000);
+    const text = read(body);
+    await Bun.sleep(5);
+    controller.abort();
+    expect(await text).toBe(`: connected\n\ndata: {"type":"tick","m":1,"startedAt":${T0}}\n\n`);
   });
 });

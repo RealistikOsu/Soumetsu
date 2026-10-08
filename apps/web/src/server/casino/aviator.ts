@@ -130,7 +130,7 @@ export async function watch(userId: number, now = Date.now()): Promise<AviatorEv
     return { type: 'crash', crashPoint: result.crashPoint, balance, startedAt };
   } catch (e) {
     if (failed(e, 'casino.no_game', 'casino.not_crashed')) return { type: 'done' };
-    if (e instanceof Failure && (e.status === 429 || e.code === 'casino.busy')) return null;
+    if (failed(e, 'casino.busy')) return null;
     throw e;
   }
 }
@@ -229,7 +229,8 @@ export function stream(
         if (left > 0) streams.set(userId, left);
         else streams.delete(userId);
       };
-      signal.addEventListener('abort', stop);
+      // Closing too, so a read waiting on the stream finishes.
+      signal.addEventListener('abort', end);
       write(': connected\n\n');
       void tick();
     },

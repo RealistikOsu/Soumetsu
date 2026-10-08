@@ -15,13 +15,13 @@
   } from '$lib/api/casino';
   import { isApiError } from '$lib/api/errors';
   import { describe } from '$lib/api/messages';
-  import { wait } from '$lib/casino';
+  import { payoutPreview, wait } from '$lib/casino';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
   import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { length, number } from '$lib/format';
+  import { compact, length, number } from '$lib/format';
   import { reducedMotion } from '$lib/motion';
   import { m } from '$lib/paraglide/messages';
 
@@ -32,6 +32,7 @@
   // the flight might crash before it gets there.
   const LEAD = 0.05;
   const RETRY = 1000;
+  const TIME_STEPS = [1, 2, 5, 10, 15, 30, 60, 120];
   const HEIGHT = 280;
   const PAD = { top: 72, right: 24, bottom: 28, left: 52 };
 
@@ -49,6 +50,7 @@
   let width = $state(0);
   let cashing = false;
   let stream: AbortController | null = null;
+  const leaving = new AbortController();
 
   const hundredths = (value: number) => Math.floor(value * 100 + 1e-9) / 100;
   const raw = (curve: AviatorCurve, seconds: number) =>
@@ -88,7 +90,10 @@
     const angle = elapsed ? (Math.atan2(tipY - prevY, tipX - prevX) * 180) / Math.PI : 0;
 
     const mStep = nice((mMax - 1) / 4);
-    const tStep = nice(tMax / 5);
+    const tSpan = tMax / 5;
+    const tStep = TIME_STEPS.find((step) => step >= tSpan) ?? Math.ceil(tSpan / 120) * 120;
+    // Whole steps don't need decimals, and ×1,000.00 wouldn't fit beside the chart.
+    const mLabel = (v: number) => (mStep >= 1 ? `×${compact(v)}` : times(v));
     return {
       w,
       h,
@@ -98,7 +103,7 @@
       rows: Array.from(
         { length: Math.floor((mMax - 1) / mStep) },
         (_, i) => 1 + (i + 1) * mStep
-      ).map((v) => ({ y: y(v), label: times(v) })),
+      ).map((v) => ({ y: y(v), label: mLabel(v) })),
       cols: Array.from({ length: Math.floor(tMax / tStep) + 1 }, (_, i) => i * tStep).map((t) => ({
         x: x(t),
         label: length(t)
@@ -113,10 +118,14 @@
     stream?.abort();
     stream = null;
   }
-  onDestroy(stop);
+  onDestroy(() => {
+    leaving.abort();
+    stop();
+  });
 
   function follow(view: AviatorView) {
     stop();
+    if (leaving.signal.aborted) return;
     const control = new AbortController();
     stream = control;
     (async () => {
@@ -133,6 +142,7 @@
   }
 
   function adopt(view: AviatorView, clock: number | null) {
+    if (leaving.signal.aborted) return;
     flight = view;
     tick = 1;
     skew = clock;
@@ -141,17 +151,29 @@
     follow(view);
   }
 
+  // The stream follows whatever flight the server has, so another flight's events
+  // mean ours is over: settled somewhere else.
+  function lost() {
+    stop();
+    flight = null;
+    reload();
+    coins.refresh().catch(() => {});
+  }
+
   function heard(event: AviatorEvent, startedAt: number) {
     if (flight?.startedAt !== startedAt) return;
+    if (event.type !== 'done' && event.startedAt !== startedAt) {
+      if (!cashing) lost();
+      else stop();
+      return;
+    }
     if (event.type === 'tick') {
-      if (event.startedAt !== startedAt) return;
       tick = Math.max(tick, event.m);
       if (event.m > 1) {
         const seen = Date.now() - startedAt - secondsTo(flight.curve, event.m) * 1000;
         skew = skew === null ? seen : Math.min(skew, seen);
       }
     } else if (event.type === 'crash') {
-      if (event.startedAt !== startedAt) return;
       stop();
       last = {
         bet: flight.bet,
@@ -162,12 +184,9 @@
       flight = null;
       coins.set(event.balance);
     } else {
-      stop();
       // A cash out in flight settles it; otherwise another tab or request did.
-      if (cashing) return;
-      flight = null;
-      reload();
-      coins.refresh().catch(() => {});
+      if (cashing) stop();
+      else lost();
     }
   }
 
@@ -231,7 +250,17 @@
       const play = await aviatorCashout();
       if (flight?.startedAt === current.startedAt) settle(play);
     } catch (error) {
-      if (flight?.startedAt === current.startedAt) await failed(error);
+      const gone = isApiError(error) && error.code === 'casino.no_game';
+      if (flight?.startedAt !== current.startedAt) {
+        // Already settled by a crash event.
+      } else if (!stream) {
+        // The stream ended while we waited, so nothing else will settle the flight.
+        if (!gone) flash.show('error', describe(error));
+        lost();
+      } else if (!gone) {
+        await failed(error);
+      }
+      // On no_game the stream's crash or done settles the page.
     }
     cashing = false;
     pending = false;
@@ -288,7 +317,7 @@
           />
           <button class="btn cs-go cs-cash" type="submit" disabled={pending}>
             {m.casino_cash_out()}
-            <span><i class="fa-solid fa-coins"></i>{number(Math.floor(current.bet * live))}</span>
+            <span><i class="fa-solid fa-coins"></i>{number(payoutPreview(current.bet, live))}</span>
           </button>
         </form>
       {:else}

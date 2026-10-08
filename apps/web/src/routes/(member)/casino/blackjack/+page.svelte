@@ -36,6 +36,7 @@
   const SUITS = { S: '♠', H: '♥', D: '♦', C: '♣' };
   const FACES: Record<number, string> = { 1: 'A', 11: 'J', 12: 'Q', 13: 'K' };
   const face = (card: Card) => FACES[card.rank] ?? String(card.rank);
+  const value = (card: Card) => (card.rank === 1 ? 11 : Math.min(card.rank, 10));
 
   const outcomes: Record<BlackjackOutcome, () => string> = {
     blackjack: m.casino_bj_blackjack,
@@ -240,7 +241,10 @@
             <h2>
               {m.casino_dealer()}
               {#if current || last}
-                <b class="cs-bj-score">{current?.dealerScore ?? last?.result.dealerScore}</b>
+                <b class="cs-bj-score">
+                  {current?.dealerScore ??
+                    (landing && last ? value(last.result.dealer[0]) : last?.result.dealerScore)}
+                </b>
               {/if}
             </h2>
             {@render hand(current?.dealer ?? last?.result.dealer ?? [], 'dealer', !!current)}

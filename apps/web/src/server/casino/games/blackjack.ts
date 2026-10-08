@@ -1,7 +1,8 @@
 import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor, shuffle, toHundredths } from './types';
-import type { Card, Suit } from './poker';
+import { makeDeck, type Card } from './cards';
 
 export type { Card };
+export { makeDeck };
 
 export interface BlackjackOdds {
   blackjack: number;
@@ -16,8 +17,6 @@ export interface Hand {
   dealer: Card[];
   deck: Card[];
 }
-
-const SUITS: readonly Suit[] = ['S', 'H', 'D', 'C'];
 
 function parseMultiplier(v: unknown): number | null {
   if (!isAmount(v)) return null;
@@ -39,13 +38,6 @@ export function parseBlackjackOdds(raw: unknown): BlackjackOdds | null {
 export const blackjackMax = (o: BlackjackOdds) => Math.max(o.blackjack, o.win * 2);
 
 export const blackjackInfo = (o: BlackjackOdds) => ({ blackjack: o.blackjack, win: o.win });
-
-// Suit-major like the casino's deck, so a seeded shuffle deals the same cards.
-export function makeDeck() {
-  const deck: Card[] = [];
-  for (const suit of SUITS) for (let rank = 1; rank <= 13; rank++) deck.push({ suit, rank });
-  return deck;
-}
 
 const value = ({ rank }: Card) => (rank === 1 ? 11 : Math.min(rank, 10));
 
@@ -71,11 +63,10 @@ export function hit(hand: Hand): Hand {
   return { ...hand, player: [...hand.player, card], deck };
 }
 
-// The casino hit every 17. With dealerHitsSoft17 off only the soft 17 stands; a hard 17 still hits.
+// The casino hit every 17, soft or hard. With dealerHitsSoft17 off the dealer stands on any 17.
 function dealerHits(cards: Card[], hitsSoft17: boolean) {
-  const { total, soft } = tally(cards);
-  if (total < 17) return true;
-  return total === 17 && (hitsSoft17 || !soft);
+  const { total } = tally(cards);
+  return total < 17 || (total === 17 && hitsSoft17);
 }
 
 export function stand(hand: Hand, odds: BlackjackOdds): { hand: Hand; outcome: Outcome } {

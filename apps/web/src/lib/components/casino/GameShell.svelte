@@ -37,8 +37,11 @@
     if (data) coins.set(data.balance);
   });
 
+  let fired = false;
   $effect(() => {
-    if (limits) untrack(() => onready?.(limits));
+    if (!limits || fired) return;
+    fired = true;
+    untrack(() => onready?.(limits));
   });
 </script>
 

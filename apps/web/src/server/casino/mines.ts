@@ -78,7 +78,10 @@ export async function reveal(userId: number, rawTile: unknown) {
           hit: tile,
           cashedOut: false
         };
-        return { settle: { multiplier: 0, base: 0, result }, view: view(board) };
+        return {
+          settle: { multiplier: 0, base: 0, result },
+          view: { ...view(board), next: null }
+        };
       }
 
       const next = { ...board, revealed: [...board.revealed, tile] };
