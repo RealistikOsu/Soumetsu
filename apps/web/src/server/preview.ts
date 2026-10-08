@@ -89,6 +89,10 @@ const pages: Record<string, PageInfo> = {
     title: 'Daily challenge',
     description: 'A new beatmap to play every day on RealistikOsu.'
   },
+  '/commissions': {
+    title: 'Commissions',
+    description: 'Six daily tasks on RealistikOsu. Fill the bar, claim the coins.'
+  },
   '/register': {
     title: 'Create an account',
     description: 'Make a RealistikOsu account and start climbing the leaderboards.'
