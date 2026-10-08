@@ -1,8 +1,9 @@
-import { describe, expect, test } from 'bun:test';
+import { afterEach, describe, expect, test } from 'bun:test';
 import { fakeContext, type DailyRow, type PlayerContext } from '../context';
 import type { DayScore } from '../scores';
 import { DEFAULT_SETTINGS } from '../settings';
 import { byKey } from './index';
+import { queries } from './quality';
 
 const score = (overrides: Partial<DayScore> = {}): DayScore => ({
   id: 1,
@@ -342,5 +343,150 @@ describe('session', () => {
     expect(await run('session_climb', ctxWith(rising))).toBe(1);
     const flat = [1, 3, 2].map((n, i) => withMap({ stars: n }, { id: i, at: at(i) }));
     expect(await run('session_climb', ctxWith(flat))).toBe(0);
+  });
+});
+
+describe('quality', () => {
+  const grades = (key: string, good: DayScore['grade'][], bad: DayScore['grade'][]) =>
+    test(`${key} by grade`, async () => {
+      for (const grade of good) expect(await run(key, ctxWith([score({ grade })]))).toBe(1);
+      for (const grade of bad) expect(await run(key, ctxWith([score({ grade })]))).toBe(0);
+      expect(await run(key, ctxWith([score({ grade: 'SS', passed: false })]))).toBe(0);
+    });
+  grades('quality_a', ['A', 'S', 'SH', 'SS', 'SSH'], ['B', 'C']);
+  grades('quality_s', ['S', 'SH', 'SS', 'SSH'], ['A']);
+  grades('quality_ss', ['SS', 'SSH'], ['S', 'SH']);
+
+  test('quality_three_s', async () => {
+    const plays = [
+      score({ grade: 'S' }),
+      score({ id: 2, grade: 'SS' }),
+      score({ id: 3, grade: 'SH' })
+    ];
+    expect(await run('quality_three_s', ctxWith(plays))).toBe(3);
+    expect(await run('quality_three_s', ctxWith([score()]))).toBe(0);
+  });
+  test('quality_ss_stars', async () => {
+    expect(await run('quality_ss_stars', ctxWith([withMap({ stars: 3 }, { grade: 'SS' })]))).toBe(
+      1
+    );
+    expect(await run('quality_ss_stars', ctxWith([withMap({ stars: 2 }, { grade: 'SS' })]))).toBe(
+      0
+    );
+  });
+  test('quality_fc needs zero misses on a pass', async () => {
+    expect(await run('quality_fc', ctxWith([score({ misses: 0 })]))).toBe(1);
+    expect(await run('quality_fc', ctxWith([score({ misses: 0, passed: false })]))).toBe(0);
+  });
+  test('quality_fc_stars', async () => {
+    expect(await run('quality_fc_stars', ctxWith([withMap({ stars: 4 }, { misses: 0 })]))).toBe(1);
+    expect(await run('quality_fc_stars', ctxWith([withMap({ stars: 3.9 }, { misses: 0 })]))).toBe(
+      0
+    );
+  });
+  test('quality_acc', async () => {
+    expect(await run('quality_acc', ctxWith([score({ accuracy: 98 })]))).toBe(1);
+    expect(await run('quality_acc', ctxWith([score({ accuracy: 97.9 })]))).toBe(0);
+  });
+  test('quality_acc_stars', async () => {
+    expect(await run('quality_acc_stars', ctxWith([score({ accuracy: 95 })]))).toBe(1);
+    expect(await run('quality_acc_stars', ctxWith([withMap({ stars: 4 }, { accuracy: 99 })]))).toBe(
+      0
+    );
+  });
+  test('quality_misses', async () => {
+    expect(await run('quality_misses', ctxWith([score({ misses: 3 })]), { misses: 3 })).toBe(1);
+    expect(await run('quality_misses', ctxWith([score({ misses: 3 })]), { misses: 1 })).toBe(0);
+  });
+  test('quality_choke', async () => {
+    expect(await run('quality_choke', ctxWith([score({ misses: 1 })]))).toBe(1);
+    expect(await run('quality_choke', ctxWith([score({ misses: 0 })]))).toBe(0);
+  });
+  test('quality_combo', async () => {
+    expect(await run('quality_combo', ctxWith([score({ combo: 500 })]), { combo: 500 })).toBe(1);
+    expect(await run('quality_combo', ctxWith([score({ combo: 499 })]), { combo: 500 })).toBe(0);
+  });
+  test('quality_300s', async () => {
+    expect(await run('quality_300s', ctxWith([score({ c300: 2000 })]))).toBe(1);
+    expect(await run('quality_300s', ctxWith([score()]))).toBe(0);
+  });
+  test('quality_pp and quality_pp_hard', async () => {
+    const params = { pp: 90, mode: 0, variant: 0 };
+    expect(await run('quality_pp', ctxWith([score({ pp: 90 })]), params)).toBe(1);
+    expect(await run('quality_pp', ctxWith([score({ pp: 89 })]), params)).toBe(0);
+    expect(await run('quality_pp_hard', ctxWith([score({ pp: 90, variant: 1 })]), params)).toBe(0);
+    expect(await run('quality_pp_hard', ctxWith([score({ pp: 95 })]), params)).toBe(1);
+  });
+  test('quality_pp rolls from the best top play', () => {
+    const ctx = fakeContext({ bestTopPp: () => ({ mode: 1, variant: 2, pp: 200 }) });
+    expect(byKey.get('quality_pp')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
+      mode: 1,
+      variant: 2,
+      pp: 140
+    });
+    expect(
+      byKey.get('quality_pp')!.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)
+    ).toBeNull();
+  });
+  test('quality_total_pp sums best plays', async () => {
+    const plays = [
+      score({ pp: 40 }),
+      score({ id: 2, pp: 30.5 }),
+      score({ id: 3, pp: 90, isBest: false })
+    ];
+    expect(await run('quality_total_pp', ctxWith(plays), { pp: 100 })).toBe(70);
+    expect(await run('quality_total_pp', ctxWith([]), { pp: 100 })).toBe(0);
+    expect(byKey.get('quality_total_pp')!.target({ pp: 100 })).toBe(100);
+  });
+
+  describe('against stored plays', () => {
+    const real = { ...queries };
+    afterEach(() => Object.assign(queries, real));
+
+    test('quality_pb_gain compares with the earlier best', async () => {
+      queries.previousBest = async () => 100;
+      expect(await run('quality_pb_gain', ctxWith([score({ pp: 110 })]))).toBe(1);
+      expect(await run('quality_pb_gain', ctxWith([score({ pp: 109 })]))).toBe(0);
+    });
+    test('quality_pb_gain counts earlier plays today and skips new maps', async () => {
+      queries.previousBest = async () => null;
+      const improved = [
+        score({ id: 1, pp: 50 }),
+        score({ id: 2, pp: 70, at: new Date('2026-10-08T11:00:00Z') })
+      ];
+      expect(await run('quality_pb_gain', ctxWith(improved))).toBe(1);
+      expect(await run('quality_pb_gain', ctxWith([score({ pp: 500 })]))).toBe(0);
+    });
+    test('quality_top50 passes at or above the threshold', async () => {
+      queries.nthBest = async () => 100;
+      const params = { mode: 0, variant: 0 };
+      expect(await run('quality_top50', ctxWith([score({ pp: 100 })]), params)).toBe(1);
+      expect(await run('quality_top50', ctxWith([score({ pp: 99 })]), params)).toBe(0);
+      expect(await run('quality_top50', ctxWith([score({ pp: 200, mode: 1 })]), params)).toBe(0);
+      expect(await run('quality_top50', ctxWith([score({ pp: 200, passed: false })]), params)).toBe(
+        0
+      );
+    });
+    test('quality_top10 asks for the tenth best', async () => {
+      let asked = 0;
+      queries.nthBest = async (...args: Parameters<typeof queries.nthBest>) => (
+        (asked = args[4]),
+        100
+      );
+      expect(
+        await run('quality_top10', ctxWith([score({ pp: 120 })]), { mode: 0, variant: 0 })
+      ).toBe(1);
+      expect(asked).toBe(10);
+    });
+    test('quality_top rolls null without a top play', () => {
+      expect(
+        byKey.get('quality_top10')!.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)
+      ).toBeNull();
+      const ctx = fakeContext({ bestTopPp: () => ({ mode: 3, variant: 0, pp: 300 }) });
+      expect(byKey.get('quality_top50')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
+        mode: 3,
+        variant: 0
+      });
+    });
   });
 });
