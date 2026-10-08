@@ -144,6 +144,7 @@ export type WheelResult = {
 };
 export type RouletteResult = {
   number: number;
+  pocket: string;
   color: 'red' | 'black' | 'green';
   betType: BetType;
   betNumber: number | null;

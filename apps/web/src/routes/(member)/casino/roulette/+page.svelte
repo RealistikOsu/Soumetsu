@@ -9,7 +9,8 @@
   import { describe } from '$lib/api/messages';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
-  import GameShell, { multiplier } from '$lib/components/casino/GameShell.svelte';
+  import { multiplier } from '$lib/casino';
+  import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
   import { ms, reducedMotion } from '$lib/motion';
@@ -41,6 +42,11 @@
     'col3',
     'straight'
   ];
+  const colourLabel: Record<RouletteResult['color'], () => string> = {
+    red: m.casino_rl_red,
+    black: m.casino_rl_black,
+    green: m.casino_rl_green
+  };
   const betLabel: Record<BetType, () => string> = {
     straight: m.casino_rl_straight,
     red: m.casino_rl_red,
@@ -81,6 +87,7 @@
       const play = await playGame<RouletteResult>('roulette', body);
       last = null;
       // The tape repeats, so stepping back to the same number in the second loop is invisible.
+      // It has no 00 pocket, so 00 lands on 0 like the casino showed it.
       const from = (at % ORDER.length) + ORDER.length;
       const pos = ORDER.indexOf(play.result.number);
       const to =
@@ -166,7 +173,13 @@
         </button>
         {#if last}
           <div class="cs-landed">
-            <span class="cs-num {last.result.color}">{last.result.number}</span>
+            <span
+              class="cs-num {last.result.color}"
+              role="img"
+              aria-label="{last.result.pocket} {colourLabel[last.result.color]()}"
+            >
+              {last.result.pocket}
+            </span>
           </div>
           <PlayResult bet={last.bet} payout={last.payout} multiplier={last.multiplier} />
         {/if}
@@ -179,7 +192,8 @@
               <span class="cs-num {colour(n, info.red)}" class:hit={last && i === at}>{n}</span>
             {/each}
           </div>
-          <span class="cs-marker"></span>
+          <span class="cs-marker top"></span>
+          <span class="cs-marker bottom"></span>
         </div>
       </div>
     </section>

@@ -1,8 +1,3 @@
-<script lang="ts" module>
-  // TODO: drop once the wheel, roulette and bingo pages import these from $lib/casino.
-  export { multiplier, wait } from '$lib/casino';
-</script>
-
 <script lang="ts" generics="I">
   import type { Snippet } from 'svelte';
   import { casino, gameInfo, type Game, type GameInfo } from '$lib/api/casino';

@@ -46,6 +46,7 @@ describe('roulette', () => {
     expect(roulette(odds, { betType: 'straight', betNumber: 0 }, 100, rng)).toEqual({
       result: {
         number: 0,
+        pocket: '0',
         color: 'green',
         betType: 'straight',
         betNumber: 0,
@@ -63,6 +64,7 @@ describe('roulette', () => {
     for (const betType of BET_TYPES) {
       const outcome = spin(37, betType, betType === 'straight' ? 0 : null);
       expect(outcome.result.number).toBe(0);
+      expect(outcome.result.pocket).toBe('00');
       expect(outcome.result.color).toBe('green');
       expect(outcome.result.won).toBe(false);
       expect(outcome.multiplier).toBe(0);
@@ -72,7 +74,7 @@ describe('roulette', () => {
 
   test('the top of the rng range is 00', () => {
     expect(roulette(odds, { betType: 'odd', betNumber: null }, 100, () => 0.99999).result).toEqual(
-      expect.objectContaining({ number: 0, won: false })
+      expect.objectContaining({ number: 0, pocket: '00', won: false })
     );
   });
 
@@ -108,6 +110,7 @@ describe('roulette', () => {
     const outcome = spin(8, 'straight', 7);
     expect(outcome.result).toEqual({
       number: 8,
+      pocket: '8',
       color: 'black',
       betType: 'straight',
       betNumber: 7,

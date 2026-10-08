@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { playGame, type GameInfo, type WheelInfo, type WheelResult } from '$lib/api/casino';
   import { describe } from '$lib/api/messages';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
-  import GameShell, { multiplier, wait } from '$lib/components/casino/GameShell.svelte';
+  import { multiplier, wait } from '$lib/casino';
+  import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
   import { ms } from '$lib/motion';
@@ -19,6 +21,8 @@
   let angle = $state(0);
   let duration = $state(0);
   let last = $state.raw<Play | null>(null);
+  const leaving = new AbortController();
+  onDestroy(() => leaving.abort());
 
   const label = ([, value, type]: Segment) =>
     type === 'jackpot'
@@ -64,13 +68,17 @@
       last = null;
       duration = ms(SPIN);
       angle += 360 * 4 + offset;
-      await wait(duration);
+      await wait(duration, leaving.signal);
       last = {
         bet: placed,
         payout: play.payout,
         multiplier: play.multiplier,
         index: play.result.segmentIndex,
-        label: limits.info ? label(limits.info.segments[play.result.segmentIndex]) : ''
+        label: label([
+          play.result.segment.label,
+          play.result.segment.multiplier,
+          play.result.segment.type
+        ])
       };
       coins.set(play.balance);
     } catch (error) {
@@ -123,11 +131,7 @@
             aria-label={m.casino_game_wheel()}
           >
             {#each info.segments as segment, i (i)}
-              <path
-                class="cs-slice {tone(segment)}"
-                class:hit={last?.index === i}
-                d={slice(i, info.segments.length)}
-              />
+              <path class="cs-slice {tone(segment)}" d={slice(i, info.segments.length)} />
               <text
                 class="cs-slice-label {tone(segment)}"
                 transform="rotate({(i + 0.5) * step}) translate(0 -92) rotate(90)"
@@ -135,6 +139,9 @@
                 {label(segment)}
               </text>
             {/each}
+            {#if last}
+              <path class="cs-slice-ring" d={slice(last.index, info.segments.length)} />
+            {/if}
             <circle class="cs-hub" r="14" />
           </svg>
         </div>

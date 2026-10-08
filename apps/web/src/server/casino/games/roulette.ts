@@ -35,6 +35,7 @@ export interface RouletteInput {
 
 export type RouletteResult = {
   number: number;
+  pocket: string;
   color: Colour;
   betType: BetType;
   betNumber: number | null;
@@ -121,13 +122,22 @@ export const roulette: GameRunner<RouletteOdds, RouletteInput, RouletteResult> =
   rng
 ) => {
   const pocket = Math.floor(rng() * odds.slots);
-  // The casino showed 00 as 0, and 00 loses every bet.
+  // `number` keeps the casino's 0 for 00, and `pocket` tells them apart. 00 loses every bet.
   const number = pocket === DOUBLE_ZERO ? 0 : pocket;
   const won = pocket !== DOUBLE_ZERO && wins(odds, pocket, betType, betNumber);
   const multiplier = won ? odds.payouts[betType] : 0;
   const payout = won ? payoutFor(bet, multiplier) : 0;
   return {
-    result: { number, color: colourOf(odds, number), betType, betNumber, won, multiplier, payout },
+    result: {
+      number,
+      pocket: pocket === DOUBLE_ZERO ? '00' : String(pocket),
+      color: colourOf(odds, number),
+      betType,
+      betNumber,
+      won,
+      multiplier,
+      payout
+    },
     multiplier,
     payout
   };

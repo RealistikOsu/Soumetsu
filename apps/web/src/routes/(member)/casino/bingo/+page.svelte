@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { playGame, type BingoInfo, type BingoResult, type GameInfo } from '$lib/api/casino';
   import { describe } from '$lib/api/messages';
   import { coins } from '$lib/coins.svelte';
   import BetInput from '$lib/components/BetInput.svelte';
-  import GameShell, { multiplier, wait } from '$lib/components/casino/GameShell.svelte';
+  import { multiplier, wait } from '$lib/casino';
+  import GameShell from '$lib/components/casino/GameShell.svelte';
   import PlayResult from '$lib/components/casino/PlayResult.svelte';
   import { flash } from '$lib/flash.svelte';
   import { ms, reducedMotion } from '$lib/motion';
@@ -28,11 +30,20 @@
     return [];
   };
 
+  // Calls stop at the first line, and one number completes at most its row, column and diagonal.
+  const MAX_LINES = 3;
+  const payable = (lines: Record<string, number>) =>
+    Object.entries(lines)
+      .filter(([count]) => Number(count) <= MAX_LINES)
+      .sort(([a], [b]) => Number(a) - Number(b));
+
   let bet = $state(100);
   let pending = $state(false);
   let grid = $state.raw<(number | null)[][]>(blank);
   let called = $state.raw<number[]>([]);
   let last = $state.raw<Play | null>(null);
+  const leaving = new AbortController();
+  onDestroy(() => leaving.abort());
 
   const winning = $derived(last ? last.result.wonLines.flatMap(lineCells) : []);
 
@@ -51,7 +62,8 @@
       } else {
         called = [];
         for (const ball of result.called) {
-          await wait(ms(CALL));
+          await wait(ms(CALL), leaving.signal);
+          if (leaving.signal.aborted) break;
           called = [...called, ball];
         }
       }
@@ -135,7 +147,7 @@
         <h2>{m.casino_paytable()}</h2>
         <table>
           <tbody>
-            {#each Object.entries(info.lines).sort(([a], [b]) => Number(a) - Number(b)) as [lines, value] (lines)}
+            {#each payable(info.lines) as [lines, value] (lines)}
               <tr>
                 <td>{m.casino_lines_won({ count: Number(lines) })}</td>
                 <td>{multiplier(value)}</td>
@@ -143,7 +155,6 @@
             {/each}
           </tbody>
         </table>
-        <p class="muted cs-note">{m.casino_calls({ count: info.maxCalls })}</p>
       </div>
     </section>
   {/snippet}
