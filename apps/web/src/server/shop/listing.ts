@@ -1,3 +1,4 @@
+import { Privilege } from '$lib/auth/privileges';
 import { shopDecorations, supporterDecorations } from '$lib/decorations';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
@@ -27,6 +28,7 @@ export interface ShopItemView {
 export interface ShopView {
   balance: number;
   loanActive: boolean;
+  restricted: boolean;
   items: ShopItemView[];
   supporterPicks: { month: string; price: number; items: ShopItemView[] };
   owned: string[];
@@ -74,8 +76,9 @@ const nextMonth = (now: Date) =>
   new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
 
 export async function shopFor(userId: number, now = new Date()): Promise<ShopView> {
-  const [user, settings, owned, rows, loan] = await Promise.all([
-    db.users.findUnique({ where: { id: userId }, select: { coins: true } }),
+  const [user, stats, settings, owned, rows, loan] = await Promise.all([
+    db.users.findUnique({ where: { id: userId }, select: { coins: true, privileges: true } }),
+    db.users_stats.findUnique({ where: { id: userId }, select: { can_custom_badge: true } }),
     loadShopSettings(),
     ownedKeys(userId),
     db.shop_items.findMany({
@@ -93,6 +96,9 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
     if (type === 'decoration') {
       if (!isShopDecoration(row.item_key)) continue;
       const spotlight = shopDecorations.find((d) => d.key === row.item_key)?.stock === 'spotlight';
+      const available = onSale(settings, row.item_key, now);
+      const has = owned.includes(row.item_key);
+      if (spotlight && !available && !has) continue;
       items.push({
         id: row.id,
         type,
@@ -100,8 +106,8 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
         name: row.name,
         description: row.description,
         price: row.price,
-        owned: owned.includes(row.item_key),
-        available: onSale(settings, row.item_key, now),
+        owned: has,
+        available,
         until: spotlight ? windowEnd(settings, row.item_key, now) : null
       });
       continue;
@@ -113,7 +119,7 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
       name: row.name,
       description: row.description,
       price: row.price,
-      owned: false,
+      owned: type === 'custom_badge' && !!stats?.can_custom_badge,
       available: true,
       until: null
     });
@@ -141,6 +147,7 @@ export async function shopFor(userId: number, now = new Date()): Promise<ShopVie
   return {
     balance: user.coins,
     loanActive: loan,
+    restricted: (Number(user.privileges) & Privilege.Public) === 0,
     items,
     supporterPicks: { month: monthKey(now), price: settings.supporterPrice, items: picks },
     owned

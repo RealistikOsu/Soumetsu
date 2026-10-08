@@ -14,6 +14,7 @@ const PRIVATE = [
   '/friends',
   '/followers',
   '/commissions',
+  '/shop',
   '/login',
   '/register',
   '/pwreset',

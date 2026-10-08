@@ -1,4 +1,6 @@
+import { Privilege } from '$lib/auth/privileges';
 import { supporterDecorations } from '$lib/decorations';
+import { allowed } from '$lib/modes';
 import { record } from '$server/admin/console';
 import { rename, takenBy, wipeStats } from '$server/admin/users';
 import { db } from '$server/db';
@@ -30,6 +32,12 @@ export function parseWipe(metadata: Record<string, unknown>): {
     (typeof mode === 'number' && Number.isInteger(mode) && mode >= 0 && mode <= 3);
   const validVariant = variant === 'all' || VARIANTS.includes(variant as Variant);
   if (!validMode || !validVariant) throw new Failure(400, 'site.invalid_request');
+  if (
+    typeof mode === 'number' &&
+    variant !== 'all' &&
+    !allowed(mode, VARIANTS.indexOf(variant as Variant))
+  )
+    throw new Failure(400, 'site.invalid_request');
   return {
     modes: mode === 'all' ? [0, 1, 2, 3] : [mode as number],
     types: variant === 'all' ? [...VARIANTS] : [variant as Variant]
@@ -62,9 +70,9 @@ async function checkName(userId: number, name: string, current: string) {
 async function renameLanded(userId: number, name: string) {
   const user = await db.users.findUnique({
     where: { id: userId },
-    select: { username_safe: true }
+    select: { username: true, username_safe: true }
   });
-  return user?.username_safe === name.toLowerCase().replace(/ /g, '_');
+  return user?.username === name && user.username_safe === name.toLowerCase().replace(/ /g, '_');
 }
 
 interface Resolved {
@@ -81,9 +89,10 @@ async function supporterRow(tx: Prisma.TransactionClient, key: string, settings:
   await tx.$executeRaw`
     INSERT IGNORE INTO shop_items (type, item_key, name, description, price, enabled, sort_order)
     VALUES ('decoration', ${key}, ${decoration.name}, 'Supporter decoration', ${settings.supporterPrice}, 0, 1000)`;
-  // A locking read sees a row another buyer committed after this transaction's snapshot was taken.
+  // A locking read sees a row another buyer committed after this transaction's snapshot was taken. Shared,
+  // because two first buyers both hold a shared lock from the INSERT IGNORE and would deadlock upgrading it.
   const [row] = await tx.$queryRaw<{ id: number }[]>`
-    SELECT id FROM shop_items WHERE type = 'decoration' AND item_key = ${key} FOR UPDATE`;
+    SELECT id FROM shop_items WHERE type = 'decoration' AND item_key = ${key} FOR SHARE`;
   return Number(row.id);
 }
 
@@ -137,9 +146,11 @@ export async function buy(
 
   const bought = await db.$transaction(async (tx) => {
     const [user] = await tx.$queryRaw<
-      { coins: number; username: string; name_decoration: string | null }[]
-    >`SELECT coins, username, name_decoration FROM users WHERE id = ${userId} FOR UPDATE`;
+      { coins: number; username: string; name_decoration: string | null; privileges: bigint }[]
+    >`SELECT coins, username, name_decoration, privileges FROM users WHERE id = ${userId} FOR UPDATE`;
     if (!user) throw new Failure(404, 'users.user_not_found');
+    if ((Number(user.privileges) & Privilege.Public) === 0)
+      throw new Failure(403, 'site.forbidden');
     if (await loanActive(tx, userId)) throw new Failure(403, 'shop.loan_active');
 
     const target = await resolve(tx, item, settings, now);
@@ -148,6 +159,11 @@ export async function buy(
         where: { user_id_decoration: { user_id: userId, decoration: target.key! } }
       });
       if (owned) throw new Failure(409, 'shop.already_owned');
+    }
+    if (target.type === 'custom_badge') {
+      const [stats] = await tx.$queryRaw<{ can_custom_badge: number }[]>`
+        SELECT can_custom_badge FROM users_stats WHERE id = ${userId}`;
+      if (stats && Number(stats.can_custom_badge)) throw new Failure(409, 'shop.already_owned');
     }
     if (user.coins < target.price) throw new Failure(402, 'shop.insufficient_coins');
 

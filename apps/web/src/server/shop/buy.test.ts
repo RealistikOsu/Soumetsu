@@ -33,6 +33,25 @@ describe('parseWipe', () => {
     }
   });
 
+  test('rejects combinations that have no stats', () => {
+    expect(code(() => parseWipe({ mode: 3, variant: 'rx' }))).toBe('site.invalid_request');
+    for (const mode of [1, 2, 3]) {
+      expect(code(() => parseWipe({ mode, variant: 'ap' }))).toBe('site.invalid_request');
+    }
+  });
+
+  test('takes the combinations that exist', () => {
+    expect(parseWipe({ mode: 0, variant: 'ap' })).toEqual({ modes: [0], types: ['ap'] });
+    expect(parseWipe({ mode: 3, variant: 'all' })).toEqual({
+      modes: [3],
+      types: ['va', 'rx', 'ap']
+    });
+    expect(parseWipe({ mode: 'all', variant: 'rx' })).toEqual({
+      modes: [0, 1, 2, 3],
+      types: ['rx']
+    });
+  });
+
   test('rejects a missing variant', () => {
     expect(code(() => parseWipe({ mode: 0 }))).toBe('site.invalid_request');
   });

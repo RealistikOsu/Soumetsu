@@ -4,6 +4,7 @@ import { PAGE_SIZE } from '$server/admin/common';
 import { rapLog } from '$server/admin/log';
 import { loadShopSettings } from '$server/shop/settings';
 import { monthKey, supporterPicks } from '$server/shop/rotation';
+import { ownedKeys, pickable } from '$server/shop/catalogue';
 import { shopDecorations, supporterDecorations } from '$lib/decorations';
 
 export const listItems = () =>
@@ -14,7 +15,7 @@ export async function updateItem(staffId: number, body: Record<string, unknown>)
   if (
     !Number.isInteger(id) ||
     !Number.isInteger(price) ||
-    (price as number) < 0 ||
+    (price as number) < 1 ||
     !Number.isInteger(sort_order) ||
     typeof enabled !== 'boolean'
   ) {
@@ -71,14 +72,17 @@ function checkKey(key: unknown): string {
 }
 
 async function checkUser(userId: number) {
-  const user = await db.users.findUnique({ where: { id: userId }, select: { username: true } });
+  const user = await db.users.findUnique({
+    where: { id: userId },
+    select: { username: true, privileges: true }
+  });
   if (!user) throw new Failure(404, 'users.user_not_found');
-  return user.username;
+  return user;
 }
 
 export async function grantDecoration(staffId: number, userId: number, raw: unknown) {
   const key = checkKey(raw);
-  const username = await checkUser(userId);
+  const { username } = await checkUser(userId);
   await db.user_decorations.createMany({
     data: [{ user_id: userId, decoration: key, price_paid: 0, bought_at: new Date() }],
     skipDuplicates: true
@@ -88,12 +92,15 @@ export async function grantDecoration(staffId: number, userId: number, raw: unkn
 
 export async function revokeDecoration(staffId: number, userId: number, raw: unknown) {
   const key = checkKey(raw);
-  const username = await checkUser(userId);
+  const { username, privileges } = await checkUser(userId);
   await db.user_decorations.deleteMany({ where: { user_id: userId, decoration: key } });
-  await db.users.updateMany({
-    where: { id: userId, name_decoration: key },
-    data: { name_decoration: null }
-  });
+  // A supporter or staff member keeps the style through their tag, so only a lost style comes off.
+  if (!pickable(key, { privileges: Number(privileges), owned: await ownedKeys(userId) })) {
+    await db.users.updateMany({
+      where: { id: userId, name_decoration: key },
+      data: { name_decoration: null }
+    });
+  }
   await rapLog(staffId, `revoked the ${key} decoration from ${username}`);
 }
 

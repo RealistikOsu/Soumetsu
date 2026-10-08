@@ -17,6 +17,7 @@ export interface ShopItemView {
 export interface ShopView {
   balance: number;
   loanActive: boolean;
+  restricted: boolean;
   items: ShopItemView[];
   supporterPicks: { month: string; price: number; items: ShopItemView[] };
   owned: string[];
