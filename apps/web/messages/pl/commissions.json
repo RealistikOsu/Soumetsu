@@ -35,8 +35,8 @@
       }
     }
   ],
-  "commissions_resets": "Nowe zadania o północy UTC.",
-  "commissions_settles": "Podsumowanie o północy UTC.",
+  "commissions_resets": "Nowe zadania o 06:00 UTC, razem z nowym codziennym wyzwaniem.",
+  "commissions_settles": "Podsumowanie po zakończeniu codziennego wyzwania.",
   "commissions_claim_failed_locked": "Ten próg nie jest jeszcze osiągnięty.",
   "commissions_claim_failed_claimed": "Już odebrano.",
   "commissions_claim_failed_missing": "Nie ma czego odbierać za ten dzień.",

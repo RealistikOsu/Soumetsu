@@ -31,8 +31,8 @@
       }
     }
   ],
-  "commissions_resets": "Új feladatok éjfélkor, UTC szerint.",
-  "commissions_settles": "Éjfélkor zár a nap, UTC szerint.",
+  "commissions_resets": "Új feladatok 06:00-kor (UTC), amikor a napi kihívás is vált.",
+  "commissions_settles": "A napi kihívás végén zár.",
   "commissions_claim_failed_locked": "Ezt a szintet még nem érted el.",
   "commissions_claim_failed_claimed": "Ezt már felvetted.",
   "commissions_claim_failed_missing": "Arra a napra nincs mit felvenni.",

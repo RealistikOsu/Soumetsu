@@ -35,8 +35,8 @@
       }
     }
   ],
-  "commissions_resets": "Новые задания в полночь UTC.",
-  "commissions_settles": "Итоги подведём в полночь UTC.",
+  "commissions_resets": "Новые задания в 06:00 UTC, вместе с новым ежедневным челленджем.",
+  "commissions_settles": "Итоги подведём, когда закончится ежедневный челлендж.",
   "commissions_claim_failed_locked": "Этот уровень ещё не открыт.",
   "commissions_claim_failed_claimed": "Уже забрано.",
   "commissions_claim_failed_missing": "За этот день забирать нечего.",

@@ -5,7 +5,7 @@
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import { flash } from '$lib/flash.svelte';
 
-  const tomorrow = `${new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)}T00:00`;
+  const tomorrow = `${new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)}T06:00`;
 
   let version = $state(0);
   let beatmap = $state('');
