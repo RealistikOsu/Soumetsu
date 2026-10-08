@@ -1424,8 +1424,28 @@
     padding: 5px 8px;
   }
 
-  .casino-config input[type='number'] {
+  .admin-table td input[type='number'],
+  .admin-table td input[type='text'] {
     width: 110px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .admin-table td input[type='number']:focus,
+  .admin-table td input[type='text']:focus {
+    border-color: var(--blue);
+    outline: none;
+  }
+
+  .admin-table td input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--blue);
+    cursor: pointer;
   }
 
   .casino-config textarea {
