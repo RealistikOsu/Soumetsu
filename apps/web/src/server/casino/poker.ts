@@ -74,12 +74,18 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
     // Taken out of Redis before paying, so a hand can only ever be paid once.
     const raw = await redis.getdel(key);
     if (!raw) throw new Failure(404, 'casino.no_hand');
-    const state = JSON.parse(raw) as Pending;
-    const { bet, payouts } = state;
-    const { hand, handRank, multiplier } = drawHand(state.hand, state.deck, held, { payouts }, rng);
-    const base = payoutFor(bet, multiplier);
-
     try {
+      const state = JSON.parse(raw) as Pending;
+      const { bet, payouts } = state;
+      const { hand, handRank, multiplier } = drawHand(
+        state.hand,
+        state.deck,
+        held,
+        { payouts },
+        rng
+      );
+      const base = payoutFor(bet, multiplier);
+
       return await db.$transaction(async (tx) => {
         const user = await lockUser(tx, userId);
         const payout = donorBuff(base, Number(user.privileges));
