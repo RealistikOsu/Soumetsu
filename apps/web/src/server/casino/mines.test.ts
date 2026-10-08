@@ -47,8 +47,13 @@ mock.module('$server/redis', () => ({
       keys[key] = value;
       return 'OK';
     },
-    eval: async (_script: string, _n: number, key: string) => {
-      delete keys[key];
+    eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
+      if (to === undefined) {
+        delete keys[key];
+        return 1;
+      }
+      if (keys[key] !== from) return 0;
+      keys[key] = to;
       return 1;
     }
   }

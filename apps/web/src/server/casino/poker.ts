@@ -23,7 +23,7 @@ export async function deal(userId: number, rawBet: unknown, rng: () => number = 
     ({ payouts }: PokerOdds, bet, rng): Hand => ({ ...dealHand(rng), bet, payouts }),
     view,
     rng,
-    codes
+    { codes }
   );
   return { ...dealt.view, balance: dealt.balance };
 }
@@ -34,7 +34,6 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
     userId,
     'poker',
     (state: Hand, rng) => {
-      // Pays from the payouts stored at the deal.
       const { bet, payouts } = state;
       const { hand, handRank, multiplier } = drawHand(
         state.hand,

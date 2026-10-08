@@ -50,12 +50,16 @@ export async function start(userId: number, raw: unknown, rng: () => number = cr
     userId,
     'mines',
     bet,
-    (odds: MinesOdds, bet, rng): Board => {
-      const count = parseMineCount(mines, odds.grid);
-      return { bet, count, mines: placeMines(odds.grid, count, rng), revealed: [], odds };
-    },
+    (odds: MinesOdds, bet, rng, count: number): Board => ({
+      bet,
+      count,
+      mines: placeMines(odds.grid, count, rng),
+      revealed: [],
+      odds
+    }),
     view,
-    rng
+    rng,
+    { parse: (odds: MinesOdds) => parseMineCount(mines, odds.grid) }
   );
 }
 
