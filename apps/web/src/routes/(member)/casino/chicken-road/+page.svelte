@@ -24,7 +24,7 @@
   import { ms } from '$lib/motion';
   import { m } from '$lib/paraglide/messages';
 
-  type Limits = GameInfo<ChickenInfo>;
+  type Limits = GameInfo<ChickenInfo, ChickenView>;
   type Play = { bet: number; payout: number; multiplier: number; result: ChickenResult };
 
   const TRUCK = 600;
@@ -39,11 +39,7 @@
   const leaving = new AbortController();
   onDestroy(() => leaving.abort());
 
-  // GameShell types the pending game as a poker hand; for this game it's the view.
-  const active = (limits: Limits) =>
-    run === undefined
-      ? ((limits.pending as unknown as ChickenView | null | undefined) ?? null)
-      : run;
+  const active = (limits: Limits) => (run === undefined ? (limits.pending ?? null) : run);
 
   const payout = (view: ChickenView) => Math.floor(view.bet * view.multiplier);
 

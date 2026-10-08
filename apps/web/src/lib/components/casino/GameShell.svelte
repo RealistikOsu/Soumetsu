@@ -1,5 +1,5 @@
-<script lang="ts" generics="I">
-  import type { Snippet } from 'svelte';
+<script lang="ts" generics="I, P">
+  import { untrack, type Snippet } from 'svelte';
   import { casino, gameInfo, type Game, type GameInfo } from '$lib/api/casino';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
@@ -11,14 +11,17 @@
 
   let {
     game,
+    onready,
     children
   }: {
     game: Game;
-    children: Snippet<[{ limits: GameInfo<I>; info: I; balance: number; blocked: boolean }]>;
+    // Runs once the game info has loaded, for pages that act on the pending game.
+    onready?: (limits: GameInfo<I, P>) => void;
+    children: Snippet<[{ limits: GameInfo<I, P>; info: I; balance: number; blocked: boolean }]>;
   } = $props();
 
   const view = query((signal) => casino(signal));
-  const details = query((signal) => gameInfo<I>(game, signal));
+  const details = query((signal) => gameInfo<I, P>(game, signal));
   const data = $derived(view.state.status === 'ready' ? view.state.data : null);
   const limits = $derived(details.state.status === 'ready' ? details.state.data : null);
   const balance = $derived(coins.balance ?? data?.balance ?? 0);
@@ -32,6 +35,10 @@
 
   $effect(() => {
     if (data) coins.set(data.balance);
+  });
+
+  $effect(() => {
+    if (limits) untrack(() => onready?.(limits));
   });
 </script>
 

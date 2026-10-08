@@ -22,7 +22,7 @@
   import { number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
 
-  type Limits = GameInfo<MinesInfo>;
+  type Limits = GameInfo<MinesInfo, MinesView>;
   type Play = { bet: number; payout: number; multiplier: number; result: MinesResult };
 
   let bet = $state(100);
@@ -32,11 +32,7 @@
   let board = $state.raw<MinesView | null | undefined>(undefined);
   let last = $state.raw<Play | null>(null);
 
-  // GameShell types the pending game as a poker hand; for this game it's the view.
-  const active = (limits: Limits) =>
-    board === undefined
-      ? ((limits.pending as unknown as MinesView | null | undefined) ?? null)
-      : board;
+  const active = (limits: Limits) => (board === undefined ? (limits.pending ?? null) : board);
 
   const payout = (view: MinesView) => Math.floor(view.bet * view.multiplier);
 

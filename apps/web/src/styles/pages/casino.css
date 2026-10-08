@@ -1248,6 +1248,200 @@ p.cs-field {
   animation: cs-mark 0.25s ease-out;
 }
 
+/* blackjack */
+.cs-bj {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--board);
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.cs-bj-side {
+  display: grid;
+  gap: 10px;
+}
+
+.cs-bj-side h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.cs-bj-score {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+}
+
+.cs-bj-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: calc(clamp(52px, 14vw, 72px) * 1.4);
+  perspective: 800px;
+}
+
+.cs-bj-cards .cs-playing {
+  width: clamp(52px, 14vw, 72px);
+}
+
+.cs-bj-cards .cs-playing b {
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+}
+
+.cs-bj-cards .cs-playing span {
+  font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+}
+
+.motion .cs-bj-cards .cs-playing.hole {
+  animation: cs-card 0.3s ease-out backwards;
+}
+
+.cs-bj-banner {
+  min-height: 1.5em;
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cs-bj-banner.win {
+  color: var(--green);
+}
+
+.cs-bj-banner.loss {
+  color: var(--red);
+}
+
+.cs-bj-moves {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cs-bj-moves .btn {
+  justify-content: center;
+  padding-inline: 6px;
+}
+
+/* aviator */
+.cs-sky {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.cs-sky svg {
+  display: block;
+  width: 100%;
+}
+
+.cs-readout {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.cs-readout b {
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.cs-readout span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cs-sky.won .cs-readout b {
+  color: var(--green);
+}
+
+.cs-sky.crashed .cs-readout b {
+  color: var(--red);
+}
+
+.cs-sky .grid,
+.cs-sky .base {
+  stroke: var(--line);
+}
+
+.cs-sky .grid {
+  stroke-dasharray: 3 5;
+}
+
+.cs-sky .axis {
+  fill: var(--faint);
+  font-size: 11px;
+}
+
+.cs-sky .curve {
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.cs-sky .area {
+  fill: var(--yellow);
+  opacity: 0.12;
+}
+
+.cs-sky.won .curve {
+  stroke: var(--green);
+}
+
+.cs-sky.won .area {
+  fill: var(--green);
+}
+
+.cs-sky.crashed .curve {
+  stroke: var(--red);
+}
+
+.cs-sky.crashed .area {
+  fill: var(--red);
+}
+
+.cs-sky .plane {
+  fill: var(--text);
+  font-size: 28px;
+}
+
+.cs-sky .boom {
+  font-size: 28px;
+}
+
+.motion .cs-sky.flying .plane {
+  animation: cs-bob 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes cs-bob {
+  to {
+    translate: 0 -3px;
+  }
+}
+
 @media (max-width: 800px) {
   .cs-game {
     grid-template: 'stage' 'controls' 'table' / 1fr;
