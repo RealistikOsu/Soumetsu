@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { fakeContext, type DailyRow, type PlayerContext } from '../context';
 import type { DayScore } from '../scores';
 import { DEFAULT_SETTINGS } from '../settings';
-import { byKey } from './index';
+import { byKey, templates } from './index';
 import { queries } from './quality';
 
 const score = (overrides: Partial<DayScore> = {}): DayScore => ({
@@ -724,5 +724,134 @@ describe('meme', () => {
   test('meme_fail wants a failed play', async () => {
     expect(await run('meme_fail', ctxWith([score({ passed: false })]))).toBe(1);
     expect(await run('meme_fail', ctxWith([score()]))).toBe(0);
+  });
+});
+
+const KEYS = [
+  'casino_aviator',
+  'casino_big_win',
+  'casino_blackjack',
+  'casino_chicken',
+  'casino_lose',
+  'casino_new_game',
+  'casino_play',
+  'casino_profit',
+  'casino_shop',
+  'casino_slots_10x',
+  'casino_three_games',
+  'casino_wager',
+  'daily_beat',
+  'daily_both',
+  'daily_no_miss',
+  'daily_play',
+  'daily_s',
+  'daily_top10',
+  'daily_top50',
+  'leaderboard_first',
+  'leaderboard_steal',
+  'leaderboard_three_firsts',
+  'leaderboard_top10',
+  'leaderboard_top50_stars',
+  'login',
+  'map_ar',
+  'map_artist',
+  'map_bpm',
+  'map_combo',
+  'map_diffname',
+  'map_easy_nomod',
+  'map_famous',
+  'map_local',
+  'map_long',
+  'map_loved',
+  'map_new',
+  'map_od',
+  'map_revisit',
+  'map_set_three',
+  'map_short',
+  'map_stars',
+  'map_stars_hard',
+  'map_top_again',
+  'meme_combo',
+  'meme_fail',
+  'mods_dt_s',
+  'mods_ez_acc',
+  'mods_fl_pass',
+  'mods_hddt',
+  'mods_hdhr',
+  'mods_ht_fc',
+  'mods_nf_pass',
+  'mods_rate',
+  'mods_rate_range',
+  'mods_relax_stars',
+  'mods_sd_pass',
+  'mods_single',
+  'mods_three',
+  'mods_two',
+  'mp_play',
+  'mp_win',
+  'play_all_modes',
+  'play_both_sources',
+  'play_count',
+  'play_count_many',
+  'play_maps',
+  'play_mode',
+  'play_not_favourite',
+  'play_source',
+  'play_two_variants',
+  'play_variant',
+  'quality_300s',
+  'quality_a',
+  'quality_acc',
+  'quality_acc_stars',
+  'quality_choke',
+  'quality_combo',
+  'quality_fc',
+  'quality_fc_stars',
+  'quality_misses',
+  'quality_pb_gain',
+  'quality_pp',
+  'quality_pp_hard',
+  'quality_s',
+  'quality_ss',
+  'quality_ss_stars',
+  'quality_three_s',
+  'quality_top10',
+  'quality_top50',
+  'quality_total_pp',
+  'rp_play',
+  'rp_rounds',
+  'rp_three',
+  'rp_win',
+  'session_climb',
+  'session_minutes',
+  'session_retry',
+  'session_streak'
+];
+
+describe('registry', () => {
+  test('keys are unique and numerous enough', () => {
+    const keys = [...byKey.keys()];
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(templates.length).toBe(keys.length);
+    expect(keys.length).toBeGreaterThanOrEqual(90);
+  });
+  test('every key is on the translated list', () => {
+    expect(templates.filter((t) => !KEYS.includes(t.key)).map((t) => t.key)).toEqual([]);
+  });
+  test('every listed key has a template', () => {
+    expect(KEYS.filter((key) => !byKey.has(key))).toEqual([]);
+  });
+  test('every template has a family, a tier and a positive target', () => {
+    for (const t of templates) {
+      expect(t.family).toBeTruthy();
+      expect(['easy', 'medium', 'hard']).toContain(t.tier);
+      const params = t.roll(
+        fakeContext({ bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }), usualStars: 4 }),
+        DEFAULT_SETTINGS,
+        () => 0.5
+      );
+      expect(params).not.toBeNull();
+      expect(t.target(params!)).toBeGreaterThan(0);
+    }
   });
 });

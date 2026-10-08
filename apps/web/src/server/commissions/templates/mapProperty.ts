@@ -2,12 +2,12 @@ import type { PlayerContext } from '../context';
 import type { DayScore } from '../scores';
 import { any, once, pick, starsAround, template, type Params, type Template } from './types';
 
-type Map = DayScore['map'];
+type MapInfo = DayScore['map'];
 
 const on = (
   key: string,
   tier: Template['tier'],
-  predicate: (map: Map, score: DayScore, params: Params) => boolean,
+  predicate: (map: MapInfo, score: DayScore, params: Params) => boolean,
   roll: Template['roll'] = once
 ) =>
   template({
