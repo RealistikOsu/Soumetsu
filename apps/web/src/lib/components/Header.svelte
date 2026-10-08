@@ -17,6 +17,7 @@
     icon: string;
     text: string;
     brand?: boolean;
+    badge?: string;
   }
 
   interface Menu {
@@ -64,23 +65,51 @@
 
   const menus: Menu[] = $derived([
     {
-      label: m.common_header_rooms(),
+      label: m.common_header_play(),
       colour: 'c-red',
-      icon: 'fa-door-open',
-      prefixes: ['/daily-challenge'],
+      icon: 'fa-gamepad',
+      prefixes: ['/daily-challenge', '/commissions'],
       items: [
         {
           href: '/daily-challenge',
           icon: 'fa-calendar-day',
           text: m.common_header_daily_challenge()
+        },
+        ...(user
+          ? [
+              {
+                href: '/commissions',
+                icon: 'fa-clipboard-check',
+                text: m.common_header_commissions(),
+                badge:
+                  done !== null && tasks
+                    ? m.commissions_header_badge({ done, total: tasks.length })
+                    : undefined
+              }
+            ]
+          : [])
+      ]
+    },
+    {
+      label: m.common_nav_beatmaps(),
+      colour: 'c-lblue',
+      icon: 'fa-music',
+      prefixes: ['/beatmap_listing', '/beatmaps/', '/rank-request', '/upload-requests'],
+      items: [
+        { href: '/beatmap_listing', icon: 'fa-list', text: m.common_header_beatmap_listing() },
+        { href: '/rank-request', icon: 'fa-paper-plane', text: m.common_header_request_beatmap() },
+        {
+          href: '/upload-requests',
+          icon: 'fa-circle-play',
+          text: m.common_header_upload_requests()
         }
       ]
     },
     {
-      label: m.common_header_clan(),
+      label: m.common_header_community(),
       colour: 'c-purple',
-      icon: 'fa-shield-halved',
-      prefixes: ['/clanboard', '/c/', '/clan/', '/clans/'],
+      icon: 'fa-users',
+      prefixes: ['/clanboard', '/c/', '/clan/', '/clans/', '/team'],
       items: [
         ...(user
           ? [
@@ -96,36 +125,21 @@
               }
             ]
           : []),
-        { href: '/clanboard', icon: 'fa-trophy', text: m.common_header_clan_leaderboard() }
+        { href: '/clanboard', icon: 'fa-shield-halved', text: m.common_header_clans() },
+        { href: '/team', icon: 'fa-user-group', text: m.common_header_team() },
+        { href: '/discord', icon: 'fa-discord', text: 'Discord', brand: true }
       ]
     },
     {
-      label: m.common_header_support(),
+      label: m.common_header_help(),
       colour: 'c-green',
       icon: 'fa-life-ring',
-      prefixes: ['/doc', '/connect', '/patcher', '/upload-requests', '/team'],
+      prefixes: ['/doc', '/connect', '/patcher'],
       items: [
         { href: '/doc/rules', icon: 'fa-scale-balanced', text: m.common_header_rules() },
         { href: '/doc', icon: 'fa-book', text: m.common_nav_documentation() },
         { href: '/connect', icon: 'fa-plug', text: m.common_header_connection_guide() },
-        { href: '/patcher', icon: 'fa-screwdriver-wrench', text: m.common_header_patcher() },
-        {
-          href: '/upload-requests',
-          icon: 'fa-circle-play',
-          text: m.common_header_upload_requests()
-        },
-        { href: '/discord', icon: 'fa-discord', text: 'Discord', brand: true },
-        { href: '/team', icon: 'fa-users', text: m.common_header_team() }
-      ]
-    },
-    {
-      label: m.common_nav_beatmaps(),
-      colour: 'c-lblue',
-      icon: 'fa-music',
-      prefixes: ['/beatmap_listing', '/beatmaps/', '/rank-request'],
-      items: [
-        { href: '/beatmap_listing', icon: 'fa-list', text: m.common_header_beatmap_listing() },
-        { href: '/rank-request', icon: 'fa-paper-plane', text: m.common_header_request_beatmap() }
+        { href: '/patcher', icon: 'fa-screwdriver-wrench', text: m.common_header_patcher() }
       ]
     }
   ]);
@@ -192,6 +206,7 @@
             {#each menu.items as item (item.href)}
               <a href={item.href}>
                 <i class="{item.brand ? 'fa-brands' : 'fa-solid'} {item.icon}"></i>{item.text}
+                {#if item.badge}<span class="me-badge">{item.badge}</span>{/if}
               </a>
             {/each}
           </div>
@@ -222,12 +237,6 @@
             <a href="/users/{user.id}"
               ><i class="fa-solid fa-user"></i>{m.common_header_profile()}</a
             >
-            <a href="/commissions">
-              <i class="fa-solid fa-clipboard-check"></i>{m.common_header_commissions()}
-              {#if done !== null && tasks}<span class="me-badge"
-                  >{m.commissions_header_badge({ done, total: tasks.length })}</span
-                >{/if}
-            </a>
             <a href="/friends"><i class="fa-solid fa-user-group"></i>{m.common_header_friends()}</a>
             <a href="/settings"><i class="fa-solid fa-gear"></i>{m.common_header_settings()}</a>
             {#if isStaff(user.privileges)}
