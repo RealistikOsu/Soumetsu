@@ -215,8 +215,8 @@ describe('stand', () => {
       dealerScore: 18,
       outcome: 'win'
     };
-    expect(played).toMatchObject({ result, payout: 220, multiplier: 2, balance: 1120 });
-    expect(history).toMatchObject([{ bet_amount: 100, multiplier: 2, payout: 220 }]);
+    expect(played).toMatchObject({ result, payout: 210, multiplier: 2, balance: 1110 });
+    expect(history).toMatchObject([{ bet_amount: 100, multiplier: 2, payout: 210 }]);
     expect(keys[KEY]).toBeUndefined();
   });
 

@@ -45,5 +45,6 @@ export function clearConfigCache() {
   for (const game of GAMES) delete cache[game];
 }
 
-export const donorBuff = (payout: number, privileges: number) =>
-  payout > 0 && isSupporter(privileges) ? Math.floor((payout * 11) / 10) : payout;
+// Only the profit is buffed, so a payout that doesn't beat the stake stays as it is.
+export const donorBuff = (payout: number, bet: number, privileges: number) =>
+  payout > bet && isSupporter(privileges) ? bet + Math.floor(((payout - bet) * 11) / 10) : payout;

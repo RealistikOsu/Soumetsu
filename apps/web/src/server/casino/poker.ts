@@ -49,7 +49,7 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
       };
     },
     rng,
-    codes
+    { codes }
   );
   if (!('result' in played)) throw new Error('A poker draw always settles');
   const { result, payout, multiplier, balance } = played;

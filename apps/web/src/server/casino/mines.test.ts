@@ -49,6 +49,7 @@ mock.module('$server/redis', () => ({
     },
     eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
       if (to === undefined) {
+        if (keys[key] !== from) return 0;
         delete keys[key];
         return 1;
       }
@@ -192,14 +193,14 @@ describe('reveal', () => {
 });
 
 describe('cashout', () => {
-  test('pays the buffed multiplier', async () => {
+  test('pays a multiplier under 1 without the buff', async () => {
     user = { coins: 900, privileges: 1n | 4n };
     board([0, 1, 2], [10]);
     const played = await cashout(1);
     const result = { mines: [0, 1, 2], revealed: [10], hit: null, cashedOut: true };
-    // 0.9× of 100 is 90, and the supporter buff makes it 99.
-    expect(played).toMatchObject({ result, payout: 99, multiplier: 0.9, balance: 999 });
-    expect(history).toMatchObject([{ multiplier: 0.9, payout: 99, result_data: result }]);
+    // 0.9× of 100 is 90, which is no profit, so the supporter buff leaves it.
+    expect(played).toMatchObject({ result, payout: 90, multiplier: 0.9, balance: 990 });
+    expect(history).toMatchObject([{ multiplier: 0.9, payout: 90, result_data: result }]);
     expect(keys[KEY]).toBeUndefined();
   });
 

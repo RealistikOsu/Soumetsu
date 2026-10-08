@@ -45,14 +45,18 @@ describe('parseOdds', () => {
 });
 
 describe('donorBuff', () => {
-  test('adds 10% for donors, rounded down', () => {
-    expect(donorBuff(100, 4)).toBe(110);
-    expect(donorBuff(101, 4)).toBe(111);
+  test('adds 10% of the profit for supporters, rounded down', () => {
+    expect(donorBuff(175, 100, 4)).toBe(182);
+    expect(donorBuff(101, 100, 4)).toBe(101);
+    expect(donorBuff(110, 100, 4)).toBe(111);
+    expect(donorBuff(1000, 100, 4)).toBe(1090);
   });
 
-  test('leaves others and zero alone', () => {
-    expect(donorBuff(100, 1)).toBe(100);
-    expect(donorBuff(0, 4)).toBe(0);
+  test('leaves others, zero and payouts that do not beat the bet alone', () => {
+    expect(donorBuff(175, 100, 1)).toBe(175);
+    expect(donorBuff(0, 100, 4)).toBe(0);
+    expect(donorBuff(90, 100, 4)).toBe(90);
+    expect(donorBuff(100, 100, 4)).toBe(100);
   });
 });
 

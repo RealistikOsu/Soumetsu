@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { sequence } from '../../../test/rng';
 
 let config: object | null = null;
@@ -8,6 +8,8 @@ let history: Record<string, unknown>[] = [];
 let keys: Record<string, string> = {};
 // Runs after the next GET of a flight, to stand in for a request landing in between.
 let afterGet: (() => void) | null = null;
+let beforeGetdel: () => void = () => {};
+let hits = 0;
 
 const tx = {
   $queryRaw: async () => (user ? [user] : []),
@@ -32,7 +34,7 @@ mock.module('$server/db', () => ({
 
 mock.module('$server/redis', () => ({
   redis: {
-    incr: async () => 1,
+    incr: async () => ++hits,
     get: async (key: string) => {
       const value = keys[key] ?? null;
       if (key === KEY && afterGet) {
@@ -43,6 +45,7 @@ mock.module('$server/redis', () => ({
       return value;
     },
     getdel: async (key: string) => {
+      beforeGetdel();
       const value = keys[key] ?? null;
       delete keys[key];
       return value;
@@ -60,6 +63,7 @@ mock.module('$server/redis', () => ({
     },
     eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
       if (to === undefined) {
+        if (keys[key] !== from) return 0;
         delete keys[key];
         return 1;
       }
@@ -95,6 +99,8 @@ beforeEach(() => {
   history = [];
   keys = {};
   afterGet = null;
+  beforeGetdel = () => {};
+  hits = 0;
 });
 
 describe('start', () => {
@@ -158,7 +164,7 @@ describe('cashout', () => {
   test('applies the supporter buff', async () => {
     user = { coins: 900, privileges: 1n | 4n };
     flight();
-    expect(await cashout(1, EARLY)).toMatchObject({ payout: 151, balance: 1051 });
+    expect(await cashout(1, EARLY)).toMatchObject({ payout: 141, balance: 1041 });
   });
 
   test('a late cash out loses', async () => {
@@ -192,14 +198,19 @@ describe('cashout', () => {
 describe('watch', () => {
   test('ticks while in the air', async () => {
     flight();
-    expect(await watch(1, EARLY)).toEqual({ type: 'tick', m: 1.38 });
+    expect(await watch(1, EARLY)).toEqual({ type: 'tick', m: 1.38, startedAt: T0 });
     expect(keys[KEY]).toBeDefined();
   });
 
   test('settles the crash', async () => {
     user = { coins: 900, privileges: 1n };
     flight();
-    expect(await watch(1, LATE)).toEqual({ type: 'crash', crashPoint: 2, balance: 900 });
+    expect(await watch(1, LATE)).toEqual({
+      type: 'crash',
+      crashPoint: 2,
+      balance: 900,
+      startedAt: T0
+    });
     expect(history).toMatchObject([{ multiplier: 0, payout: 0 }]);
     expect(keys[KEY]).toBeUndefined();
   });
@@ -223,6 +234,32 @@ describe('watch', () => {
     expect(await watch(1, LATE)).toEqual({ type: 'done' });
     expect(history).toEqual([]);
     expect(JSON.parse(keys[KEY]).crashPoint).toBe(5);
+  });
+
+  test('settles even when the player is over the limit', async () => {
+    flight();
+    hits = 1000;
+    expect(await watch(1, LATE)).toMatchObject({ type: 'crash' });
+    expect(history).toHaveLength(1);
+  });
+
+  test('skips the tick while the lock is busy', async () => {
+    flight();
+    keys['casino:lock:1'] = 'someone';
+    expect(await watch(1, LATE)).toBeNull();
+    expect(history).toEqual([]);
+    expect(keys[KEY]).toBeDefined();
+  });
+
+  test('skips the tick when the flight changes between the read and the claim', async () => {
+    flight();
+    const other = JSON.stringify({ bet: 100, startedAt: T0, crashPoint: 1.5, curve });
+    beforeGetdel = () => {
+      keys[KEY] = other;
+    };
+    expect(await watch(1, LATE)).toBeNull();
+    expect(history).toEqual([]);
+    expect(keys[KEY]).toBe(other);
   });
 
   test('two streams and a cash out settle once', async () => {
@@ -256,19 +293,77 @@ describe('pendingFlight', () => {
 
 describe('stream', () => {
   const read = async (body: ReadableStream<Uint8Array>) => new Response(body).text();
+  const forever = async () => ({ type: 'tick' as const, m: 1, startedAt: T0 });
+
+  test('skips ticks with nothing to say', async () => {
+    const events = [null, null, { type: 'done' as const }];
+    const body = stream(1, new AbortController().signal, async () => events.shift()!, 1);
+    expect(await read(body)).toBe(': connected\n\ndata: {"type":"done"}\n\n');
+  });
+
+  test('a failing look closes the stream', async () => {
+    const logged = spyOn(console, 'error').mockImplementation(() => {});
+    const body = stream(
+      1,
+      new AbortController().signal,
+      async () => {
+        throw new Error('redis gone');
+      },
+      1
+    );
+    expect(await read(body)).toBe(': connected\n\n');
+    expect(logged).toHaveBeenCalledTimes(1);
+    logged.mockRestore();
+  });
+
+  test('a request already gone gets an empty stream and no looks', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    let calls = 0;
+    const body = stream(
+      1,
+      controller.signal,
+      async () => {
+        calls++;
+        return { type: 'done' };
+      },
+      1
+    );
+    expect(await read(body)).toBe('');
+    await Bun.sleep(5);
+    expect(calls).toBe(0);
+  });
+
+  test('a player gets three streams at once', async () => {
+    const controllers = [1, 2, 3].map(() => new AbortController());
+    for (const c of controllers) stream(7, c.signal, forever, 1);
+    expect(() => stream(7, new AbortController().signal, forever, 1)).toThrow(
+      expect.objectContaining({ status: 429, code: 'casino.too_fast' })
+    );
+    // Another player isn't affected.
+    const other = new AbortController();
+    stream(8, other.signal, forever, 1);
+    other.abort();
+
+    controllers[0].abort();
+    const again = new AbortController();
+    stream(7, again.signal, forever, 1);
+    for (const c of [...controllers, again]) c.abort();
+    stream(7, new AbortController().signal, async () => ({ type: 'done' }), 1);
+  });
 
   test('sends ticks, then the crash, and closes', async () => {
     const events = [
-      { type: 'tick' as const, m: 1.01 },
-      { type: 'tick' as const, m: 1.02 },
-      { type: 'crash' as const, crashPoint: 1.03, balance: 900 }
+      { type: 'tick' as const, m: 1.01, startedAt: T0 },
+      { type: 'tick' as const, m: 1.02, startedAt: T0 },
+      { type: 'crash' as const, crashPoint: 1.03, balance: 900, startedAt: T0 }
     ];
     const body = stream(1, new AbortController().signal, async () => events.shift()!, 1);
     expect(await read(body)).toBe(
       ': connected\n\n' +
-        'data: {"type":"tick","m":1.01}\n\n' +
-        'data: {"type":"tick","m":1.02}\n\n' +
-        'data: {"type":"crash","crashPoint":1.03,"balance":900}\n\n'
+        `data: {"type":"tick","m":1.01,"startedAt":${T0}}\n\n` +
+        `data: {"type":"tick","m":1.02,"startedAt":${T0}}\n\n` +
+        `data: {"type":"crash","crashPoint":1.03,"balance":900,"startedAt":${T0}}\n\n`
     );
     expect(events).toEqual([]);
   });
@@ -290,7 +385,7 @@ describe('stream', () => {
         most = Math.max(most, running);
         await Bun.sleep(15);
         running--;
-        return ++calls < 3 ? { type: 'tick', m: 1 } : { type: 'done' };
+        return ++calls < 3 ? { type: 'tick', m: 1, startedAt: T0 } : { type: 'done' };
       },
       1
     );
@@ -307,7 +402,7 @@ describe('stream', () => {
       controller.signal,
       async () => {
         calls++;
-        return { type: 'tick', m: 1 };
+        return { type: 'tick', m: 1, startedAt: T0 };
       },
       1
     );

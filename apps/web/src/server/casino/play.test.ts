@@ -95,20 +95,20 @@ describe('play', () => {
     const played = await play(1, 'coinflip', 100, { choice: 'heads' }, coinflip, () => 0.2);
     expect(played).toEqual({
       result: { outcome: 'heads', choice: 'heads', won: true },
-      payout: 192,
+      payout: 182,
       multiplier: 1.75,
-      balance: 1092
+      balance: 1082
     });
     expect(reads).toHaveLength(1);
     expect(reads[0]).toContain('FOR UPDATE');
-    expect(updates).toEqual([[100, 192, 1]]);
+    expect(updates).toEqual([[100, 182, 1]]);
     expect(history).toEqual([
       {
         user_id: 1,
         game_type: 'coinflip',
         bet_amount: 100,
         multiplier: 1.75,
-        payout: 192,
+        payout: 182,
         result_data: { outcome: 'heads', choice: 'heads', won: true }
       }
     ]);

@@ -298,8 +298,8 @@ export const aviatorCashout = () =>
   siteApi.post<Settled<AviatorView, AviatorResult>>('/casino/play/aviator/cashout');
 
 export type AviatorEvent =
-  | { type: 'tick'; m: number }
-  | { type: 'crash'; crashPoint: number; balance: number }
+  | { type: 'tick'; m: number; startedAt: number }
+  | { type: 'crash'; crashPoint: number; balance: number; startedAt: number }
   | { type: 'done' };
 
 // Ends when the stream does; the page decides whether to open another.

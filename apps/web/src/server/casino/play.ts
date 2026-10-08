@@ -65,7 +65,7 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
       if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
 
       const outcome = run(odds, input, bet, rng);
-      const payout = donorBuff(outcome.payout, privileges);
+      const payout = donorBuff(outcome.payout, bet, privileges);
       const multiplier = outcome.payout > 0 ? Math.round(outcome.multiplier * 100) / 100 : 0;
 
       await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;

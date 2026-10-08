@@ -23,6 +23,7 @@ export interface Settle<R extends Prisma.InputJsonObject> {
   refund?: boolean;
 }
 
+// Steps tell a settle from a new state by the `settle` key, so game state must never have one.
 export interface Settled<V, R extends Prisma.InputJsonObject> {
   settle: Settle<R>;
   view: V;
@@ -44,6 +45,13 @@ export interface Codes {
 
 const CODES: Codes = { pending: 'casino.game_pending', missing: 'casino.no_game' };
 
+export interface StepOptions {
+  codes?: Codes;
+  // For settles nobody asked for, such as a crash noticed by a stream, which mustn't wait on the
+  // player's own limit.
+  skipLimit?: boolean;
+}
+
 export interface BeginOptions<O, I> {
   codes?: Codes;
   // Checks the player's input against the odds before the attempt counts towards the limit.
@@ -53,6 +61,9 @@ export interface BeginOptions<O, I> {
 // Only replaces the state the caller read, so a write can never land on a game that changed under it.
 const SWAP =
   "if redis.call('get', KEYS[1]) == ARGV[1] then redis.call('set', KEYS[1], ARGV[2]) return 1 else return 0 end";
+
+const DROP =
+  "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
 const swap = async (key: string, from: string, to: string) =>
   (await redis.eval(SWAP, 1, key, from, to)) === 1;
@@ -71,8 +82,12 @@ function checkSettle({ base }: Settle<Prisma.InputJsonObject>) {
   if (!Number.isInteger(base) || base < 0) throw new Error(`Bad settle base ${base}`);
 }
 
-function amounts({ multiplier, base, refund }: Settle<Prisma.InputJsonObject>, privileges: bigint) {
-  const payout = refund ? base : donorBuff(base, Number(privileges));
+function amounts(
+  { multiplier, base, refund }: Settle<Prisma.InputJsonObject>,
+  bet: number,
+  privileges: bigint
+) {
+  const payout = refund ? base : donorBuff(base, bet, Number(privileges));
   // The history column is DECIMAL(6,2).
   const stored = payout > 0 ? Math.min(toHundredths(multiplier), MAX_MULTIPLIER) : 0;
   return { payout, multiplier: stored };
@@ -109,7 +124,7 @@ export async function begin<O, S extends SessionState, V, R extends Prisma.Input
           checkSettle(created.settle);
           if (await redis.get(key)) throw new Failure(409, codes.pending);
           if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
-          const { payout, multiplier } = amounts(created.settle, user.privileges);
+          const { payout, multiplier } = amounts(created.settle, bet, user.privileges);
           const { result } = created.settle;
 
           await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;
@@ -126,8 +141,12 @@ export async function begin<O, S extends SessionState, V, R extends Prisma.Input
         // Stored before the deduction so a running game never costs a second bet, and before the
         // coins check so a running game is a 409 rather than a 402.
         const json = JSON.stringify(created);
-        if ((await redis.set(key, json, 'NX')) !== 'OK') throw new Failure(409, codes.pending);
+        // Marked first, since the write can land and still throw.
         claimed = json;
+        if ((await redis.set(key, json, 'NX')) !== 'OK') {
+          claimed = null;
+          throw new Failure(409, codes.pending);
+        }
         if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
 
         await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} WHERE id = ${userId}`;
@@ -135,7 +154,9 @@ export async function begin<O, S extends SessionState, V, R extends Prisma.Input
       });
     } catch (e) {
       // The bet never went through, so the game mustn't stay playable for free.
-      if (claimed !== null) await redis.del(key).catch(restoreFailed(key, claimed));
+      // Compared first, so a running game that beat this one to the key is left alone.
+      if (claimed !== null)
+        await redis.eval(DROP, 1, key, claimed).catch(restoreFailed(key, claimed));
       throw e;
     }
   });
@@ -146,11 +167,11 @@ export async function step<S extends SessionState, V, R extends Prisma.InputJson
   game: Game,
   fn: (state: S, rng: () => number) => StepOutcome<S, V, R>,
   rng: () => number = cryptoRng,
-  codes: Codes = CODES
+  { codes = CODES, skipLimit = false }: StepOptions = {}
 ): Promise<StepResult<V, R>> {
   // Doesn't read the config, so a game that's paid for always finishes, even once it's disabled
   // or its odds are cleared.
-  await checkLimit(game, userId);
+  if (!skipLimit) await checkLimit(game, userId);
   const key = stateKey(game, userId);
 
   return withLock(userId, async () => {
@@ -225,7 +246,7 @@ async function settle<V, R extends Prisma.InputJsonObject>(
   try {
     return await db.$transaction(async (tx) => {
       const user = await lockUser(tx, userId);
-      const { payout, multiplier } = amounts(outcome.settle, user.privileges);
+      const { payout, multiplier } = amounts(outcome.settle, bet, user.privileges);
 
       if (charge > 0) {
         assertPublic(user.privileges);

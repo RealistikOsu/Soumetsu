@@ -16,6 +16,7 @@ let limitHits = 0;
 // Lets a test change Redis under a step, or make a swap land and still throw.
 let beforeGetdel: () => void = () => {};
 let throwAfterSwap = false;
+let throwAfterSet = false;
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -84,6 +85,10 @@ mock.module('$server/redis', () => ({
       if (args.includes('NX') && key in keys) return null;
       if (args.includes('XX') && !(key in keys)) return null;
       keys[key] = value;
+      if (throwAfterSet) {
+        throwAfterSet = false;
+        throw new Error('connection lost');
+      }
       return 'OK';
     },
     eval: async (_script: string, _n: number, key: string, from: string, to?: string) => {
@@ -96,6 +101,12 @@ mock.module('$server/redis', () => ({
           throwAfterSwap = false;
           throw new Error('connection lost');
         }
+        return 1;
+      }
+      if (!key.startsWith('casino:lock:')) {
+        await tick();
+        if (keys[key] !== from) return 0;
+        delete keys[key];
         return 1;
       }
       if (locks[key] !== from) return 0;
@@ -170,6 +181,7 @@ beforeEach(() => {
   limitHits = 0;
   beforeGetdel = () => {};
   throwAfterSwap = false;
+  throwAfterSet = false;
 });
 
 test('stateKey keeps the poker key', () => {
@@ -228,6 +240,20 @@ describe('begin', () => {
     expect(keys[KEY]).toBeUndefined();
   });
 
+  test('a claim that lands and then throws is removed', async () => {
+    throwAfterSet = true;
+    await expect(begin(1, 'poker', 100, create, view)).rejects.toThrow('connection lost');
+    expect(keys[KEY]).toBeUndefined();
+    expect(updates).toEqual([]);
+  });
+
+  test('a running game is left alone by the losing claim', async () => {
+    keys[KEY] = JSON.stringify({ bet: 50, n: 3, top: 500 });
+    const stored = keys[KEY];
+    await expect(begin(1, 'poker', 100, create, view)).rejects.toMatchObject({ status: 409 });
+    expect(keys[KEY]).toBe(stored);
+  });
+
   test('a failed commit removes the state', async () => {
     failCommit = true;
     await expect(begin(1, 'poker', 100, create, view)).rejects.toThrow('commit failed');
@@ -263,18 +289,18 @@ describe('begin', () => {
     expect(begun).toEqual({
       view: { bet: 100, n: 0 },
       result: { won: true },
-      payout: 242,
+      payout: 232,
       multiplier: 2.2,
-      balance: 1142
+      balance: 1132
     });
-    expect(updates).toEqual([[100, 242, 1]]);
+    expect(updates).toEqual([[100, 232, 1]]);
     expect(history).toEqual([
       {
         user_id: 1,
         game_type: 'poker',
         bet_amount: 100,
         multiplier: 2.2,
-        payout: 242,
+        payout: 232,
         result_data: { won: true }
       }
     ]);
@@ -335,8 +361,16 @@ describe('step', () => {
       code: 'casino.no_game'
     });
     await expect(
-      step(1, 'poker', advance, undefined, { pending: 'p', missing: 'casino.no_hand' })
+      step(1, 'poker', advance, undefined, { codes: { pending: 'p', missing: 'casino.no_hand' } })
     ).rejects.toMatchObject({ code: 'casino.no_hand' });
+  });
+
+  test('counts towards the limit unless told not to', async () => {
+    store({ bet: 100, n: 0, top: 500 });
+    await step(1, 'poker', advance);
+    expect(limitHits).toBe(1);
+    await step(1, 'poker', advance, undefined, { skipLimit: true });
+    expect(limitHits).toBe(1);
   });
 
   test('swaps the next state in over the one it read', async () => {
@@ -398,18 +432,18 @@ describe('step', () => {
     expect(played).toEqual({
       view: { bet: 100, n: 2 },
       result: { won: true },
-      payout: 275,
+      payout: 265,
       multiplier: 2.5,
-      balance: 1175
+      balance: 1165
     });
-    expect(updates).toEqual([[275, 1]]);
+    expect(updates).toEqual([[265, 1]]);
     expect(history).toEqual([
       {
         user_id: 1,
         game_type: 'poker',
         bet_amount: 100,
         multiplier: 2.5,
-        payout: 275,
+        payout: 265,
         result_data: { won: true }
       }
     ]);

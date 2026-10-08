@@ -201,17 +201,17 @@ describe('draw', () => {
       { suit: 'D', rank: 13 }
     ];
     const played = await draw(1, [true, true, false, false, false], inOrder);
-    // Full house pays 6x: 600, and the supporter buff makes it 660.
+    // Full house pays 6x: 600, and the supporter buff on the 500 profit makes it 650.
     const result = { hand, handRank: 'full_house' as const, multiplier: 6, payout: 600 };
-    expect(played).toEqual({ result, payout: 660, multiplier: 6, balance: 1660 });
-    expect(updates).toEqual([[660, 1]]);
+    expect(played).toEqual({ result, payout: 650, multiplier: 6, balance: 1650 });
+    expect(updates).toEqual([[650, 1]]);
     expect(history).toEqual([
       {
         user_id: 1,
         game_type: 'poker',
         bet_amount: 100,
         multiplier: 6,
-        payout: 660,
+        payout: 650,
         result_data: result
       }
     ]);

@@ -21,8 +21,8 @@ export interface AviatorResult {
 }
 
 export type AviatorEvent =
-  | { type: 'tick'; m: number }
-  | { type: 'crash'; crashPoint: number; balance: number }
+  | { type: 'tick'; m: number; startedAt: number }
+  | { type: 'crash'; crashPoint: number; balance: number; startedAt: number }
   | { type: 'done' };
 
 // Built field by field so the crash point never reaches a running flight.
@@ -46,20 +46,24 @@ const lost = (flight: Flight): StepOutcome<Flight, AviatorView, AviatorResult> =
 
 const read = (userId: number) => session.pending(userId, 'aviator', (flight: Flight) => flight);
 
+const failed = (e: unknown, ...codes: string[]) => e instanceof Failure && codes.includes(e.code);
+
+// Nobody asked for this settle, so it doesn't count against the player's limit.
 async function settleCrash(userId: number, now: number) {
-  const played = await session.step(userId, 'aviator', (flight: Flight) => {
-    // A new flight took the old one's place between the read and the lock.
-    if (!crashed(flight, now)) throw new Failure(409, 'casino.busy');
-    return lost(flight);
-  });
+  const played = await session.step(
+    userId,
+    'aviator',
+    (flight: Flight) => {
+      // A new flight took the old one's place between the read and the lock.
+      if (!crashed(flight, now)) throw new Failure(409, 'casino.not_crashed');
+      return lost(flight);
+    },
+    undefined,
+    { skipLimit: true }
+  );
   if (!('result' in played)) throw new Error('A crash always settles');
   return played;
 }
-
-// Another request settled the flight first, or will on its next look.
-const settledElsewhere = (e: unknown) =>
-  e instanceof Failure &&
-  (e.status === 429 || e.code === 'casino.busy' || e.code === 'casino.no_game');
 
 export async function start(
   userId: number,
@@ -72,7 +76,8 @@ export async function start(
     try {
       await settleCrash(userId, now());
     } catch (e) {
-      if (!(e instanceof Failure && e.code === 'casino.no_game')) throw e;
+      // Either way begin sees what's there now.
+      if (!failed(e, 'casino.no_game', 'casino.not_crashed')) throw e;
     }
   }
 
@@ -112,17 +117,20 @@ export async function cashout(userId: number, now = Date.now()) {
   return played;
 }
 
-export async function watch(userId: number, now = Date.now()): Promise<AviatorEvent> {
+// null means try again next tick: the lock was busy, so whoever holds it may not settle the crash.
+export async function watch(userId: number, now = Date.now()): Promise<AviatorEvent | null> {
   const flight = await read(userId);
   if (!flight) return { type: 'done' };
-  const m = multiplierAt(flight.curve, now - flight.startedAt);
-  if (m < flight.crashPoint) return { type: 'tick', m };
+  const { startedAt } = flight;
+  const m = multiplierAt(flight.curve, now - startedAt);
+  if (m < flight.crashPoint) return { type: 'tick', m, startedAt };
 
   try {
     const { result, balance } = await settleCrash(userId, now);
-    return { type: 'crash', crashPoint: result.crashPoint, balance };
+    return { type: 'crash', crashPoint: result.crashPoint, balance, startedAt };
   } catch (e) {
-    if (settledElsewhere(e)) return { type: 'done' };
+    if (failed(e, 'casino.no_game', 'casino.not_crashed')) return { type: 'done' };
+    if (e instanceof Failure && (e.status === 429 || e.code === 'casino.busy')) return null;
     throw e;
   }
 }
@@ -133,22 +141,30 @@ export async function pendingFlight(userId: number, now = Date.now()) {
   if (!crashed(flight, now)) return view(flight);
   try {
     await settleCrash(userId, now);
+    return null;
   } catch (e) {
-    if (!settledElsewhere(e)) throw e;
+    if (!failed(e, 'casino.no_game', 'casino.not_crashed', 'casino.busy')) throw e;
   }
-  return null;
+  const current = await read(userId);
+  return current && !crashed(current, now) ? view(current) : null;
 }
 
 const TICK = 100;
 // Bun closes connections that stay quiet for 10 seconds, so a comment goes out well within that.
 const HEARTBEAT = 5_000;
+const MAX_STREAMS = 3;
+
+// Per process, which is enough to stop one player opening streams without end.
+const streams = new Map<number, number>();
 
 export function stream(
   userId: number,
   signal: AbortSignal,
-  next: () => Promise<AviatorEvent> = () => watch(userId),
+  next: () => Promise<AviatorEvent | null> = () => watch(userId),
   tickMs = TICK
 ) {
+  const open = streams.get(userId) ?? 0;
+  if (open >= MAX_STREAMS) throw new Failure(429, 'casino.too_fast');
   const encoder = new TextEncoder();
   let stop = () => {};
 
@@ -156,13 +172,32 @@ export function stream(
     start(controller) {
       let closed = false;
       let running = false;
+      const close = () => {
+        try {
+          controller.close();
+        } catch {
+          // Already closed by the reader going away.
+        }
+      };
+      if (signal.aborted) {
+        closed = true;
+        close();
+        return;
+      }
+
+      streams.set(userId, open + 1);
       const write = (text: string) => {
-        if (!closed) controller.enqueue(encoder.encode(text));
+        if (closed) return;
+        try {
+          controller.enqueue(encoder.encode(text));
+        } catch {
+          stop();
+        }
       };
       const end = () => {
         if (closed) return;
         stop();
-        controller.close();
+        close();
       };
 
       const tick = async () => {
@@ -171,8 +206,10 @@ export function stream(
         running = true;
         try {
           const event = await next();
-          write(`data: ${JSON.stringify(event)}\n\n`);
-          if (event.type !== 'tick') end();
+          if (event) {
+            write(`data: ${JSON.stringify(event)}\n\n`);
+            if (event.type !== 'tick') end();
+          }
         } catch (err) {
           console.error('aviator stream failed', userId, err);
           end();
@@ -184,9 +221,13 @@ export function stream(
       const ticker = setInterval(tick, tickMs);
       const heartbeat = setInterval(() => write(': ping\n\n'), HEARTBEAT);
       stop = () => {
+        if (closed) return;
         closed = true;
         clearInterval(ticker);
         clearInterval(heartbeat);
+        const left = (streams.get(userId) ?? 1) - 1;
+        if (left > 0) streams.set(userId, left);
+        else streams.delete(userId);
       };
       signal.addEventListener('abort', stop);
       write(': connected\n\n');
