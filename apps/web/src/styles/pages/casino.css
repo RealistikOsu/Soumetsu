@@ -728,7 +728,7 @@ a.cs-card:hover {
   font-size: 13px;
 }
 
-.cs-bets button.cs-wide {
+.cs-bets button.cs-span {
   grid-column: 1 / -1;
 }
 

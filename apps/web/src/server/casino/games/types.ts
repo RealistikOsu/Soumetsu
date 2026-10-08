@@ -79,6 +79,15 @@ export function parseSymbolOdds(raw: Record<string, unknown>): SymbolOdds | null
   return { symbols: symbols as string[], weights: outWeights, multipliers: outMultipliers };
 }
 
+export function shuffle<T>(items: T[], rng: () => number): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function pickWeighted({ symbols, weights }: SymbolOdds, rng: () => number): string {
   let rand = rng() * symbols.reduce((sum, s) => sum + weights[s], 0);
   for (const symbol of symbols) {

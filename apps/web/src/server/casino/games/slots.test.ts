@@ -141,7 +141,6 @@ describe('slotsMax and slotsInfo', () => {
     expect(slotsInfo(odds)).toEqual({
       symbols: seeded.symbols,
       multipliers: seeded.multipliers,
-      columnFactor: 0.5,
       columns: { Cherry: null, Lemon: 1, Orange: 2.5, Grape: 6, Diamond: 25 }
     });
     expect(JSON.stringify(slotsInfo(odds))).not.toContain('weights');

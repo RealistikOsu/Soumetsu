@@ -56,7 +56,6 @@ export const slotsMax = (o: SlotsOdds) =>
 export const slotsInfo = (o: SlotsOdds) => ({
   symbols: o.symbols,
   multipliers: o.multipliers,
-  columnFactor: o.columnFactor,
   columns: Object.fromEntries(
     o.symbols.map((s) => [s, s === UNPAID_COLUMN ? null : columnLine(o, s)])
   )

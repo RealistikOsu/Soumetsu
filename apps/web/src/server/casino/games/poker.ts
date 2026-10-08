@@ -1,7 +1,7 @@
 import { Failure } from '$server/respond';
-import { MAX_MULTIPLIER, isAmount, isRecord, toHundredths } from './types';
+import { MAX_MULTIPLIER, isAmount, isRecord, shuffle, toHundredths } from './types';
 
-export const HAND_RANKS = [
+const HAND_RANKS = [
   'royal_flush',
   'straight_flush',
   'four_of_a_kind',
@@ -44,15 +44,6 @@ export function parsePokerOdds(raw: unknown): PokerOdds | null {
 export const pokerMax = (o: PokerOdds) => Math.max(...Object.values(o.payouts));
 
 export const pokerInfo = (o: PokerOdds) => ({ payouts: o.payouts });
-
-function shuffle<T>(cards: T[], rng: () => number) {
-  const d = [...cards];
-  for (let i = d.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [d[i], d[j]] = [d[j], d[i]];
-  }
-  return d;
-}
 
 function makeDeck() {
   const deck: Card[] = [];

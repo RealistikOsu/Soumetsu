@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sequence } from '../../../../test/rng';
 import {
   classifyHand,
   dealHand,
@@ -95,7 +96,9 @@ describe('classifyHand', () => {
 
 describe('dealHand', () => {
   test('deals five from a full deck and keeps the other 47', () => {
-    const { hand, deck } = dealHand(Math.random);
+    const rng = sequence(Array(51).fill(0));
+    const { hand, deck } = dealHand(rng);
+    expect(rng.used()).toBe(51);
     expect(hand).toHaveLength(5);
     expect(deck).toHaveLength(47);
     const all = [...hand, ...deck].map((c) => `${c.suit}${c.rank}`);

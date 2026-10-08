@@ -9,6 +9,7 @@ let keys: Record<string, string> = {};
 let failSet = false;
 let failExecute = false;
 let failCommit = false;
+let setArgs: (string | number)[][] = [];
 
 const tx = {
   $queryRaw: async () => (user ? [user] : []),
@@ -51,6 +52,7 @@ mock.module('$server/redis', () => ({
       return had ? 1 : 0;
     },
     set: async (key: string, value: string, ...args: (string | number)[]) => {
+      if (key.startsWith('casino:poker:')) setArgs.push(args);
       if (failSet && key.startsWith('casino:poker:')) throw new Error('redis down');
       if (args.includes('NX') && key in keys) return null;
       keys[key] = value;
@@ -92,6 +94,7 @@ beforeEach(() => {
   failSet = false;
   failExecute = false;
   failCommit = false;
+  setArgs = [];
 });
 
 describe('deal', () => {
@@ -105,6 +108,9 @@ describe('deal', () => {
     expect(stored.bet).toBe(100);
     expect(stored.hand).toEqual(dealt.hand);
     expect(stored.deck).toHaveLength(47);
+    expect(stored.payouts).toEqual({ ...payouts, nothing: 0 });
+    // No expiry, so a hand that's paid for is never forfeited.
+    expect(setArgs).toEqual([['NX']]);
     expect(history).toEqual([]);
     expect(await pending(1)).toEqual({ hand: dealt.hand, bet: 100 });
   });
@@ -184,7 +190,8 @@ describe('draw', () => {
         { suit: 'H', rank: 13 },
         { suit: 'D', rank: 13 }
       ],
-      bet: 100
+      bet: 100,
+      payouts: { ...payouts, nothing: 0 }
     });
     const hand: Card[] = [
       { suit: 'S', rank: 1 },
@@ -222,7 +229,8 @@ describe('draw', () => {
         { suit: 'S', rank: 13 }
       ],
       deck: [],
-      bet: 100
+      bet: 100,
+      payouts: { ...payouts, nothing: 0 }
     });
     user = { coins: 900, privileges: 1n | 4n };
     const played = await draw(1, [true, true, true, true, true], inOrder);
@@ -243,6 +251,17 @@ describe('draw', () => {
     expect(history).toMatchObject([{ bet_amount: 100 }]);
   });
 
+  test('pays from the stored payouts once the odds are cleared', async () => {
+    await deal(1, 100, inOrder);
+    clearConfigCache();
+    config = { min_bet: 10, max_bet: 1000, enabled: true, config_json: null };
+    updates = [];
+    // A-5 of spades held is a straight flush: 35x.
+    const played = await draw(1, [true, true, true, true, true]);
+    expect(played).toMatchObject({ payout: 3500, multiplier: 35, balance: 4500 });
+    expect(keys[KEY]).toBeUndefined();
+  });
+
   test('a failed payout puts the hand back as it was', async () => {
     await deal(1, 100, inOrder);
     const stored = keys[KEY];
@@ -250,6 +269,7 @@ describe('draw', () => {
     await expect(draw(1, [true, true, true, true, true])).rejects.toThrow('update failed');
     expect(keys[KEY]).toBe(stored);
     expect(history).toEqual([]);
+    expect(setArgs.at(-1)).toEqual(['NX']);
   });
 
   test('a failed commit puts the hand back as it was', async () => {

@@ -138,7 +138,7 @@
                 role="radio"
                 aria-checked={betType === option}
                 class:active={betType === option}
-                class:cs-wide={option === 'straight'}
+                class:cs-span={option === 'straight'}
                 disabled={pending}
                 onclick={() => (betType = option)}
               >

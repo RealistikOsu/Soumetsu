@@ -2,7 +2,7 @@ import { Failure } from '$server/respond';
 import type { GameRunner } from '../play';
 import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor } from './types';
 
-export type PlinkoRisk = 'low' | 'medium' | 'high';
+type PlinkoRisk = 'low' | 'medium' | 'high';
 
 const RISKS: readonly PlinkoRisk[] = ['low', 'medium', 'high'];
 

@@ -15,7 +15,6 @@ export type InstantGame = 'coinflip' | 'plinko' | 'slots' | 'zeus' | 'wheel' | '
 interface InstantEntry {
   info(odds: unknown): unknown;
   max(odds: unknown): number;
-  // Parses the body against the odds first, so a bad body never reaches the rate limit.
   prepare(
     raw: unknown,
     cfg: GameConfig

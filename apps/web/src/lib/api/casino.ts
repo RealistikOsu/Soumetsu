@@ -14,7 +14,7 @@ export type Game =
   | 'zeus'
   | 'blackjack';
 
-export interface GameLimits {
+interface GameLimits {
   game: Game;
   minBet: number;
   maxBet: number;
@@ -98,7 +98,6 @@ export interface PlinkoInfo {
 export interface SlotsInfo {
   symbols: string[];
   multipliers: Record<string, number>;
-  columnFactor: number;
   // A full column's multiplier per symbol, null where a column doesn't pay.
   columns: Record<string, number | null>;
 }
@@ -161,7 +160,7 @@ export type BingoResult = {
   multiplier: number;
   payout: number;
 };
-export type PokerResult = {
+type PokerResult = {
   hand: Card[];
   handRank: HandRank;
   multiplier: number;

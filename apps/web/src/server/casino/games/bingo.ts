@@ -1,5 +1,5 @@
 import type { GameRunner } from '../play';
-import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor } from './types';
+import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor, shuffle } from './types';
 
 export interface BingoOdds {
   maxCalls: number;
@@ -35,15 +35,6 @@ const PATTERNS: { name: string; cells: [number, number][] }[] = [
   { name: 'diag_tl', cells: [0, 1, 2, 3, 4].map((i): [number, number] => [i, i]) },
   { name: 'diag_tr', cells: [0, 1, 2, 3, 4].map((i): [number, number] => [4 - i, i]) }
 ];
-
-function shuffle<T>(items: T[], rng: () => number): T[] {
-  const a = [...items];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 const range = (start: number, length: number) => Array.from({ length }, (_, i) => start + i);
 

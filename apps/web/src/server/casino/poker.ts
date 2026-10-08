@@ -3,21 +3,19 @@ import { db } from '$server/db';
 import { redis } from '$server/redis';
 import { Failure } from '$server/respond';
 import { donorBuff, gameConfig } from './config';
-import { dealHand, drawHand, parseHeld, parsePokerOdds } from './games/poker';
-import type { Card } from './games/poker';
+import { dealHand, drawHand, parseHeld } from './games/poker';
+import type { Card, PokerOdds } from './games/poker';
 import { payoutFor } from './games/types';
 import { recordPlay } from './history';
 import { checkLimit, withLock } from './limits';
-import { cryptoRng, parseBet } from './play';
+import { cryptoRng, lockUser, parseBet } from './play';
 
 interface Pending {
   hand: Card[];
   deck: Card[];
   bet: number;
+  payouts: PokerOdds['payouts'];
 }
-
-// A dealt hand that's never drawn is forfeited when this runs out.
-const HAND_TTL = 86400;
 
 const handKey = (userId: number) => `casino:poker:${userId}`;
 
@@ -27,8 +25,9 @@ async function load(userId: number): Promise<Pending | null> {
 }
 
 export async function deal(userId: number, rawBet: unknown, rng: () => number = cryptoRng) {
-  const cfg = await gameConfig('poker');
-  if (!cfg.enabled || !parsePokerOdds(cfg.odds)) throw new Failure(403, 'casino.disabled');
+  const cfg = await gameConfig<PokerOdds>('poker');
+  if (!cfg.enabled || !cfg.odds) throw new Failure(403, 'casino.disabled');
+  const { payouts } = cfg.odds;
   const bet = parseBet(rawBet, cfg);
   await checkLimit('poker', userId);
   const key = handKey(userId);
@@ -37,9 +36,7 @@ export async function deal(userId: number, rawBet: unknown, rng: () => number = 
     let claimed = false;
     try {
       return await db.$transaction(async (tx) => {
-        const [user] = await tx.$queryRaw<{ coins: number; privileges: bigint }[]>`
-          SELECT coins, privileges FROM users WHERE id = ${userId} FOR UPDATE`;
-        if (!user) throw new Failure(404, 'users.user_not_found');
+        const user = await lockUser(tx, userId);
         if ((Number(user.privileges) & Privilege.Public) === 0)
           throw new Failure(403, 'site.forbidden');
 
@@ -48,9 +45,7 @@ export async function deal(userId: number, rawBet: unknown, rng: () => number = 
         // coins check so a pending hand is a 409 rather than a 402.
         const stored = await redis.set(
           key,
-          JSON.stringify({ hand, deck, bet } satisfies Pending),
-          'EX',
-          HAND_TTL,
+          JSON.stringify({ hand, deck, bet, payouts } satisfies Pending),
           'NX'
         );
         if (stored !== 'OK') throw new Failure(409, 'casino.hand_pending');
@@ -69,10 +64,8 @@ export async function deal(userId: number, rawBet: unknown, rng: () => number = 
 }
 
 export async function draw(userId: number, rawHeld: unknown, rng: () => number = cryptoRng) {
-  // A disabled game still lets a hand that's already paid for finish. It pays from the odds as
-  // they are now, which an admin may have changed since the deal.
-  const odds = parsePokerOdds((await gameConfig('poker')).odds);
-  if (!odds) throw new Failure(403, 'casino.disabled');
+  // Pays from the payouts stored at the deal, so a hand that's paid for always finishes, even
+  // once the game is disabled or its odds are cleared.
   const held = parseHeld(rawHeld);
   await checkLimit('poker', userId);
   const key = handKey(userId);
@@ -82,15 +75,13 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
     const raw = await redis.getdel(key);
     if (!raw) throw new Failure(404, 'casino.no_hand');
     const state = JSON.parse(raw) as Pending;
-    const { bet } = state;
-    const { hand, handRank, multiplier } = drawHand(state.hand, state.deck, held, odds, rng);
+    const { bet, payouts } = state;
+    const { hand, handRank, multiplier } = drawHand(state.hand, state.deck, held, { payouts }, rng);
     const base = payoutFor(bet, multiplier);
 
     try {
       return await db.$transaction(async (tx) => {
-        const [user] = await tx.$queryRaw<{ coins: number; privileges: bigint }[]>`
-          SELECT coins, privileges FROM users WHERE id = ${userId} FOR UPDATE`;
-        if (!user) throw new Failure(404, 'users.user_not_found');
+        const user = await lockUser(tx, userId);
         const payout = donorBuff(base, Number(user.privileges));
         const result = { hand, handRank, multiplier, payout: base };
         const stored = payout > 0 ? multiplier : 0;
@@ -101,7 +92,7 @@ export async function draw(userId: number, rawHeld: unknown, rng: () => number =
       });
     } catch (e) {
       // Nothing was paid, so give the hand back to be drawn again.
-      await redis.set(key, raw, 'EX', HAND_TTL, 'NX').catch(() => {});
+      await redis.set(key, raw, 'NX').catch(() => {});
       throw e;
     }
   });

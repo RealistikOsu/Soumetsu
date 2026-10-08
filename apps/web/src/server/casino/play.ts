@@ -35,6 +35,13 @@ export function parseBet(raw: unknown, cfg: { minBet: number; maxBet: number }) 
   return raw;
 }
 
+export async function lockUser(tx: Prisma.TransactionClient, userId: number) {
+  const [user] = await tx.$queryRaw<{ coins: number; privileges: bigint }[]>`
+    SELECT coins, privileges FROM users WHERE id = ${userId} FOR UPDATE`;
+  if (!user) throw new Failure(404, 'users.user_not_found');
+  return user;
+}
+
 export async function play<O, I, R extends Prisma.InputJsonObject>(
   userId: number,
   game: Game,
@@ -52,9 +59,7 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
 
   return withLock(userId, () =>
     db.$transaction(async (tx) => {
-      const [user] = await tx.$queryRaw<{ coins: number; privileges: bigint }[]>`
-        SELECT coins, privileges FROM users WHERE id = ${userId} FOR UPDATE`;
-      if (!user) throw new Failure(404, 'users.user_not_found');
+      const user = await lockUser(tx, userId);
       const privileges = Number(user.privileges);
       if ((privileges & Privilege.Public) === 0) throw new Failure(403, 'site.forbidden');
       if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');

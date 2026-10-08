@@ -1,7 +1,7 @@
 import type { GameRunner } from '../play';
 import { MAX_MULTIPLIER, isAmount, isRecord, payoutFor } from './types';
 
-export type SegmentType = 'multiplier' | 'penalty' | 'jackpot';
+type SegmentType = 'multiplier' | 'penalty' | 'jackpot';
 
 const TYPES: readonly SegmentType[] = ['multiplier', 'penalty', 'jackpot'];
 
