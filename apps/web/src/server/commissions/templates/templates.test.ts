@@ -219,9 +219,9 @@ describe('map', () => {
   });
   test('map_stars rolls around the usual stars', () => {
     const ctx = fakeContext({ usualStars: 4 });
-    expect(byKey.get('map_stars')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({ stars: 5 });
+    expect(byKey.get('map_stars')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({ stars: 4 });
     expect(byKey.get('map_stars_hard')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
-      stars: 6
+      stars: 5
     });
   });
   test('map_easy_nomod', async () => {

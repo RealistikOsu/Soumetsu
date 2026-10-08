@@ -94,12 +94,23 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
     topByKey.set(key, Math.max(topByKey.get(key) ?? 0, Number(top.pp)));
   }
 
-  // The usual star range follows the favourite mode's difficulty column.
+  // The usual star range follows the favourite mode's difficulty column, over every stable variant.
+  const mode = STARS[favouriteMode] ? favouriteMode : 0;
+  const difficulty = Prisma.raw(`b.${STARS[mode]}`);
   const usual = await db.$queryRaw<{ stars: number }[]>(Prisma.sql`
-    SELECT ${Prisma.raw(`b.${STARS[favouriteMode]}`)} AS stars FROM scores s
-    INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
-    WHERE s.userid = ${id} AND s.play_mode = ${favouriteMode} AND s.completed >= 1
-    ORDER BY s.id DESC LIMIT 50`);
+    SELECT stars FROM (
+      ${Prisma.join(
+        STABLE_TABLES.map(
+          (table) => Prisma.sql`
+            (SELECT s.id, ${difficulty} AS stars FROM ${Prisma.raw(table)} s
+             INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
+             WHERE s.userid = ${id} AND s.play_mode = ${mode} AND s.completed >= 1
+             ORDER BY s.id DESC LIMIT 50)`
+        ),
+        ' UNION ALL '
+      )}
+    ) recent
+    ORDER BY id DESC LIMIT 50`);
 
   const scores = cached(() => loadDayScores(id, window));
 

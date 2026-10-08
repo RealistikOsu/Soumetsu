@@ -38,8 +38,8 @@ const distinctMapsInSet = (scores: DayScore[]) => {
 };
 
 export const mapProperty: Template[] = [
-  stars('map_stars', 'medium', 1),
-  stars('map_stars_hard', 'hard', 2),
+  stars('map_stars', 'medium', 0),
+  stars('map_stars_hard', 'hard', 1),
   on('map_easy_nomod', 'easy', (map, s) => map.stars < 3 && s.mods.length === 0),
   on(
     'map_bpm',
