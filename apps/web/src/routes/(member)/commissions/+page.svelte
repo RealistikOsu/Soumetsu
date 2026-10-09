@@ -35,7 +35,7 @@
   }
 </script>
 
-{#snippet bar(d: CommissionDay)}
+{#snippet bar(d: CommissionDay, finished = false)}
   <div class="cm-track"><span style="width: {percent(d)}%"></span></div>
   <ol class="cm-tiers">
     {#each d.thresholds as threshold, index (threshold.points)}
@@ -46,6 +46,8 @@
         <span>{m.commissions_points({ points: number(threshold.points) })}</span>
         {#if d.claimedTier >= tier}
           <b>{m.commissions_claimed()}</b>
+        {:else if finished && !reached}
+          <span class="muted">{m.commissions_missed()}</span>
         {:else}
           <button
             class="btn btn-blue"
@@ -74,17 +76,21 @@
     </p>
 
     {#if previous}
+      {@const settling =
+        previous.tasks.some((task) => task.template.startsWith('daily_top') && !task.completed) &&
+        fromIso(previous.settlesAt) > Date.now() / 1000 - 86_400}
       <section class="cm-bar panel">
         <h2 class="cm-day">
           {m.commissions_yesterday()}
           <span class="muted"
-            >{m.commissions_header_badge({
+            >{settling ? m.commissions_settling() : m.commissions_finished()} ·
+            {m.commissions_header_badge({
               done: previous.tasks.filter((task) => task.completed).length,
               total: previous.tasks.length
             })}</span
           >
         </h2>
-        {@render bar(previous)}
+        {@render bar(previous, !settling)}
       </section>
     {/if}
 

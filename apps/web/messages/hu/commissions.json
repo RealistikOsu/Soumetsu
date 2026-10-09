@@ -203,5 +203,8 @@
   "commissions_task_casino_lose": "Veszíts egy kört (a ház köszöni)",
   "commissions_task_meme_combo": "Érj el pontosan {combo} combót",
   "commissions_task_meme_fail": "Bukj el egy mapen",
-  "commissions_yesterday": "Tegnap"
+  "commissions_yesterday": "Tegnap",
+  "commissions_finished": "Lezárva",
+  "commissions_settling": "A helyezések még zárulnak",
+  "commissions_missed": "Lemaradt"
 }

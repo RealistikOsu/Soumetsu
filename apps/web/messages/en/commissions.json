@@ -203,5 +203,8 @@
   "commissions_task_casino_lose": "Lose a round (the house thanks you)",
   "commissions_task_meme_combo": "Get a combo of exactly {combo}",
   "commissions_task_meme_fail": "Fail a map",
-  "commissions_yesterday": "Yesterday"
+  "commissions_yesterday": "Yesterday",
+  "commissions_finished": "Finished",
+  "commissions_settling": "Placements still settling",
+  "commissions_missed": "Missed"
 }

@@ -221,5 +221,8 @@
   "commissions_task_casino_lose": "Przegraj rundę (kasyno dziękuje)",
   "commissions_task_meme_combo": "Zbij combo dokładnie {combo}",
   "commissions_task_meme_fail": "Oblej mapę",
-  "commissions_yesterday": "Wczoraj"
+  "commissions_yesterday": "Wczoraj",
+  "commissions_finished": "Zakończony",
+  "commissions_settling": "Miejsca jeszcze się liczą",
+  "commissions_missed": "Nie zdobyto"
 }

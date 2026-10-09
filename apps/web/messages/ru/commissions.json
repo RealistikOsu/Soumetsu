@@ -221,5 +221,8 @@
   "commissions_task_casino_lose": "Проиграй раунд (казино благодарит)",
   "commissions_task_meme_combo": "Набери комбо ровно {combo}",
   "commissions_task_meme_fail": "Зафейли карту",
-  "commissions_yesterday": "Вчера"
+  "commissions_yesterday": "Вчера",
+  "commissions_finished": "Завершён",
+  "commissions_settling": "Места ещё подсчитываются",
+  "commissions_missed": "Не набрано"
 }
