@@ -80,7 +80,8 @@ function spanOf(date: string, start: Date): DayWindow {
 const STABLE_TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const STARS = ['difficulty_std', 'difficulty_taiko', 'difficulty_ctb', 'difficulty_mania'];
 
-const NO_RANK: BoardRank = { rank: 1, previousFirst: null, previousFirstValue: null };
+// A play whose row is gone (deleted or wiped) can't be placed on its board.
+const UNRANKED: BoardRank = { rank: Infinity, previousFirst: null, previousFirstValue: null };
 
 interface RankRow {
   id: number;
@@ -372,7 +373,7 @@ export async function loadContext(
           for (const row of rows) found[`${group}:${Number(row.id)}`] = boardRank(row);
         })
       );
-      return scores.map((score) => found[`${groupOf(score)}:${score.id}`] ?? NO_RANK);
+      return scores.map((score) => found[`${groupOf(score)}:${score.id}`] ?? UNRANKED);
     }
   };
 }
@@ -397,7 +398,8 @@ export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
     weekGames: async () => [],
     playedBefore: async () => new Map(),
     topMaps: async () => [],
-    leaderboardRanks: async (scores) => scores.map(() => NO_RANK),
+    leaderboardRanks: async (scores) =>
+      scores.map(() => ({ rank: 1, previousFirst: null, previousFirstValue: null })),
     ...overrides
   };
 }

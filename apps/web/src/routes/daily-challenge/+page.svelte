@@ -129,6 +129,7 @@
         page={current}
         onpage={(p) => goto(target(source, p), { keepFocus: true, noScroll: true })}
         empty={source === 'stable' ? m.rooms_stable_empty() : undefined}
+        pending={result.status !== 'ready'}
       />
     {/key}
   {/if}

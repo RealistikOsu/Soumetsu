@@ -78,7 +78,8 @@ let dailyRow: DailyRow | null = null;
 mock.module('$server/admin/console', () => ({ record: async () => {} }));
 mock.module('$server/db', () => ({ db: fakeDb }));
 const { clockFrom } = await import('./day');
-mock.module('./clock', () => ({ loadClock: async () => clockFrom([]) }));
+let challengeStarts: Date[] = [];
+mock.module('./clock', () => ({ loadClock: async () => clockFrom(challengeStarts) }));
 const real = await import('./context');
 mock.module('./context', () => ({
   ...real,
@@ -201,6 +202,7 @@ describe('todayFor', () => {
     contextsLoaded = [];
     failContextFor = null;
     dailyRow = null;
+    challengeStarts = [];
     checkResult = async () => 1;
     lateResult = async () => 0;
   });
@@ -231,15 +233,56 @@ describe('todayFor', () => {
     expect(previous?.tasks[1].completed).toBe(false);
   });
 
-  test('later on, yesterday keeps its stored row when nothing left can settle', async () => {
+  const minutesAfter = (from: Date) => (minutes: number) =>
+    new Date(from.getTime() + minutes * 60_000);
+
+  test('yesterday gets one full recheck after the rollover settles, then keeps its row', async () => {
     days = [
       dayRow(1, 15, '2026-10-08', [task(91, true)]),
       dayRow(2, 15, '2026-10-07', [task(92, true), task(93)])
     ];
-    const { previous } = await todayFor(15, now);
-    expect(contextsLoaded).toEqual([]);
+    checkResult = async () => 0;
+    const at = minutesAfter(new Date('2026-10-08T00:00:00Z'));
+    await todayFor(15, at(2));
+    await todayFor(15, at(10));
+    await todayFor(15, at(20));
+    // The check at 00:02 came before the cutoff, so 00:10 still checks everything; nothing after it does.
+    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07']);
+
+    checkResult = async () => 1;
+    const { previous } = await todayFor(15, at(30));
     expect(previous?.points).toBe(100);
     expect(previous?.tasks[1].completed).toBe(false);
+  });
+
+  test('a late visit still gets the full recheck', async () => {
+    days = [
+      dayRow(1, 18, '2026-10-08', [task(121, true)]),
+      dayRow(2, 18, '2026-10-07', [task(122, true), task(123)])
+    ];
+    const { previous } = await todayFor(18, now);
+    expect(contextsLoaded).toEqual(['2026-10-07']);
+    expect(previous?.tasks[1].completed).toBe(true);
+  });
+
+  test("a short day keeps full rechecks until its challenge's 24 hours are up", async () => {
+    challengeStarts = [
+      new Date('2026-10-06T12:00:00Z'),
+      new Date('2026-10-07T06:00:00Z'),
+      new Date('2026-10-08T06:00:00Z')
+    ];
+    days = [
+      dayRow(1, 19, '2026-10-07', [task(131, true)]),
+      dayRow(2, 19, '2026-10-06', [task(132, true), task(133)])
+    ];
+    checkResult = async () => 0;
+    const at = minutesAfter(new Date('2026-10-07T08:00:00Z'));
+    await todayFor(19, at(0));
+    await todayFor(19, at(1));
+    // 2026-10-06 ended at 06:00, but its challenge ran until 12:00.
+    await todayFor(19, at(4 * 60 + 10));
+    await todayFor(19, at(4 * 60 + 11));
+    expect(contextsLoaded).toEqual(['2026-10-06', '2026-10-06', '2026-10-06']);
   });
 
   test('a daily placement is rechecked until the challenge is finalised', async () => {
@@ -247,24 +290,27 @@ describe('todayFor', () => {
       dayRow(1, 16, '2026-10-08', [task(101, true)]),
       dayRow(2, 16, '2026-10-07', [task(102, true), task(103), task(104, false, 'test_late')])
     ];
-    const played = { passed: true } as DayScore;
     dailyRow = {
       beatmapId: 1,
       placement: 0,
       stablePlacement: 0,
       finalised: false,
-      scores: [played]
+      scores: [{ passed: true } as DayScore]
     };
-    const at = (minutes: number) => new Date(now.getTime() + minutes * 60_000);
+    checkResult = async () => 0;
+    const at = minutesAfter(now);
 
     await todayFor(16, at(0));
-    dailyRow = { ...dailyRow, finalised: true };
+    // Only the placement is rechecked from here on.
+    checkResult = async () => 1;
     await todayFor(16, at(1));
+    dailyRow = { ...dailyRow, finalised: true };
     await todayFor(16, at(2));
-    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07']);
+    await todayFor(16, at(3));
+    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07', '2026-10-07']);
 
     lateResult = async () => 1;
-    const { previous } = await todayFor(16, at(3));
+    const { previous } = await todayFor(16, at(4));
     expect(previous?.tasks.map((t) => t.completed)).toEqual([true, false, false]);
   });
 
@@ -274,9 +320,36 @@ describe('todayFor', () => {
       dayRow(2, 17, '2026-10-07', [task(112, false, 'test_late')])
     ];
     dailyRow = { beatmapId: 1, placement: 0, stablePlacement: 0, finalised: false, scores: [] };
-    await todayFor(17, now);
-    await todayFor(17, new Date(now.getTime() + 60_000));
-    expect(contextsLoaded).toEqual(['2026-10-07']);
+    const at = minutesAfter(now);
+    await todayFor(17, at(0));
+    await todayFor(17, at(1));
+    await todayFor(17, at(2));
+    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07']);
+  });
+
+  test('placements stop being rechecked a day after yesterday ended', async () => {
+    // A 47-hour gap makes today one long day, so yesterday is still yesterday a day after it ended.
+    challengeStarts = [
+      new Date('2026-10-07T00:00:00Z'),
+      new Date('2026-10-08T00:00:00Z'),
+      new Date('2026-10-09T23:00:00Z')
+    ];
+    days = [
+      dayRow(1, 20, '2026-10-08', [task(141, true)]),
+      dayRow(2, 20, '2026-10-07', [task(142, false, 'test_late')])
+    ];
+    dailyRow = {
+      beatmapId: 1,
+      placement: 0,
+      stablePlacement: 0,
+      finalised: false,
+      scores: [{ passed: true } as DayScore]
+    };
+    const at = minutesAfter(new Date('2026-10-08T23:58:00Z'));
+    await todayFor(20, at(0));
+    await todayFor(20, at(1));
+    await todayFor(20, at(3));
+    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07']);
   });
 
   test('a missing yesterday is never rolled', async () => {

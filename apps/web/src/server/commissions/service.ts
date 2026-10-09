@@ -230,20 +230,29 @@ async function checkDay(
   return { ...day, tasks, points, completed_at: completedNow ? now : day.completed_at };
 }
 
-// Plays submitted around the rollover can land after yesterday's last check, so every open task gets rechecked for
-// a while after the day ends.
-const ROLLOVER_GRACE = 3_600_000;
-// Daily challenge placements are written when the challenge rolls over, a day after it starts. They're rechecked
-// until the player's row is finalised (or they never passed the map), giving up a day after that should have happened.
 const DAY = 86_400_000;
-const SETTLE_LIMIT = 2 * DAY;
+// Progress can land after yesterday's last check (casino, shop, matches and scores near the rollover), so yesterday
+// gets full rechecks until one has run a little after it ended. Its challenge's plays run until a day after it started,
+// even when the next challenge starts sooner.
+const ROLLOVER_GRACE = 5 * 60_000;
+// Daily challenge placements are written when the challenge rolls over. After the full recheck only those are
+// rechecked, until the player's row is finalised (or they never passed the map), giving up a day after the day ended.
+const SETTLE_LIMIT = DAY;
+// Both kept in memory: a restart costs one extra check.
+const fullyChecked = new Map<string, number>();
 const settled = new Map<string, number>();
 
-function lateChecks(day: Day, window: DayWindow, now: Date) {
-  const at = now.getTime();
-  if (at < window.end.getTime() + ROLLOVER_GRACE) return () => true;
-  const key = `${day.user_id}:${window.date}`;
-  if (at >= window.start.getTime() + SETTLE_LIMIT || settled.has(key)) return null;
+function remember(map: Map<string, number>, key: string, until: number, now: number) {
+  for (const [old, expiry] of map) if (expiry <= now) map.delete(old);
+  map.set(key, until);
+}
+
+const cutoffOf = (window: DayWindow) =>
+  Math.max(window.end.getTime(), window.start.getTime() + DAY) + ROLLOVER_GRACE;
+
+function lateChecks(key: string, window: DayWindow, now: Date) {
+  if (!fullyChecked.has(key)) return () => true;
+  if (now.getTime() >= window.end.getTime() + SETTLE_LIMIT || settled.has(key)) return null;
   return (task: Day['tasks'][number]) => !!byKey.get(task.template)?.settlesLate;
 }
 
@@ -254,7 +263,11 @@ async function recheckYesterday(
   settings: Settings,
   now: Date
 ) {
-  const only = lateChecks(day, window, now);
+  const key = `${userId}:${window.date}`;
+  const at = now.getTime();
+  const expiry = Math.max(cutoffOf(window), window.end.getTime() + SETTLE_LIMIT) + DAY;
+  const full = !fullyChecked.has(key);
+  const only = lateChecks(key, window, now);
   if (!only) return day;
   let loaded: Promise<PlayerContext> | undefined;
   const checked = await checkDay(
@@ -265,14 +278,14 @@ async function recheckYesterday(
     now,
     only
   );
-  const at = now.getTime();
-  if (loaded && at >= window.end.getTime() + ROLLOVER_GRACE) {
+  const open = checked.tasks.some((task) => !task.completed_at);
+  if (full) {
+    if (at >= cutoffOf(window) && (loaded || !open)) remember(fullyChecked, key, expiry, at);
+  } else if (loaded) {
     const daily = await (await loaded).daily();
     const over = at >= window.start.getTime() + DAY;
-    if (!daily || daily.finalised || (over && !daily.scores.some((score) => score.passed))) {
-      for (const [key, until] of settled) if (until <= at) settled.delete(key);
-      settled.set(`${userId}:${window.date}`, window.start.getTime() + SETTLE_LIMIT);
-    }
+    if (!daily || daily.finalised || (over && !daily.scores.some((score) => score.passed)))
+      remember(settled, key, expiry, at);
   }
   return checked;
 }

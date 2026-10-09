@@ -12,19 +12,22 @@
     load,
     page,
     onpage,
-    empty
+    empty,
+    pending = false
   }: {
     load: (page: number, signal: AbortSignal) => Promise<RoomScores>;
     page: number;
     onpage: (page: number) => void;
     empty?: string;
+    // The scores load early, but stay behind the skeleton until the caller knows the board is real.
+    pending?: boolean;
   } = $props();
 
   const scores = query((signal) => load(page, signal));
   const result = $derived(scores.state);
 </script>
 
-{#if result.status === 'ready'}
+{#if !pending && result.status === 'ready'}
   {@const { total, scores: rows } = result.data}
   {#if rows.length}
     <table class="board c-purple">
@@ -73,7 +76,7 @@
   {:else}
     <div class="panel c-purple"><p class="empty-note">{empty ?? m.rooms_scores_empty()}</p></div>
   {/if}
-{:else if result.status === 'error'}
+{:else if !pending && result.status === 'error'}
   <div class="panel c-red"><p class="empty-note">{m.common_load_failed()}</p></div>
 {:else}
   <div class="panel"><span class="skel" style="width: 100%; height: 320px"></span></div>
