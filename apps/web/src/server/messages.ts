@@ -162,6 +162,7 @@ export async function send(senderId: number, peerId: number, content: string) {
       sender_id: senderId,
       sender_name: sender.username,
       target_id: peerId,
+      source: 'web',
       content
     })
   );
