@@ -226,13 +226,14 @@ export interface RankingSet {
   difficulties: { id: number; name: string; mode: number; stars: number; ranked: number }[];
 }
 
-export const rankingSet = (id: number, signal?: AbortSignal) =>
-  siteApi.get<RankingSet>(`/admin/ranking/${id}`, undefined, signal);
+export const rankingSet = (id: number, isSet: boolean, signal?: AbortSignal) =>
+  siteApi.get<RankingSet>(`/admin/ranking/${id}`, isSet ? { set: 1 } : undefined, signal);
 
 export const rankSet = (
   id: number,
+  isSet: boolean,
   body: { all: RankStatus } | { changes: { beatmapId: number; status: RankStatus }[] }
-) => siteApi.post(`/admin/ranking/${id}`, body);
+) => siteApi.post(`/admin/ranking/${id}${isSet ? '?set=1' : ''}`, body);
 
 export interface RankRequest {
   id: number;

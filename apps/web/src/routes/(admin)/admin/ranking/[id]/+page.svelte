@@ -10,10 +10,11 @@
   import { flash } from '$lib/flash.svelte';
 
   const id = $derived(Number(page.params.id));
+  const isSet = $derived(page.url.searchParams.has('set'));
   let version = $state(0);
   const set = query((signal) => {
     void version;
-    return rankingSet(id, signal);
+    return rankingSet(id, isSet, signal);
   });
 
   const valueOf = (ranked: number): RankStatus =>
@@ -36,10 +37,10 @@
       : []
   );
 
-  async function send(body: Parameters<typeof rankSet>[1], success: string) {
+  async function send(body: Parameters<typeof rankSet>[2], success: string) {
     busy = true;
     try {
-      await rankSet(id, body);
+      await rankSet(id, isSet, body);
       flash.show('success', success);
       version++;
       dialog = null;

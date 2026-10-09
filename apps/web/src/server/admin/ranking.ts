@@ -77,6 +77,9 @@ interface Row {
   song_name: string;
   mode: number;
   difficulty_std: number;
+  difficulty_taiko: number;
+  difficulty_ctb: number;
+  difficulty_mania: number;
   ranked: number;
   max_combo: number | null;
 }
@@ -108,16 +111,26 @@ async function starRatings(rows: Row[]) {
   return stars;
 }
 
-// An id can name a single difficulty or a whole set, the panel took either.
-export async function loadSet(id: number, privileges: number) {
-  const diff = await db.beatmaps.findFirst({
-    where: { beatmap_id: id },
-    select: { beatmapset_id: true }
-  });
+// The stored rating for the difficulty's own mode, for when the performance service has none.
+const storedStars = (row: Row) =>
+  [row.difficulty_std, row.difficulty_taiko, row.difficulty_ctb, row.difficulty_mania][row.mode] ??
+  row.difficulty_std;
+
+// An id can name a single difficulty or a whole set, the panel took either. Set and beatmap ids share a
+// range, so links that hold a set id say so; otherwise a set can open whichever set has a difficulty with
+// the same number.
+export async function loadSet(id: number, privileges: number, isSet = false) {
+  const diff = isSet
+    ? null
+    : await db.beatmaps.findFirst({
+        where: { beatmap_id: id },
+        select: { beatmapset_id: true }
+      });
   const setId = diff?.beatmapset_id ?? id;
 
   const all = await db.$queryRaw<Row[]>`
-    SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, ranked, max_combo
+    SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, difficulty_taiko,
+      difficulty_ctb, difficulty_mania, ranked, max_combo
     FROM beatmaps WHERE beatmapset_id = ${setId} AND ranked != -1`;
   if (!all.length) throw new Failure(404, 'Beatmap not found.');
 
@@ -136,7 +149,7 @@ export async function loadSet(id: number, privileges: number) {
         id: row.beatmap_id,
         name: splitName(row.song_name).diff,
         mode: row.mode,
-        stars: stars.get(row.beatmap_id) ?? row.difficulty_std,
+        stars: stars.get(row.beatmap_id) ?? storedStars(row),
         ranked: row.ranked
       }))
       .sort((a, b) => a.stars - b.stars)

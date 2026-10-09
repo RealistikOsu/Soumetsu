@@ -6,9 +6,9 @@ import type { StatusName } from '$server/admin/ranking';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
 
-export const GET = handle(async ({ request, params }) => {
+export const GET = handle(async ({ request, params, url }) => {
   const caller = await requirePrivilege(request, Privilege.AdminAccessRap);
-  return ok(await loadSet(idOf(params), caller.privileges));
+  return ok(await loadSet(idOf(params), caller.privileges, url.searchParams.has('set')));
 });
 
 interface Body {
@@ -17,7 +17,7 @@ interface Body {
 }
 
 // Either the whole set moves to one status, or a list of single difficulties does.
-export const POST = handle(async ({ request, params }) => {
+export const POST = handle(async ({ request, params, url }) => {
   const caller = await requirePrivilege(request, Privilege.AdminAccessRap);
   const id = idOf(params);
   const body = await bodyOf<Body>(request);
@@ -30,7 +30,7 @@ export const POST = handle(async ({ request, params }) => {
 
   if (body.all) {
     if (!(body.all in STATUSES)) throw new Failure(400, 'auth.validation_error');
-    const { setId } = await loadSet(id, caller.privileges);
+    const { setId } = await loadSet(id, caller.privileges, url.searchParams.has('set'));
     await rankSet(by, setId, STATUSES[body.all]);
     return ok();
   }

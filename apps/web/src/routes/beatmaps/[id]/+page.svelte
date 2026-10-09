@@ -393,7 +393,7 @@
             {/snippet}
           </Preview>
           {#if canRank}
-            <a class="action staff-rank" href="/admin/ranking/{loaded.setId}">
+            <a class="action staff-rank" href="/admin/ranking/{loaded.setId}?set">
               <i class="fa-solid fa-angles-up"></i>{m.beatmaps_staff_rank()}
             </a>
           {/if}

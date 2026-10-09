@@ -57,7 +57,7 @@
           {@const target = request.setId ?? 0}
           <tr>
             <td class="song-cell">
-              <a class="request-map" href="/admin/ranking/{target}">
+              <a class="request-map" href="/admin/ranking/{target}?set">
                 {#if request.cover}<img src={request.cover} alt="" loading="lazy" />{/if}
                 <span>
                   <b>{request.song}</b>
@@ -86,7 +86,7 @@
             </td>
             <td class="dim">{timeAgo(request.time)}</td>
             <td class="actions">
-              <a class="btn btn-small" href="/admin/ranking/{target}">
+              <a class="btn btn-small" href="/admin/ranking/{target}?set">
                 <i class="fa-solid fa-angles-up"></i>Review
               </a>
               <button
