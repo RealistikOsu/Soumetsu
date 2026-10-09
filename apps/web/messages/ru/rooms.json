@@ -4,7 +4,7 @@
   "rooms_playlists_title": "Плейлисты",
   "rooms_daily_map": "Карта",
   "rooms_daily_empty": "В этот день вызова не было.",
-  "rooms_daily_not_yet": "На этот день челлендж пока не запланирован.",
+  "rooms_daily_not_yet": "Челленджа пока нет.",
   "rooms_daily_starts": "Начнётся {when}.",
   "rooms_daily_ends": "Закончится {when}.",
   "rooms_daily_freemod": "Фримод: считаются любые моды, а vanilla, Relax и Autopilot идут в одной таблице.",

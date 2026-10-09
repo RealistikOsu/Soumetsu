@@ -4,7 +4,7 @@
   "rooms_playlists_title": "Playlisty",
   "rooms_daily_map": "Mapa",
   "rooms_daily_empty": "Tego dnia nie było wyzwania.",
-  "rooms_daily_not_yet": "Na ten dzień nie ma jeszcze wyzwania.",
+  "rooms_daily_not_yet": "Jeszcze nie ma wyzwania.",
   "rooms_daily_starts": "Startuje {when}.",
   "rooms_daily_ends": "Kończy się {when}.",
   "rooms_daily_freemod": "Freemod: liczą się dowolne mody, a wyniki vanilla, Relax i Autopilot są w jednej tabeli.",

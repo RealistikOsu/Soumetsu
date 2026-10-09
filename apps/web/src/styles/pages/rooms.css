@@ -19,6 +19,7 @@
   grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
+  margin-top: 20px;
 }
 
 .daily-top .calendar {

@@ -4,7 +4,7 @@
   "rooms_playlists_title": "Lejátszási listák",
   "rooms_daily_map": "Pálya",
   "rooms_daily_empty": "Ezen a napon nem volt kihívás.",
-  "rooms_daily_not_yet": "Erre a napra még nincs kihívás.",
+  "rooms_daily_not_yet": "Még nincs kihívás.",
   "rooms_daily_starts": "Kezdés {when}.",
   "rooms_daily_ends": "Vége {when}.",
   "rooms_daily_freemod": "Freemod: bármilyen mod számít, és a vanilla, a Relax és az Autopilot eredmények közös táblán szerepelnek.",
