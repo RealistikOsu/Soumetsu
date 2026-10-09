@@ -28,16 +28,17 @@ export interface BucketCount extends Bucket {
 const same = (a: Bucket, b: Bucket) =>
   a.source === b.source && a.mode === b.mode && a.variant === b.variant;
 
-// The bucket played most in the last two weeks, or the one with the most best plays when nothing's recent.
+// Of the buckets with enough ranked bests, the one played most in the last two weeks, or the one with the most
+// best plays when none of them is recent, so a thin new profile never hides a full one.
 export function pickBucket(recent: BucketCount[], bests: BucketCount[]): BucketCount | null {
-  const most = (list: BucketCount[]) =>
-    list
-      .filter((b) => b.n > 0)
-      .reduce<BucketCount | null>((x, b) => (!x || b.n > x.n ? b : x), null);
-  const chosen = most(recent) ?? most(bests);
-  if (!chosen) return null;
-  const n = bests.find((b) => same(b, chosen))?.n ?? 0;
-  return n >= MIN_BESTS ? { ...chosen, n } : null;
+  const eligible = bests.filter((b) => b.n >= MIN_BESTS);
+  const recentOf = (b: Bucket) => recent.find((r) => same(r, b))?.n ?? 0;
+  const chosen = eligible.reduce<BucketCount | null>((x, b) => {
+    if (!x) return b;
+    const diff = recentOf(b) - recentOf(x);
+    return diff > 0 || (diff === 0 && b.n > x.n) ? b : x;
+  }, null);
+  return chosen;
 }
 
 // The pp of the nth best play, rounded down to 5 and never under 10.

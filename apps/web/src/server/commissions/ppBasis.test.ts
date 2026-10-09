@@ -26,12 +26,20 @@ describe('pickBucket', () => {
   test('falls back to the most best plays without recent plays', () => {
     expect(pickBucket([], bests)).toEqual(bucket('stable', 0, 0, 400));
   });
-  test(`needs ${MIN_BESTS} best plays in the chosen bucket`, () => {
-    const recent = [bucket('lazer', 1, 0, 50)];
-    expect(pickBucket(recent, [...bests, bucket('lazer', 1, 0, MIN_BESTS - 1)])).toBeNull();
+  test(`a bucket under ${MIN_BESTS} best plays never hides a full one`, () => {
+    const recent = [bucket('lazer', 1, 0, 50), bucket('stable', 0, 0, 2)];
+    expect(pickBucket(recent, [...bests, bucket('lazer', 1, 0, MIN_BESTS - 1)])).toEqual(
+      bucket('stable', 0, 0, 400)
+    );
     expect(pickBucket(recent, [...bests, bucket('lazer', 1, 0, MIN_BESTS)])).toEqual(
       bucket('lazer', 1, 0, MIN_BESTS)
     );
+  });
+
+  test(`nothing rolls without a bucket of ${MIN_BESTS} best plays`, () => {
+    expect(
+      pickBucket([bucket('lazer', 0, 0, 9)], [bucket('lazer', 0, 0, MIN_BESTS - 1)])
+    ).toBeNull();
     expect(pickBucket([], [])).toBeNull();
   });
 });
