@@ -36,11 +36,30 @@
   const commissionsQuery = query((signal) =>
     session.user ? commissions(signal) : Promise.resolve(null)
   );
-  const tasks = $derived(
-    commissionsQuery.state.status === 'ready' && commissionsQuery.state.data
-      ? commissionsQuery.state.data.day.tasks
-      : null
-  );
+  // Kept across reloads so the badge doesn't blink out while the next check runs.
+  let tasks = $state.raw<{ completed: boolean }[] | null>(null);
+  $effect(() => {
+    const state = commissionsQuery.state;
+    if (state.status === 'ready') tasks = state.data ? state.data.day.tasks : null;
+  });
+
+  // Tasks complete while playing, so the count is checked again now and then, on coming back to the tab and on
+  // every page change.
+  $effect(() => {
+    if (!user) return;
+    const refresh = () => {
+      if (document.visibilityState === 'visible') commissionsQuery.reload();
+    };
+    const timer = setInterval(refresh, 60_000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  });
+  afterNavigate(({ from }) => {
+    if (from && user) commissionsQuery.reload();
+  });
   const done = $derived(tasks ? tasks.filter((t) => t.completed).length : null);
 
   // Messages sent from the site arrive over the stream. The check now and then while the tab is in view
