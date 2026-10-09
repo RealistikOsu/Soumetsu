@@ -107,8 +107,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Teljesíts {count} mapet egymás után",
-        "n=other": "Teljesíts {count} mapet egymás után"
+        "n=one": "Teljesíts {count} különböző mapet egymás után",
+        "n=other": "Teljesíts {count} különböző mapet egymás után"
       }
     }
   ],

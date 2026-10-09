@@ -107,8 +107,8 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Pass {count} map in a row",
-        "n=other": "Pass {count} maps in a row"
+        "n=one": "Pass {count} different map in a row",
+        "n=other": "Pass {count} different maps in a row"
       }
     }
   ],

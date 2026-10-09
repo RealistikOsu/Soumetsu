@@ -117,10 +117,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Пройди {count} карту подряд",
-        "n=few": "Пройди {count} карты подряд",
-        "n=many": "Пройди {count} карт подряд",
-        "n=other": "Пройди {count} карты подряд"
+        "n=one": "Пройди {count} разную карту подряд",
+        "n=few": "Пройди {count} разные карты подряд",
+        "n=many": "Пройди {count} разных карт подряд",
+        "n=other": "Пройди {count} разной карты подряд"
       }
     }
   ],

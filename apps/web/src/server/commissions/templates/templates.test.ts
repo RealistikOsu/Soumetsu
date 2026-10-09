@@ -353,13 +353,23 @@ describe('session', () => {
     const plays = [
       score({ id: 1, at: at(1) }),
       score({ id: 2, passed: false, at: at(2) }),
-      score({ id: 3, at: at(3) }),
-      score({ id: 4, at: at(4) }),
-      score({ id: 5, at: at(5) })
+      score({ id: 3, md5: 'a', at: at(3) }),
+      score({ id: 4, md5: 'b', at: at(4) }),
+      score({ id: 5, md5: 'c', at: at(5) })
     ];
     expect(await run('session_streak', ctxWith(plays), { count: 3 })).toBe(3);
     expect(await run('session_streak', ctxWith(plays.slice(0, 2)), { count: 3 })).toBe(1);
     expect(await run('session_streak', ctxWith([]), { count: 3 })).toBe(0);
+  });
+  test('session_streak only counts different maps', async () => {
+    const repeats = [1, 2, 3, 4, 5].map((id) => score({ id, md5: 'vivid', at: at(id) }));
+    expect(await run('session_streak', ctxWith(repeats), { count: 3 })).toBe(1);
+    const mixed = [
+      score({ id: 1, md5: 'a', at: at(1) }),
+      score({ id: 2, md5: 'a', at: at(2) }),
+      score({ id: 3, md5: 'b', at: at(3) })
+    ];
+    expect(await run('session_streak', ctxWith(mixed), { count: 3 })).toBe(2);
   });
   test('session_retry needs a fail then a pass on the same map', async () => {
     const retry = [score({ id: 1, passed: false, at: at(1) }), score({ id: 2, at: at(2) })];

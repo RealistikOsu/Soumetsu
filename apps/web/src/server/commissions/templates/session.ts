@@ -10,12 +10,15 @@ export const session: Template[] = [
     tier: 'medium',
     roll: (_ctx, _settings, random) => ({ count: pick([3, 5], random) }),
     target: (params) => Number(params.count),
+    // Only different maps add to the run, so passing one short map over and over doesn't count. A repeat pass
+    // neither adds nor breaks it; a fail does.
     check: async (ctx) => {
       let longest = 0;
-      let run = 0;
+      let run: string[] = [];
       for (const s of await inOrder(ctx)) {
-        run = s.passed ? run + 1 : 0;
-        longest = Math.max(longest, run);
+        if (!s.passed) run = [];
+        else if (!run.includes(s.md5)) run.push(s.md5);
+        longest = Math.max(longest, run.length);
       }
       return longest;
     }

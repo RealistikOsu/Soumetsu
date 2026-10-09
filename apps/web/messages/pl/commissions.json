@@ -117,10 +117,10 @@
       "declarations": ["input count", "local n = count: plural"],
       "selectors": ["n"],
       "match": {
-        "n=one": "Zalicz {count} mapę z rzędu",
-        "n=few": "Zalicz {count} mapy z rzędu",
-        "n=many": "Zalicz {count} map z rzędu",
-        "n=other": "Zalicz {count} mapy z rzędu"
+        "n=one": "Zalicz {count} różną mapę z rzędu",
+        "n=few": "Zalicz {count} różne mapy z rzędu",
+        "n=many": "Zalicz {count} różnych map z rzędu",
+        "n=other": "Zalicz {count} różnej mapy z rzędu"
       }
     }
   ],
