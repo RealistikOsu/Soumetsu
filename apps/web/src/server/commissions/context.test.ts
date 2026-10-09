@@ -21,7 +21,7 @@ describe('fakeContext', () => {
     const ctx = fakeContext({});
     expect(await ctx.scores()).toEqual([]);
     expect(ctx.topPp(0, 0)).toBe(0);
-    expect(ctx.bestTopPp()).toBeNull();
+    expect(ctx.ppBasis).toBeNull();
   });
 });
 

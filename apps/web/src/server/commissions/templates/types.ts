@@ -32,16 +32,6 @@ export async function count(ctx: PlayerContext, predicate: (score: DayScore) => 
 export const any = async (ctx: PlayerContext, predicate: (score: DayScore) => boolean) =>
   (await count(ctx, predicate)) > 0 ? 1 : 0;
 
-export function scaledPp(ctx: PlayerContext, fraction: number) {
-  const best = ctx.bestTopPp();
-  if (!best || best.pp < 20) return null;
-  return {
-    mode: best.mode,
-    variant: best.variant,
-    pp: Math.max(10, Math.round(best.pp * fraction))
-  };
-}
-
 export function starsAround(ctx: PlayerContext, offset: number) {
   const base = ctx.usualStars ?? 3;
   return Math.round(Math.min(9, Math.max(1, base + offset)) * 10) / 10;

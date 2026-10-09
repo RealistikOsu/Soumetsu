@@ -11,6 +11,12 @@ const n = (params: Params) => ({
   source: params.source === 'lazer' ? 'lazer' : 'stable'
 });
 
+const ppArgs = (params: Params) => ({
+  pp: Number(params.pp),
+  mode: n(params).mode,
+  variant: n(params).variant
+});
+
 const texts: Record<string, (params: Params) => string> = {
   casino_aviator: () => m.commissions_task_casino_aviator(),
   casino_big_win: () => m.commissions_task_casino_big_win(),
@@ -95,20 +101,26 @@ const texts: Record<string, (params: Params) => string> = {
   quality_misses: (p) => m.commissions_task_quality_misses({ misses: Number(p.misses) }),
   quality_pb_gain: () => m.commissions_task_quality_pb_gain(),
   quality_pp: (p) =>
-    m.commissions_task_quality_pp({ pp: Number(p.pp), mode: n(p).mode, variant: n(p).variant }),
+    (p.source === 'lazer' ? m.commissions_task_quality_pp_lazer : m.commissions_task_quality_pp)(
+      ppArgs(p)
+    ),
   quality_pp_hard: (p) =>
-    m.commissions_task_quality_pp_hard({
-      pp: Number(p.pp),
-      mode: n(p).mode,
-      variant: n(p).variant
-    }),
+    (p.source === 'lazer'
+      ? m.commissions_task_quality_pp_hard_lazer
+      : m.commissions_task_quality_pp_hard)(ppArgs(p)),
   quality_s: () => m.commissions_task_quality_s(),
   quality_ss: () => m.commissions_task_quality_ss(),
   quality_ss_stars: () => m.commissions_task_quality_ss_stars(),
   quality_three_s: () => m.commissions_task_quality_three_s(),
   quality_top10: () => m.commissions_task_quality_top10(),
   quality_top50: () => m.commissions_task_quality_top50(),
-  quality_total_pp: (p) => m.commissions_task_quality_total_pp({ pp: Number(p.pp) }),
+  // Tasks rolled before pp tasks had a source count every play.
+  quality_total_pp: (p) =>
+    p.source === undefined
+      ? m.commissions_task_quality_total_pp({ pp: Number(p.pp) })
+      : (p.source === 'lazer'
+          ? m.commissions_task_quality_total_pp_mode_lazer
+          : m.commissions_task_quality_total_pp_mode)(ppArgs(p)),
   rp_play: () => m.commissions_task_rp_play(),
   rp_rounds: (p) => m.commissions_task_rp_rounds({ count: Number(p.count) }),
   rp_three: () => m.commissions_task_rp_three(),

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { fakeContext, type DailyRow, type PlayerContext } from '../context';
+import type { PpBasis } from '../ppBasis';
 import type { DayScore } from '../scores';
 import { clockFrom } from '../day';
 import { DEFAULT_SETTINGS } from '../settings';
@@ -449,32 +450,72 @@ describe('quality', () => {
     expect(await run('quality_300s', ctxWith([score({ c300: 2000 })]))).toBe(1);
     expect(await run('quality_300s', ctxWith([score()]))).toBe(0);
   });
-  test('quality_pp and quality_pp_hard', async () => {
-    const params = { pp: 90, mode: 0, variant: 0 };
-    expect(await run('quality_pp', ctxWith([score({ pp: 90 })]), params)).toBe(1);
-    expect(await run('quality_pp', ctxWith([score({ pp: 89 })]), params)).toBe(0);
-    expect(await run('quality_pp_hard', ctxWith([score({ pp: 90, variant: 1 })]), params)).toBe(0);
-    expect(await run('quality_pp_hard', ctxWith([score({ pp: 95 })]), params)).toBe(1);
+  // 25 ranked bests from 300pp down in 4.7pp steps: the 10th is 257.7, the 25th 187.2.
+  const basis = (over: Partial<PpBasis> = {}): PpBasis => ({
+    source: 'stable',
+    mode: 1,
+    variant: 2,
+    top: Array.from({ length: 25 }, (_, i) => 300 - i * 4.7),
+    ...over
   });
-  test('quality_pp rolls from the best top play', () => {
-    const ctx = fakeContext({ bestTopPp: () => ({ mode: 1, variant: 2, pp: 200 }) });
-    expect(byKey.get('quality_pp')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
+  const rollWith = (key: string, ppBasis: PpBasis | null) =>
+    byKey.get(key)!.roll(fakeContext({ ppBasis }), DEFAULT_SETTINGS, Math.random);
+
+  test('pp targets come from the 25th and 10th best, rounded down to 5', () => {
+    expect(rollWith('quality_pp', basis())).toEqual({
+      source: 'stable',
       mode: 1,
       variant: 2,
-      pp: 140
+      pp: 185
     });
-    expect(
-      byKey.get('quality_pp')!.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)
-    ).toBeNull();
+    expect(rollWith('quality_pp_hard', basis())?.pp).toBe(255);
+    expect(rollWith('quality_total_pp', basis())?.pp).toBe(560);
+    expect(rollWith('quality_pp', basis({ source: 'lazer' }))?.source).toBe('lazer');
   });
-  test('quality_total_pp sums best plays', async () => {
+  test('pp targets never go under 10pp', () => {
+    expect(rollWith('quality_pp', basis({ top: Array(25).fill(3) }))?.pp).toBe(10);
+  });
+  test('pp tasks need a basis', () => {
+    for (const key of ['quality_pp', 'quality_pp_hard', 'quality_total_pp', 'quality_top50'])
+      expect(rollWith(key, null)).toBeNull();
+  });
+  test('pp tasks count ranked plays in the bucket only', async () => {
+    const params = { source: 'stable', pp: 90, mode: 0, variant: 0 };
+    expect(await run('quality_pp', ctxWith([score({ pp: 90 })]), params)).toBe(1);
+    expect(await run('quality_pp', ctxWith([score({ pp: 89 })]), params)).toBe(0);
+    expect(await run('quality_pp', ctxWith([withMap({ ranked: 5 }, { pp: 200 })]), params)).toBe(0);
+    expect(await run('quality_pp', ctxWith([withMap({ ranked: 3 }, { pp: 200 })]), params)).toBe(1);
+    expect(await run('quality_pp_hard', ctxWith([score({ pp: 90, variant: 1 })]), params)).toBe(0);
+    expect(
+      await run('quality_pp_hard', ctxWith([score({ pp: 95, source: 'lazer' })]), params)
+    ).toBe(0);
+    expect(
+      await run('quality_pp_hard', ctxWith([score({ pp: 95, source: 'lazer' })]), {
+        ...params,
+        source: 'lazer'
+      })
+    ).toBe(1);
+  });
+  test('pp tasks rolled before sources existed take either client and any status', async () => {
+    const legacy = { pp: 90, mode: 0, variant: 0 };
+    expect(await run('quality_pp', ctxWith([score({ pp: 95, source: 'lazer' })]), legacy)).toBe(1);
+    expect(await run('quality_pp', ctxWith([withMap({ ranked: 5 }, { pp: 95 })]), legacy)).toBe(1);
+    expect(await run('quality_pp', ctxWith([score({ pp: 95, mode: 1 })]), legacy)).toBe(0);
+  });
+  test("quality_total_pp sums the bucket's ranked best plays", async () => {
     const plays = [
       score({ pp: 40 }),
       score({ id: 2, pp: 30.5 }),
-      score({ id: 3, pp: 90, isBest: false })
+      score({ id: 3, pp: 90, isBest: false }),
+      score({ id: 4, pp: 50, source: 'lazer' }),
+      withMap({ ranked: 5 }, { id: 5, pp: 60 }),
+      score({ id: 6, pp: 70, mode: 3 })
     ];
-    expect(await run('quality_total_pp', ctxWith(plays), { pp: 100 })).toBe(70);
-    expect(await run('quality_total_pp', ctxWith([]), { pp: 100 })).toBe(0);
+    const params = { source: 'stable', pp: 100, mode: 0, variant: 0 };
+    expect(await run('quality_total_pp', ctxWith(plays), params)).toBe(70);
+    expect(await run('quality_total_pp', ctxWith([]), params)).toBe(0);
+    // An old task sums every best play.
+    expect(await run('quality_total_pp', ctxWith(plays), { pp: 100 })).toBe(250);
     expect(byKey.get('quality_total_pp')!.target({ pp: 100 })).toBe(100);
   });
 
@@ -516,6 +557,34 @@ describe('quality', () => {
         0
       );
     });
+    test("quality_top50 only looks at the bucket's client and ranked maps", async () => {
+      const asked: unknown[][] = [];
+      queries.nthBest = async (...args: Parameters<typeof queries.nthBest>) => (
+        asked.push(args.slice(1)),
+        100
+      );
+      const params = { source: 'lazer', mode: 0, variant: 0 };
+      expect(await run('quality_top50', ctxWith([score({ pp: 150 })]), params)).toBe(0);
+      expect(
+        await run(
+          'quality_top50',
+          ctxWith([withMap({ ranked: 5 }, { pp: 150, source: 'lazer' })]),
+          params
+        )
+      ).toBe(0);
+      expect(
+        await run('quality_top50', ctxWith([score({ pp: 150, source: 'lazer' })]), params)
+      ).toBe(1);
+      expect(asked).toEqual([['lazer', 0, 0, 50, true]]);
+      // An old task checks both clients against the unfiltered ranking.
+      expect(
+        await run('quality_top50', ctxWith([score({ pp: 150, source: 'lazer' })]), {
+          mode: 0,
+          variant: 0
+        })
+      ).toBe(1);
+      expect(asked[1]).toEqual(['lazer', 0, 0, 50, false]);
+    });
     test('quality_top10 asks for the tenth best', async () => {
       let asked = 0;
       queries.nthBest = async (...args: Parameters<typeof queries.nthBest>) => (
@@ -531,8 +600,8 @@ describe('quality', () => {
       expect(
         byKey.get('quality_top10')!.roll(fakeContext({}), DEFAULT_SETTINGS, Math.random)
       ).toBeNull();
-      const ctx = fakeContext({ bestTopPp: () => ({ mode: 3, variant: 0, pp: 300 }) });
-      expect(byKey.get('quality_top50')!.roll(ctx, DEFAULT_SETTINGS, Math.random)).toEqual({
+      expect(rollWith('quality_top50', basis({ source: 'lazer', mode: 3, variant: 0 }))).toEqual({
+        source: 'lazer',
         mode: 3,
         variant: 0
       });
@@ -945,7 +1014,7 @@ describe('registry', () => {
       expect(['easy', 'medium', 'hard']).toContain(t.tier);
       const params = t.roll(
         fakeContext({
-          bestTopPp: () => ({ mode: 0, variant: 0, pp: 300 }),
+          ppBasis: { source: 'stable', mode: 0, variant: 0, top: Array(25).fill(300) },
           topPp: () => 300,
           usualStars: 4
         }),

@@ -1,8 +1,9 @@
 import { db } from '$server/db';
 import { Prisma } from '$server/generated/client';
 import type { PlayerContext } from '../context';
+import { isRankedStatus, RANKED_STATUSES, targetPp, type PpBasis } from '../ppBasis';
 import { optional, type DayScore } from '../scores';
-import { any, count, once, pick, scaledPp, template, type Params, type Template } from './types';
+import { any, count, once, pick, template, type Params, type Template } from './types';
 
 const TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const A_OR_BETTER = ['A', 'S', 'SH', 'SS', 'SSH'];
@@ -60,21 +61,25 @@ export const queries = {
     source: DayScore['source'],
     mode: number,
     variant: number,
-    n: number
+    n: number,
+    rankedOnly = true
   ): Promise<number> {
+    const ranked = rankedOnly
+      ? Prisma.sql`INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5 AND b.ranked IN (${Prisma.join(RANKED_STATUSES)})`
+      : Prisma.empty;
     if (source === 'stable') {
       const [row] = await db.$queryRaw<{ pp: number }[]>(Prisma.sql`
-        SELECT pp FROM ${Prisma.raw(TABLES[variant])}
-        WHERE userid = ${ctx.id} AND play_mode = ${mode} AND completed = 3
-        ORDER BY pp DESC LIMIT 1 OFFSET ${n - 1}`);
+        SELECT s.pp FROM ${Prisma.raw(TABLES[variant])} s ${ranked}
+        WHERE s.userid = ${ctx.id} AND s.play_mode = ${mode} AND s.completed = 3
+        ORDER BY s.pp DESC LIMIT 1 OFFSET ${n - 1}`);
       return Number(row?.pp ?? 0);
     }
     // Lazer keeps every play, so only the best one per map counts towards the ranking.
     const [row] = await optional(db.$queryRaw<{ pp: number }[]>`
       SELECT pp FROM (
-        SELECT pp, ROW_NUMBER() OVER (PARTITION BY beatmap_md5 ORDER BY pp DESC) AS rn FROM lazer_scores
-        WHERE user_id = ${ctx.id} AND ruleset_id = ${mode} AND variant = ${variant}
-          AND passed = 1 AND ranked_mods = 1
+        SELECT s.pp, ROW_NUMBER() OVER (PARTITION BY s.beatmap_md5 ORDER BY s.pp DESC) AS rn FROM lazer_scores s ${ranked}
+        WHERE s.user_id = ${ctx.id} AND s.ruleset_id = ${mode} AND s.variant = ${variant}
+          AND s.passed = 1 AND s.ranked_mods = 1
       ) best WHERE rn = 1 ORDER BY pp DESC LIMIT 1 OFFSET ${n - 1}`);
     return Number(row?.pp ?? 0);
   }
@@ -101,15 +106,31 @@ const simple = (
     check: (ctx, params) => any(ctx, (s) => predicate(s, params))
   });
 
-const ppTask = (key: string, tier: Template['tier'], fraction: number) =>
+const bucketOf = (basis: PpBasis) => ({
+  source: basis.source,
+  mode: basis.mode,
+  variant: basis.variant
+});
+
+// Tasks rolled before pp tasks had a source accept either client and any map status.
+const inBucket = (s: DayScore, params: Params) =>
+  params.source === undefined
+    ? s.mode === Number(params.mode) && s.variant === Number(params.variant)
+    : s.source === params.source &&
+      s.mode === Number(params.mode) &&
+      s.variant === Number(params.variant) &&
+      isRankedStatus(s.map.ranked);
+
+// Aims at the pp of the player's nth best play in the bucket they've been playing.
+const ppTask = (key: string, tier: Template['tier'], n: number) =>
   simple(
     key,
     tier,
-    (s, params) =>
-      s.mode === Number(params.mode) &&
-      s.variant === Number(params.variant) &&
-      s.pp >= Number(params.pp),
-    (ctx) => scaledPp(ctx, fraction)
+    (s, params) => inBucket(s, params) && s.pp >= Number(params.pp),
+    (ctx) => {
+      const pp = ctx.ppBasis && targetPp(ctx.ppBasis, n);
+      return pp ? { ...bucketOf(ctx.ppBasis!), pp } : null;
+    }
   );
 
 const rankTask = (key: string, tier: Template['tier'], n: number) =>
@@ -117,15 +138,11 @@ const rankTask = (key: string, tier: Template['tier'], n: number) =>
     key,
     family: 'quality',
     tier,
-    roll: (ctx) => {
-      const best = ctx.bestTopPp();
-      return best ? { mode: best.mode, variant: best.variant } : null;
-    },
+    roll: (ctx) => (ctx.ppBasis ? bucketOf(ctx.ppBasis) : null),
     target: () => 1,
     check: async (ctx, params) => {
-      const plays = (await bests(ctx)).filter(
-        (s) => s.mode === Number(params.mode) && s.variant === Number(params.variant)
-      );
+      const legacy = params.source === undefined;
+      const plays = (await bests(ctx)).filter((s) => inBucket(s, params));
       for (const source of ['stable', 'lazer'] as const) {
         const ofSource = plays.filter((s) => s.source === source);
         if (!ofSource.length) continue;
@@ -134,7 +151,8 @@ const rankTask = (key: string, tier: Template['tier'], n: number) =>
           source,
           Number(params.mode),
           Number(params.variant),
-          n
+          n,
+          !legacy
         );
         if (ofSource.some((s) => s.pp > 0 && s.pp >= threshold)) return 1;
       }
@@ -173,8 +191,8 @@ export const quality: Template[] = [
     (_ctx, _settings, random) => ({ combo: pick([500, 1000], random) })
   ),
   simple('quality_300s', 'hard', (s) => s.c300 >= 2000),
-  ppTask('quality_pp', 'medium', 0.7),
-  ppTask('quality_pp_hard', 'hard', 0.9),
+  ppTask('quality_pp', 'medium', 25),
+  ppTask('quality_pp_hard', 'hard', 10),
   template({
     key: 'quality_pb_gain',
     family: 'quality',
@@ -209,13 +227,17 @@ export const quality: Template[] = [
     family: 'quality',
     tier: 'medium',
     roll: (ctx) => {
-      const target = scaledPp(ctx, 1.5);
-      return target ? { pp: target.pp } : null;
+      const pp = ctx.ppBasis && targetPp(ctx.ppBasis, 25, 3);
+      return pp ? { ...bucketOf(ctx.ppBasis!), pp } : null;
     },
     target: (params) => Number(params.pp),
-    check: async (ctx) =>
+    check: async (ctx, params) =>
       Math.floor(
-        (await ctx.scores()).filter((s) => s.passed && s.isBest).reduce((sum, s) => sum + s.pp, 0)
+        (await ctx.scores())
+          .filter(
+            (s) => s.passed && s.isBest && (params.source === undefined || inBucket(s, params))
+          )
+          .reduce((sum, s) => sum + s.pp, 0)
       )
   }),
   rankTask('quality_top50', 'medium', 50),

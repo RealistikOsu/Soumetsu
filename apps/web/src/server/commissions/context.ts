@@ -1,6 +1,7 @@
 import { db } from '$server/db';
 import { Prisma } from '$server/generated/client';
 import { clockFrom, type DayWindow } from './day';
+import { loadPpBasis, type PpBasis } from './ppBasis';
 import { loadDayScores, optional, type DayScore } from './scores';
 
 export interface DailyRow {
@@ -33,7 +34,8 @@ export interface PlayerContext {
   window: DayWindow;
   favouriteMode: number;
   topPp: (mode: number, variant: number) => number;
-  bestTopPp: () => { mode: number; variant: number; pp: number } | null;
+  // What pp tasks aim at; null when the player hasn't enough ranked best plays (and in check-only contexts).
+  ppBasis: PpBasis | null;
   usualStars: number | null;
   coins: number;
   latestActivity: number;
@@ -151,9 +153,10 @@ export async function loadContext(
   window: DayWindow,
   { roll = false }: { roll?: boolean } = {}
 ): Promise<PlayerContext> {
-  const [user, stats, tops] = await Promise.all([
+  const [user, stats, ppBasis, tops] = await Promise.all([
     db.users.findUnique({ where: { id }, select: { coins: true, latest_activity: true } }),
     db.users_stats.findUnique({ where: { id }, select: { favourite_mode: true } }),
+    roll ? loadPpBasis(id) : null,
     // Top play per mode and variant, over the three stable tables and lazer.
     !roll
       ? []
@@ -210,14 +213,7 @@ export async function loadContext(
     latestActivity: user?.latest_activity ?? 0,
     usualStars: median(usual.map((row) => Number(row.stars)).filter((stars) => stars > 0)),
     topPp: (mode, variant) => topByKey.get(`${mode}:${variant}`) ?? 0,
-    bestTopPp: () => {
-      let best: { mode: number; variant: number; pp: number } | null = null;
-      for (const [key, pp] of topByKey) {
-        const [mode, variant] = key.split(':').map(Number);
-        if (!best || pp > best.pp) best = { mode, variant, pp };
-      }
-      return best;
-    },
+    ppBasis,
     scores,
     daily: cached(async () => {
       // The challenge exists before the player's own row does, which is only written once they set a lazer score
@@ -388,7 +384,7 @@ export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
     latestActivity: 0,
     usualStars: null,
     topPp: () => 0,
-    bestTopPp: () => null,
+    ppBasis: null,
     scores: async () => [],
     daily: async () => null,
     rankedPlay: async () => [],

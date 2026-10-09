@@ -14,7 +14,12 @@ export interface TemplateInfo {
 const sample = fakeContext({
   usualStars: 5,
   topPp: () => 250,
-  bestTopPp: () => ({ mode: 0, variant: 0, pp: 250 })
+  ppBasis: {
+    source: 'stable',
+    mode: 0,
+    variant: 0,
+    top: Array.from({ length: 25 }, (_, i) => 300 - i * 4.7)
+  }
 });
 
 export function templateInfo(): TemplateInfo[] {
