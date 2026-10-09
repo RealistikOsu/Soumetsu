@@ -5,6 +5,7 @@
   import Flag from '$lib/components/Flag.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import { number } from '$lib/format';
+  import { modsText } from '$lib/mods';
   import { gradeClass, gradeFromRank, gradeLabel } from '$lib/grades';
   import { m } from '$lib/paraglide/messages';
 
@@ -29,12 +30,14 @@
 
 {#if !pending && result.status === 'ready'}
   {@const { total, scores: rows } = result.data}
+  {@const withMods = rows.some((row) => modsText(row.mods))}
   {#if rows.length}
     <table class="board c-purple">
       <thead>
         <tr>
           <th class="rank">{m.leaderboard_col_rank()}</th>
           <th class="player">{m.leaderboard_col_player()}</th>
+          {#if withMods}<th>{m.rooms_col_mods()}</th>{/if}
           <th class="hide-sm">{m.rooms_col_combo()}</th>
           <th>{m.leaderboard_col_accuracy()}</th>
           <th class="hide-sm">{m.leaderboard_col_playcount()}</th>
@@ -58,6 +61,7 @@
                 >
               </a>
             </td>
+            {#if withMods}<td class="dim">{modsText(row.mods)}</td>{/if}
             <td class="dim hide-sm">{number(row.max_combo)}x</td>
             <td>{number(row.accuracy, 2)}%</td>
             <td class="dim hide-sm">{number(row.play_count)}</td>
