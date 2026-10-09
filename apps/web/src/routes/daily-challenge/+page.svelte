@@ -99,7 +99,8 @@
     </div>
   </div>
 
-  {#if result.status === 'ready'}
+  <!-- Mounted while the day loads so the scores call runs alongside it. -->
+  {#if result.status !== 'error'}
     <SectionTitle colour="c-purple" icon="fa-ranking-star">{m.rooms_leaderboard()}</SectionTitle>
     <nav class="tabs tinted room-tabs" use:tabInk>
       <a
@@ -119,7 +120,7 @@
         {m.rooms_source_lazer()}
       </a>
     </nav>
-    {#if source === 'stable' && !result.data.freemod}
+    {#if source === 'stable' && result.status === 'ready' && !result.data.freemod}
       <p class="muted">{m.rooms_stable_note()}</p>
     {/if}
     {#key source}
