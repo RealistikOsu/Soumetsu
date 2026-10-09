@@ -7,7 +7,8 @@ export const GET = handle(async ({ request }) => {
   return new Response(stream(caller.id, request.signal), {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      // no-transform stops Cloudflare compressing the stream, which holds events back until a chunk fills.
+      'Cache-Control': 'no-cache, no-transform',
       'X-Accel-Buffering': 'no'
     }
   });

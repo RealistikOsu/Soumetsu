@@ -28,7 +28,7 @@ export const GET = handle(async ({ request }) => {
   return new Response(body, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      'Cache-Control': 'no-cache, no-transform',
       'X-Accel-Buffering': 'no'
     }
   });
