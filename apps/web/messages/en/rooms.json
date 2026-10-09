@@ -4,6 +4,7 @@
   "rooms_playlists_title": "Playlists",
   "rooms_daily_map": "Map",
   "rooms_daily_empty": "No challenge on this day.",
+  "rooms_daily_not_yet": "No challenge scheduled for this day yet.",
   "rooms_daily_starts": "Starts {when}.",
   "rooms_daily_ends": "Ends {when}.",
   "rooms_daily_freemod": "Freemod: any mods count, and vanilla, Relax and Autopilot plays share the board.",

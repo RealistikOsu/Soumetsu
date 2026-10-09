@@ -86,7 +86,11 @@
           </p>
         {/if}
       {:else if missing}
-        <div class="panel c-blue"><p class="empty-note">{m.rooms_daily_empty()}</p></div>
+        <div class="panel c-blue">
+          <p class="empty-note">
+            {date >= today ? m.rooms_daily_not_yet() : m.rooms_daily_empty()}
+          </p>
+        </div>
       {:else if result.status === 'error'}
         <div class="panel c-red"><p class="empty-note">{m.common_load_failed()}</p></div>
       {:else}

@@ -23,6 +23,7 @@
 
 .daily-top .calendar {
   max-width: none;
+  margin: 0;
 }
 
 @media (max-width: 800px) {
