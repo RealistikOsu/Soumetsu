@@ -3,6 +3,7 @@
   "rooms_daily_title": "Daily challenge",
   "rooms_playlists_title": "Playlists",
   "rooms_daily_map": "Map",
+  "rooms_daily_theme": "Theme",
   "rooms_daily_empty": "No challenge on this day.",
   "rooms_daily_not_yet": "No challenge yet.",
   "rooms_daily_starts": "Starts {when}.",

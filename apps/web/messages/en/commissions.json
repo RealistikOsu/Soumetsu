@@ -80,6 +80,7 @@
   ],
   "commissions_task_play_source": "Set a score on {source}",
   "commissions_task_play_not_favourite": "Play a mode that isn't your main",
+  "commissions_task_play_not_mode": "Play any mode other than {mode}",
   "commissions_task_play_all_modes": "Play all four modes",
   "commissions_task_play_two_variants": "Set a score on two of these: Vanilla, Relax, Autopilot",
   "commissions_task_play_both_sources": "Set a score on both stable and lazer",

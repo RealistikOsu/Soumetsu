@@ -3,6 +3,7 @@
   "rooms_daily_title": "Ежедневный вызов",
   "rooms_playlists_title": "Плейлисты",
   "rooms_daily_map": "Карта",
+  "rooms_daily_theme": "Тема",
   "rooms_daily_empty": "В этот день вызова не было.",
   "rooms_daily_not_yet": "Челленджа пока нет.",
   "rooms_daily_starts": "Начнётся {when}.",

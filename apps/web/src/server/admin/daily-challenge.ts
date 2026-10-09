@@ -16,7 +16,10 @@ export interface DailyChallenge {
   startsAt: string;
   // Mods are allowed, except the speed mods, Relax and Autopilot, instead of the challenge being no-mod.
   freemod: boolean;
+  theme: string | null;
 }
+
+const THEME_LENGTH = 100;
 
 const asUtc = (value: string) => Date.parse(`${value.slice(0, 16)}:00Z`);
 
@@ -29,10 +32,11 @@ export async function dailyChallenges() {
         song_name: string | null;
         starts_at: string;
         freemod: number;
+        theme: string | null;
       }[]
     >`
       SELECT DATE_FORMAT(c.challenge_date, '%Y-%m-%d') AS date, c.beatmap_id, b.song_name,
-             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at, c.freemod
+             DATE_FORMAT(c.starts_at, '%Y-%m-%dT%H:%i') AS starts_at, c.freemod, c.theme
       FROM lazer_daily_challenges c
       LEFT JOIN beatmaps b ON b.beatmap_id = c.beatmap_id
       WHERE c.challenge_date >= CURDATE() - INTERVAL 7 DAY
@@ -43,7 +47,8 @@ export async function dailyChallenges() {
     beatmapId: row.beatmap_id,
     song: row.song_name,
     startsAt: row.starts_at,
-    freemod: !!row.freemod
+    freemod: !!row.freemod,
+    theme: row.theme
   }));
 }
 
@@ -69,10 +74,15 @@ export async function setDailyChallenge(
   staffId: number,
   starts: unknown,
   beatmapId: number,
-  freemod: boolean
+  freemod: boolean,
+  rawTheme: unknown
 ) {
   if (typeof starts !== 'string' || !MINUTE.test(starts) || Number.isNaN(asUtc(starts)))
     throw new Failure(400, 'site.invalid_request');
+  // Blank means no theme.
+  const theme = typeof rawTheme === 'string' && rawTheme.trim() ? rawTheme.trim() : null;
+  if (theme && theme.length > THEME_LENGTH)
+    throw new Failure(400, `The theme can be at most ${THEME_LENGTH} characters.`);
   const date = starts.slice(0, 10);
 
   // Stable and lazer share the challenge, and the leaderboards on both only cover osu!standard.
@@ -87,13 +97,14 @@ export async function setDailyChallenge(
   const startsAt = starts.replace('T', ' ');
   await lazerTables(
     db.$executeRaw`
-      INSERT INTO lazer_daily_challenges (starts_at, beatmap_id, freemod)
-      VALUES (${startsAt}, ${beatmapId}, ${freemod})
-      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}, starts_at = ${startsAt}, freemod = ${freemod}`
+      INSERT INTO lazer_daily_challenges (starts_at, beatmap_id, freemod, theme)
+      VALUES (${startsAt}, ${beatmapId}, ${freemod}, ${theme})
+      ON DUPLICATE KEY UPDATE beatmap_id = ${beatmapId}, starts_at = ${startsAt}, freemod = ${freemod},
+        theme = ${theme}`
   );
   await rapLog(
     staffId,
-    `set the daily challenge starting ${starts} UTC to beatmap ${beatmapId}${freemod ? ' (freemod)' : ''}`
+    `set the daily challenge starting ${starts} UTC to beatmap ${beatmapId}${freemod ? ' (freemod)' : ''}${theme ? `, themed "${theme}"` : ''}`
   );
   await refreshIfRunning([before, starts], date);
 }

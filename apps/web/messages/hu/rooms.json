@@ -3,6 +3,7 @@
   "rooms_daily_title": "Napi kihívás",
   "rooms_playlists_title": "Lejátszási listák",
   "rooms_daily_map": "Pálya",
+  "rooms_daily_theme": "Téma",
   "rooms_daily_empty": "Ezen a napon nem volt kihívás.",
   "rooms_daily_not_yet": "Még nincs kihívás.",
   "rooms_daily_starts": "Kezdés {when}.",

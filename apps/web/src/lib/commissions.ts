@@ -85,7 +85,10 @@ const texts: Record<string, (params: Params) => string> = {
   play_count_many: (p) => m.commissions_task_play_count_many({ count: Number(p.count) }),
   play_maps: (p) => m.commissions_task_play_maps({ count: Number(p.count) }),
   play_mode: (p) => m.commissions_task_play_mode({ count: Number(p.count), mode: n(p).mode }),
-  play_not_favourite: () => m.commissions_task_play_not_favourite(),
+  play_not_favourite: (p) =>
+    typeof p.mode === 'number'
+      ? m.commissions_task_play_not_mode({ mode: n(p).mode })
+      : m.commissions_task_play_not_favourite(),
   play_source: (p) => m.commissions_task_play_source({ source: n(p).source }),
   play_two_variants: () => m.commissions_task_play_two_variants(),
   play_variant: (p) =>

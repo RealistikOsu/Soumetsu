@@ -65,6 +65,14 @@
             <b>{top50 === null ? '-' : number(top50)}</b>
           </div>
         </div>
+        {#if day.theme}
+          <div class="room-facts">
+            <div>
+              <small>{m.rooms_daily_theme()}</small>
+              <b>{day.theme}</b>
+            </div>
+          </div>
+        {/if}
         <div class="panel score-list c-blue">
           <MatchMap beatmap={day.beatmap} ruleset={day.ruleset}>
             <RoomMods required={day.required_mods} />

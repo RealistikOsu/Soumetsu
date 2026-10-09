@@ -68,9 +68,14 @@ export const playCount: Template[] = [
     key: 'play_not_favourite',
     family: 'play_count',
     tier: 'easy',
-    roll: once,
+    // The mode is kept with the task so its text can name it; older tasks have none and follow the current setting.
+    roll: (ctx) => ({ mode: ctx.favouriteMode }),
     target: () => 1,
-    check: (ctx) => any(ctx, (s) => s.mode !== ctx.favouriteMode)
+    check: (ctx, params) =>
+      any(
+        ctx,
+        (s) => s.mode !== (typeof params.mode === 'number' ? params.mode : ctx.favouriteMode)
+      )
   }),
   template({
     key: 'play_all_modes',

@@ -198,6 +198,8 @@ describe('play_count', () => {
   test('play_not_favourite', async () => {
     expect(await run('play_not_favourite', ctxWith([score({ mode: 3 })]))).toBe(1);
     expect(await run('play_not_favourite', ctxWith([score()]))).toBe(0);
+    expect(await run('play_not_favourite', ctxWith([score()]), { mode: 3 })).toBe(1);
+    expect(await run('play_not_favourite', ctxWith([score({ mode: 3 })]), { mode: 3 })).toBe(0);
   });
   test('play_all_modes', async () => {
     const plays = [0, 1, 2].map((mode) => score({ id: mode, mode: mode as 0 | 1 | 2 }));

@@ -11,6 +11,7 @@
   let beatmap = $state('');
   let startsAt = $state(tomorrow);
   let freemod = $state(false);
+  let theme = $state('');
   let busy = $state(false);
 
   const daily = query((signal) => {
@@ -31,7 +32,10 @@
   }
 
   const save = () =>
-    run(() => setDailyChallenge(startsAt, Number(beatmap), freemod), 'Daily challenge saved.');
+    run(
+      () => setDailyChallenge(startsAt, Number(beatmap), freemod, theme),
+      'Daily challenge saved.'
+    );
 </script>
 
 <AdminHead
@@ -48,6 +52,16 @@
     <div class="field">
       <label for="challenge-map">Beatmap ID</label>
       <input id="challenge-map" type="number" min="1" bind:value={beatmap} />
+    </div>
+    <div class="field">
+      <label for="challenge-theme">Theme</label>
+      <input
+        id="challenge-theme"
+        type="text"
+        maxlength="100"
+        placeholder="None"
+        bind:value={theme}
+      />
     </div>
     <div class="field">
       <span class="label">Freemod</span>
@@ -76,7 +90,8 @@
 <div class="table-wrap">
   <table class="board admin-table c-teal">
     <thead>
-      <tr><th>Date</th><th>Beatmap</th><th>Starts (UTC)</th><th>Mods</th><th></th></tr>
+      <tr><th>Date</th><th>Beatmap</th><th>Theme</th><th>Starts (UTC)</th><th>Mods</th><th></th></tr
+      >
     </thead>
     <tbody>
       {#if daily.state.status === 'ready'}
@@ -86,6 +101,7 @@
             <td class="note">
               <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
             </td>
+            <td class="dim">{challenge.theme ?? ''}</td>
             <td class="dim">{challenge.startsAt.replace('T', ' ')}</td>
             <td class="dim">{challenge.freemod ? 'Freemod' : 'No mods'}</td>
             <td class="actions">
@@ -97,6 +113,7 @@
                   beatmap = String(challenge.beatmapId);
                   startsAt = challenge.startsAt;
                   freemod = challenge.freemod;
+                  theme = challenge.theme ?? '';
                 }}
               >
                 Edit
@@ -113,12 +130,12 @@
             </td>
           </tr>
         {:else}
-          <tr><td colspan="5" class="empty-note">Nothing scheduled.</td></tr>
+          <tr><td colspan="6" class="empty-note">Nothing scheduled.</td></tr>
         {/each}
       {:else if daily.state.status === 'loading'}
-        <tr><td colspan="5"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
+        <tr><td colspan="6"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
       {:else}
-        <tr><td colspan="5" class="empty-note">{describe(daily.state.error)}</td></tr>
+        <tr><td colspan="6" class="empty-note">{describe(daily.state.error)}</td></tr>
       {/if}
     </tbody>
   </table>

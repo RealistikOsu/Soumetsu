@@ -23,6 +23,7 @@ export interface DailyChallenge {
   top_10_score: number | null;
   top_50_score: number | null;
   room_id: number | null;
+  theme: string | null;
 }
 
 export interface RoomScore {

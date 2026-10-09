@@ -90,6 +90,7 @@
   ],
   "commissions_task_play_source": "Zdobądź wynik na {source}",
   "commissions_task_play_not_favourite": "Zagraj w trybie, który nie jest twoim głównym",
+  "commissions_task_play_not_mode": "Zagraj w dowolnym trybie poza {mode}",
   "commissions_task_play_all_modes": "Zagraj we wszystkich czterech trybach",
   "commissions_task_play_two_variants": "Zdobądź wynik na dwóch z tych: Vanilla, Relax, Autopilot",
   "commissions_task_play_both_sources": "Zdobądź wynik na stable i na lazer",
