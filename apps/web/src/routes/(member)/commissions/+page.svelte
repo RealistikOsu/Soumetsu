@@ -100,7 +100,7 @@
           ></i>
           <div>
             {#if href}<a {href}>{taskText(task)}</a>{:else}<span>{taskText(task)}</span>{/if}
-            {#if task.template.startsWith('daily_top')}<small
+            {#if task.template.startsWith('daily_top') && !task.completed && fromIso(day.settlesAt) > Date.now() / 1000}<small
                 >{m.commissions_settles({ when: timeUntil(fromIso(day.settlesAt)) })}</small
               >{/if}
           </div>
