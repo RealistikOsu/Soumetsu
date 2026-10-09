@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, mock, test } from 'bun:test';
-import type { PlayerContext } from './context';
+import type { DailyRow, PlayerContext } from './context';
+import type { DayScore } from './scores';
 
 interface FakeTask {
   id: number;
@@ -72,6 +73,7 @@ const fakeDb = {
 };
 let contextsLoaded: string[] = [];
 let failContextFor: string | null = null;
+let dailyRow: DailyRow | null = null;
 
 mock.module('$server/admin/console', () => ({ record: async () => {} }));
 mock.module('$server/db', () => ({ db: fakeDb }));
@@ -83,7 +85,7 @@ mock.module('./context', () => ({
   loadContext: async (id: number, window: PlayerContext['window']) => {
     contextsLoaded.push(window.date);
     if (window.date === failContextFor) throw new Error('context failed');
-    return real.fakeContext({ id, window });
+    return real.fakeContext({ id, window, daily: async () => dailyRow });
   }
 }));
 const { applyChecks, tierReached, todayFor } = await import('./service');
@@ -144,7 +146,9 @@ describe('runChecks', () => {
 
 describe('todayFor', () => {
   const now = new Date('2026-10-08T12:00:00Z');
+  const afterRollover = new Date('2026-10-08T00:20:00Z');
   let checkResult: () => Promise<number> = async () => 1;
+  let lateResult: () => Promise<number> = async () => 0;
   beforeAll(() => {
     byKey.set('test_task', {
       key: 'test_task',
@@ -154,12 +158,24 @@ describe('todayFor', () => {
       target: () => 1,
       check: () => checkResult()
     });
+    byKey.set('test_late', {
+      key: 'test_late',
+      family: 'test',
+      tier: 'easy',
+      roll: () => ({}),
+      target: () => 1,
+      check: async (ctx) => (await ctx.daily(), lateResult()),
+      settlesLate: true
+    });
   });
-  afterAll(() => byKey.delete('test_task'));
+  afterAll(() => {
+    byKey.delete('test_task');
+    byKey.delete('test_late');
+  });
 
-  const task = (id: number, done = false): FakeTask => ({
+  const task = (id: number, done = false, template = 'test_task'): FakeTask => ({
     id,
-    template: 'test_task',
+    template,
     params: {},
     points: 100,
     target: 1,
@@ -184,15 +200,17 @@ describe('todayFor', () => {
     created = [];
     contextsLoaded = [];
     failContextFor = null;
+    dailyRow = null;
     checkResult = async () => 1;
+    lateResult = async () => 0;
   });
 
-  test("yesterday is checked again while it's incomplete and stays claimable", async () => {
+  test('yesterday is checked again just after the rollover and stays claimable', async () => {
     days = [
       dayRow(1, 10, '2026-10-08', [task(11, true)]),
       dayRow(2, 10, '2026-10-07', [task(21, true), task(22)])
     ];
-    const { day, previous } = await todayFor(10, now);
+    const { day, previous } = await todayFor(10, afterRollover);
     expect(day.date).toBe('2026-10-08');
     expect(previous?.date).toBe('2026-10-07');
     expect(previous?.points).toBe(200);
@@ -207,10 +225,58 @@ describe('todayFor', () => {
       dayRow(2, 14, '2026-10-07', [task(71, true), task(72)])
     ];
     failContextFor = '2026-10-07';
-    const { day, previous } = await todayFor(14, now);
+    const { day, previous } = await todayFor(14, afterRollover);
     expect(day.tasks[0].completed).toBe(true);
     expect(previous?.points).toBe(100);
     expect(previous?.tasks[1].completed).toBe(false);
+  });
+
+  test('later on, yesterday keeps its stored row when nothing left can settle', async () => {
+    days = [
+      dayRow(1, 15, '2026-10-08', [task(91, true)]),
+      dayRow(2, 15, '2026-10-07', [task(92, true), task(93)])
+    ];
+    const { previous } = await todayFor(15, now);
+    expect(contextsLoaded).toEqual([]);
+    expect(previous?.points).toBe(100);
+    expect(previous?.tasks[1].completed).toBe(false);
+  });
+
+  test('a daily placement is rechecked until the challenge is finalised', async () => {
+    days = [
+      dayRow(1, 16, '2026-10-08', [task(101, true)]),
+      dayRow(2, 16, '2026-10-07', [task(102, true), task(103), task(104, false, 'test_late')])
+    ];
+    const played = { passed: true } as DayScore;
+    dailyRow = {
+      beatmapId: 1,
+      placement: 0,
+      stablePlacement: 0,
+      finalised: false,
+      scores: [played]
+    };
+    const at = (minutes: number) => new Date(now.getTime() + minutes * 60_000);
+
+    await todayFor(16, at(0));
+    dailyRow = { ...dailyRow, finalised: true };
+    await todayFor(16, at(1));
+    await todayFor(16, at(2));
+    expect(contextsLoaded).toEqual(['2026-10-07', '2026-10-07']);
+
+    lateResult = async () => 1;
+    const { previous } = await todayFor(16, at(3));
+    expect(previous?.tasks.map((t) => t.completed)).toEqual([true, false, false]);
+  });
+
+  test('a player who never passed the challenge map stops being rechecked', async () => {
+    days = [
+      dayRow(1, 17, '2026-10-08', [task(111, true)]),
+      dayRow(2, 17, '2026-10-07', [task(112, false, 'test_late')])
+    ];
+    dailyRow = { beatmapId: 1, placement: 0, stablePlacement: 0, finalised: false, scores: [] };
+    await todayFor(17, now);
+    await todayFor(17, new Date(now.getTime() + 60_000));
+    expect(contextsLoaded).toEqual(['2026-10-07']);
   });
 
   test('a missing yesterday is never rolled', async () => {

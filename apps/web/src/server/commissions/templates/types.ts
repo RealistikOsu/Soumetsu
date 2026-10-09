@@ -14,6 +14,8 @@ export interface Template {
   link?(params: Params): string | null;
   // True when the task can only be done on lazer, so it can be held back while lazer commissions are off.
   lazer?(params: Params): boolean;
+  // True when the check reads data that only settles after the day ends, so yesterday's task is worth rechecking.
+  settlesLate?: boolean;
 }
 
 export const template = (t: Template) => t;

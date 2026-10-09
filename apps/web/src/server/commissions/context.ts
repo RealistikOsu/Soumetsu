@@ -46,11 +46,14 @@ export interface PlayerContext {
   weekGames: () => Promise<string[]>;
   playedBefore: (md5s: string[]) => Promise<Map<string, Date>>;
   topMaps: (n: number) => Promise<string[]>;
-  leaderboardRank: (score: DayScore) => Promise<{
-    rank: number;
-    previousFirst: number | null;
-    previousFirstValue: number | null;
-  }>;
+  // One entry per play, in the order given.
+  leaderboardRanks: (scores: DayScore[]) => Promise<BoardRank[]>;
+}
+
+export interface BoardRank {
+  rank: number;
+  previousFirst: number | null;
+  previousFirstValue: number | null;
 }
 
 export function median(values: number[]) {
@@ -77,25 +80,96 @@ function spanOf(date: string, start: Date): DayWindow {
 const STABLE_TABLES = ['scores', 'scores_relax', 'scores_ap'];
 const STARS = ['difficulty_std', 'difficulty_taiko', 'difficulty_ctb', 'difficulty_mania'];
 
-export async function loadContext(id: number, window: DayWindow): Promise<PlayerContext> {
+const NO_RANK: BoardRank = { rank: 1, previousFirst: null, previousFirstValue: null };
+
+interface RankRow {
+  id: number;
+  place: number;
+  first: number | null;
+  first_val: number | null;
+}
+
+const boardRank = (row: RankRow): BoardRank => ({
+  rank: Number(row.place),
+  previousFirst: row.first == null ? null : Number(row.first),
+  previousFirstValue: row.first_val == null ? null : Number(row.first_val)
+});
+
+// Stable boards rank best plays by pp with restricted players hidden, the way the site's beatmap page does. Each play
+// is read back from its own table, so the board is compared against the stored row.
+const stableRanks = (id: number, table: string, ids: number[]) =>
+  db.$queryRaw<RankRow[]>(
+    Prisma.sql`
+      SELECT c.id,
+             1 + (SELECT COUNT(*) FROM ${Prisma.raw(table)} s
+                  INNER JOIN users u ON u.id = s.userid AND u.privileges & 1
+                  WHERE s.beatmap_md5 = c.beatmap_md5 AND s.play_mode = c.play_mode AND s.completed = 3
+                    AND s.userid <> ${id} AND (s.pp > c.pp OR (s.pp = c.pp AND s.id < c.id))) AS place,
+             (SELECT f.userid FROM ${Prisma.raw(table)} f
+              INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
+              WHERE f.beatmap_md5 = c.beatmap_md5 AND f.play_mode = c.play_mode AND f.completed = 3
+                AND f.id <> c.id AND f.userid <> ${id}
+              ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first,
+             (SELECT f.pp FROM ${Prisma.raw(table)} f
+              INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
+              WHERE f.beatmap_md5 = c.beatmap_md5 AND f.play_mode = c.play_mode AND f.completed = 3
+                AND f.id <> c.id AND f.userid <> ${id}
+              ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first_val
+      FROM ${Prisma.raw(table)} c
+      WHERE c.id IN (${Prisma.join(ids)})`
+  );
+
+// Lazer boards rank by score (vanilla) or pp (relax/autopilot), one play per player: a player is ahead when any of
+// their plays beats this one.
+function lazerRanks(id: number, byScore: boolean, ids: number[]) {
+  const metric = Prisma.raw(byScore ? 'total_score' : 'pp');
+  const board = (alias: string) =>
+    Prisma.raw(`
+    ${alias}.beatmap_id = c.beatmap_id AND ${alias}.ruleset_id = c.ruleset_id AND ${alias}.variant = c.variant
+    AND ${alias}.passed = 1 AND ${alias}.ranked_mods = 1`);
+  return optional(db.$queryRaw<RankRow[]>`
+    SELECT c.id,
+           1 + (SELECT COUNT(DISTINCT o.user_id) FROM lazer_scores o
+                INNER JOIN users u ON u.id = o.user_id AND u.privileges & 1
+                WHERE ${board('o')} AND o.user_id <> ${id} AND o.${metric} > c.${metric}) AS place,
+           (SELECT f.user_id FROM lazer_scores f
+            INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
+            WHERE ${board('f')} AND f.id <> c.id AND f.user_id <> ${id}
+            ORDER BY f.${metric} DESC, f.id ASC LIMIT 1) AS first,
+           (SELECT f.${metric} FROM lazer_scores f
+            INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
+            WHERE ${board('f')} AND f.id <> c.id AND f.user_id <> ${id}
+            ORDER BY f.${metric} DESC, f.id ASC LIMIT 1) AS first_val
+    FROM lazer_scores c
+    WHERE c.id IN (${Prisma.join(ids)})`);
+}
+
+// The top plays and usual star range only shape what gets rolled, so checks skip those queries.
+export async function loadContext(
+  id: number,
+  window: DayWindow,
+  { roll = false }: { roll?: boolean } = {}
+): Promise<PlayerContext> {
   const [user, stats, tops] = await Promise.all([
     db.users.findUnique({ where: { id }, select: { coins: true, latest_activity: true } }),
     db.users_stats.findUnique({ where: { id }, select: { favourite_mode: true } }),
     // Top play per mode and variant, over the three stable tables and lazer.
-    Promise.all([
-      ...STABLE_TABLES.map((table, variant) =>
-        db
-          .$queryRaw<{ mode: number; pp: number }[]>(
-            Prisma.sql`
+    !roll
+      ? []
+      : Promise.all([
+          ...STABLE_TABLES.map((table, variant) =>
+            db
+              .$queryRaw<{ mode: number; pp: number }[]>(
+                Prisma.sql`
           SELECT play_mode AS mode, MAX(pp) AS pp FROM ${Prisma.raw(table)}
           WHERE userid = ${id} AND completed = 3 GROUP BY play_mode`
-          )
-          .then((rows) => rows.map((row) => ({ ...row, variant })))
-      ),
-      optional(db.$queryRaw<{ mode: number; variant: number; pp: number }[]>`
+              )
+              .then((rows) => rows.map((row) => ({ ...row, variant })))
+          ),
+          optional(db.$queryRaw<{ mode: number; variant: number; pp: number }[]>`
         SELECT ruleset_id AS mode, variant, MAX(pp) AS pp FROM lazer_scores
         WHERE user_id = ${id} AND passed = 1 AND ranked_mods = 1 GROUP BY ruleset_id, variant`)
-    ]).then((groups) => groups.flat())
+        ]).then((groups) => groups.flat())
   ]);
 
   const favouriteMode = stats?.favourite_mode ?? 0;
@@ -108,7 +182,9 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
   // The usual star range follows the favourite mode's difficulty column, over every stable variant.
   const mode = STARS[favouriteMode] ? favouriteMode : 0;
   const difficulty = Prisma.raw(`b.${STARS[mode]}`);
-  const usual = await db.$queryRaw<{ stars: number }[]>(Prisma.sql`
+  const usual = !roll
+    ? []
+    : await db.$queryRaw<{ stars: number }[]>(Prisma.sql`
     SELECT stars FROM (
       ${Prisma.join(
         STABLE_TABLES.map(
@@ -278,62 +354,25 @@ export async function loadContext(id: number, window: DayWindow): Promise<Player
         .slice(0, n)
         .map(([md5]) => md5);
     },
-    leaderboardRank: async (score) => {
-      // Stable boards rank best plays by pp with restricted players hidden, the way the site's beatmap page does;
-      // lazer boards rank by score (vanilla) or pp (relax/autopilot), one play per player.
-      if (score.source === 'stable') {
-        const table = STABLE_TABLES[score.variant];
-        const [row] = await db.$queryRaw<
-          { place: number; first: number | null; first_val: number | null }[]
-        >(Prisma.sql`
-          SELECT 1 + COUNT(*) AS place,
-                 (SELECT userid FROM ${Prisma.raw(table)} f
-                  INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
-                  WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
-                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first,
-                 (SELECT f.pp FROM ${Prisma.raw(table)} f
-                  INNER JOIN users fu ON fu.id = f.userid AND fu.privileges & 1
-                  WHERE f.beatmap_md5 = ${score.md5} AND f.play_mode = ${score.mode} AND f.completed = 3 AND f.id <> ${score.id} AND f.userid <> ${id}
-                  ORDER BY f.pp DESC, f.id ASC LIMIT 1) AS first_val
-          FROM ${Prisma.raw(table)} s
-          INNER JOIN users u ON u.id = s.userid AND u.privileges & 1
-          WHERE s.beatmap_md5 = ${score.md5} AND s.play_mode = ${score.mode} AND s.completed = 3
-            AND s.userid <> ${id} AND (s.pp > ${score.pp} OR (s.pp = ${score.pp} AND s.id < ${score.id}))`);
-        return {
-          rank: Number(row?.place ?? 1),
-          previousFirst: row?.first == null ? null : Number(row.first),
-          previousFirstValue: row?.first_val == null ? null : Number(row.first_val)
-        };
-      }
-      const byScore = score.variant === 0;
-      const [row] = await optional(db.$queryRaw<
-        { place: number; first: number | null; first_val: number | null }[]
-      >`
-        SELECT 1 + COUNT(*) AS place,
-               (SELECT user_id FROM lazer_scores f
-                INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
-                WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
-                  AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
-                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first,
-               (SELECT ${byScore ? Prisma.sql`f.total_score` : Prisma.sql`f.pp`} FROM lazer_scores f
-                INNER JOIN users fu ON fu.id = f.user_id AND fu.privileges & 1
-                WHERE f.beatmap_id = ${score.beatmapId} AND f.ruleset_id = ${score.mode} AND f.variant = ${score.variant}
-                  AND f.passed = 1 AND f.ranked_mods = 1 AND f.id <> ${score.id} AND f.user_id <> ${id}
-                ORDER BY ${byScore ? Prisma.sql`f.total_score DESC` : Prisma.sql`f.pp DESC`}, f.id ASC LIMIT 1) AS first_val
-        FROM (
-          SELECT user_id, MAX(${byScore ? Prisma.sql`total_score` : Prisma.sql`pp`}) AS best
-          FROM lazer_scores
-          WHERE beatmap_id = ${score.beatmapId} AND ruleset_id = ${score.mode} AND variant = ${score.variant}
-            AND passed = 1 AND ranked_mods = 1 AND user_id <> ${id}
-          GROUP BY user_id
-        ) o
-        INNER JOIN users u ON u.id = o.user_id AND u.privileges & 1
-        WHERE o.best > ${byScore ? score.score : score.pp}`);
-      return {
-        rank: Number(row?.place ?? 1),
-        previousFirst: row?.first == null ? null : Number(row.first),
-        previousFirstValue: row?.first_val == null ? null : Number(row.first_val)
-      };
+    leaderboardRanks: async (scores) => {
+      const groupOf = (score: DayScore) =>
+        score.source === 'stable'
+          ? `stable:${score.variant}`
+          : `lazer:${score.variant === 0 ? 'score' : 'pp'}`;
+      const ids: Record<string, number[]> = {};
+      for (const score of scores) (ids[groupOf(score)] ??= []).push(score.id);
+      const found: Record<string, BoardRank> = {};
+      await Promise.all(
+        Object.entries(ids).map(async ([group, list]) => {
+          const [source, kind] = group.split(':');
+          const rows =
+            source === 'stable'
+              ? await stableRanks(id, STABLE_TABLES[Number(kind)], list)
+              : await lazerRanks(id, kind === 'score', list);
+          for (const row of rows) found[`${group}:${Number(row.id)}`] = boardRank(row);
+        })
+      );
+      return scores.map((score) => found[`${groupOf(score)}:${score.id}`] ?? NO_RANK);
     }
   };
 }
@@ -358,7 +397,7 @@ export function fakeContext(overrides: Partial<PlayerContext>): PlayerContext {
     weekGames: async () => [],
     playedBefore: async () => new Map(),
     topMaps: async () => [],
-    leaderboardRank: async () => ({ rank: 1, previousFirst: null, previousFirstValue: null }),
+    leaderboardRanks: async (scores) => scores.map(() => NO_RANK),
     ...overrides
   };
 }

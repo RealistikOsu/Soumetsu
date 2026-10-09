@@ -10,19 +10,49 @@ const CANDIDATES = 20;
 
 // Separate from the checks so tests can stand in for the database.
 export const queries = {
-  async previousBest(ctx: PlayerContext, play: DayScore): Promise<number | null> {
-    if (play.source === 'stable') {
-      const [row] = await db.$queryRaw<{ pp: number | null }[]>(Prisma.sql`
-        SELECT MAX(pp) AS pp FROM ${Prisma.raw(TABLES[play.variant])}
-        WHERE userid = ${ctx.id} AND beatmap_md5 = ${play.md5} AND completed >= 1
-          AND play_mode = ${play.mode} AND time < ${ctx.window.startUnix}`);
-      return row?.pp == null ? null : Number(row.pp);
-    }
-    const [row] = await optional(db.$queryRaw<{ pp: number | null }[]>`
-      SELECT MAX(pp) AS pp FROM lazer_scores
-      WHERE user_id = ${ctx.id} AND beatmap_md5 = ${play.md5} AND ruleset_id = ${play.mode}
-        AND variant = ${play.variant} AND passed = 1 AND ranked_mods = 1 AND ended_at < ${ctx.window.start}`);
-    return row?.pp == null ? null : Number(row.pp);
+  // Each play's best pp on the same map before the day started, in the order given.
+  async previousBests(ctx: PlayerContext, plays: DayScore[]): Promise<(number | null)[]> {
+    const found: Record<string, number> = {};
+    const keyOf = (source: string, variant: number, md5: string, mode: number) =>
+      `${source}:${variant}:${md5}:${mode}`;
+    const md5sOf = (list: DayScore[]) => [...new Set(list.map((play) => play.md5))];
+
+    await Promise.all([
+      ...TABLES.map(async (table, variant) => {
+        const md5s = md5sOf(
+          plays.filter((play) => play.source === 'stable' && play.variant === variant)
+        );
+        if (!md5s.length) return;
+        const rows = await db.$queryRaw<{ beatmap_md5: string; mode: number; pp: number }[]>(
+          Prisma.sql`
+            SELECT beatmap_md5, play_mode AS mode, MAX(pp) AS pp FROM ${Prisma.raw(table)}
+            WHERE userid = ${ctx.id} AND beatmap_md5 IN (${Prisma.join(md5s)}) AND completed >= 1
+              AND time < ${ctx.window.startUnix}
+            GROUP BY beatmap_md5, play_mode`
+        );
+        for (const row of rows)
+          found[keyOf('stable', variant, row.beatmap_md5, Number(row.mode))] = Number(row.pp);
+      }),
+      (async () => {
+        const md5s = md5sOf(plays.filter((play) => play.source === 'lazer'));
+        if (!md5s.length) return;
+        const rows = await optional(db.$queryRaw<
+          { beatmap_md5: string; mode: number; variant: number; pp: number }[]
+        >`
+          SELECT beatmap_md5, ruleset_id AS mode, variant, MAX(pp) AS pp FROM lazer_scores
+          WHERE user_id = ${ctx.id} AND beatmap_md5 IN (${Prisma.join(md5s)})
+            AND passed = 1 AND ranked_mods = 1 AND ended_at < ${ctx.window.start}
+          GROUP BY beatmap_md5, ruleset_id, variant`);
+        for (const row of rows)
+          found[keyOf('lazer', Number(row.variant), row.beatmap_md5, Number(row.mode))] = Number(
+            row.pp
+          );
+      })()
+    ]);
+
+    return plays.map(
+      (play) => found[keyOf(play.source, play.variant, play.md5, play.mode)] ?? null
+    );
   },
 
   async nthBest(
@@ -153,7 +183,10 @@ export const quality: Template[] = [
     target: () => 1,
     check: async (ctx) => {
       const all = await ctx.scores();
-      for (const play of await bests(ctx)) {
+      const plays = await bests(ctx);
+      if (!plays.length) return 0;
+      const previous = await queries.previousBests(ctx, plays);
+      for (const [i, play] of plays.entries()) {
         const earlier = all
           .filter(
             (s) =>
@@ -164,7 +197,7 @@ export const quality: Template[] = [
               s.at < play.at
           )
           .map((s) => s.pp);
-        const before = await queries.previousBest(ctx, play);
+        const before = previous[i];
         if (before !== null) earlier.push(before);
         if (earlier.length && play.pp >= Math.max(...earlier) + 10) return 1;
       }

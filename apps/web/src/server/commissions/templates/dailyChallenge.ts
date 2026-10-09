@@ -28,8 +28,8 @@ const daily = (key: string, tier: Template['tier'], check: Template['check']) =>
 
 export const dailyChallenge: Template[] = [
   daily('daily_play', 'easy', (ctx) => onDaily(ctx)),
-  daily('daily_top50', 'medium', (ctx) => placed(ctx, 1)),
-  daily('daily_top10', 'hard', (ctx) => placed(ctx, 2)),
+  { ...daily('daily_top50', 'medium', (ctx) => placed(ctx, 1)), settlesLate: true },
+  { ...daily('daily_top10', 'hard', (ctx) => placed(ctx, 2)), settlesLate: true },
   daily('daily_s', 'medium', (ctx) => onDaily(ctx, (s) => s.grade.startsWith('S'))),
   {
     ...daily(

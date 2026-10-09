@@ -149,7 +149,9 @@ async function rollIfMissing(
   settings: Settings,
   context: (() => Promise<PlayerContext>) | null = null
 ) {
-  const load = context ?? (async () => loadContext(userId, (await loadClock()).windowOf(date)));
+  const load =
+    context ??
+    (async () => loadContext(userId, (await loadClock()).windowOf(date), { roll: true }));
   const existing = await findDay(userId, date);
   if (existing) return replaceSwitchedOff(existing, settings, load);
 
@@ -186,14 +188,20 @@ async function checkDay(
   day: Day,
   settings: Settings,
   context: () => Promise<PlayerContext>,
-  now: Date
+  now: Date,
+  only: (task: Day['tasks'][number]) => boolean = () => true
 ): Promise<Day> {
   const key = `${userId}:${day.day.toISOString().slice(0, 10)}`;
   const due = (lastChecked.get(key) ?? 0) + CHECK_GAP <= now.getTime();
-  if (!due || day.tasks.every((task) => task.completed_at)) return day;
+  const live = day.tasks.filter((task) => !task.completed_at && only(task));
+  if (!due || !live.length) return day;
   markChecked(key, now.getTime());
 
-  const results = await runChecks(day.tasks, await context());
+  const checked = await runChecks(live, await context());
+  const results = day.tasks.map((task) => {
+    const index = live.indexOf(task);
+    return index === -1 ? task.progress : checked[index];
+  });
   const { tasks, points } = applyChecks(day.tasks, results);
   const top = settings.thresholds[settings.thresholds.length - 1].points;
   const completedNow = !day.completed_at && points >= top;
@@ -222,30 +230,72 @@ async function checkDay(
   return { ...day, tasks, points, completed_at: completedNow ? now : day.completed_at };
 }
 
-// Yesterday gets checked again until it's complete, since some tasks (daily challenge placements) only settle at
-// the rollover. It is never rolled after the fact.
+// Plays submitted around the rollover can land after yesterday's last check, so every open task gets rechecked for
+// a while after the day ends.
+const ROLLOVER_GRACE = 3_600_000;
+// Daily challenge placements are written when the challenge rolls over, a day after it starts. They're rechecked
+// until the player's row is finalised (or they never passed the map), giving up a day after that should have happened.
+const DAY = 86_400_000;
+const SETTLE_LIMIT = 2 * DAY;
+const settled = new Map<string, number>();
+
+function lateChecks(day: Day, window: DayWindow, now: Date) {
+  const at = now.getTime();
+  if (at < window.end.getTime() + ROLLOVER_GRACE) return () => true;
+  const key = `${day.user_id}:${window.date}`;
+  if (at >= window.start.getTime() + SETTLE_LIMIT || settled.has(key)) return null;
+  return (task: Day['tasks'][number]) => !!byKey.get(task.template)?.settlesLate;
+}
+
+async function recheckYesterday(
+  userId: number,
+  day: Day,
+  window: DayWindow,
+  settings: Settings,
+  now: Date
+) {
+  const only = lateChecks(day, window, now);
+  if (!only) return day;
+  let loaded: Promise<PlayerContext> | undefined;
+  const checked = await checkDay(
+    userId,
+    day,
+    settings,
+    () => (loaded ??= loadContext(userId, window)),
+    now,
+    only
+  );
+  const at = now.getTime();
+  if (loaded && at >= window.end.getTime() + ROLLOVER_GRACE) {
+    const daily = await (await loaded).daily();
+    const over = at >= window.start.getTime() + DAY;
+    if (!daily || daily.finalised || (over && !daily.scores.some((score) => score.passed))) {
+      for (const [key, until] of settled) if (until <= at) settled.delete(key);
+      settled.set(`${userId}:${window.date}`, window.start.getTime() + SETTLE_LIMIT);
+    }
+  }
+  return checked;
+}
+
+// Yesterday is never rolled after the fact, and only rechecked while its tasks can still change.
 async function checkPass(userId: number, now: Date, settings: Settings) {
   const clock = await loadClock();
   const window = clock.dayWindow(now);
-  const before = clock.previous(window).date;
-  // Rolling and checking read the same context, so a first visit loads it once.
-  let loaded: Promise<PlayerContext> | undefined;
-  const context = () => (loaded ??= loadContext(userId, window));
+  const before = clock.previous(window);
+  // Rolling needs more of the player's history than checking does; a first visit rolls and checks with one load.
+  let rolling: Promise<PlayerContext> | undefined;
+  let checking: Promise<PlayerContext> | undefined;
+  const rollContext = () => (rolling ??= loadContext(userId, window, { roll: true }));
+  const checkContext = () => rolling ?? (checking ??= loadContext(userId, window));
   const [today, previous] = await Promise.all([
-    rollIfMissing(userId, window.date, settings, context),
-    findDay(userId, before)
+    rollIfMissing(userId, window.date, settings, rollContext),
+    findDay(userId, before.date)
   ]);
   // A broken recheck of yesterday falls back to its stored row, so today's page still loads.
   return Promise.all([
-    checkDay(userId, today, settings, context, now),
+    checkDay(userId, today, settings, checkContext, now),
     previous &&
-      checkDay(
-        userId,
-        previous,
-        settings,
-        () => loadContext(userId, clock.windowOf(before)),
-        now
-      ).catch((error) => {
+      recheckYesterday(userId, previous, before, settings, now).catch((error) => {
         void record('error', userId, error);
         return previous;
       })

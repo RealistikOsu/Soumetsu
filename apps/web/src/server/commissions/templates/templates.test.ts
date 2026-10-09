@@ -483,12 +483,22 @@ describe('quality', () => {
     afterEach(() => Object.assign(queries, real));
 
     test('quality_pb_gain compares with the earlier best', async () => {
-      queries.previousBest = async () => 100;
+      queries.previousBests = async (_ctx, plays) => plays.map(() => 100);
       expect(await run('quality_pb_gain', ctxWith([score({ pp: 110 })]))).toBe(1);
       expect(await run('quality_pb_gain', ctxWith([score({ pp: 109 })]))).toBe(0);
     });
+    test('quality_pb_gain matches each play to its own earlier best', async () => {
+      let calls = 0;
+      queries.previousBests = async (_ctx, plays) => (
+        calls++,
+        plays.map((p) => (p.md5 === 'b' ? 50 : 200))
+      );
+      const plays = [score({ id: 1, pp: 150, md5: 'a' }), score({ id: 2, pp: 60, md5: 'b' })];
+      expect(await run('quality_pb_gain', ctxWith(plays))).toBe(1);
+      expect(calls).toBe(1);
+    });
     test('quality_pb_gain counts earlier plays today and skips new maps', async () => {
-      queries.previousBest = async () => null;
+      queries.previousBests = async (_ctx, plays) => plays.map(() => null);
       const improved = [
         score({ id: 1, pp: 50 }),
         score({ id: 2, pp: 70, at: new Date('2026-10-08T11:00:00Z') })
@@ -597,7 +607,8 @@ describe('leaderboard', () => {
     previousFirst: number | null = null,
     previousFirstValue: number | null = previousFirst === null ? null : 100
   ) => ({
-    leaderboardRank: async () => ({ rank, previousFirst, previousFirstValue })
+    leaderboardRanks: async (plays: DayScore[]) =>
+      plays.map(() => ({ rank, previousFirst, previousFirstValue }))
   });
   test('leaderboard_first', async () => {
     expect(await run('leaderboard_first', ctxWith([score()], ranked(1)))).toBe(1);
@@ -607,17 +618,22 @@ describe('leaderboard', () => {
     expect(await run('leaderboard_first', ctxWith([score({ isBest: false })], ranked(1)))).toBe(0);
     expect(await run('leaderboard_first', ctxWith([score({ passed: false })], ranked(1)))).toBe(0);
   });
-  test('lookups are capped at the 20 strongest plays', async () => {
-    let calls = 0;
+  test('the 20 strongest plays are looked up in one call', async () => {
+    const calls: number[][] = [];
     const plays = Array.from({ length: 30 }, (_, id) => score({ id, pp: id }));
     const ctx = ctxWith(plays, {
-      leaderboardRank: async (s) => {
-        calls++;
-        return { rank: s.pp >= 10 ? 5 : 1, previousFirst: null, previousFirstValue: null };
+      leaderboardRanks: async (asked) => {
+        calls.push(asked.map((s) => s.id));
+        return asked.map((s) => ({
+          rank: s.pp >= 10 ? 5 : 1,
+          previousFirst: null,
+          previousFirstValue: null
+        }));
       }
     });
     expect(await run('leaderboard_first', ctx)).toBe(0);
-    expect(calls).toBe(20);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toEqual(Array.from({ length: 20 }, (_, i) => 29 - i));
   });
   test('leaderboard_three_firsts', async () => {
     const plays = [1, 2, 3].map((id) => score({ id }));
@@ -629,23 +645,41 @@ describe('leaderboard', () => {
     afterEach(() => Object.assign(boardQueries, real));
 
     test('pays when the player had never played the map', async () => {
-      boardQueries.priorBest = async () => null;
+      boardQueries.priorBests = async (_ctx, plays) => plays.map(() => null);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77)))).toBe(1);
     });
     test('pays when the earlier best was below the other player', async () => {
-      boardQueries.priorBest = async () => 90;
+      boardQueries.priorBests = async (_ctx, plays) => plays.map(() => 90);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(1);
     });
     test('does not pay when an earlier best of 250 beats the other player at 200', async () => {
-      boardQueries.priorBest = async () => 250;
+      boardQueries.priorBests = async (_ctx, plays) => plays.map(() => 250);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 200)))).toBe(0);
     });
     test('does not pay when the player already held first', async () => {
-      boardQueries.priorBest = async () => 120;
+      boardQueries.priorBests = async (_ctx, plays) => plays.map(() => 120);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, 77, 100)))).toBe(0);
     });
+    test('only plays that took first are looked up, in one call', async () => {
+      const asked: number[][] = [];
+      boardQueries.priorBests = async (_ctx, plays) => {
+        asked.push(plays.map((p) => p.id));
+        return plays.map((p) => (p.id === 2 ? 50 : 300));
+      };
+      const plays = [1, 2, 3].map((id) => score({ id, pp: 100 - id }));
+      const ctx = ctxWith(plays, {
+        leaderboardRanks: async (list) =>
+          list.map((s) => ({
+            rank: s.id === 3 ? 2 : 1,
+            previousFirst: 77,
+            previousFirstValue: 100
+          }))
+      });
+      expect(await run('leaderboard_steal', ctx)).toBe(1);
+      expect(asked).toEqual([[1, 2]]);
+    });
     test('needs first place and another player on the board', async () => {
-      boardQueries.priorBest = async () => null;
+      boardQueries.priorBests = async (_ctx, plays) => plays.map(() => null);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(1, null)))).toBe(0);
       expect(await run('leaderboard_steal', ctxWith([score()], ranked(2, 77)))).toBe(0);
     });
