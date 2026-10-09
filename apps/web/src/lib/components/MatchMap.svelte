@@ -54,9 +54,8 @@
   <div class="score-info">
     <a class="song" {href}>{beatmap.title} <span>– {beatmap.artist}</span></a>
     <div class="score-meta">
-      {#if label}{label} ·
-      {/if}{beatmap.version}{#if creator}
-        · {m.beatmaps_mapped_by()} <b>{creator}</b>{/if}
+      {#if label}{`${label} · `}{/if}{beatmap.version}{#if creator}{` · ${m.beatmaps_mapped_by()}`}
+        <b>{creator}</b>{/if}
     </div>
     <div class="map-diffs">
       <span class="rp-ruleset"
