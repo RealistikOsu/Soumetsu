@@ -195,7 +195,7 @@ export async function loadContext(
           (table) => Prisma.sql`
             (SELECT s.id, ${difficulty} AS stars FROM ${Prisma.raw(table)} s
              INNER JOIN beatmaps b ON b.beatmap_md5 = s.beatmap_md5
-             WHERE s.userid = ${id} AND s.play_mode = ${mode} AND s.completed >= 1
+             WHERE s.userid = ${id} AND s.play_mode = ${mode} AND s.completed >= 2
              ORDER BY s.id DESC LIMIT 50)`
         ),
         ' UNION ALL '

@@ -40,7 +40,7 @@
 
 <div
   class="score-row"
-  class:is-failed={score.completed < 1}
+  class:is-failed={score.completed < 2}
   style="--cover: url({coverUrl(score.beatmap.beatmapset_id, 'card')})"
 >
   <div class="score-bg"></div>

@@ -61,7 +61,7 @@ async function counts(id: number, since: Date | null): Promise<BucketCount[]> {
           WHERE s.userid = ${id} AND ${ranked}
             AND ${
               since
-                ? Prisma.sql`s.time >= ${String(Math.floor(since.getTime() / 1000))} AND s.completed >= 1`
+                ? Prisma.sql`s.time >= ${String(Math.floor(since.getTime() / 1000))} AND s.completed >= 2`
                 : Prisma.sql`s.completed = 3`
             }
           GROUP BY s.play_mode`

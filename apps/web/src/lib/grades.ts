@@ -32,7 +32,7 @@ export function gradeOf(
     | 'accuracy'
   >
 ): GradeName {
-  if (score.completed < 1) return 'F';
+  if (score.completed < 2) return 'F';
   const silver = hasMod(score.mods, 'HD') || hasMod(score.mods, 'FL');
   const named = (name: 'SS' | 'S') => (silver ? (`${name}H` as GradeName) : name);
 

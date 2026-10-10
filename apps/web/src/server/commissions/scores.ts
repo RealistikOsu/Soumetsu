@@ -166,7 +166,7 @@ export function normaliseStable(row: StableRow): DayScore {
     c50: row.count_50,
     mods,
     rate: Number(row.playback_rate) || rateOf(mods),
-    passed: row.completed >= 1,
+    passed: row.completed >= 2,
     grade: gradeOf({
       completed: row.completed,
       mods: mods.map((acronym) => ({ acronym, settings: null })),

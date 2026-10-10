@@ -38,7 +38,7 @@ export const queries = {
           Prisma.sql`
             SELECT beatmap_md5, play_mode AS mode, MAX(pp) AS best FROM ${Prisma.raw(table)}
             WHERE userid = ${ctx.id} AND beatmap_md5 IN (${Prisma.join(md5s)})
-              AND completed >= 1 AND time < ${ctx.window.startUnix}
+              AND completed >= 2 AND time < ${ctx.window.startUnix}
             GROUP BY beatmap_md5, play_mode`
         );
         for (const row of rows)

@@ -27,7 +27,7 @@ export const queries = {
         const rows = await db.$queryRaw<{ beatmap_md5: string; mode: number; pp: number }[]>(
           Prisma.sql`
             SELECT beatmap_md5, play_mode AS mode, MAX(pp) AS pp FROM ${Prisma.raw(table)}
-            WHERE userid = ${ctx.id} AND beatmap_md5 IN (${Prisma.join(md5s)}) AND completed >= 1
+            WHERE userid = ${ctx.id} AND beatmap_md5 IN (${Prisma.join(md5s)}) AND completed >= 2
               AND time < ${ctx.window.startUnix}
             GROUP BY beatmap_md5, play_mode`
         );

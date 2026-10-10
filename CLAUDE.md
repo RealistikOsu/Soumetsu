@@ -62,7 +62,7 @@ Data fetching in components goes through `query()` (`lib/api/query.svelte.ts`). 
 The Prisma schema in `apps/web/prisma/schema.prisma` maps the **existing prod database**, trimmed to the models the server layer uses. Don't add columns or tables the game servers don't have; prod will lack them. To bring in another table, `prisma db pull` against a prod dump and keep only that model. Some columns have names Prisma can't express (`300_count` and so on), so use `$queryRaw` for those. Wrap array parameters in `$queryRaw` with `Prisma.join`.
 
 Conventions in the game data:
-- Score `completed`: 0 failed, 1 passed, 2 best by score, 3 best by pp.
+- Score `completed`: 0 quit, 1 failed, 2 passed, 3 best. A pass is `completed >= 2`.
 - `user_clans.perms`: 1 member, 8 owner.
 - Statistics `mode`: `mode + rx * 4`.
 - Leaderboards are Redis sorted sets (`ripple:leaderboard[_relax|_ap]:{mode}[:{country}]`), filled by RealistikOsu.Cron.
