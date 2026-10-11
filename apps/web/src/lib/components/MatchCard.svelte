@@ -21,6 +21,7 @@
   <div class="rp-card-body">
     <b class="rp-name">{match.name}</b>
     <div class="rp-meta">
+      {#if match.source === 'lazer'}<span>{m.rooms_source_lazer()}</span>{/if}
       <span>{m.ranked_started({ date: dateTime(fromIso(match.started_at)) })}</span>
       <span>{m.ranked_maps({ count: match.map_count })}</span>
       {#if match.star_min !== null && match.star_max !== null}

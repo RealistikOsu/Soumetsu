@@ -22,6 +22,8 @@ export interface MatchBase {
   id: number;
   name: string;
   status: 'active' | 'ended';
+  // Only multiplayer matches have one; ranked play is always lazer.
+  source?: 'stable' | 'lazer';
   started_at: string;
   ended_at: string | null;
   map_count: number;

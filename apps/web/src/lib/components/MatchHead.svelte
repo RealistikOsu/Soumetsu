@@ -30,6 +30,7 @@
     </span>
     <h1>{match.name}</h1>
     <p class="sub">
+      {#if match.source === 'lazer'}{m.rooms_source_lazer()} ·{/if}
       {m.ranked_started({ date: dateTime(fromIso(match.started_at)) })}
       {#if match.ended_at}
         · {m.ranked_finished({ date: dateTime(fromIso(match.ended_at)) })}

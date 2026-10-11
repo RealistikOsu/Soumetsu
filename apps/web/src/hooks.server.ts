@@ -56,6 +56,14 @@ async function legacyTarget(url: URL) {
     return target;
   }
 
+  // Lazer links a room by its id, which for a realtime room is its match's id.
+  const room = url.pathname.match(/^\/multiplayer\/rooms\/(\d+)\/?$/);
+  if (room) {
+    const target = new URL(`/multiplayer/${room[1]}`, url);
+    target.search = url.search;
+    return target;
+  }
+
   // osu! calls clans teams.
   const team = url.pathname.match(/^\/teams\/(\d+)\/?$/);
   if (team) {
