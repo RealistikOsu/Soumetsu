@@ -16,10 +16,13 @@ export function bannerOf(
 }
 
 // Profiles open by ID, by current name or by a name the player used to have, as on Hanayo.
-export async function resolveUser(name: string) {
+// osu! writes "@name" for a lookup by name (stable's profile links do), and a name can be all digits.
+export async function resolveUser(raw: string) {
+  const byName = raw.startsWith('@');
+  const name = byName ? raw.slice(1) : raw;
   const safe = name.toLowerCase().replaceAll(' ', '_');
   const literal = name.replace(/[\\%_]/g, (character) => `\\${character}`);
-  const byId = /^\d+$/.test(name) ? Number(name) : -1;
+  const byId = !byName && /^\d+$/.test(name) ? Number(name) : -1;
   const rows = await db.$queryRaw<{ id: number }[]>`
     SELECT id FROM users
     WHERE username_safe = ${safe} OR id = ${byId}
