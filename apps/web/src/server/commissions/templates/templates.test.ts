@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { fakeContext, type DailyRow, type PlayerContext } from '../context';
-import type { PpBasis } from '../ppBasis';
+import { gainTarget, type PpBasis } from '../ppBasis';
 import type { DayScore } from '../scores';
 import { clockFrom } from '../day';
 import { DEFAULT_SETTINGS } from '../settings';
@@ -468,6 +468,7 @@ describe('quality', () => {
     mode: 1,
     variant: 2,
     top: Array.from({ length: 25 }, (_, i) => 300 - i * 4.7),
+    profile: 12_000,
     ...over
   });
   const rollWith = (key: string, ppBasis: PpBasis | null) =>
@@ -481,7 +482,6 @@ describe('quality', () => {
       pp: 185
     });
     expect(rollWith('quality_pp_hard', basis())?.pp).toBe(255);
-    expect(rollWith('quality_total_pp', basis())?.pp).toBe(560);
     expect(rollWith('quality_pp', basis({ source: 'lazer' }))?.source).toBe('lazer');
   });
   test('pp targets never go under 10pp', () => {
@@ -514,7 +514,13 @@ describe('quality', () => {
     expect(await run('quality_pp', ctxWith([withMap({ ranked: 5 }, { pp: 95 })]), legacy)).toBe(1);
     expect(await run('quality_pp', ctxWith([score({ pp: 95, mode: 1 })]), legacy)).toBe(0);
   });
-  test("quality_total_pp sums the bucket's ranked best plays", async () => {
+  test('quality_total_pp aims at 1% of the profile, from 10 to 200pp', () => {
+    expect(gainTarget(30_000)).toBe(200);
+    expect(gainTarget(12_345)).toBe(120);
+    expect(gainTarget(500)).toBe(10);
+    expect(rollWith('quality_total_pp', basis())).toMatchObject({ from: 12_000, pp: 120 });
+  });
+  test("an older quality_total_pp sums the bucket's ranked best plays", async () => {
     const plays = [
       score({ pp: 40 }),
       score({ id: 2, pp: 30.5 }),
@@ -1026,7 +1032,13 @@ describe('registry', () => {
       expect(['easy', 'medium', 'hard']).toContain(t.tier);
       const params = t.roll(
         fakeContext({
-          ppBasis: { source: 'stable', mode: 0, variant: 0, top: Array(25).fill(300) },
+          ppBasis: {
+            source: 'stable',
+            mode: 0,
+            variant: 0,
+            top: Array(25).fill(300),
+            profile: 5000
+          },
           topPp: () => 300,
           usualStars: 4
         }),

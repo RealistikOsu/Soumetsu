@@ -18,7 +18,8 @@ const sample = fakeContext({
     source: 'stable',
     mode: 0,
     variant: 0,
-    top: Array.from({ length: 25 }, (_, i) => 300 - i * 4.7)
+    top: Array.from({ length: 25 }, (_, i) => 300 - i * 4.7),
+    profile: 6000
   }
 });
 

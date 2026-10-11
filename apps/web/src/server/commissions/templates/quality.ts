@@ -1,8 +1,15 @@
 import { db } from '$server/db';
 import { Prisma } from '$server/generated/client';
 import type { PlayerContext } from '../context';
-import { isRankedStatus, RANKED_STATUSES, targetPp, type PpBasis } from '../ppBasis';
-import { optional, type DayScore } from '../scores';
+import {
+  gainTarget,
+  isRankedStatus,
+  profilePp,
+  RANKED_STATUSES,
+  targetPp,
+  type PpBasis
+} from '../ppBasis';
+import { optional, type DayScore, type Source } from '../scores';
 import { any, count, once, pick, template, type Params, type Template } from './types';
 
 const TABLES = ['scores', 'scores_relax', 'scores_ap'];
@@ -226,19 +233,40 @@ export const quality: Template[] = [
     key: 'quality_total_pp',
     family: 'quality',
     tier: 'medium',
-    roll: (ctx) => {
-      const pp = ctx.ppBasis && targetPp(ctx.ppBasis, 25, 3);
-      return pp ? { ...bucketOf(ctx.ppBasis!), pp } : null;
-    },
+    // Profile pp actually gained today, from where it stood when the task was rolled, capped at 200pp. Summing play pp
+    // asked a deep profile for thousands.
+    roll: (ctx) =>
+      ctx.ppBasis
+        ? {
+            ...bucketOf(ctx.ppBasis),
+            from: ctx.ppBasis.profile,
+            pp: gainTarget(ctx.ppBasis.profile)
+          }
+        : null,
     target: (params) => Number(params.pp),
-    check: async (ctx, params) =>
-      Math.floor(
-        (await ctx.scores())
+    check: async (ctx, params) => {
+      if (params.from !== undefined)
+        return Math.max(
+          0,
+          Math.floor(
+            (await profilePp(ctx.id, {
+              source: params.source as Source,
+              mode: Number(params.mode),
+              variant: Number(params.variant)
+            })) - Number(params.from)
+          )
+        );
+
+      // Tasks rolled before the change sum the day's plays.
+      const scores = await ctx.scores();
+      return Math.floor(
+        scores
           .filter(
             (s) => s.passed && s.isBest && (params.source === undefined || inBucket(s, params))
           )
           .reduce((sum, s) => sum + s.pp, 0)
-      )
+      );
+    }
   }),
   rankTask('quality_top50', 'medium', 50),
   rankTask('quality_top10', 'hard', 10)

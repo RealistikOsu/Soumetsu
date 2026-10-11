@@ -45,7 +45,13 @@ describe('pickBucket', () => {
 });
 
 describe('targetPp', () => {
-  const basis = { source: 'stable' as const, mode: 0, variant: 0, top: [412.9, 300, 99.9] };
+  const basis = {
+    source: 'stable' as const,
+    mode: 0,
+    variant: 0,
+    top: [412.9, 300, 99.9],
+    profile: 0
+  };
   test('rounds the nth best down to 5', () => {
     expect(targetPp(basis, 1)).toBe(410);
     expect(targetPp(basis, 3)).toBe(95);

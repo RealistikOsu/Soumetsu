@@ -159,6 +159,8 @@
   "commissions_task_quality_total_pp": "Zbierz dziś {pp}pp",
   "commissions_task_quality_total_pp_mode": "Zbierz dziś {pp}pp na {mode} {variant}",
   "commissions_task_quality_total_pp_mode_lazer": "Zbierz dziś {pp}pp na {mode} {variant} w lazerze",
+  "commissions_task_quality_gain_pp": "Podnieś dziś pp profilu na {mode} {variant} o {pp}",
+  "commissions_task_quality_gain_pp_lazer": "Podnieś dziś pp profilu na {mode} {variant} w lazerze o {pp}",
   "commissions_task_quality_top50": "Zdobądź wynik, który wejdzie do twojego top 50",
   "commissions_task_quality_top10": "Zdobądź wynik, który wejdzie do twojego top 10",
   "commissions_task_mods_single": "Zdobądź wynik z {mod}",

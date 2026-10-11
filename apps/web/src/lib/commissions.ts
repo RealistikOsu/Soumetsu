@@ -119,11 +119,15 @@ const texts: Record<string, (params: Params) => string> = {
   quality_top50: () => m.commissions_task_quality_top50(),
   // Tasks rolled before pp tasks had a source count every play.
   quality_total_pp: (p) =>
-    p.source === undefined
-      ? m.commissions_task_quality_total_pp({ pp: Number(p.pp) })
-      : (p.source === 'lazer'
-          ? m.commissions_task_quality_total_pp_mode_lazer
-          : m.commissions_task_quality_total_pp_mode)(ppArgs(p)),
+    p.from !== undefined
+      ? (p.source === 'lazer'
+          ? m.commissions_task_quality_gain_pp_lazer
+          : m.commissions_task_quality_gain_pp)(ppArgs(p))
+      : p.source === undefined
+        ? m.commissions_task_quality_total_pp({ pp: Number(p.pp) })
+        : (p.source === 'lazer'
+            ? m.commissions_task_quality_total_pp_mode_lazer
+            : m.commissions_task_quality_total_pp_mode)(ppArgs(p)),
   rp_play: () => m.commissions_task_rp_play(),
   rp_rounds: (p) => m.commissions_task_rp_rounds({ count: Number(p.count) }),
   rp_three: () => m.commissions_task_rp_three(),

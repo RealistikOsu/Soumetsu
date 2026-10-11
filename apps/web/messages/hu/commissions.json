@@ -145,6 +145,8 @@
   "commissions_task_quality_total_pp": "Szerezz ma {pp}pp-nyi játékot",
   "commissions_task_quality_total_pp_mode": "Szerezz ma {pp}pp-t {mode} {variant} módon",
   "commissions_task_quality_total_pp_mode_lazer": "Szerezz ma {pp}pp-t {mode} {variant} módon lazeren",
+  "commissions_task_quality_gain_pp": "Növeld ma a profilod pp-jét {pp}-vel {mode} {variant} módon",
+  "commissions_task_quality_gain_pp_lazer": "Növeld ma a profilod pp-jét {pp}-vel {mode} {variant} módon lazeren",
   "commissions_task_quality_top50": "Érj el eredményt, ami bekerül a top 50-edbe",
   "commissions_task_quality_top10": "Érj el eredményt, ami bekerül a top 10-edbe",
   "commissions_task_mods_single": "Érj el eredményt {mod} modal",

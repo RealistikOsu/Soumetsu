@@ -19,6 +19,8 @@ export interface Bucket {
 export interface PpBasis extends Bucket {
   // The bucket's best plays on ranked maps, highest first, at most MIN_BESTS of them.
   top: number[];
+  // The bucket's profile pp now.
+  profile: number;
 }
 
 export interface BucketCount extends Bucket {
@@ -112,16 +114,40 @@ function topPlays(id: number, bucket: Bucket) {
   );
 }
 
+const STATS_TABLES = {
+  stable: ['users_stats', 'rx_stats', 'ap_stats'],
+  lazer: ['lazer_stats', 'lazer_rx_stats', 'lazer_ap_stats']
+};
+const PP_COLUMNS = ['pp_std', 'pp_taiko', 'pp_ctb', 'pp_mania'];
+
+export async function profilePp(id: number, bucket: Bucket) {
+  const table = STATS_TABLES[bucket.source][bucket.variant];
+  const column = PP_COLUMNS[bucket.mode];
+  if (!table || !column) return 0;
+  const rows = await optional(
+    db.$queryRaw<{ pp: number }[]>(
+      Prisma.sql`SELECT ${Prisma.raw(column)} AS pp FROM ${Prisma.raw(table)} WHERE id = ${id}`
+    )
+  );
+  return Number(rows[0]?.pp ?? 0);
+}
+
+// A day's gain worth aiming at: 1% of the profile, between 10 and 200pp.
+export const GAIN_CAP = 200;
+export const gainTarget = (profile: number) =>
+  Math.min(GAIN_CAP, Math.max(10, Math.floor(profile / 100 / 5) * 5));
+
 export async function loadPpBasis(id: number, now = new Date()): Promise<PpBasis | null> {
   const since = new Date(now.getTime() - RECENT_DAYS * 86_400_000);
   const [recent, bests] = await Promise.all([counts(id, since), counts(id, null)]);
   const bucket = pickBucket(recent, bests);
   if (!bucket) return null;
-  const rows = await topPlays(id, bucket);
+  const [rows, profile] = await Promise.all([topPlays(id, bucket), profilePp(id, bucket)]);
   return {
     source: bucket.source,
     mode: bucket.mode,
     variant: bucket.variant,
-    top: rows.map((row) => Number(row.pp))
+    top: rows.map((row) => Number(row.pp)),
+    profile
   };
 }

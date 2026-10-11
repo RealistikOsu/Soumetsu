@@ -145,6 +145,8 @@
   "commissions_task_quality_total_pp": "Earn {pp}pp worth of plays today",
   "commissions_task_quality_total_pp_mode": "Earn {pp}pp on {mode} {variant} today",
   "commissions_task_quality_total_pp_mode_lazer": "Earn {pp}pp on {mode} {variant} in lazer today",
+  "commissions_task_quality_gain_pp": "Gain {pp} profile pp on {mode} {variant} today",
+  "commissions_task_quality_gain_pp_lazer": "Gain {pp} profile pp on {mode} {variant} in lazer today",
   "commissions_task_quality_top50": "Set a play that lands in your top 50",
   "commissions_task_quality_top10": "Set a play that lands in your top 10",
   "commissions_task_mods_single": "Set a score with {mod}",
