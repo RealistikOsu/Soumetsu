@@ -155,13 +155,10 @@ describe('play', () => {
     expect(history).toEqual([]);
   });
 
-  test('a restricted player is refused', async () => {
+  test('a restricted player can play', async () => {
     user = { coins: 1000, privileges: 0n };
-    await expect(play(1, 'coinflip', 100, { choice: 'heads' }, coinflip)).rejects.toMatchObject({
-      status: 403,
-      code: 'site.forbidden'
-    });
-    expect(updates).toEqual([]);
+    await play(1, 'coinflip', 100, { choice: 'heads' }, coinflip);
+    expect(updates.length).toBeGreaterThan(0);
   });
 
   test('a disabled game is a 403 and writes nothing', async () => {

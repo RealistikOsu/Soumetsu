@@ -55,10 +55,6 @@
       </nav>
     </section>
 
-    {#if data.restricted}
-      <p class="cs-restricted">{m.common_error_forbidden()}</p>
-    {/if}
-
     <section>
       <h2>{m.casino_games()}</h2>
       <ul class="cs-grid">

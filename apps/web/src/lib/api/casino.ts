@@ -26,7 +26,6 @@ interface GameLimits {
 export interface CasinoView {
   balance: number;
   supporter: boolean;
-  restricted: boolean;
   games: GameLimits[];
 }
 

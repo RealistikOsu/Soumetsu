@@ -260,11 +260,10 @@ describe('begin', () => {
     expect(keys[KEY]).toBeUndefined();
   });
 
-  test('a restricted player is a 403 and stores nothing', async () => {
+  test('a restricted player can start a game', async () => {
     user = { coins: 1000, privileges: 0n };
-    await expect(begin(1, 'poker', 100, create, view)).rejects.toMatchObject({ status: 403 });
-    expect(keys[KEY]).toBeUndefined();
-    expect(updates).toEqual([]);
+    await begin(1, 'poker', 100, create, view);
+    expect(keys[KEY]).toBeDefined();
   });
 
   test('a disabled game is a 403', async () => {
@@ -561,15 +560,11 @@ describe('step', () => {
     expect(updates).toEqual([]);
   });
 
-  test('a charge from a restricted player is a 403 and leaves the state', async () => {
+  test('a restricted player can be charged mid-game', async () => {
     store({ bet: 100, n: 0, top: 500 });
-    const before = keys[KEY];
     user = { coins: 1000, privileges: 0n };
-    await expect(
-      step(1, 'poker', (state: Game) => ({ ...advance(state), charge: 100 }))
-    ).rejects.toMatchObject({ status: 403 });
-    expect(keys[KEY]).toBe(before);
-    expect(updates).toEqual([]);
+    await step(1, 'poker', (state: Game) => ({ ...advance(state), charge: 100 }));
+    expect(updates.length).toBeGreaterThan(0);
   });
 
   test('a claim that finds a different state puts it back and is a 409', async () => {

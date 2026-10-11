@@ -1,4 +1,3 @@
-import { Privilege } from '$lib/auth/privileges';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { redis } from '$server/redis';
@@ -71,10 +70,6 @@ const restoreFailed = (key: string, raw: string) => (err: unknown) => {
 
 export const stateKey = (game: Game, userId: number) => `casino:${game}:${userId}`;
 
-function assertPublic(privileges: bigint) {
-  if ((Number(privileges) & Privilege.Public) === 0) throw new Failure(403, 'site.forbidden');
-}
-
 function checkSettle({ base }: Settle<Prisma.InputJsonObject>) {
   if (!Number.isInteger(base) || base < 0) throw new Error(`Bad settle base ${base}`);
 }
@@ -112,7 +107,6 @@ export async function begin<O, S extends SessionState, V, R extends Prisma.Input
     try {
       return await db.$transaction(async (tx) => {
         const user = await lockUser(tx, userId);
-        assertPublic(user.privileges);
 
         const created = create(odds, bet, rng, input);
         if ('settle' in created) {
@@ -204,7 +198,6 @@ async function charged<V>(
   try {
     return await db.$transaction(async (tx) => {
       const user = await lockUser(tx, userId);
-      assertPublic(user.privileges);
       if (user.coins < charge) throw new Failure(402, 'casino.insufficient_coins');
 
       await tx.$executeRaw`UPDATE users SET coins = coins - ${charge} WHERE id = ${userId}`;
@@ -245,7 +238,6 @@ async function settle<V, R extends Prisma.InputJsonObject>(
       const { payout, multiplier } = amounts(outcome.settle, bet, user.privileges);
 
       if (charge > 0) {
-        assertPublic(user.privileges);
         if (user.coins < charge) throw new Failure(402, 'casino.insufficient_coins');
         await tx.$executeRaw`UPDATE users SET coins = coins - ${charge} + ${payout} WHERE id = ${userId}`;
       } else {

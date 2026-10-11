@@ -1,5 +1,4 @@
 import { randomBytes } from 'node:crypto';
-import { Privilege } from '$lib/auth/privileges';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
@@ -61,7 +60,6 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
     db.$transaction(async (tx) => {
       const user = await lockUser(tx, userId);
       const privileges = Number(user.privileges);
-      if ((privileges & Privilege.Public) === 0) throw new Failure(403, 'site.forbidden');
       if (user.coins < bet) throw new Failure(402, 'casino.insufficient_coins');
 
       const outcome = run(odds, input, bet, rng);

@@ -71,9 +71,7 @@
         })}
       </b>
 
-      {#if data.restricted}
-        <p class="cs-restricted">{m.common_error_forbidden()}</p>
-      {:else if !limits.enabled}
+      {#if !limits.enabled}
         <p class="cs-restricted">{m.casino_err_disabled()}</p>
       {/if}
 
@@ -119,7 +117,7 @@
         <button
           class="btn btn-blue cs-go"
           type="submit"
-          disabled={pending || data.restricted || !limits.enabled || balance < limits.minBet}
+          disabled={pending || !limits.enabled || balance < limits.minBet}
         >
           {pending ? m.casino_flipping() : m.casino_flip()}
         </button>

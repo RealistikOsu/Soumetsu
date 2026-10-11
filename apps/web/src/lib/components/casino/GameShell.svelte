@@ -59,9 +59,7 @@
       })}
     </b>
 
-    {#if data.restricted}
-      <p class="cs-restricted">{m.common_error_forbidden()}</p>
-    {:else if !limits.enabled || !limits.info}
+    {#if !limits.enabled || !limits.info}
       <p class="cs-restricted">{m.casino_err_disabled()}</p>
     {/if}
 
@@ -70,7 +68,7 @@
         limits,
         info: limits.info,
         balance,
-        blocked: data.restricted || !limits.enabled || balance < limits.minBet
+        blocked: !limits.enabled || balance < limits.minBet
       })}
     {/if}
   {:else if failure}
