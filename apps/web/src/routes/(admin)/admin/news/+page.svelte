@@ -32,6 +32,18 @@
   let cover = $state<File | null>(null);
   let busy = $state(false);
 
+  let picked = $state<string | null>(null);
+  $effect(() => {
+    const url = cover ? URL.createObjectURL(cover) : null;
+    picked = url;
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
+  });
+  const coverSrc = $derived(
+    picked ?? (editing?.cover ? `/news/covers/${editing.cover}?v=${version}` : null)
+  );
+
   const html = $derived(editing ? renderDoc(editing.body).html : '');
   const slug = $derived(
     editing ? (editing.slugEdited ? editing.slug : slugify(editing.title)) : ''
@@ -153,7 +165,10 @@
   bind:open={
     () => editing !== null,
     (value) => {
-      if (!value) editing = null;
+      if (!value) {
+        editing = null;
+        cover = null;
+      }
     }
   }
   title={editing?.previous ? 'Edit post' : 'New post'}
@@ -195,6 +210,9 @@
         accept="image/jpeg,image/png,image/webp"
         onchange={(e) => (cover = e.currentTarget.files?.[0] ?? null)}
       />
+      {#if coverSrc}
+        <img class="cover-preview" src={coverSrc} alt="Cover preview" />
+      {/if}
       <small>
         {cover ? cover.name : (editing.cover ?? 'None')}. JPEG, PNG or WebP, up to 5 MB.
       </small>

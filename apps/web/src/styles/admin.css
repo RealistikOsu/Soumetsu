@@ -1900,3 +1900,14 @@
     white-space: pre-wrap;
   }
 }
+
+.admin {
+  .cover-preview {
+    display: block;
+    max-width: 240px;
+    max-height: 135px;
+    margin: 8px 0;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+}
