@@ -18,6 +18,8 @@ export const config = {
   appBaseUrl: required('APP_BASE_URL').replace(/\/$/, ''),
   mirrorUrl: (optional('MIRROR_URL') || 'https://mirror.ussr.pl').replace(/\/$/, ''),
   docsPath: optional('DOCS_PATH') || '../../website-docs',
+  // News posts live as files here, mounted into the container so they outlast deploys.
+  newsPath: optional('NEWS_PATH') || '../../news',
   // Only behind a proxy that sets X-Real-IP itself; otherwise anyone could claim any address.
   trustProxy: optional('TRUST_PROXY') === 'true',
   banchoUrl: (optional('BANCHO_URL') || 'https://c.ussr.pl').replace(/\/$/, ''),

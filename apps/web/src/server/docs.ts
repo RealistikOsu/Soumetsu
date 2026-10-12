@@ -26,7 +26,7 @@ const normalise = (raw: string) =>
   (raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw).replaceAll('\r\n', '\n');
 
 // Front matter is optional: a plain markdown file works with the file name as its title.
-function parse(slug: string, raw: string) {
+export function frontMatter(raw: string) {
   const text = normalise(raw);
   const front = text.match(/^---\n([\s\S]*?)\n---\n?/);
   const fields: Record<string, string> = {};
@@ -34,6 +34,11 @@ function parse(slug: string, raw: string) {
     const [name, ...rest] = line.split(':');
     if (name && rest.length) fields[name.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
   }
+  return { fields, body: front ? text.slice(front[0].length) : text };
+}
+
+function parse(slug: string, raw: string) {
+  const { fields, body } = frontMatter(raw);
   const meta: DocMeta = {
     slug,
     title: fields.title || slug,
@@ -42,7 +47,7 @@ function parse(slug: string, raw: string) {
     colour: fields.colour || 'blue',
     oldId: fields.old_id ? Number(fields.old_id) : null
   };
-  return { meta, fields, body: front ? text.slice(front[0].length) : text };
+  return { meta, fields, body };
 }
 
 const FIRST = ['rules', 'filters', 'bbcode'];
