@@ -21,14 +21,18 @@ export const PUT = handle(async ({ request, params }) => {
     previous: string;
     create: boolean;
   }>(request);
+  const create = body.create === true;
   const post = await savePost(
     params.slug ?? '',
     { title: body.title ?? '', preview: body.preview ?? '', body: body.body ?? '' },
     caller.id,
     body.previous,
-    body.create === true
+    create
   );
-  await rapLog(caller.id, `has edited the news post "${post.title}" (${post.slug})`);
+  await rapLog(
+    caller.id,
+    `has ${create ? 'created' : 'edited'} the news post "${post.title}" (${post.slug})`
+  );
   return ok(post);
 });
 
