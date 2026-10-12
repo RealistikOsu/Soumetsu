@@ -20,6 +20,7 @@ COPY website-docs website-docs
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV BODY_SIZE_LIMIT=6M
 WORKDIR /app/apps/web
 EXPOSE 3000
 USER bun
