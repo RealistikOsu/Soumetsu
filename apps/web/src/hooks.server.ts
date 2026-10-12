@@ -64,6 +64,10 @@ async function legacyTarget(url: URL) {
     return target;
   }
 
+  // Lazer opens news posts at osu-web's path.
+  const post = url.pathname.match(/^\/home\/news\/([a-z0-9-]+)\/?$/);
+  if (post) return new URL(`/news/${post[1]}`, url);
+
   // osu! calls clans teams.
   const team = url.pathname.match(/^\/teams\/(\d+)\/?$/);
   if (team) {
