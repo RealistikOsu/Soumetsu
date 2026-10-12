@@ -84,7 +84,12 @@ export const siteApi = {
     request<T>('GET', siteUrl(path, params), { signal }),
   post: <T = null>(path: string, body?: unknown) => request<T>('POST', siteUrl(path), { body }),
   put: <T = null>(path: string, body?: unknown) => request<T>('PUT', siteUrl(path), { body }),
-  delete: <T = null>(path: string, body?: unknown) => request<T>('DELETE', siteUrl(path), { body })
+  delete: <T = null>(path: string, body?: unknown) => request<T>('DELETE', siteUrl(path), { body }),
+  upload: <T>(path: string, file: File) => {
+    const form = new FormData();
+    form.set('file', file);
+    return request<T>('POST', siteUrl(path), { form });
+  }
 };
 
 export const api = {

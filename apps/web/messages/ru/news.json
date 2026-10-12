@@ -1,0 +1,11 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "news_title": "Новости",
+  "news_latest": "Последние новости",
+  "news_all": "Все новости",
+  "news_read_more": "Читать дальше",
+  "news_empty": "Пока ничего нет.",
+  "news_err_not_found": "Такой записи нет.",
+  "news_err_slug_taken": "Эта ссылка уже занята другой записью.",
+  "news_err_slug_locked": "Ссылку опубликованной записи нельзя изменить."
+}

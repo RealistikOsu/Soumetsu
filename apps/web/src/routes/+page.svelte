@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CountUp, tabInk } from '@soumetsu/ui';
+  import { newsList } from '$lib/api/news';
   import { query } from '$lib/api/query.svelte';
   import { homepage, topScoreIndex } from '$lib/api/v1';
   import { stats } from '$lib/api/stats';
@@ -8,6 +9,7 @@
   import AlertStack from '$lib/components/AlertStack.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
   import Features from '$lib/components/Features.svelte';
+  import NewsCard from '$lib/components/NewsCard.svelte';
   import OnlineGraph from '$lib/components/OnlineGraph.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import TopMap from '$lib/components/TopMap.svelte';
@@ -66,6 +68,7 @@
   const counts = query((signal) => stats(signal));
   // The statistics service keeps the online graph and the best play per mode.
   const home = query((signal) => homepage(signal));
+  const latestNews = query((signal) => newsList(1, signal, 3));
 
   let active = $state('std');
 </script>
@@ -191,6 +194,15 @@
           {/if}
         </div>
       {/each}
+
+      {#if latestNews.state.status === 'ready' && latestNews.state.data.posts.length}
+        <SectionTitle colour="c-blue" icon="fa-newspaper">
+          <a href="/news">{m.news_latest()}</a>
+        </SectionTitle>
+        <div class="news-grid news-latest">
+          {#each latestNews.state.data.posts as post (post.slug)}<NewsCard {post} />{/each}
+        </div>
+      {/if}
 
       <SectionTitle colour="c-green" icon="fa-bolt">{m.home_features_title()}</SectionTitle>
       <Features />

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "news_title": "Aktualności",
+  "news_latest": "Najnowsze aktualności",
+  "news_all": "Wszystkie aktualności",
+  "news_read_more": "Czytaj dalej",
+  "news_empty": "Na razie nic tu nie ma.",
+  "news_err_not_found": "Nie ma takiego wpisu.",
+  "news_err_slug_taken": "Inny wpis ma już ten adres.",
+  "news_err_slug_locked": "Adresu opublikowanego wpisu nie da się zmienić."
+}

@@ -22,7 +22,8 @@
       "./messages/{locale}/scores.json",
       "./messages/{locale}/commissions.json",
       "./messages/{locale}/shop.json",
-      "./messages/{locale}/casino.json"
+      "./messages/{locale}/casino.json",
+      "./messages/{locale}/news.json"
     ]
   }
 }
