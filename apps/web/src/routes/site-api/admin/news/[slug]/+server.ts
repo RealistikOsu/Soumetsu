@@ -14,14 +14,19 @@ export const GET = handle(async ({ request, params }) => {
 
 export const PUT = handle(async ({ request, params }) => {
   const caller = await requirePrivilege(request, Privilege.AdminManageDocs);
-  const body = await bodyOf<{ title: string; preview: string; body: string; previous: string }>(
-    request
-  );
+  const body = await bodyOf<{
+    title: string;
+    preview: string;
+    body: string;
+    previous: string;
+    create: boolean;
+  }>(request);
   const post = await savePost(
     params.slug ?? '',
     { title: body.title ?? '', preview: body.preview ?? '', body: body.body ?? '' },
     caller.id,
-    body.previous
+    body.previous,
+    body.create === true
   );
   await rapLog(caller.id, `has edited the news post "${post.title}" (${post.slug})`);
   return ok(post);

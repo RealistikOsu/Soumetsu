@@ -11,6 +11,7 @@
 
   type Draft = {
     previous: string | null;
+    isNew: boolean;
     published: boolean;
     slug: string;
     slugEdited: boolean;
@@ -41,6 +42,7 @@
     editing = post
       ? {
           previous: post.slug,
+          isNew: false,
           published: post.publishedAt !== null,
           slug: post.slug,
           slugEdited: true,
@@ -51,6 +53,7 @@
         }
       : {
           previous: null,
+          isNew: true,
           published: false,
           slug: '',
           slugEdited: false,
@@ -80,8 +83,15 @@
       title: draft.title,
       preview: draft.preview,
       body: draft.body,
-      previous: draft.previous ?? undefined
+      previous: draft.previous ?? undefined,
+      create: draft.isNew || undefined
     });
+    // Later steps can fail, so keep the open draft and the list in step with what is on disk.
+    draft.previous = saved.slug;
+    draft.slug = saved.slug;
+    draft.slugEdited = true;
+    draft.isNew = false;
+    version++;
     if (cover) await uploadNewsCover(saved.slug, cover);
     return saved;
   }

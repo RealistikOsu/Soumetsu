@@ -145,7 +145,8 @@ export async function savePost(
   slug: string,
   input: NewsInput,
   authorId: number,
-  previous?: string
+  previous?: string,
+  create = false
 ) {
   checkSlug(slug);
   const title = oneLine(input.title ?? '');
@@ -155,6 +156,7 @@ export async function savePost(
   }
 
   let before = await getPost(slug, { drafts: true });
+  if (create && before) throw new Failure(409, 'news.slug_taken');
   if (previous && previous !== slug) {
     const old = await existing(previous);
     // Lazer and shared links point at a published slug.

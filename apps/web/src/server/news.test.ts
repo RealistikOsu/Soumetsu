@@ -87,6 +87,19 @@ describe('savePost', () => {
     expect((await news.getPost('new-name', { drafts: true }))?.cover).toBe('new-name.png');
   });
 
+  test('refuses to create over an existing post but plain saves update it', async () => {
+    await news.savePost('live-post', input, 7);
+    await news.publishPost('live-post');
+    expect(
+      await code(() => news.savePost('live-post', { ...input, title: 'Other' }, 7, undefined, true))
+    ).toBe('news.slug_taken');
+    expect((await news.getPost('live-post'))?.title).toBe('Hello there');
+    await news.savePost('live-post', { ...input, title: 'Edited' }, 7);
+    expect((await news.getPost('live-post'))?.title).toBe('Edited');
+    await news.savePost('fresh-post', input, 7, undefined, true);
+    expect(await news.getPost('fresh-post', { drafts: true })).not.toBeNull();
+  });
+
   test('refuses to rename a published post or onto a taken slug', async () => {
     await news.savePost('live-post', input, 7);
     await news.publishPost('live-post');

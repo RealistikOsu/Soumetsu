@@ -12,7 +12,7 @@ export const staffNews = (signal?: AbortSignal) =>
   siteApi.get<StaffPost[]>('/admin/news', undefined, signal);
 export const saveNews = (
   slug: string,
-  body: { title: string; preview: string; body: string; previous?: string }
+  body: { title: string; preview: string; body: string; previous?: string; create?: boolean }
 ) => siteApi.put<StaffPost>(`/admin/news/${slug}`, body);
 export const publishNews = (slug: string) => siteApi.post<StaffPost>(`/admin/news/${slug}/publish`);
 export const deleteNews = (slug: string) => siteApi.delete(`/admin/news/${slug}`);
