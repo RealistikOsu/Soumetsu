@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/public';
 import { config } from '$server/config';
+import { db } from '$server/db';
 import { readDoc } from '$server/docs';
 import { coverUrl, getPost } from '$server/news';
 
@@ -256,12 +257,27 @@ async function beatmapset(id: string) {
     `${config.mirrorUrl}/api/v2/beatmapsets/${id}`,
     false
   );
-  if (!found) return site;
+  if (found) {
+    return {
+      title: `${found.artist} - ${found.title}`,
+      description: `Mapped by ${found.creator}. Play it on RealistikOsu.`,
+      image: cover(Number(id)),
+      alt: `${found.artist} - ${found.title} cover`,
+      wide: true
+    };
+  }
+
+  // Without the mirror, our own table still knows any set that has been played here, minus the mapper.
+  const map = await db.beatmaps
+    .findFirst({ where: { beatmapset_id: Number(id) }, select: { song_name: true } })
+    .catch(() => null);
+  if (!map) return site;
+  const name = map.song_name.replace(/\s*\[[^\]]*\]$/, '');
   return {
-    title: `${found.artist} - ${found.title}`,
-    description: `Mapped by ${found.creator}. Play it on RealistikOsu.`,
+    title: name,
+    description: `Play ${name} on RealistikOsu.`,
     image: cover(Number(id)),
-    alt: `${found.artist} - ${found.title} cover`,
+    alt: `${name} cover`,
     wide: true
   };
 }
