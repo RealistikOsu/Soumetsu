@@ -65,10 +65,19 @@ function serialise(post: NewsPost) {
   ].join('\n');
 }
 
+// Lazer reads the feed with a strict ISO 8601 parser, so hand-written dates are rewritten to it.
+function isoDate(value: string | undefined) {
+  const time = Date.parse(value ?? '');
+  return Number.isNaN(time) ? null : new Date(time).toISOString();
+}
+
 function parse(slug: string, raw: string): NewsPost | null {
   const { fields, body } = frontMatter(raw);
   if (!validSlug(slug) || !fields.title) return null;
-  const publishedAt = fields.published_at || null;
+  const publishedAt = isoDate(fields.published_at);
+  if (fields.published_at && !publishedAt) {
+    console.warn(`news: ${slug}.md has an unreadable published_at, treating it as a draft`);
+  }
   return {
     slug,
     title: fields.title,
@@ -76,7 +85,7 @@ function parse(slug: string, raw: string): NewsPost | null {
     authorId: Number(fields.author_id) || 0,
     cover: fields.cover || null,
     publishedAt,
-    updatedAt: fields.updated_at || publishedAt || '',
+    updatedAt: isoDate(fields.updated_at) ?? publishedAt ?? '',
     body
   };
 }

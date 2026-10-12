@@ -141,7 +141,26 @@ describe('listPosts', () => {
     await writeFile(join(dir, 'Bad Name.md'), '---\ntitle: x\npreview: p\n---\nbody');
     const posts = await news.listPosts();
     expect(posts.map((p) => p.slug)).toEqual(['newer', 'older']);
-    expect(posts[0].updatedAt).toBe('2026-05-01T00:00:00Z');
+    expect(posts[0].updatedAt).toBe('2026-05-01T00:00:00.000Z');
+  });
+
+  test('rewrites hand-written dates as ISO 8601', async () => {
+    await writeFile(
+      join(dir, 'hand-made.md'),
+      '---\ntitle: Hand\npreview: p\npublished_at: 2026-10-12 14:00\nupdated_at: nonsense\n---\nbody'
+    );
+    const [post] = await news.listPosts();
+    expect(post.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}T.*Z$/);
+    expect(post.updatedAt).toBe(post.publishedAt!);
+  });
+
+  test('treats an unreadable published_at as a draft', async () => {
+    await writeFile(
+      join(dir, 'later.md'),
+      '---\ntitle: Later\npreview: p\npublished_at: soon\n---\nbody'
+    );
+    expect(await news.listPosts()).toEqual([]);
+    expect((await news.listPosts({ drafts: true })).map((p) => p.slug)).toEqual(['later']);
   });
 
   test('picks up a file changed on disk', async () => {
