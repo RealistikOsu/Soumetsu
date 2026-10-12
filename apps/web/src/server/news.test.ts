@@ -214,8 +214,25 @@ describe('deletePost', () => {
 
 describe('coverFile', () => {
   test('only serves cover-shaped names', async () => {
-    expect(news.coverFile('hello-there.png')?.type).toBe('image/png');
+    expect(news.coverFile('hello-there.png')).toMatchObject({
+      slug: 'hello-there',
+      type: 'image/png'
+    });
     expect(news.coverFile('../x.png')).toBeNull();
     expect(news.coverFile('hello-there.md')).toBeNull();
+  });
+});
+
+describe('coverUrl', () => {
+  test('carries the update time so a replaced cover is fetched again', async () => {
+    await news.savePost('hello-there', input, 7);
+    const saved = await news.saveCover(
+      'hello-there',
+      new File([new Uint8Array(10)], 'a.png', { type: 'image/png' })
+    );
+    expect(news.coverUrl(saved)).toBe(
+      `https://ussr.pl/news/covers/hello-there.png?v=${Date.parse(saved.updatedAt)}`
+    );
+    expect(news.coverUrl({ ...saved, cover: null })).toBeNull();
   });
 });

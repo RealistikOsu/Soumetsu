@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/public';
 import { config } from '$server/config';
 import { readDoc } from '$server/docs';
-import { getPost } from '$server/news';
+import { coverUrl, getPost } from '$server/news';
 
 // Pages are rendered in the browser, so link previews (Discord embeds and the like) would find nothing to read.
 // For the pages people share, the server works out the preview here and the hook puts it into the first HTML.
@@ -393,7 +393,7 @@ export async function previewFor(url: URL): Promise<Preview> {
       ...site,
       title: post.title,
       description: post.preview,
-      image: post.cover ? `${config.appBaseUrl}/news/covers/${post.cover}` : site.image
+      image: coverUrl(post) ?? site.image
     });
   }
 

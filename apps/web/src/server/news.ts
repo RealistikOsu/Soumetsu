@@ -220,7 +220,14 @@ export async function saveCover(slug: string, file: File) {
 export function coverFile(name: string) {
   const match = name.match(/^([a-z0-9-]+)\.(jpg|png|webp)$/);
   if (!match || !validSlug(match[1])) return null;
-  return { path: pathOf(name), type: COVER_EXTENSIONS[match[2]] };
+  return { slug: match[1], path: pathOf(name), type: COVER_EXTENSIONS[match[2]] };
+}
+
+// The file name stays the same when a cover is replaced, so the version keeps caches from serving the old one.
+export function coverUrl(post: NewsPost) {
+  if (!post.cover) return null;
+  const version = Date.parse(post.updatedAt);
+  return `${config.appBaseUrl}/news/covers/${post.cover}${version ? `?v=${version}` : ''}`;
 }
 
 export async function authorsOf(posts: NewsPost[]) {
@@ -239,7 +246,7 @@ export function publicPost(post: NewsPost, authors: Map<number, string>): Public
     slug: post.slug,
     title: post.title,
     preview: post.preview,
-    cover_url: post.cover ? `${config.appBaseUrl}/news/covers/${post.cover}` : null,
+    cover_url: coverUrl(post),
     author: username ? { id: post.authorId, username } : null,
     published_at: post.publishedAt ?? post.updatedAt,
     updated_at: post.updatedAt
