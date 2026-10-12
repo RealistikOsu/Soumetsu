@@ -474,14 +474,20 @@ export const setDailyChallenge = (
 export const removeDailyChallenge = (date: string) =>
   siteApi.delete(`/admin/daily-challenge?date=${date}`);
 
-export const poolEntries = (ruleset: number, signal?: AbortSignal) =>
-  siteApi.get<PoolEntry[]>('/admin/lazer/pool', { ruleset }, signal);
+// A ranked play pool: a ruleset, and for osu! whether it's the relax one (variant 1).
+export interface RankedPool {
+  ruleset: number;
+  variant: number;
+}
 
-export const addPoolEntry = (ruleset: number, beatmapId: number, stars?: number) =>
-  siteApi.put('/admin/lazer/pool', { ruleset, beatmap_id: beatmapId, stars });
+export const poolEntries = ({ ruleset, variant }: RankedPool, signal?: AbortSignal) =>
+  siteApi.get<PoolEntry[]>('/admin/lazer/pool', { ruleset, variant }, signal);
 
-export const removePoolEntry = (ruleset: number, beatmapId: number) =>
-  siteApi.delete(`/admin/lazer/pool?ruleset=${ruleset}&beatmap=${beatmapId}`);
+export const addPoolEntry = ({ ruleset, variant }: RankedPool, beatmapId: number, stars?: number) =>
+  siteApi.put('/admin/lazer/pool', { ruleset, variant, beatmap_id: beatmapId, stars });
+
+export const removePoolEntry = ({ ruleset, variant }: RankedPool, beatmapId: number) =>
+  siteApi.delete(`/admin/lazer/pool?ruleset=${ruleset}&variant=${variant}&beatmap=${beatmapId}`);
 
 export interface ShopItemRow {
   id: number;

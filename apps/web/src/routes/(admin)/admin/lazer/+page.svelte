@@ -15,7 +15,16 @@
   import { modeNames } from '$lib/modes';
 
   let version = $state(0);
-  let ruleset = $state(0);
+  // Ranked play deals each of these from its own pool; relax only exists for osu!.
+  const pools = [
+    { ruleset: 0, variant: 0, label: modeNames[0] },
+    { ruleset: 0, variant: 1, label: `${modeNames[0]} Relax` },
+    { ruleset: 1, variant: 0, label: modeNames[1] },
+    { ruleset: 2, variant: 0, label: modeNames[2] },
+    { ruleset: 3, variant: 0, label: modeNames[3] }
+  ];
+  let poolIndex = $state(0);
+  const selectedPool = $derived(pools[poolIndex]);
   let poolMap = $state('');
   let poolStars = $state('');
   let busy = $state(false);
@@ -29,7 +38,7 @@
   });
   const pool = query((signal) => {
     void version;
-    return poolEntries(ruleset, signal);
+    return poolEntries(selectedPool, signal);
   });
 
   async function run(action: () => Promise<unknown>, success: string) {
@@ -52,7 +61,7 @@
 
   const addToPool = () =>
     run(async () => {
-      await addPoolEntry(ruleset, Number(poolMap), Number(poolStars) || undefined);
+      await addPoolEntry(selectedPool, Number(poolMap), Number(poolStars) || undefined);
       poolMap = '';
       poolStars = '';
     }, 'Added to the pool.');
@@ -90,9 +99,9 @@
 <div class="panel form-panel c-purple admin-form">
   <div class="field-row">
     <div class="field">
-      <label for="pool-ruleset">Ruleset</label>
-      <select id="pool-ruleset" bind:value={ruleset}>
-        {#each modeNames as name, index (index)}<option value={index}>{name}</option>{/each}
+      <label for="pool-ruleset">Pool</label>
+      <select id="pool-ruleset" bind:value={poolIndex}>
+        {#each pools as option, index (index)}<option value={index}>{option.label}</option>{/each}
       </select>
     </div>
     <div class="field">
@@ -135,7 +144,10 @@
                 type="button"
                 disabled={busy}
                 onclick={() =>
-                  run(() => removePoolEntry(ruleset, entry.beatmapId), 'Removed from the pool.')}
+                  run(
+                    () => removePoolEntry(selectedPool, entry.beatmapId),
+                    'Removed from the pool.'
+                  )}
               >
                 Remove
               </button>

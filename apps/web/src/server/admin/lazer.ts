@@ -51,13 +51,17 @@ export interface PoolEntry {
   song: string | null;
 }
 
-export async function poolEntries(ruleset: number) {
+// Variant 0 is vanilla and 1 relax, as on lazer scores; only osu! has a relax pool.
+const poolName = (ruleset: number, variant: number) =>
+  `ruleset ${ruleset}${variant === 1 ? ', relax' : ''}`;
+
+export async function poolEntries(ruleset: number, variant: number) {
   const rows = await lazerTables(
     db.$queryRaw<{ beatmap_id: number; star_rating: number; song_name: string | null }[]>`
       SELECT p.beatmap_id, p.star_rating, b.song_name
       FROM lazer_ranked_play_pool p
       LEFT JOIN beatmaps b ON b.beatmap_id = p.beatmap_id
-      WHERE p.ruleset_id = ${ruleset}
+      WHERE p.ruleset_id = ${ruleset} AND p.variant = ${variant}
       ORDER BY p.star_rating`
   );
   return rows.map((row): PoolEntry => ({
@@ -71,6 +75,7 @@ export async function poolEntries(ruleset: number) {
 export async function addPoolEntry(
   staffId: number,
   ruleset: number,
+  variant: number,
   beatmapId: number,
   stars?: number
 ) {
@@ -89,22 +94,27 @@ export async function addPoolEntry(
 
   await lazerTables(
     db.$executeRaw`
-      INSERT INTO lazer_ranked_play_pool (ruleset_id, beatmap_id, star_rating)
-      VALUES (${ruleset}, ${beatmapId}, ${rating})
+      INSERT INTO lazer_ranked_play_pool (ruleset_id, variant, beatmap_id, star_rating)
+      VALUES (${ruleset}, ${variant}, ${beatmapId}, ${rating})
       ON DUPLICATE KEY UPDATE star_rating = ${rating}`
   );
   await rapLog(
     staffId,
-    `added beatmap ${beatmapId} to the lazer ranked play pool (ruleset ${ruleset})`
+    `added beatmap ${beatmapId} to the lazer ranked play pool (${poolName(ruleset, variant)})`
   );
 }
 
-export async function removePoolEntry(staffId: number, ruleset: number, beatmapId: number) {
+export async function removePoolEntry(
+  staffId: number,
+  ruleset: number,
+  variant: number,
+  beatmapId: number
+) {
   await lazerTables(
-    db.$executeRaw`DELETE FROM lazer_ranked_play_pool WHERE ruleset_id = ${ruleset} AND beatmap_id = ${beatmapId}`
+    db.$executeRaw`DELETE FROM lazer_ranked_play_pool WHERE ruleset_id = ${ruleset} AND variant = ${variant} AND beatmap_id = ${beatmapId}`
   );
   await rapLog(
     staffId,
-    `removed beatmap ${beatmapId} from the lazer ranked play pool (ruleset ${ruleset})`
+    `removed beatmap ${beatmapId} from the lazer ranked play pool (${poolName(ruleset, variant)})`
   );
 }

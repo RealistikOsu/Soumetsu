@@ -12,18 +12,40 @@ const rulesetOf = (value: unknown) => {
   return ruleset;
 };
 
+// Only osu! has a relax ranked play pool.
+const variantOf = (value: unknown, ruleset: number) => {
+  const variant = Number(value ?? 0);
+  if (variant !== 0 && !(variant === 1 && ruleset === 0)) {
+    throw new Failure(400, 'site.invalid_request');
+  }
+  return variant;
+};
+
 export const GET = handle(async ({ request, url }) => {
   await requirePrivilege(request, Privilege.AdminManageBeatmap);
-  return ok(await poolEntries(rulesetOf(url.searchParams.get('ruleset'))));
+  const ruleset = rulesetOf(url.searchParams.get('ruleset'));
+  return ok(await poolEntries(ruleset, variantOf(url.searchParams.get('variant'), ruleset)));
 });
 
 export const PUT = handle(async ({ request }) => {
   const caller = await requirePrivilege(request, Privilege.AdminManageBeatmap);
-  const body = await bodyOf<{ ruleset: number; beatmap_id: number; stars: number }>(request);
+  const body = await bodyOf<{
+    ruleset: number;
+    variant: number;
+    beatmap_id: number;
+    stars: number;
+  }>(request);
   if (!Number.isInteger(body.beatmap_id) || body.beatmap_id! < 1) {
     throw new Failure(400, 'site.invalid_request');
   }
-  await addPoolEntry(caller.id, rulesetOf(body.ruleset), body.beatmap_id!, body.stars);
+  const ruleset = rulesetOf(body.ruleset);
+  await addPoolEntry(
+    caller.id,
+    ruleset,
+    variantOf(body.variant, ruleset),
+    body.beatmap_id!,
+    body.stars
+  );
   return ok();
 });
 
@@ -31,6 +53,12 @@ export const DELETE = handle(async ({ request, url }) => {
   const caller = await requirePrivilege(request, Privilege.AdminManageBeatmap);
   const beatmapId = Number(url.searchParams.get('beatmap'));
   if (!Number.isInteger(beatmapId) || beatmapId < 1) throw new Failure(400, 'site.invalid_request');
-  await removePoolEntry(caller.id, rulesetOf(url.searchParams.get('ruleset')), beatmapId);
+  const ruleset = rulesetOf(url.searchParams.get('ruleset'));
+  await removePoolEntry(
+    caller.id,
+    ruleset,
+    variantOf(url.searchParams.get('variant'), ruleset),
+    beatmapId
+  );
   return ok();
 });
