@@ -47,6 +47,13 @@ export const adminSections: { name: string; pages: AdminPage[] }[] = [
         colour: 'c-teal',
         icon: 'fa-chart-line',
         needs: Privilege.AdminAccessRap
+      },
+      {
+        href: '/admin/news',
+        label: 'News',
+        colour: 'c-blue',
+        icon: 'fa-newspaper',
+        needs: Privilege.AdminManageDocs
       }
     ]
   },
