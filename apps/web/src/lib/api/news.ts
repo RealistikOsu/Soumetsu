@@ -1,10 +1,12 @@
-import type { NewsArticle, NewsSummary, StaffPost } from '$lib/news';
+import type { NewsArchiveEntry, NewsArticle, NewsSummary, StaffPost } from '$lib/news';
 import { siteApi } from './site';
 
 export const NEWS_PAGE_SIZE = 12;
 
 export const newsList = (page: number, signal?: AbortSignal, limit = NEWS_PAGE_SIZE) =>
   siteApi.get<{ posts: NewsSummary[]; total: number }>('/news', { page, limit }, signal);
+export const newsArchive = (signal?: AbortSignal) =>
+  siteApi.get<NewsArchiveEntry[]>('/news/archive', undefined, signal);
 export const newsPost = (slug: string, signal?: AbortSignal) =>
   siteApi.get<NewsArticle>(`/news/${slug}`, undefined, signal);
 

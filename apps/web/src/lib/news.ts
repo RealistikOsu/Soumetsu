@@ -23,6 +23,8 @@ export interface NewsSummary {
 
 export type NewsArticle = NewsSummary & { body: string };
 
+export type NewsArchiveEntry = Pick<NewsSummary, 'slug' | 'title' | 'published_at'>;
+
 export interface StaffPost {
   slug: string;
   title: string;

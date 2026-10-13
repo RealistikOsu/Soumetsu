@@ -30,6 +30,8 @@ export interface PublicPost {
 }
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Taken by routes next to /news/{slug} and /site-api/news/{slug}.
+const RESERVED = ['covers', 'archive'];
 const COVER_MAX = 5 * 1024 * 1024;
 const COVER_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -42,7 +44,7 @@ const folder = () => resolve(process.cwd(), config.newsPath);
 const pathOf = (name: string) => resolve(folder(), name);
 
 const validSlug = (slug: string) =>
-  slug.length >= 3 && slug.length <= 80 && SLUG.test(slug) && slug !== 'covers';
+  slug.length >= 3 && slug.length <= 80 && SLUG.test(slug) && !RESERVED.includes(slug);
 
 function checkSlug(slug: string) {
   if (!validSlug(slug)) throw new Failure(400, 'auth.validation_error');

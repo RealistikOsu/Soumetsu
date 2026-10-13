@@ -2,10 +2,12 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "news_title": "News",
   "news_latest": "Latest news",
-  "news_all": "All news",
-  "news_read_more": "Read more",
   "news_empty": "Nothing posted yet.",
   "news_err_not_found": "That post doesn't exist.",
   "news_err_slug_taken": "Another post already uses that link.",
-  "news_err_slug_locked": "A published post's link can't change."
+  "news_err_slug_locked": "A published post's link can't change.",
+  "news_archive": "Archive",
+  "news_by": "by",
+  "news_newer": "Newer",
+  "news_older": "Older"
 }

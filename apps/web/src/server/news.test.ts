@@ -61,7 +61,15 @@ describe('savePost', () => {
   });
 
   test('refuses bad slugs before touching the disk', async () => {
-    for (const slug of ['../escape', 'Upper', 'ab', 'covers', 'a--b', `${'a'.repeat(81)}`]) {
+    for (const slug of [
+      '../escape',
+      'Upper',
+      'ab',
+      'covers',
+      'archive',
+      'a--b',
+      `${'a'.repeat(81)}`
+    ]) {
       expect(await code(() => news.savePost(slug, input, 7))).toBe('auth.validation_error');
     }
     expect(await readdir(dir)).toEqual([]);

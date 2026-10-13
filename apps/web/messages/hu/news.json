@@ -2,10 +2,12 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "news_title": "Hírek",
   "news_latest": "Legfrissebb hírek",
-  "news_all": "Összes hír",
-  "news_read_more": "Tovább",
   "news_empty": "Még nincs semmi.",
   "news_err_not_found": "Ilyen bejegyzés nincs.",
   "news_err_slug_taken": "Ezt a hivatkozást már egy másik bejegyzés használja.",
-  "news_err_slug_locked": "Közzétett bejegyzés hivatkozása nem változhat."
+  "news_err_slug_locked": "Közzétett bejegyzés hivatkozása nem változhat.",
+  "news_archive": "Archívum",
+  "news_by": "Írta:",
+  "news_newer": "Újabb",
+  "news_older": "Régebbi"
 }
