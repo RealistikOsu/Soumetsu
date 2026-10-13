@@ -793,15 +793,21 @@
     color: var(--muted);
   }
 
-  .dialog-body .field input {
+  .dialog-body .field input,
+  .dialog-body .field textarea {
+    width: 100%;
     max-width: none;
   }
 
+  /* Tall dialogs scroll, and their buttons stay in view at the bottom. */
   .card-dialog footer {
+    position: sticky;
+    bottom: 0;
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    padding: 0 20px 20px;
+    padding: 12px 20px 20px;
+    background: var(--panel);
   }
 
   .check {
