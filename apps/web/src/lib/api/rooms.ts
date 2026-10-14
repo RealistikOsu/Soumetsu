@@ -5,6 +5,7 @@ import type { BeatmapRef, UserRef } from './rankedPlay';
 export interface ChallengeDay {
   date: string;
   has_challenge: boolean;
+  ends_at: string;
 }
 
 export interface DailyChallenge {

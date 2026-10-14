@@ -3,7 +3,7 @@
   import { page } from '$app/state';
   import { isApiError } from '$lib/api/errors';
   import { query } from '$lib/api/query.svelte';
-  import { dailyChallenge, dailyScores, type DailySource } from '$lib/api/rooms';
+  import { challengeDays, dailyChallenge, dailyScores, type DailySource } from '$lib/api/rooms';
   import Banner from '$lib/components/Banner.svelte';
   import DailyCalendar from '$lib/components/DailyCalendar.svelte';
   import MatchMap from '$lib/components/MatchMap.svelte';
@@ -14,9 +14,29 @@
   import { tabInk } from '@soumetsu/ui';
   import { m } from '$lib/paraglide/messages';
 
-  const today = new Date().toISOString().slice(0, 10);
+  const utcToday = new Date().toISOString().slice(0, 10);
+
+  // A challenge runs for a day from its own start, so the one still on can belong to yesterday's date. That one is
+  // "today" until it ends; the UTC date only takes over when nothing is running.
+  const live = query(async (signal) => {
+    const [year, month, day] = utcToday.split('-').map(Number);
+    const months = [[year, month]];
+    if (day === 1) months.push(month === 1 ? [year - 1, 12] : [year, month - 1]);
+    const days = (await Promise.all(months.map(([y, mo]) => challengeDays(y, mo, signal)))).flat();
+    const running = days.filter((d) => d.has_challenge && Date.parse(d.ends_at) > Date.now());
+    return (
+      running
+        .map((d) => d.date)
+        .sort()
+        .at(-1) ?? utcToday
+    );
+  });
+  const today = $derived(live.state.status === 'ready' ? live.state.data : utcToday);
+
   const asked = $derived(page.url.searchParams.get('date') ?? '');
-  const date = $derived(/^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : today);
+  const valid = $derived(/^\d{4}-\d{2}-\d{2}$/.test(asked));
+  const date = $derived(valid ? asked : today);
+  const settled = $derived(valid || live.state.status !== 'loading');
   const current = $derived(Math.max(1, parseInt(page.url.searchParams.get('p') ?? '') || 1));
   const source = $derived<DailySource>(
     page.url.searchParams.get('source') === 'lazer' ? 'lazer' : 'stable'
@@ -24,7 +44,10 @@
   const target = (src: DailySource, p: number) =>
     `?date=${date}${src === 'lazer' ? '&source=lazer' : ''}${p > 1 ? `&p=${p}` : ''}`;
 
-  const challenge = query((signal) => dailyChallenge(date, signal));
+  // Without a date in the address, wait to learn which challenge is on rather than flash the wrong day.
+  const challenge = query((signal) =>
+    settled ? dailyChallenge(date, signal) : new Promise<never>(() => {})
+  );
   const result = $derived(challenge.state);
   const missing = $derived(
     result.status === 'error' && isApiError(result.error) && result.error.status === 404
@@ -108,7 +131,7 @@
   </div>
 
   <!-- Mounted while the day loads so the scores call runs alongside it. -->
-  {#if result.status !== 'error'}
+  {#if settled && result.status !== 'error'}
     <SectionTitle colour="c-purple" icon="fa-ranking-star">{m.rooms_leaderboard()}</SectionTitle>
     <nav class="tabs tinted room-tabs" use:tabInk>
       <a
