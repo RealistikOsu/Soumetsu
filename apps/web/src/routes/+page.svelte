@@ -9,12 +9,11 @@
   import AlertStack from '$lib/components/AlertStack.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
   import Features from '$lib/components/Features.svelte';
-  import NewsCard from '$lib/components/NewsCard.svelte';
   import OnlineGraph from '$lib/components/OnlineGraph.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import TopMap from '$lib/components/TopMap.svelte';
   import Username from '$lib/components/Username.svelte';
-  import { number } from '$lib/format';
+  import { fromIso, fullDate, number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
   import { site } from '$lib/site.svelte';
 
@@ -197,10 +196,22 @@
 
       {#if latestNews.state.status === 'ready' && latestNews.state.data.posts.length}
         <SectionTitle colour="c-blue" icon="fa-newspaper">
-          <a href="/news">{m.news_latest()}</a>
+          {m.news_latest()}<a href="/news">{m.news_all()}</a>
         </SectionTitle>
-        <div class="news-grid news-latest">
-          {#each latestNews.state.data.posts as post (post.slug)}<NewsCard {post} />{/each}
+        <div class="panel news-rows c-blue">
+          {#each latestNews.state.data.posts as post (post.slug)}
+            <a class="news-row" href="/news/{post.slug}">
+              <span
+                class="news-thumb"
+                style="background-image: url({post.cover_url ?? '/img/banner-default.png'})"
+              ></span>
+              <span class="news-row-text">
+                <b>{post.title}</b>
+                <span class="news-preview">{post.preview}</span>
+              </span>
+              <small>{fullDate(fromIso(post.published_at))}</small>
+            </a>
+          {/each}
         </div>
       {/if}
 
