@@ -73,13 +73,8 @@
   align-items: center;
   gap: 16px;
   padding: 10px 16px 10px 10px;
-  border-left: 3px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
-}
-
-.rp-card.live {
-  border-left-color: var(--green);
 }
 
 .rp-card:hover {

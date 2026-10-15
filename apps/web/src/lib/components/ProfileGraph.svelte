@@ -10,11 +10,14 @@
     points,
     // Rank graphs put rank 1 at the top.
     inverted = false,
-    unit = ''
+    unit = '',
+    // Drawn inside another panel, so without one of its own.
+    bare = false
   }: {
     points: GraphPoint[];
     inverted?: boolean;
     unit?: string;
+    bare?: boolean;
   } = $props();
 
   const W = 800;
@@ -141,7 +144,7 @@
 <!-- A touch has no hover, so a tapped point stays until the next tap somewhere else. -->
 <svelte:window onpointerdown={(event) => box && !box.contains(event.target as Node) && onLeave()} />
 
-<div class="panel chart c-blue" bind:this={box} use:inView>
+<div class={bare ? 'chart' : 'panel chart c-blue'} bind:this={box} use:inView>
   <svg
     bind:this={svg}
     viewBox="0 0 {W} {H}"

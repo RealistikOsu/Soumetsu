@@ -142,13 +142,11 @@ a.perk:hover b {
   .clan-form,
   .request,
   .home,
-  .profile,
   .map-info,
   .patcher-top,
   .clan-top,
   .settings,
-  .auth,
-  .mode-bar .wrap {
+  .auth {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -379,7 +377,7 @@ a.perk:hover b {
     grid-column: auto;
   }
 
-  .profile-head .wrap {
+  .profile-head .head-top {
     flex-wrap: wrap;
     padding-top: 40px;
   }

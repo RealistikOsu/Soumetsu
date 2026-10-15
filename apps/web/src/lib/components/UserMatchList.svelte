@@ -4,14 +4,14 @@
   import { isApiError } from '$lib/api/errors';
   import { query } from '$lib/api/query.svelte';
   import { MATCHES_PAGE_SIZE, type MatchBase, type UserMatchList } from '$lib/api/rankedPlay';
-  import { profile } from '$lib/api/users';
-  import Banner from '$lib/components/Banner.svelte';
+  import AlertStack from '$lib/components/AlertStack.svelte';
   import MatchCard from '$lib/components/MatchCard.svelte';
   import NotFound from '$lib/components/NotFound.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { number } from '$lib/format';
   import { m } from '$lib/paraglide/messages';
+  import { getProfile } from '$lib/profile';
 
   let {
     title,
@@ -27,13 +27,13 @@
     endedEmpty: string;
   } = $props();
 
-  const id = $derived(Number(page.params.id));
+  const owner = getProfile();
+  const id = $derived(owner.id);
   const current = $derived(Math.max(1, parseInt(page.url.searchParams.get('p') ?? '') || 1));
 
-  const owner = query((signal) => profile(id, 0, 0, signal));
   const matches = query((signal) => load(id, current, signal));
   const result = $derived(matches.state);
-  const username = $derived(owner.state.status === 'ready' ? owner.state.data.username : '');
+  const username = $derived(owner.base?.username ?? '');
 </script>
 
 <svelte:head>
@@ -43,12 +43,7 @@
 {#if result.status === 'error' && isApiError(result.error) && result.error.status === 404}
   <NotFound user />
 {:else}
-  <Banner image="leaderboard.jpg">
-    <div>
-      <h1>{title}</h1>
-      <p class="sub"><a href="/users/{id}">{username}</a></p>
-    </div>
-  </Banner>
+  <AlertStack />
 
   <main class="wrap rp-page">
     {#if result.status === 'ready'}
