@@ -1,7 +1,9 @@
 /* profile */
 
+/* isolation traps the past names list inside the head, so the head itself sits above the mode bar. */
 .profile-head {
   position: relative;
+  z-index: 1;
   isolation: isolate;
   background: #000 center / cover no-repeat;
 }
