@@ -218,25 +218,34 @@ a.perk:hover b {
   }
 
   .top.open .nav-menu > button {
-    padding: 12px 4px 4px;
+    justify-content: flex-start;
+    height: auto;
+    padding: 12px 4px;
+    border-radius: 4px;
     background: none;
     box-shadow: none;
-    color: var(--faint);
-    font-size: 13px;
-    pointer-events: none;
+  }
+
+  .top.open .nav-menu.active > button {
+    padding-left: 10px;
+    box-shadow: inset 2px 0 var(--accent);
   }
 
   .top.open .nav-menu > button .fa-chevron-down {
-    display: none;
+    margin-left: auto;
+    font-size: 11px;
   }
 
   .top.open .nav-drop {
     position: static;
-    display: grid;
     min-width: 0;
-    padding: 0 0 0 22px;
+    padding: 0 0 4px 22px;
     border: 0;
     background: none;
+  }
+
+  .motion .top.open .nav-menu.open .nav-drop {
+    animation: drop 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
 
   .top.open .nav .nav-drop a {

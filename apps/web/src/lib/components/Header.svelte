@@ -294,7 +294,13 @@
         type="button"
         aria-label={m.common_header_menu()}
         aria-expanded={mobileOpen}
-        onclick={() => (mobileOpen = !mobileOpen)}
+        onclick={() => {
+          mobileOpen = !mobileOpen;
+          // On a phone the groups fold up, so the one holding the current page starts open.
+          openMenu = mobileOpen
+            ? (menus.find((menu) => isActive(menu.prefixes))?.label ?? null)
+            : null;
+        }}
       >
         <i class="fa-solid {mobileOpen ? 'fa-xmark' : 'fa-bars'}"></i>
       </button>
