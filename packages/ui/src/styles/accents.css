@@ -9,7 +9,10 @@
 .c-green,
 .c-red,
 .c-teal,
-.c-discord {
+.c-discord,
+.s-ranked,
+.s-approved,
+.s-loved {
   --top-radius: 0;
 }
 
