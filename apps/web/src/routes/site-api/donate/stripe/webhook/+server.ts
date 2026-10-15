@@ -14,10 +14,12 @@ export const POST = async ({ request }: { request: Request }) => {
   let event: Stripe.Event;
   try {
     // Without a webhook secret the body is trusted as it is, which only suits local testing.
+    // Under Bun the stripe package loads its worker build, whose crypto can only verify asynchronously.
     event = config.stripe.webhookSecret
-      ? stripe.webhooks.constructEvent(payload, signature, config.stripe.webhookSecret)
+      ? await stripe.webhooks.constructEventAsync(payload, signature, config.stripe.webhookSecret)
       : (JSON.parse(payload) as Stripe.Event);
-  } catch {
+  } catch (error) {
+    console.warn('Stripe webhook rejected:', error instanceof Error ? error.message : error);
     return new Response('Invalid payload', { status: 400 });
   }
 
