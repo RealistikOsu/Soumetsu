@@ -5,7 +5,11 @@
   import { m } from '$lib/paraglide/messages';
   import Dialog from './Dialog.svelte';
 
-  let { id, username, onopen }: { id: number; username: string; onopen?: () => void } = $props();
+  let {
+    id,
+    username,
+    open = $bindable(false)
+  }: { id: number; username: string; open?: boolean } = $props();
 
   const reasons = [
     ['cheating', m.profile_report_cheating],
@@ -16,7 +20,6 @@
     ['other', m.profile_report_other]
   ] as const;
 
-  let open = $state(false);
   let reason = $state<(typeof reasons)[number][0]>('cheating');
   let info = $state('');
   let busy = $state(false);
@@ -36,17 +39,6 @@
     }
   }
 </script>
-
-<button
-  class="report-user"
-  type="button"
-  onclick={() => {
-    onopen?.();
-    open = true;
-  }}
->
-  <i class="fa-solid fa-flag"></i>{m.profile_report()}
-</button>
 
 <Dialog bind:open class="pin-dialog">
   <button class="dialog-close" aria-label={m.profile_report_close()} onclick={() => (open = false)}>

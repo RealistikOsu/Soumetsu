@@ -38,6 +38,7 @@
   ]);
 
   let menu = $state<HTMLDetailsElement>();
+  let reporting = $state(false);
 </script>
 
 <svelte:window
@@ -149,10 +150,23 @@
               >
             {/if}
             {#if session.user && !profile.own}
-              <ReportUser {id} username={base.username} onopen={() => (menu!.open = false)} />
+              <button
+                class="report-user"
+                type="button"
+                onclick={() => {
+                  menu!.open = false;
+                  reporting = true;
+                }}
+              >
+                <i class="fa-solid fa-flag"></i>{m.profile_report()}
+              </button>
             {/if}
           </div>
         </details>
+        <!-- outside the menu: a closed <details> hides everything in it, the dialog included -->
+        {#if session.user && !profile.own}
+          <ReportUser {id} username={base.username} bind:open={reporting} />
+        {/if}
       {/if}
     </div>
   </div>
