@@ -46,8 +46,8 @@
   </button>
   <h2>{m.profile_report_title({ name: username })}</h2>
   <p class="muted">{m.profile_report_explain()}</p>
-  <form onsubmit={submit}>
-    <div class="report-reasons">
+  <form class="report-form" onsubmit={submit}>
+    <div class="choice report-reasons">
       {#each reasons as [value, label] (value)}
         <label>
           <input type="radio" bind:group={reason} {value} />

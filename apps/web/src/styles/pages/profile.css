@@ -770,16 +770,11 @@
 }
 
 .report-reasons {
-  display: grid;
-  gap: 6px;
   margin-bottom: 14px;
 }
 
-.report-reasons label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+.report-form .dialog-actions {
+  margin-top: 14px;
 }
 
 /* one bar picks what the stats show: the ruleset, the client, then the mode */
