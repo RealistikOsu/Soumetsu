@@ -121,7 +121,11 @@ describe('play', () => {
       payout: 0
     }));
     expect(played).toEqual({ result: { lost: true }, payout: 0, multiplier: 0, balance: 900 });
-    expect(updates).toEqual([[100, 0, 1]]);
+    // The stake goes to RealistikBot.
+    expect(updates).toEqual([
+      [100, 0, 1],
+      [100, 999]
+    ]);
     expect(history).toMatchObject([{ multiplier: 0, payout: 0 }]);
   });
 

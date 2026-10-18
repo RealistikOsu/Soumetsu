@@ -3,12 +3,12 @@ import { db } from './db';
 import { CHANNEL } from './inbox';
 import { redis } from './redis';
 import { Failure } from './respond';
+import { BOT_ID } from './bot';
 
 // Private messages live in chat_logs, shared with bancho: it saves in-game ones there and delivers the ones
 // sent from here to whoever is online. chat_reads holds how far each player has read each conversation.
 
 // bancho's BotUserId. Old logs are full of commands sent to it, which aren't conversations.
-const BOT_ID = 999;
 const PUBLIC = 1;
 const NORMAL = 2;
 const ADMIN_ACCESS_RAP = 8;

@@ -83,6 +83,7 @@ describe('start', () => {
     ]);
     expect(updates).toEqual([
       [0, 1],
+      [100, 999],
       [50, 1]
     ]);
     expect(JSON.parse(keys[KEY]).bet).toBe(50);

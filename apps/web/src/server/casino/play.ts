@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { BOT_ID } from '$server/bot';
 import { db } from '$server/db';
 import type { Prisma } from '$server/generated/client';
 import { Failure } from '$server/respond';
@@ -41,6 +42,12 @@ export async function lockUser(tx: Prisma.TransactionClient, userId: number) {
   return user;
 }
 
+// Lost coins aren't destroyed: whatever the house keeps lands on RealistikBot.
+export async function bank(tx: Prisma.TransactionClient, bet: number, payout: number) {
+  const loss = bet - payout;
+  if (loss > 0) await tx.$executeRaw`UPDATE users SET coins = coins + ${loss} WHERE id = ${BOT_ID}`;
+}
+
 export async function play<O, I, R extends Prisma.InputJsonObject>(
   userId: number,
   game: Game,
@@ -67,6 +74,7 @@ export async function play<O, I, R extends Prisma.InputJsonObject>(
       const multiplier = outcome.payout > 0 ? Math.round(outcome.multiplier * 100) / 100 : 0;
 
       await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;
+      await bank(tx, bet, payout);
       await recordPlay(tx, { userId, game, bet, multiplier, payout, result: outcome.result });
 
       return { result: outcome.result, payout, multiplier, balance: user.coins - bet + payout };

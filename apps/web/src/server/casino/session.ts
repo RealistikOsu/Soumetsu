@@ -7,7 +7,7 @@ import type { Game } from './games/types';
 import { MAX_MULTIPLIER, toHundredths } from './games/types';
 import { recordPlay } from './history';
 import { checkLimit, withLock } from './limits';
-import { cryptoRng, lockUser, parseBet } from './play';
+import { bank, cryptoRng, lockUser, parseBet } from './play';
 
 export interface SessionState {
   bet: number;
@@ -119,6 +119,7 @@ export async function begin<O, S extends SessionState, V, R extends Prisma.Input
           const { result } = created.settle;
 
           await tx.$executeRaw`UPDATE users SET coins = coins - ${bet} + ${payout} WHERE id = ${userId}`;
+          await bank(tx, bet, payout);
           await recordPlay(tx, { userId, game, bet, multiplier, payout, result });
           return {
             view: created.view,
@@ -243,6 +244,7 @@ async function settle<V, R extends Prisma.InputJsonObject>(
       } else {
         await tx.$executeRaw`UPDATE users SET coins = coins + ${payout} WHERE id = ${userId}`;
       }
+      await bank(tx, bet, payout);
       await recordPlay(tx, { userId, game, bet, multiplier, payout, result });
       return {
         view: outcome.view,

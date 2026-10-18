@@ -3,6 +3,7 @@ import { db } from './db';
 import { redis } from './redis';
 import { Failure } from './respond';
 import { avatarOf, postWebhook } from './admin/log';
+import { BOT_ID } from './bot';
 
 // The same reasons bancho's !report understands, so both kinds read alike in the panel.
 export const REPORT_REASONS = {
@@ -22,7 +23,6 @@ export const isReportReason = (value: unknown): value is ReportReason =>
 const PUBLIC = 1;
 const NORMAL = 2;
 // bancho's BotUserId, which !report refuses too.
-const BOT_ID = 999;
 
 // What players type shows in Discord as plain text, never as formatting, links or mentions.
 const plain = (text: string) => text.replace(/[\\`*_~|>[\]()#@<:-]/g, (c) => `\\${c}`);

@@ -231,7 +231,10 @@ describe('double', () => {
     table('9S 6H', 'TD 7C', 'KS');
     const played = await double(1);
     expect(played).toMatchObject({ result: { outcome: 'bust' }, payout: 0, balance: 900 });
-    expect(updates).toEqual([[100, 0, 1]]);
+    expect(updates).toEqual([
+      [100, 0, 1],
+      [200, 999]
+    ]);
     expect(history).toMatchObject([{ bet_amount: 200, multiplier: 0, payout: 0 }]);
   });
 

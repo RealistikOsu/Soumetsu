@@ -467,6 +467,25 @@ describe('step', () => {
     expect(history).toMatchObject([{ multiplier: 1, payout: 100, bet_amount: 100 }]);
   });
 
+  test('a partial loss banks only what the player is down', async () => {
+    store({ bet: 100, n: 1, top: 500 });
+    const played = await step(1, 'poker', cashOut(0.4, 40));
+    expect(played).toMatchObject({ payout: 40, multiplier: 0.4, balance: 1040 });
+    expect(updates).toEqual([
+      [40, 1],
+      [60, 999]
+    ]);
+  });
+
+  test('a refund banks nothing', async () => {
+    store({ bet: 100, n: 0, top: 500 });
+    await step(1, 'poker', (state: Game) => ({
+      settle: { multiplier: 1, base: state.bet, result: { won: false }, refund: true },
+      view: view(state)
+    }));
+    expect(updates).toEqual([[100, 1]]);
+  });
+
   test('a charge that settles takes and pays in one transaction', async () => {
     store({ bet: 100, n: 1, top: 500 });
     const played = await step(1, 'poker', cashOut(2, 400, { charge: 100 }));
