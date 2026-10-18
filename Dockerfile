@@ -3,7 +3,8 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY apps/web/package.json apps/web/
 COPY packages/ui/package.json packages/ui/
-RUN bun install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile --ignore-scripts
 
 FROM deps AS build
 COPY . .
@@ -13,8 +14,9 @@ FROM oven/bun:1 AS runtime
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY apps/web/package.json apps/web/
-COPY packages/ui packages/ui
-RUN bun install --frozen-lockfile --production --ignore-scripts
+COPY packages/ui/package.json packages/ui/
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile --production --omit=peer --ignore-scripts
 COPY --from=build /app/apps/web/build apps/web/build
 COPY website-docs website-docs
 
