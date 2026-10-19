@@ -40,6 +40,9 @@ export const tabInk: Action<HTMLElement> = (tabs) => {
     const accent = getComputedStyle(active).getPropertyValue('--accent').trim();
     ink.style.left = `${active.offsetLeft}px`;
     ink.style.width = `${active.offsetWidth}px`;
+    // Tabs that wrap onto several rows need the ink on the active tab's row, not the bar's bottom.
+    ink.style.setProperty('--ink-top', `${active.offsetTop}px`);
+    ink.style.setProperty('--ink-height', `${active.offsetHeight}px`);
     ink.style.background =
       tabs.classList.contains('tinted') && accent
         ? `color-mix(in srgb, ${accent} 16%, transparent)`

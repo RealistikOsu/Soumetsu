@@ -187,8 +187,9 @@
 .head-pages .tab-ink,
 .profile-tabs .tab-ink,
 .list-picker .tab-ink {
-  top: auto;
-  bottom: 0;
+  /* On the active tab's row, so it stays under it when the tabs wrap on phones. */
+  top: calc(var(--ink-top, 0px) + var(--ink-height, 100%) - 2px);
+  bottom: auto;
   z-index: 0;
   height: 2px;
 }
@@ -200,6 +201,7 @@
 .motion :is(.head-pages, .profile-tabs, .list-picker nav).ink-ready .tab-ink {
   transition:
     left 0.3s cubic-bezier(0.2, 0, 0, 1),
+    top 0.3s cubic-bezier(0.2, 0, 0, 1),
     width 0.3s cubic-bezier(0.2, 0, 0, 1),
     background-color 0.3s;
 }
@@ -996,7 +998,7 @@
 }
 
 .profile-tabs .tab-ink {
-  bottom: -1px;
+  translate: 0 1px;
   background: var(--link);
 }
 
