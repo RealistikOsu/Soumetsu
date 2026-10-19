@@ -1,15 +1,14 @@
 <script lang="ts">
   import { modeNames, relaxNames } from '$lib/modes';
+  import { SCOPE_TYPES } from './scope';
 
   let {
     modes = $bindable([0, 1, 2, 3]),
-    types = $bindable(['va', 'rx', 'ap', 'lz'])
+    types = $bindable([...SCOPE_TYPES])
   }: {
     modes?: number[];
     types?: string[];
   } = $props();
-
-  const slugs = ['va', 'rx', 'ap', 'lz'];
 </script>
 
 <div class="field">
@@ -28,7 +27,7 @@
   <div class="checks">
     {#each relaxNames as name, i (i)}
       <label class="check"
-        ><input type="checkbox" value={slugs[i]} bind:group={types} />{name}</label
+        ><input type="checkbox" value={SCOPE_TYPES[i]} bind:group={types} />{name}</label
       >
     {/each}
   </div>

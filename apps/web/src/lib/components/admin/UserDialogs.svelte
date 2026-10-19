@@ -4,6 +4,7 @@
   import { fullDate } from '$lib/format';
   import AdminDialog from './AdminDialog.svelte';
   import ScopeFields from './ScopeFields.svelte';
+  import { SCOPE_TYPES } from './scope';
 
   type Body = { action: string } & Record<string, unknown>;
 
@@ -70,7 +71,7 @@
   let days = $state(30);
   let rollbackDays = $state(1);
   let modes = $state([0, 1, 2, 3]);
-  let types = $state(['va', 'rx', 'ap', 'lz']);
+  let types = $state<string[]>([...SCOPE_TYPES]);
   let confirm = $state('');
   let busy = $state(false);
 
@@ -82,7 +83,7 @@
     days = 30;
     rollbackDays = 1;
     modes = [0, 1, 2, 3];
-    types = ['va', 'rx', 'ap', 'lz'];
+    types = [...SCOPE_TYPES];
     confirm = '';
   });
 

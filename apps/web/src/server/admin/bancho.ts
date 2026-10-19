@@ -43,7 +43,9 @@ const SCOPE_BOARDS = {
   va: ['ripple:leaderboard'],
   rx: ['ripple:leaderboard_relax'],
   ap: ['ripple:leaderboard_ap'],
-  lz: ['ripple:leaderboard_lazer', 'ripple:leaderboard_lazer_relax', 'ripple:leaderboard_lazer_ap']
+  lz: ['ripple:leaderboard_lazer'],
+  lzrx: ['ripple:leaderboard_lazer_relax'],
+  lzap: ['ripple:leaderboard_lazer_ap']
 } as const;
 const BOARD_MODES = ['std', 'taiko', 'ctb', 'mania'];
 

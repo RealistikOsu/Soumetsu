@@ -14,9 +14,13 @@ const STAT_TABLES = {
   va: 'users_stats',
   rx: 'rx_stats',
   ap: 'ap_stats',
-  lz: 'lazer_stats'
+  lz: 'lazer_stats',
+  lzrx: 'lazer_rx_stats',
+  lzap: 'lazer_ap_stats'
 } as const;
-const LAZER_STAT_TABLES = ['lazer_stats', 'lazer_rx_stats', 'lazer_ap_stats'];
+// lazer_scores keeps all three lazer types in one table, told apart by variant.
+const LAZER_VARIANTS = { lz: 0, lzrx: 1, lzap: 2 } as const;
+const isLazerType = (type: Type): type is keyof typeof LAZER_VARIANTS => type in LAZER_VARIANTS;
 const SCORE_TABLES = { va: 'scores', rx: 'scores_relax', ap: 'scores_ap' } as const;
 const CUSTOM = { va: 0, rx: 1, ap: 2 } as const;
 const STAT_COLUMNS = [
@@ -87,19 +91,21 @@ async function recalcFirstPlace(beatmapMd5: string, custom: number, mode: number
 
 export async function wipeStats(userId: number, { modes, types }: Scope) {
   for (const type of types) {
-    if (type === 'lz') {
+    if (isLazerType(type)) {
       const columns = modes.flatMap((mode) =>
         STAT_COLUMNS.map((column) => `${column}${SUFFIXES[mode]} = 0`)
       );
-      for (const table of LAZER_STAT_TABLES) {
-        await ifLazerTables(
-          db.$executeRawUnsafe(`UPDATE ${table} SET ${columns.join(', ')} WHERE id = ?`, userId)
-        );
-      }
       await ifLazerTables(
         db.$executeRawUnsafe(
-          `DELETE FROM lazer_scores WHERE user_id = ? AND ruleset_id IN (${modes.join(',')})`,
+          `UPDATE ${STAT_TABLES[type]} SET ${columns.join(', ')} WHERE id = ?`,
           userId
+        )
+      );
+      await ifLazerTables(
+        db.$executeRawUnsafe(
+          `DELETE FROM lazer_scores WHERE user_id = ? AND variant = ? AND ruleset_id IN (${modes.join(',')})`,
+          userId,
+          LAZER_VARIANTS[type]
         )
       );
       continue;
@@ -124,11 +130,12 @@ export async function wipeStats(userId: number, { modes, types }: Scope) {
 export async function rollback(userId: number, days: number, { modes, types }: Scope) {
   const cutoff = Math.floor(Date.now() / 1000) - days * 86400;
   for (const type of types) {
-    if (type === 'lz') {
+    if (isLazerType(type)) {
       await ifLazerTables(
         db.$executeRawUnsafe(
-          `DELETE FROM lazer_scores WHERE user_id = ? AND created_at > FROM_UNIXTIME(?) AND ruleset_id IN (${modes.join(',')})`,
+          `DELETE FROM lazer_scores WHERE user_id = ? AND variant = ? AND created_at > FROM_UNIXTIME(?) AND ruleset_id IN (${modes.join(',')})`,
           userId,
+          LAZER_VARIANTS[type],
           cutoff
         )
       );
