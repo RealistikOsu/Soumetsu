@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { countryName } from '$lib/countries';
+  import { tabInk } from '@soumetsu/ui';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import {
@@ -7,20 +7,23 @@
     grantDecoration,
     revokeDecoration,
     saveAdminUser,
-    userAction
+    userAction,
+    userIps
   } from '$lib/api/admin';
   import type { UserEdit } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
+  import { userExtras } from '$lib/api/site';
+  import { bannerUrl } from '$lib/assets';
   import { Privilege } from '$lib/auth/privileges';
-  import AdminTag from '$lib/components/admin/AdminTag.svelte';
   import HwidDialog from '$lib/components/admin/HwidDialog.svelte';
   import IpDialog from '$lib/components/admin/IpDialog.svelte';
+  import { rememberUser } from '$lib/components/admin/recent';
   import UserDialogs from '$lib/components/admin/UserDialogs.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
+  import BannerImage from '$lib/components/BannerImage.svelte';
   import Flag from '$lib/components/Flag.svelte';
-  import SectionTitle from '$lib/components/SectionTitle.svelte';
-  import { countries } from '$lib/countries';
+  import { countries, countryName } from '$lib/countries';
   import { decorations, shopDecorations, supporterDecorations } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
   import { fullDate, timeAgo } from '$lib/format';
@@ -32,6 +35,18 @@
     void version;
     return adminUser(id, signal);
   });
+  // Only for the banner; a hidden profile just keeps the default one.
+  const extras = query((signal) => userExtras(id, signal));
+  const ips = query((signal) =>
+    detail.state.status === 'ready' && detail.state.data.canViewIps
+      ? userIps(id, signal)
+      : Promise.resolve([])
+  );
+
+  const tabs = ['account', 'moderation', 'hardware', 'danger'] as const;
+  const tab = $derived(
+    tabs.find((t) => t === page.url.searchParams.get('tab')) ?? ('account' as const)
+  );
 
   let form = $state<UserEdit | null>(null);
   let reason = $state('');
@@ -39,28 +54,49 @@
   let whitelist = $state(0);
   let dialog = $state<string | null>(null);
   let hwidOpen = $state(false);
-  let ipOpen = $state(false);
-  let allIpsOpen = $state(false);
+  let ipLookup = $state<string | null>(null);
   let saving = $state(false);
   let grant = $state('');
+  let menu = $state<HTMLDetailsElement>();
 
-  $effect(() => {
-    if (detail.state.status !== 'ready') return;
+  const saved = $derived.by((): UserEdit | null => {
+    if (detail.state.status !== 'ready') return null;
     const { user } = detail.state.data;
-    form = {
+    return {
       aka: user.aka,
       email: user.email,
       country: user.country,
       privilege: user.privileges,
       userpage: user.userpage,
       notes: user.notes,
-      badges: [...user.badges]
+      badges: user.badges
     };
+  });
+
+  const edit = (from: UserEdit) => ({ ...from, badges: [...from.badges] });
+
+  $effect(() => {
+    if (detail.state.status !== 'ready' || !saved) return;
+    const { user } = detail.state.data;
+    form = edit(saved);
     bypass = user.bypassHwid;
     whitelist = user.whitelistModes;
+    rememberUser({ id: user.id, username: user.username, group: user.group });
+  });
+
+  const fields = ['aka', 'email', 'country', 'privilege', 'userpage', 'notes'] as const;
+  const changes = $derived.by(() => {
+    const current = form;
+    if (!current || !saved) return 0;
+    const badges = current.badges.join() !== saved.badges.join() ? 1 : 0;
+    return fields.filter((key) => current[key] !== saved[key]).length + badges;
   });
 
   const now = () => Date.now() / 1000;
+
+  function closeMenu() {
+    if (menu) menu.open = false;
+  }
 
   async function run(body: { action: string } & Record<string, unknown>, success: string) {
     try {
@@ -112,13 +148,27 @@
         [0, 1, 2, 3].filter((mode) => allowed(mode, rx) && modes & (1 << (mode + rx * 4))).length,
       0
     );
+
+  function logLook(summary: string) {
+    const text = summary.toLowerCase();
+    if (text.includes('silence')) return ['c-purple', 'fa-comment-slash'];
+    if (text.includes('restrict')) return ['c-orange', 'fa-circle-exclamation'];
+    if (text.startsWith('un')) return ['c-green', 'fa-rotate-left'];
+    return ['c-red', 'fa-ban'];
+  }
 </script>
+
+<svelte:window
+  onclick={(event) => {
+    if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+  }}
+/>
 
 {#if detail.state.status === 'error'}
   <a class="back" href="/admin/users"><i class="fa-solid fa-arrow-left"></i>Users</a>
   <p class="panel empty-note">{describe(detail.state.error)}</p>
 {:else if detail.state.status === 'loading' && !form}
-  <span class="skel" style="width: 100%; height: 140px"></span>
+  <span class="skel" style="width: 100%; height: 200px"></span>
 {:else if detail.state.status === 'ready' && form}
   {@const { user, groups, badgeChoices, banLogs, hwidCount, canViewIps, callerPrivileges } =
     detail.state.data}
@@ -127,32 +177,59 @@
   {@const supporter = !!(user.privileges & Privilege.Donor)}
   {@const canManagePrivileges = !!(callerPrivileges & Privilege.AdminManagePrivilege)}
   {@const can = (flag: number) => !!(callerPrivileges & flag)}
+  {@const extra = extras.state.status === 'ready' ? extras.state.data : null}
+  {@const whitelisted = whitelistCount(user.whitelistModes)}
 
-  <a class="back" href="/admin/users"><i class="fa-solid fa-arrow-left"></i>Users</a>
-
-  <section class="panel user-summary c-blue">
-    <Avatar id={user.id} />
-    <div>
-      <h1>
-        {user.username}
-        {#if user.online}<span class="online-dot" title="Online"></span>{/if}
-      </h1>
-      <div class="meta">
-        <span><Flag country={user.country} /> {countryName(user.country, 'en')}</span>
-        <span><i class="fa-solid fa-hashtag"></i>{user.id}</span>
-        <span>
-          <i class="fa-solid fa-clock"></i>
-          {user.lastSeen ? `Seen ${timeAgo(user.lastSeen)}` : 'Never seen'}
-        </span>
-        {#if user.previousNames.length}
-          <span>
-            <i class="fa-solid fa-signature"></i>Previously
-            {#each user.previousNames as name (name)}
-              <span class="past-name">
-                {name}
-                <button
+  <section
+    class="user-head"
+    style={extra?.banner?.type === 2
+      ? `background-color: ${extra.banner.value}`
+      : 'background-image: url(/img/banner-default.png)'}
+  >
+    {#if extra?.banner?.type === 1}
+      <BannerImage src={bannerUrl(user.id)} position={extra.banner} />
+    {/if}
+    <div class="user-top">
+      <Avatar id={user.id} />
+      <div class="user-who">
+        <div class="user-name">
+          <h1>{user.username}</h1>
+          {#if user.online}<span class="online-dot" title="Online"></span>{/if}
+        </div>
+        <div class="user-pills">
+          <span class={user.group.colour}>{user.group.name}</span>
+          <!-- The group is named after the privileges, so it often says this already. -->
+          {#if banned && user.group.name.toLowerCase() !== 'banned'}
+            <span class="c-red">Banned</span>
+          {/if}
+          {#if restricted && user.group.name.toLowerCase() !== 'restricted'}
+            <span class="c-orange">Restricted</span>
+          {/if}
+          {#if user.frozen}<span class="c-lblue">Frozen</span>{/if}
+          {#if user.silenceEnd > now()}
+            <span class="c-purple">Silenced until {fullDate(user.silenceEnd)}</span>
+          {/if}
+          {#if supporter && user.donorExpire}
+            <span class="c-yellow">Supporter until {fullDate(user.donorExpire)}</span>
+          {/if}
+          {#if whitelisted}
+            <span class="c-green"
+              >Whitelisted in {whitelisted} {whitelisted === 1 ? 'mode' : 'modes'}</span
+            >
+          {/if}
+        </div>
+        <div class="user-meta">
+          <span><Flag country={user.country} /> {countryName(user.country, 'en')}</span>
+          <span>ID <b>{user.id}</b></span>
+          {#if user.clan}
+            <span>Clan <a href="/admin/clans/{user.clan.id}"><b>[{user.clan.tag}]</b></a></span>
+          {/if}
+          {#if user.previousNames.length}
+            <span class="name-history">
+              Previously
+              {#each user.previousNames as name (name)}
+                <b>{name}</b><button
                   type="button"
-                  class="forget-name"
                   title="Remove from their name history"
                   aria-label="Remove {name} from their name history"
                   onclick={() =>
@@ -160,77 +237,169 @@
                     run({ action: 'forget-name', username: name }, 'Past username removed.')}
                   ><i class="fa-solid fa-xmark"></i></button
                 >
-              </span>
-            {/each}
-          </span>
-        {/if}
+              {/each}
+            </span>
+          {/if}
+        </div>
       </div>
-      <div class="tags">
-        <AdminTag colour={user.group.colour}>{user.group.name}</AdminTag>
-        <!-- The group is named after the privileges, so it often says this already. -->
-        {#if banned && user.group.name.toLowerCase() !== 'banned'}
-          <AdminTag colour="c-red">Banned</AdminTag>
-        {/if}
-        {#if restricted && user.group.name.toLowerCase() !== 'restricted'}
-          <AdminTag colour="c-orange">Restricted</AdminTag>
-        {/if}
-        {#if user.frozen}<AdminTag colour="c-lblue">Frozen</AdminTag>{/if}
-        {#if user.silenceEnd > now()}
-          <AdminTag colour="c-purple">Silenced until {fullDate(user.silenceEnd)}</AdminTag>
-        {/if}
-        {#if supporter && user.donorExpire}
-          <AdminTag colour="c-yellow">Supporter until {fullDate(user.donorExpire)}</AdminTag>
-        {/if}
-        {#if whitelistCount(user.whitelistModes)}
-          <AdminTag colour="c-green">
-            Whitelisted in {whitelistCount(user.whitelistModes)}
-            {whitelistCount(user.whitelistModes) === 1 ? 'mode' : 'modes'}
-          </AdminTag>
-        {/if}
+      <div class="user-actions">
+        <a class="btn" href="/users/{user.id}">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>Profile
+        </a>
+        <details class="score-menu user-menu" bind:this={menu}>
+          <summary class="btn" title="More actions" aria-label="More actions">
+            <i class="fa-solid fa-ellipsis"></i>
+          </summary>
+          <div>
+            <button type="button" onclick={() => (closeMenu(), (dialog = 'rename'))}>
+              <i class="fa-solid fa-tag"></i>Rename user
+            </button>
+            <button type="button" onclick={() => (closeMenu(), (dialog = 'password'))}>
+              <i class="fa-solid fa-key"></i>Change password
+            </button>
+            <button type="button" onclick={() => (closeMenu(), (dialog = 'supporter'))}>
+              <i class="fa-solid fa-heart"></i>Supporter
+            </button>
+            {#if can(Privilege.AdminManageUsers)}
+              <button
+                type="button"
+                onclick={() => {
+                  closeMenu();
+                  run({ action: 'freeze' }, user.frozen ? 'Account unfrozen.' : 'Account frozen.');
+                }}
+              >
+                <i class="fa-solid fa-snowflake"></i>{user.frozen ? 'Unfreeze' : 'Freeze'}
+              </button>
+            {/if}
+            {#if can(Privilege.AdminKickUsers)}
+              <button
+                type="button"
+                onclick={() => {
+                  closeMenu();
+                  run({ action: 'kick' }, 'Kicked from Bancho.');
+                }}
+              >
+                <i class="fa-solid fa-plug-circle-xmark"></i>Kick from Bancho
+              </button>
+            {/if}
+          </div>
+        </details>
       </div>
     </div>
-    <a class="btn" href="/users/{user.id}">
-      <i class="fa-solid fa-arrow-up-right-from-square"></i>View profile
-    </a>
+    <nav class="user-tabs" use:tabInk>
+      <a class:active={tab === 'account'} href="?tab=account" data-sveltekit-replacestate>
+        <i class="fa-solid fa-user-pen"></i>Account
+      </a>
+      <a class:active={tab === 'moderation'} href="?tab=moderation" data-sveltekit-replacestate>
+        <i class="fa-solid fa-gavel"></i>Moderation
+        {#if banLogs.length}<small>{banLogs.length}</small>{/if}
+      </a>
+      <a class:active={tab === 'hardware'} href="?tab=hardware" data-sveltekit-replacestate>
+        <i class="fa-solid fa-microchip"></i>Hardware
+        {#if hwidCount}<small>{hwidCount}</small>{/if}
+      </a>
+      <a
+        class="danger"
+        class:active={tab === 'danger'}
+        href="?tab=danger"
+        data-sveltekit-replacestate
+      >
+        <i class="fa-solid fa-triangle-exclamation"></i>Danger zone
+      </a>
+    </nav>
   </section>
 
-  <div class="admin-grid">
+  {#if banned || restricted || user.frozen}
+    <div class="user-standing {banned ? 'c-red' : restricted ? 'c-orange' : 'c-lblue'}">
+      <i
+        class="fa-solid {banned ? 'fa-ban' : restricted ? 'fa-circle-exclamation' : 'fa-snowflake'}"
+      ></i>
+      <div>
+        <b>{banned ? 'Banned' : restricted ? 'Restricted' : 'Frozen'}</b>
+        {#if user.frozen && !banned && !restricted && user.freezeDate}
+          since {fullDate(user.freezeDate)}
+        {/if}
+        {#if user.banReason && (banned || restricted)}<p>{user.banReason}</p>{/if}
+      </div>
+    </div>
+  {/if}
+
+  <dl class="user-facts">
     <div>
-      <SectionTitle colour="c-blue" icon="fa-user-pen">Profile</SectionTitle>
-      <form class="panel form-panel admin-form c-blue" onsubmit={save}>
-        <div class="field-pair">
-          <div class="field">
-            <label for="aka">Also known as</label>
-            <input id="aka" bind:value={form.aka} />
+      <dt>Joined</dt>
+      <dd>{fullDate(user.registered)}</dd>
+    </div>
+    <div>
+      <dt>Last seen</dt>
+      <dd>{user.online ? 'Online now' : user.lastSeen ? timeAgo(user.lastSeen) : 'Never'}</dd>
+    </div>
+    <div>
+      <dt>Standing</dt>
+      <dd>
+        {#if banned}
+          <i class="fa-solid fa-ban" style="color: var(--red)"></i> Banned
+        {:else if restricted}
+          <i class="fa-solid fa-circle-exclamation" style="color: var(--orange)"></i> Restricted
+        {:else}
+          <i class="fa-solid fa-circle-check" style="color: var(--green)"></i> Good
+        {/if}
+      </dd>
+    </div>
+    <div>
+      <dt>HWID logs</dt>
+      <dd>
+        {hwidCount}
+        {#if hwidCount}<a href="?tab=hardware" data-sveltekit-replacestate>View</a>{/if}
+      </dd>
+    </div>
+    {#if canViewIps}
+      <div>
+        <dt>Last IP</dt>
+        <dd><code>{user.ip ?? 'None'}</code></dd>
+      </div>
+    {/if}
+  </dl>
+
+  {#if tab === 'account'}
+    <form class="user-split" onsubmit={save}>
+      <div class="user-main">
+        <div class="user-box">
+          <h2>Details</h2>
+          <div class="field-pair">
+            <div class="field">
+              <label for="aka">Also known as</label>
+              <input id="aka" bind:value={form.aka} />
+            </div>
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" type="email" bind:value={form.email} />
+            </div>
           </div>
-          <div class="field">
-            <label for="email">Email address</label>
-            <input id="email" type="email" bind:value={form.email} />
+          <div class="field-pair">
+            <div class="field">
+              <label for="country">Country</label>
+              <select id="country" bind:value={form.country}>
+                {#each countries as country (country.code)}
+                  <option value={country.code}>{country.name}</option>
+                {/each}
+              </select>
+            </div>
+            <div class="field">
+              <label for="privilege">Privilege group</label>
+              <select id="privilege" bind:value={form.privilege} disabled={!canManagePrivileges}>
+                {#each groups as group (`${group.privileges}-${group.name}`)}
+                  <option value={group.privileges}>{group.name}</option>
+                {/each}
+                {#if !groups.some((g) => g.privileges === user.privileges)}
+                  <option value={user.privileges}>Unknown ({user.privileges})</option>
+                {/if}
+              </select>
+            </div>
           </div>
         </div>
-        <div class="field-pair">
-          <div class="field">
-            <label for="country">Country</label>
-            <select id="country" bind:value={form.country}>
-              {#each countries as country (country.code)}
-                <option value={country.code}>{country.name}</option>
-              {/each}
-            </select>
-          </div>
-          <div class="field">
-            <label for="privilege">Privilege group</label>
-            <select id="privilege" bind:value={form.privilege} disabled={!canManagePrivileges}>
-              {#each groups as group (`${group.privileges}-${group.name}`)}
-                <option value={group.privileges}>{group.name}</option>
-              {/each}
-              {#if !groups.some((g) => g.privileges === user.privileges)}
-                <option value={user.privileges}>Unknown ({user.privileges})</option>
-              {/if}
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <span class="label">Badges</span>
+
+        <div class="user-box">
+          <h2>Badges <small>Up to 6, in this order</small></h2>
           <div class="badge-selects">
             {#each slots as slot (slot)}
               <select aria-label="Badge {slot + 1}" bind:value={form.badges[slot]}>
@@ -242,21 +411,50 @@
             {/each}
           </div>
         </div>
-        <div class="field">
-          <span class="label">Owned decorations</span>
+
+        <div class="user-box">
+          <h2><label for="userpage">Userpage</label> <small>BBCode</small></h2>
+          <textarea id="userpage" rows="6" bind:value={form.userpage}></textarea>
+        </div>
+
+        <!-- Edits pile up across the tab, so saving stays where it can always be reached. -->
+        <div class="save-bar" class:dirty={changes > 0}>
+          <span>
+            {changes ? `${changes} unsaved ${changes === 1 ? 'change' : 'changes'}` : 'No changes'}
+          </span>
+          <button
+            class="btn"
+            type="button"
+            disabled={!changes}
+            onclick={() => saved && (form = edit(saved))}
+          >
+            Discard
+          </button>
+          <button class="btn btn-green" type="submit" disabled={saving || !changes}>
+            <i class="fa-solid fa-floppy-disk"></i>Save
+          </button>
+        </div>
+      </div>
+
+      <aside>
+        <div class="user-box">
+          <h2><label for="notes">Admin notes</label> <small>Staff only</small></h2>
+          <textarea id="notes" rows="4" bind:value={form.notes}></textarea>
+        </div>
+        <div class="user-box">
+          <h2>Decorations</h2>
           <div class="owned-chips">
             {#each user.owned as key (key)}
-              <AdminTag colour="c-pink">
+              <span>
                 {decorations.find((d) => d.key === key)?.name ?? key}
                 <button
-                  class="chip-revoke"
                   type="button"
                   aria-label="Revoke {key}"
                   onclick={() => decorate(revokeDecoration, key, `Revoked ${key}.`)}
                 >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
-              </AdminTag>
+              </span>
             {:else}
               <span class="faint">None</span>
             {/each}
@@ -278,152 +476,77 @@
             </button>
           </div>
         </div>
-        <div class="field">
-          <label for="userpage">Userpage <span class="faint">(BBCode)</span></label>
-          <textarea id="userpage" rows="6" bind:value={form.userpage}></textarea>
-        </div>
-        <div class="field">
-          <label for="notes">Admin notes</label>
-          <textarea id="notes" rows="3" bind:value={form.notes}></textarea>
-          <small>Only staff can see these.</small>
-        </div>
-        {#if canViewIps}
-          <div class="field">
-            <span class="label">Last known IP</span>
-            <div class="ip-box">
-              <code>{user.ip ?? 'None'}</code>
-              {#if user.ip}
+      </aside>
+    </form>
+  {:else if tab === 'moderation'}
+    <div class="user-split">
+      <div class="user-main">
+        {#if can(Privilege.AdminManageUsers) || can(Privilege.AdminBanUsers)}
+          <div class="user-box">
+            <h2><label for="reason">Restrict or ban</label></h2>
+            <textarea
+              id="reason"
+              rows="2"
+              maxlength="2048"
+              placeholder="Reason, shown in the ban log"
+              bind:value={reason}></textarea>
+            <div class="user-buttons">
+              {#if can(Privilege.AdminManageUsers)}
                 <button
+                  class="btn btn-orange"
                   type="button"
-                  title="Other accounts that used this IP"
-                  onclick={() => (ipOpen = true)}
+                  disabled={banned}
+                  onclick={() =>
+                    run(
+                      { action: 'restrict', reason },
+                      restricted ? 'Account unrestricted.' : 'Account restricted.'
+                    )}
                 >
-                  Lookup
+                  {restricted ? 'Unrestrict' : 'Restrict'}
                 </button>
               {/if}
-              <button
-                type="button"
-                title="Every IP this user has logged in from"
-                onclick={() => (allIpsOpen = true)}
-              >
-                All IPs
-              </button>
+              {#if can(Privilege.AdminBanUsers)}
+                <button
+                  class="btn btn-red"
+                  type="button"
+                  onclick={() =>
+                    run(
+                      { action: 'ban', reason },
+                      banned ? 'Account unbanned.' : 'Account banned.'
+                    )}
+                >
+                  {banned ? 'Unban' : 'Ban'}
+                </button>
+              {/if}
             </div>
           </div>
         {/if}
-        <div class="form-actions">
-          <button class="btn btn-green" type="submit" disabled={saving}>
-            <i class="fa-solid fa-floppy-disk"></i>Save changes
-          </button>
+        <div class="user-box">
+          <h2>Ban log</h2>
+          <ol class="ban-log">
+            {#each banLogs as entry, i (i)}
+              {@const [colour, icon] = logLook(entry.summary)}
+              <li class={colour}>
+                <i class="fa-solid {icon}"></i>
+                <span
+                  ><b>{entry.from_name}</b>
+                  {entry.summary.toLowerCase()} <b>{user.username}</b></span
+                >
+                <time>{timeAgo(entry.ts)}</time>
+                {#if entry.detail}<p>{entry.detail}</p>{/if}
+              </li>
+            {/each}
+            <li class="c-green">
+              <i class="fa-solid fa-user-plus"></i>
+              <span><b>{user.username}</b> joined RealistikOsu</span>
+              <time>{fullDate(user.registered)}</time>
+            </li>
+          </ol>
         </div>
-      </form>
-
-      <SectionTitle colour="c-red" icon="fa-gavel">Ban log</SectionTitle>
-      <ol class="timeline">
-        {#each banLogs as entry, i (i)}
-          <li class="c-red">
-            <div class="timeline-head">
-              <b>{entry.from_name}</b>
-              {entry.summary.toLowerCase()}
-              <b>{user.username}</b><time>{timeAgo(entry.ts)}</time>
-            </div>
-            <p>{entry.detail}</p>
-          </li>
-        {/each}
-        <li class="c-green">
-          <div class="timeline-head">
-            <b>{user.username}</b> joined RealistikOsu<time>{fullDate(user.registered)}</time>
-          </div>
-        </li>
-      </ol>
-    </div>
-
-    <aside>
-      <SectionTitle colour="c-orange" icon="fa-gavel">Moderation</SectionTitle>
-      <div class="panel side-actions c-orange">
-        <p class="state">
-          {#if banned}
-            <i class="fa-solid fa-ban"></i>Banned
-          {:else if restricted}
-            <i class="fa-solid fa-circle-exclamation"></i>Restricted
-          {:else if user.frozen}
-            <i class="fa-solid fa-snowflake"></i>Frozen
-          {:else}
-            <i class="fa-solid fa-circle-check"></i>In good standing
-          {/if}
-        </p>
-        {#if user.banReason && (banned || restricted)}<p class="muted">{user.banReason}</p>{/if}
-        <textarea
-          id="reason"
-          rows="2"
-          maxlength="2048"
-          placeholder="Reason, shown in the ban log"
-          aria-label="Reason"
-          bind:value={reason}></textarea>
-        <div class="split">
-          {#if can(Privilege.AdminManageUsers)}
-            <button
-              class="btn btn-orange"
-              type="button"
-              disabled={banned}
-              onclick={() =>
-                run(
-                  { action: 'restrict', reason },
-                  restricted ? 'Account unrestricted.' : 'Account restricted.'
-                )}
-            >
-              {restricted ? 'Unrestrict' : 'Restrict'}
-            </button>
-          {/if}
-          {#if can(Privilege.AdminBanUsers)}
-            <button
-              class="btn btn-red"
-              type="button"
-              onclick={() =>
-                run({ action: 'ban', reason }, banned ? 'Account unbanned.' : 'Account banned.')}
-            >
-              {banned ? 'Unban' : 'Ban'}
-            </button>
-          {/if}
-        </div>
-        <div class="split">
-          {#if can(Privilege.AdminManageUsers)}
-            <button
-              class="btn"
-              type="button"
-              onclick={() =>
-                run({ action: 'freeze' }, user.frozen ? 'Account unfrozen.' : 'Account frozen.')}
-            >
-              <i class="fa-solid fa-snowflake"></i>{user.frozen ? 'Unfreeze' : 'Freeze'}
-            </button>
-          {/if}
-          {#if can(Privilege.AdminKickUsers)}
-            <button
-              class="btn"
-              type="button"
-              onclick={() => run({ action: 'kick' }, 'Kicked from Bancho.')}
-            >
-              <i class="fa-solid fa-plug-circle-xmark"></i>Kick
-            </button>
-          {/if}
-        </div>
-        <hr />
-        <nav class="action-list">
-          <button type="button" onclick={() => (dialog = 'rename')}>
-            <i class="fa-solid fa-tag"></i>Rename user
-          </button>
-          <button type="button" onclick={() => (dialog = 'password')}>
-            <i class="fa-solid fa-key"></i>Change password
-          </button>
-          <button type="button" onclick={() => (dialog = 'supporter')}>
-            <i class="fa-solid fa-heart"></i>Supporter
-          </button>
-        </nav>
       </div>
-
-      <SectionTitle colour="c-green" icon="fa-shield">Whitelist</SectionTitle>
-      <div class="panel whitelist c-green">
-        <p class="muted">Skips the automatic checks for the modes you turn on.</p>
+      <aside class="user-box whitelist">
+        <h2>Whitelist</h2>
+        <p class="muted">Skips the automatic checks in the modes you turn on.</p>
         <div class="whitelist-grid">
           <span></span>
           {#each modeNames as name, mode (mode)}
@@ -453,15 +576,43 @@
           type="button"
           onclick={() => run({ action: 'whitelist', whitelist }, 'Whitelist saved.')}
         >
-          Save
+          Save whitelist
         </button>
+      </aside>
+    </div>
+  {:else if tab === 'hardware'}
+    <div class="user-split">
+      <div class="user-main">
+        {#if canViewIps}
+          <div class="user-box">
+            <h2>IP addresses <small>Most used first</small></h2>
+            {#if ips.state.status === 'ready'}
+              <ul class="ip-list">
+                {#each [...ips.state.data].sort((a, b) => b.occurencies - a.occurencies) as row (row.ip)}
+                  <li>
+                    <code>{row.ip}</code>
+                    <span>{row.occurencies} {row.occurencies === 1 ? 'login' : 'logins'}</span>
+                    <button type="button" onclick={() => (ipLookup = row.ip)}>
+                      Other accounts
+                    </button>
+                  </li>
+                {:else}
+                  <li class="faint">No IPs logged.</li>
+                {/each}
+              </ul>
+            {:else if ips.state.status === 'error'}
+              <p class="muted">{describe(ips.state.error)}</p>
+            {:else}
+              <span class="skel" style="width: 100%; height: 80px"></span>
+            {/if}
+          </div>
+        {/if}
       </div>
-
-      <SectionTitle colour="c-teal" icon="fa-microchip">Hardware</SectionTitle>
-      <div class="panel hardware c-teal">
+      <aside class="user-box">
+        <h2>HWID</h2>
         <button class="hwid-count" type="button" onclick={() => (hwidOpen = true)}>
-          <b>{hwidCount}</b>
-          <span>HWID logs</span>
+          <i class="fa-solid fa-fingerprint"></i>
+          <span>{hwidCount} {hwidCount === 1 ? 'log' : 'logs'}</span>
           <i class="fa-solid fa-chevron-right"></i>
         </button>
         <div class="field">
@@ -484,52 +635,54 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <details class="danger-zone">
-        <summary>
-          <i class="fa-solid fa-triangle-exclamation"></i>Danger zone<i
-            class="fa-solid fa-chevron-down"
-          ></i>
-        </summary>
-        <nav class="action-list">
-          {#if can(Privilege.AdminWipeUsers)}
-            <button type="button" onclick={() => (dialog = 'rollback')}>
-              <i class="fa-solid fa-clock-rotate-left"></i>Roll back scores
-            </button>
-            <button type="button" onclick={() => (dialog = 'wipe-profile-comments')}>
-              <i class="fa-solid fa-comment-slash"></i>Wipe comments on their profile
-            </button>
-            <button type="button" onclick={() => (dialog = 'wipe-their-comments')}>
-              <i class="fa-solid fa-comments"></i>Wipe comments they wrote
-            </button>
-          {/if}
-          <button type="button" onclick={() => (dialog = 'reset-avatar')}>
-            <i class="fa-solid fa-image"></i>Reset avatar
-          </button>
-          <button type="button" onclick={() => (dialog = 'clear-hwid')}>
-            <i class="fa-solid fa-microchip"></i>Clear HWID matches
-          </button>
-          {#if can(Privilege.PanelManageClans)}
-            <button type="button" onclick={() => (dialog = 'kick-clan')}>
-              <i class="fa-solid fa-shield-halved"></i>Kick from their clan
-            </button>
-          {/if}
-          {#if can(Privilege.AdminWipeUsers)}
-            <button type="button" onclick={() => (dialog = 'wipe')}>
-              <i class="fa-solid fa-eraser"></i>Wipe account
-            </button>
-          {/if}
-          <button type="button" onclick={() => (dialog = 'delete')}>
-            <i class="fa-solid fa-trash-can"></i>Delete account
-          </button>
-        </nav>
-      </details>
-    </aside>
-  </div>
+      </aside>
+    </div>
+  {:else}
+    <div class="user-box danger-rows">
+      <h2>Danger zone <small>Each one asks before it runs</small></h2>
+      {#if can(Privilege.AdminWipeUsers)}
+        <button type="button" onclick={() => (dialog = 'rollback')}>
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Roll back scores<small>Remove scores set after a date</small></span>
+        </button>
+        <button type="button" onclick={() => (dialog = 'wipe-profile-comments')}>
+          <i class="fa-solid fa-comment-slash"></i><span>Wipe comments on their profile</span>
+        </button>
+        <button type="button" onclick={() => (dialog = 'wipe-their-comments')}>
+          <i class="fa-solid fa-comments"></i><span>Wipe comments they wrote</span>
+        </button>
+      {/if}
+      <button type="button" onclick={() => (dialog = 'reset-avatar')}>
+        <i class="fa-solid fa-image"></i><span>Reset avatar</span>
+      </button>
+      <button type="button" onclick={() => (dialog = 'clear-hwid')}>
+        <i class="fa-solid fa-microchip"></i><span>Clear HWID matches</span>
+      </button>
+      {#if can(Privilege.PanelManageClans)}
+        <button type="button" onclick={() => (dialog = 'kick-clan')}>
+          <i class="fa-solid fa-shield-halved"></i><span>Kick from their clan</span>
+        </button>
+      {/if}
+      {#if can(Privilege.AdminWipeUsers)}
+        <button type="button" onclick={() => (dialog = 'wipe')}>
+          <i class="fa-solid fa-eraser"></i>
+          <span>Wipe account<small>Scores and stats in the modes you pick</small></span>
+        </button>
+      {/if}
+      <button type="button" onclick={() => (dialog = 'delete')}>
+        <i class="fa-solid fa-trash-can"></i><span
+          >Delete account<small>Can't be undone</small></span
+        >
+      </button>
+    </div>
+  {/if}
 
   <UserDialogs {user} bind:open={dialog} {run} />
   <HwidDialog bind:open={hwidOpen} userId={user.id} />
-  <IpDialog bind:open={ipOpen} title="Accounts on {user.ip}" userId={user.id} ip={user.ip} />
-  <IpDialog bind:open={allIpsOpen} title="Every IP {user.username} has used" userId={user.id} />
+  <IpDialog
+    bind:open={() => ipLookup !== null, (value) => !value && (ipLookup = null)}
+    title="Accounts on {ipLookup}"
+    userId={user.id}
+    ip={ipLookup}
+  />
 {/if}

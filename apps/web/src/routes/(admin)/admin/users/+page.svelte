@@ -25,8 +25,8 @@
 <AdminHead
   heading="Users"
   text={users.state.status === 'ready'
-    ? `${number(users.state.data.total)} ${term ? 'matching accounts' : 'accounts'}. Search by username or email.`
-    : 'Search by username or email.'}
+    ? `${number(users.state.data.total)} ${term ? 'matching accounts' : 'accounts'}. Search by username, ID or email.`
+    : 'Search by username, ID or email.'}
 />
 
 <form

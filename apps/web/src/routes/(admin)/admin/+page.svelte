@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CountUp } from '@soumetsu/ui';
+  import { getAdminNav } from '$lib/admin';
   import { dashboard, serviceStatus } from '$lib/api/admin';
   import { query } from '$lib/api/query.svelte';
   import { onlineHistory } from '$lib/api/v1';
@@ -11,6 +12,7 @@
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { timeAgo } from '$lib/format';
 
+  const nav = getAdminNav();
   const data = query((signal) => dashboard(signal));
   const status = query((signal) => serviceStatus(signal));
   const history = query((signal) => onlineHistory(signal));
@@ -43,6 +45,24 @@
     </div>
   {/snippet}
 </AdminHead>
+
+<!-- every page in the panel, by area, so nothing needs a menu to be found -->
+<div class="launcher">
+  {#each nav.areas as area (area.key)}
+    <section class={area.colour}>
+      <h2><i class="fa-solid {area.icon}"></i>{area.name}</h2>
+      <div>
+        {#each area.pages as item (item.href)}
+          {@const count = item.waiting ? nav.waiting?.[item.waiting] : 0}
+          <a href={item.href}>
+            <i class="fa-solid {item.icon}"></i><span>{item.label}</span>
+            {#if count}<small>{count}</small>{/if}
+          </a>
+        {/each}
+      </div>
+    </section>
+  {/each}
+</div>
 
 <div class="dash-top">
   <section class="panel online-card c-green">

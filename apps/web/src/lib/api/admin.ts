@@ -1,3 +1,4 @@
+import type { Waiting } from '$lib/admin';
 import type { Game } from './casino';
 import type { GradeName } from '$lib/grades';
 import type { Mod } from '$lib/mods';
@@ -35,6 +36,9 @@ export interface Dashboard {
 
 export const dashboard = (signal?: AbortSignal) =>
   siteApi.get<Dashboard>('/admin/dashboard', undefined, signal);
+
+export const adminWaiting = (signal?: AbortSignal) =>
+  siteApi.get<Record<Waiting, number>>('/admin/waiting', undefined, signal);
 
 export const serviceStatus = (signal?: AbortSignal) =>
   siteApi.get<{ api: boolean; scores: boolean; bancho: boolean }>(

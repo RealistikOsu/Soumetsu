@@ -1,185 +1,241 @@
+import { getContext, setContext } from 'svelte';
 import { Privilege } from '$lib/auth/privileges';
+
+export type Waiting = 'reports' | 'messageReports' | 'requests';
 
 export interface AdminPage {
   href: string;
   label: string;
-  colour: string;
   icon: string;
   needs: number;
+  // Extra words the search matches, for pages people look for by what they do there.
+  keywords: string;
+  waiting?: Waiting;
 }
 
-// The panel's sections, each with the privilege its page needed in RealistikPanel.
-export const adminSections: { name: string; pages: AdminPage[] }[] = [
+export interface AdminArea {
+  key: string;
+  name: string;
+  colour: string;
+  icon: string;
+  pages: AdminPage[];
+}
+
+export const dashboardPage: AdminPage = {
+  href: '/admin',
+  label: 'Dashboard',
+  icon: 'fa-gauge-high',
+  needs: Privilege.AdminAccessRap,
+  keywords: 'home'
+};
+
+// Each page keeps the privilege its page needed in RealistikPanel.
+export const adminAreas: AdminArea[] = [
   {
-    name: 'General',
+    key: 'players',
+    name: 'Players',
+    colour: 'c-green',
+    icon: 'fa-users',
     pages: [
-      {
-        href: '/admin',
-        label: 'Dashboard',
-        colour: 'c-blue',
-        icon: 'fa-gauge-high',
-        needs: Privilege.AdminAccessRap
-      },
       {
         href: '/admin/users',
         label: 'Users',
-        colour: 'c-green',
         icon: 'fa-users',
-        needs: Privilege.AdminManageUsers
+        needs: Privilege.AdminManageUsers,
+        keywords: 'players accounts hwid ip ban restrict freeze'
       },
       {
         href: '/admin/reports',
         label: 'Player reports',
-        colour: 'c-red',
         icon: 'fa-triangle-exclamation',
-        needs: Privilege.AdminManageReport
+        needs: Privilege.AdminManageReport,
+        keywords: 'reports cheating',
+        waiting: 'reports'
       },
       {
         href: '/admin/message-reports',
         label: 'Message reports',
-        colour: 'c-orange',
         icon: 'fa-flag',
-        needs: Privilege.AdminManageReport
-      },
-      {
-        href: '/admin/stats',
-        label: 'Statistics',
-        colour: 'c-teal',
-        icon: 'fa-chart-line',
-        needs: Privilege.AdminAccessRap
-      },
-      {
-        href: '/admin/news',
-        label: 'News',
-        colour: 'c-blue',
-        icon: 'fa-newspaper',
-        needs: Privilege.AdminManageDocs
-      }
-    ]
-  },
-  {
-    name: 'System',
-    pages: [
-      {
-        href: '/admin/logs',
-        label: 'Action logs',
-        colour: 'c-purple',
-        icon: 'fa-list-check',
-        needs: Privilege.AdminViewRapLogs
-      },
-      {
-        href: '/admin/ban-logs',
-        label: 'Ban logs',
-        colour: 'c-red',
-        icon: 'fa-user-xmark',
-        needs: Privilege.AdminViewRapLogs
-      },
-      {
-        href: '/admin/console',
-        label: 'Console',
-        colour: 'c-orange',
-        icon: 'fa-terminal',
-        needs: Privilege.PanelErrorLogs
-      }
-    ]
-  },
-  {
-    name: 'Management',
-    pages: [
-      {
-        href: '/admin/ranking',
-        label: 'Ranking',
-        colour: 'c-lblue',
-        icon: 'fa-angles-up',
-        needs: Privilege.AdminAccessRap
-      },
-      {
-        href: '/admin/requests',
-        label: 'Rank requests',
-        colour: 'c-pink',
-        icon: 'fa-paper-plane',
-        needs: Privilege.AdminAccessRap
-      },
-      {
-        href: '/admin/upload-requests',
-        label: 'Upload requests',
-        colour: 'c-red',
-        icon: 'fa-circle-play',
-        needs: Privilege.AdminAccessRap
-      },
-      {
-        href: '/admin/bancho',
-        label: 'Bancho settings',
-        colour: 'c-yellow',
-        icon: 'fa-server',
-        needs: Privilege.AdminManageServer
-      },
-      {
-        href: '/admin/settings',
-        label: 'System settings',
-        colour: 'c-orange',
-        icon: 'fa-sliders',
-        needs: Privilege.AdminManageSetting
-      },
-      {
-        href: '/admin/badges',
-        label: 'Badges',
-        colour: 'c-yellow',
-        icon: 'fa-certificate',
-        needs: Privilege.AdminManageSetting
-      },
-      {
-        href: '/admin/privileges',
-        label: 'Privileges',
-        colour: 'c-red',
-        icon: 'fa-key',
-        needs: Privilege.AdminManageSetting
-      },
-      {
-        href: '/admin/daily-challenge',
-        label: 'Daily challenge',
-        colour: 'c-teal',
-        icon: 'fa-calendar-day',
-        needs: Privilege.AdminManageBeatmap
-      },
-      {
-        href: '/admin/lazer',
-        label: 'Lazer',
-        colour: 'c-teal',
-        icon: 'fa-bolt',
-        needs: Privilege.AdminManageBeatmap
-      },
-      {
-        href: '/admin/commissions',
-        label: 'Commissions',
-        colour: 'c-green',
-        icon: 'fa-clipboard-check',
-        needs: Privilege.AdminManageSetting
-      },
-      {
-        href: '/admin/shop',
-        label: 'Shop',
-        colour: 'c-pink',
-        icon: 'fa-store',
-        needs: Privilege.AdminManageSetting
-      },
-      {
-        href: '/admin/casino',
-        label: 'Casino',
-        colour: 'c-yellow',
-        icon: 'fa-dice',
-        needs: Privilege.AdminManageSetting
+        needs: Privilege.AdminManageReport,
+        keywords: 'chat messages reports',
+        waiting: 'messageReports'
       },
       {
         href: '/admin/clans',
         label: 'Clans',
-        colour: 'c-purple',
         icon: 'fa-shield-halved',
-        needs: Privilege.PanelManageClans
+        needs: Privilege.PanelManageClans,
+        keywords: 'clan'
+      }
+    ]
+  },
+  {
+    key: 'beatmaps',
+    name: 'Beatmaps',
+    colour: 'c-pink',
+    icon: 'fa-music',
+    pages: [
+      {
+        href: '/admin/ranking',
+        label: 'Ranking',
+        icon: 'fa-angles-up',
+        needs: Privilege.AdminAccessRap,
+        keywords: 'rank beatmaps status loved'
+      },
+      {
+        href: '/admin/requests',
+        label: 'Rank requests',
+        icon: 'fa-paper-plane',
+        needs: Privilege.AdminAccessRap,
+        keywords: 'requests beatmaps',
+        waiting: 'requests'
+      },
+      {
+        href: '/admin/upload-requests',
+        label: 'Upload requests',
+        icon: 'fa-circle-play',
+        needs: Privilege.AdminAccessRap,
+        keywords: 'uploads beatmaps'
+      }
+    ]
+  },
+  {
+    key: 'site',
+    name: 'Site',
+    colour: 'c-blue',
+    icon: 'fa-globe',
+    pages: [
+      {
+        href: '/admin/news',
+        label: 'News',
+        icon: 'fa-newspaper',
+        needs: Privilege.AdminManageDocs,
+        keywords: 'posts'
+      },
+      {
+        href: '/admin/badges',
+        label: 'Badges',
+        icon: 'fa-certificate',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'badge'
+      },
+      {
+        href: '/admin/daily-challenge',
+        label: 'Daily challenge',
+        icon: 'fa-calendar-day',
+        needs: Privilege.AdminManageBeatmap,
+        keywords: 'daily'
+      },
+      {
+        href: '/admin/commissions',
+        label: 'Commissions',
+        icon: 'fa-clipboard-check',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'tasks'
+      },
+      {
+        href: '/admin/shop',
+        label: 'Shop',
+        icon: 'fa-store',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'decorations coins'
+      },
+      {
+        href: '/admin/casino',
+        label: 'Casino',
+        icon: 'fa-dice',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'coins games'
+      }
+    ]
+  },
+  {
+    key: 'server',
+    name: 'Server',
+    colour: 'c-orange',
+    icon: 'fa-server',
+    pages: [
+      {
+        href: '/admin/bancho',
+        label: 'Bancho settings',
+        icon: 'fa-tower-broadcast',
+        needs: Privilege.AdminManageServer,
+        keywords: 'maintenance menu icon'
+      },
+      {
+        href: '/admin/settings',
+        label: 'System settings',
+        icon: 'fa-sliders',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'registration'
+      },
+      {
+        href: '/admin/lazer',
+        label: 'Lazer',
+        icon: 'fa-bolt',
+        needs: Privilege.AdminManageBeatmap,
+        keywords: 'wipe roll back'
+      },
+      {
+        href: '/admin/privileges',
+        label: 'Privileges',
+        icon: 'fa-key',
+        needs: Privilege.AdminManageSetting,
+        keywords: 'groups permissions'
+      },
+      {
+        href: '/admin/console',
+        label: 'Console',
+        icon: 'fa-terminal',
+        needs: Privilege.PanelErrorLogs,
+        keywords: 'errors tracebacks'
+      }
+    ]
+  },
+  {
+    key: 'logs',
+    name: 'Logs',
+    colour: 'c-purple',
+    icon: 'fa-list-check',
+    pages: [
+      {
+        href: '/admin/stats',
+        label: 'Statistics',
+        icon: 'fa-chart-line',
+        needs: Privilege.AdminAccessRap,
+        keywords: 'stats graphs'
+      },
+      {
+        href: '/admin/logs',
+        label: 'Action logs',
+        icon: 'fa-list-check',
+        needs: Privilege.AdminViewRapLogs,
+        keywords: 'staff logs'
+      },
+      {
+        href: '/admin/ban-logs',
+        label: 'Ban logs',
+        icon: 'fa-user-xmark',
+        needs: Privilege.AdminViewRapLogs,
+        keywords: 'bans restrictions silences'
       }
     ]
   }
 ];
+
+// The layout loads the areas a staff member can open and what's waiting, and the dashboard shows the same.
+export interface AdminNav {
+  readonly areas: AdminArea[];
+  readonly waiting: Record<Waiting, number> | null;
+}
+
+const navKey = Symbol('admin-nav');
+
+export const setAdminNav = (nav: AdminNav) => setContext(navKey, nav);
+export const getAdminNav = () => getContext<AdminNav>(navKey);
+
+export const waitingIn = (pages: AdminPage[], waiting: Record<Waiting, number> | null) =>
+  pages.reduce((total, p) => total + (p.waiting ? (waiting?.[p.waiting] ?? 0) : 0), 0);
 
 export const permissions: [number, string][] = [
   [Privilege.Public, 'Public'],
