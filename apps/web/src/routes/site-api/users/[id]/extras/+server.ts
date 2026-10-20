@@ -10,6 +10,7 @@ const MANAGE_USERS = 16;
 interface StatsExtras {
   username_aka: string;
   favourite_mode: number;
+  prefer_relax: number;
   play_style: number;
   custom_badge_icon: string | null;
   custom_badge_name: string | null;
@@ -49,7 +50,7 @@ export const GET = handle(async ({ params, request }) => {
   const [stats, banner, bancho, names, badges, comments, rankedSets, mappedSets] =
     await Promise.all([
       db.$queryRaw<StatsExtras[]>`
-      SELECT username_aka, favourite_mode, play_style, custom_badge_icon,
+      SELECT username_aka, favourite_mode, prefer_relax, play_style, custom_badge_icon,
              custom_badge_name, show_custom_badge, can_custom_badge
       FROM users_stats WHERE id = ${id}`,
       db.profile_backgrounds.findUnique({ where: { uid: id } }),
@@ -86,6 +87,7 @@ export const GET = handle(async ({ params, request }) => {
     commentsDisabled: user.disabled_comments !== 0,
     usernameAka: extras?.username_aka ?? '',
     favouriteMode: extras?.favourite_mode ?? 0,
+    preferRelax: extras?.prefer_relax ?? 0,
     playStyle: extras?.play_style ?? 0,
     customBadge:
       extras && extras.show_custom_badge

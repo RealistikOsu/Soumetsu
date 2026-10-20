@@ -33,6 +33,8 @@
   "settings_aka_placeholder": "Más néven...",
   "settings_aka_hint": "Megjelenik a profilodon. Bejelentkezni nem lehet vele.",
   "settings_favourite_mode": "Kedvenc mód",
+  "settings_favourite_client": "Kedvenc kliens",
+  "settings_favourite_mods": "Kedvenc modok",
   "settings_language": "Nyelv",
   "settings_language_hint": "Váltáskor újratöltődik az oldal.",
   "settings_playstyle": "Játékstílus",

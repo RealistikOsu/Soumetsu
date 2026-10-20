@@ -1,5 +1,7 @@
 export const modeNames = ['osu!', 'Taiko', 'Catch', 'Mania'];
 export const relaxNames = ['Vanilla', 'Relax', 'Autopilot', 'Lazer', 'Lazer RX', 'Lazer AP'];
+export const clientNames = ['Stable', 'Lazer'];
+export const modNames = ['Vanilla', 'Relax', 'Autopilot'];
 export const relaxColours = ['c-yellow', 'c-pink', 'c-purple', 'c-teal', 'c-teal', 'c-teal'];
 
 // The names the leaderboard URL uses, as on prod.
@@ -22,6 +24,16 @@ export const parseRx = (value: string | null) => (available[Number(value)] ? Num
 
 // Relax has no mania, and autopilot is osu! only.
 export const allowed = (mode: number, rx: number) => available[rx]?.includes(mode) ?? false;
+
+// prefer_relax holds client * 3 + mods, the same index relaxNames uses. A favourite mode the client and
+// mods don't have falls back to that client's vanilla, then to osu!.
+export function favouriteView(mode: number, preferRelax: number) {
+  const rx = preferRelax >= 0 && preferRelax < relaxNames.length ? preferRelax : 0;
+  if (allowed(mode, rx)) return { mode, rx };
+  const vanilla = rx - (rx % 3);
+  if (allowed(mode, vanilla)) return { mode, rx: vanilla };
+  return { mode: 0, rx };
+}
 
 // Panes slide in from the side of the tab that was picked.
 export function slideTowards(from: { mode: number; rx: number }, to: { mode: number; rx: number }) {

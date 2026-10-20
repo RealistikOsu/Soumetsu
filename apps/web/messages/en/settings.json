@@ -33,6 +33,8 @@
   "settings_aka_placeholder": "Also known as...",
   "settings_aka_hint": "Shown on your profile. It can't be used to log in.",
   "settings_favourite_mode": "Favourite mode",
+  "settings_favourite_client": "Favourite client",
+  "settings_favourite_mods": "Favourite mods",
   "settings_language": "Language",
   "settings_language_hint": "Switching reloads the page.",
   "settings_playstyle": "Playstyle",

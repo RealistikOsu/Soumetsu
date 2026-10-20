@@ -33,6 +33,8 @@
   "settings_aka_placeholder": "Znany też jako...",
   "settings_aka_hint": "Widać go na twoim profilu. Nie zalogujesz się nim.",
   "settings_favourite_mode": "Ulubiony tryb",
+  "settings_favourite_client": "Ulubiony klient",
+  "settings_favourite_mods": "Ulubione mody",
   "settings_language": "Język",
   "settings_language_hint": "Po zmianie strona się przeładuje.",
   "settings_playstyle": "Czym grasz",

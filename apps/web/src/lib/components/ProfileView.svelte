@@ -14,6 +14,7 @@
   import { fullDate, number } from '$lib/format';
   import {
     allowed,
+    favouriteView,
     isLazer,
     modeNames,
     parseRx,
@@ -58,10 +59,13 @@
 
   const view = $derived.by(() => {
     const q = page.url.searchParams;
+    const tab = (q.get('tab') ?? 'overview') as Tab;
+    // A link that names a mode or type opens exactly that; otherwise the player's favourites.
+    if (!q.has('rx') && !q.has('mode'))
+      return { ...favouriteView(extra?.favouriteMode ?? 0, extra?.preferRelax ?? 0), tab };
     const rx = parseRx(q.get('rx'));
-    const fallback = extra?.favouriteMode ?? 0;
-    const asked = q.has('mode') ? Number(q.get('mode')) : fallback;
-    return { rx, mode: allowed(asked, rx) ? asked : 0, tab: (q.get('tab') ?? 'overview') as Tab };
+    const asked = q.has('mode') ? Number(q.get('mode')) : (extra?.favouriteMode ?? 0);
+    return { rx, mode: allowed(asked, rx) ? asked : 0, tab };
   });
   const key = $derived(`${view.mode}-${view.rx}`);
   const lazer = $derived(isLazer(view.rx));

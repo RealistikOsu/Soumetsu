@@ -5,7 +5,7 @@
   import { session } from '$lib/auth/session.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { modeNames } from '$lib/modes';
+  import { clientNames, modeNames, modNames } from '$lib/modes';
   import LanguagePicker from '$lib/components/LanguagePicker.svelte';
   import { m } from '$lib/paraglide/messages';
   import { playStyleNames } from '$lib/playstyles';
@@ -16,6 +16,8 @@
 
   let aka = $state('');
   let favourite = $state(0);
+  let client = $state(0);
+  let mods = $state(0);
   let style = $state(0);
   let commentsOff = $state(false);
   let badge = $state({ show: false, icon: '', name: '', allowed: false });
@@ -27,6 +29,8 @@
     const data = loaded.state.data;
     aka = data.username_aka;
     favourite = data.favourite_mode;
+    client = Math.min(Math.floor(data.prefer_relax / 3), 1);
+    mods = data.prefer_relax % 3;
     style = data.play_style;
     commentsOff = data.disabled_comments;
     badge = { ...data.custom_badge, allowed: data.custom_badge.can_custom_badge };
@@ -42,6 +46,7 @@
       await saveSettings({
         username_aka: aka,
         favourite_mode: favourite,
+        prefer_relax: client * 3 + mods,
         play_style: style,
         disabled_comments: commentsOff,
         ...(badge.allowed
@@ -98,6 +103,28 @@
             <label>
               <input type="radio" name="favourite_mode" value={i} bind:group={favourite} />
               <span><img src="/img/modes/mode-{i}.png" alt="" />{name}</span>
+            </label>
+          {/each}
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">{m.settings_favourite_client()}</span>
+        <div class="choice">
+          {#each clientNames as name, i (name)}
+            <label>
+              <input type="radio" name="favourite_client" value={i} bind:group={client} />
+              <span>{name}</span>
+            </label>
+          {/each}
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">{m.settings_favourite_mods()}</span>
+        <div class="choice">
+          {#each modNames as name, i (name)}
+            <label>
+              <input type="radio" name="favourite_mods" value={i} bind:group={mods} />
+              <span>{name}</span>
             </label>
           {/each}
         </div>

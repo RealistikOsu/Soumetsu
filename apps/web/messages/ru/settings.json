@@ -33,6 +33,8 @@
   "settings_aka_placeholder": "Также известен как...",
   "settings_aka_hint": "Показывается в профиле. Войти по нему нельзя.",
   "settings_favourite_mode": "Любимый режим",
+  "settings_favourite_client": "Любимый клиент",
+  "settings_favourite_mods": "Любимые моды",
   "settings_language": "Язык",
   "settings_language_hint": "Страница перезагрузится после выбора.",
   "settings_playstyle": "Чем играешь",

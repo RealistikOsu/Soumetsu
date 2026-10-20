@@ -34,6 +34,7 @@ export interface UserExtras {
   commentsDisabled: boolean;
   usernameAka: string;
   favouriteMode: number;
+  preferRelax: number;
   playStyle: number;
   customBadge: { icon: string; name: string } | null;
   banner: Banner;

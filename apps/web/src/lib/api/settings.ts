@@ -17,6 +17,7 @@ export const settings = (signal?: AbortSignal) =>
 export const saveSettings = (body: {
   username_aka?: string;
   favourite_mode?: number;
+  prefer_relax?: number;
   play_style?: number;
   disabled_comments?: boolean;
   custom_badge?: { show?: boolean; icon?: string; name?: string };
