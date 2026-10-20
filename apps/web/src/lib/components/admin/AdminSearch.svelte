@@ -161,7 +161,7 @@
       bind:this={input}
       bind:value={term}
       type="search"
-      placeholder={canUsers ? 'Name, ID, email, IP or a page' : 'Search pages'}
+      placeholder={canUsers ? 'Name, ID, email, Discord ID, IP or a page' : 'Search pages'}
       aria-label="Search"
       autocomplete="off"
       oninput={() => (sel = 0)}

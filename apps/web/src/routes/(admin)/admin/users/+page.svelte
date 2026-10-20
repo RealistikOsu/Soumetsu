@@ -40,7 +40,7 @@
       <input
         type="search"
         bind:value={search}
-        placeholder="Username, ID or email"
+        placeholder="Username, ID, email or Discord ID"
         aria-label="Search users"
       />
     </form>
