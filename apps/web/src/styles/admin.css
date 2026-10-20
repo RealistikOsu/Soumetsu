@@ -1709,11 +1709,8 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--panel-2);
-    font-size: 14px;
-  }
-
-  .save-bar.dirty {
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+    font-size: 14px;
   }
 
   .save-bar span {

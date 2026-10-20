@@ -427,22 +427,17 @@
         </div>
 
         <!-- Edits pile up across the tab, so saving stays where it can always be reached. -->
-        <div class="save-bar" class:dirty={changes > 0}>
-          <span>
-            {changes ? `${changes} unsaved ${changes === 1 ? 'change' : 'changes'}` : 'No changes'}
-          </span>
-          <button
-            class="btn"
-            type="button"
-            disabled={!changes}
-            onclick={() => saved && (form = edit(saved))}
-          >
-            Discard
-          </button>
-          <button class="btn btn-green" type="submit" disabled={saving || !changes}>
-            <i class="fa-solid fa-floppy-disk"></i>Save
-          </button>
-        </div>
+        {#if changes}
+          <div class="save-bar">
+            <span>{changes} unsaved {changes === 1 ? 'change' : 'changes'}</span>
+            <button class="btn" type="button" onclick={() => saved && (form = edit(saved))}>
+              Discard
+            </button>
+            <button class="btn btn-green" type="submit" disabled={saving}>
+              <i class="fa-solid fa-floppy-disk"></i>Save
+            </button>
+          </div>
+        {/if}
       </div>
 
       <aside>
