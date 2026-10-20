@@ -32,7 +32,9 @@ export async function latestPlays(total: number, minPp: number) {
     TABLES.map(async (table, custom) =>
       (
         await db.$queryRawUnsafe<Row[]>(
-          `SELECT s.id, u.username, s.userid, u.country, s.time, s.score, s.pp, s.play_mode, s.mods,
+          // Left to itself MySQL starts from users and sorts every score they have; going from the
+          // scores keeps it a backwards walk of the newest ids.
+          `SELECT STRAIGHT_JOIN s.id, u.username, s.userid, u.country, s.time, s.score, s.pp, s.play_mode, s.mods,
                   s.playback_rate, s.accuracy, b.song_name, b.beatmap_id, s.completed,
                   s.300_count AS count_300, s.100_count AS count_100, s.50_count AS count_50,
                   s.misses_count AS count_misses
