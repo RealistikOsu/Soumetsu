@@ -43,6 +43,15 @@
       : Promise.resolve([])
   );
 
+  // The endpoint also returns every other account on the same addresses, so each IP can repeat.
+  const ownIps = $derived(
+    ips.state.status === 'ready'
+      ? ips.state.data
+          .filter((row) => row.userid === id)
+          .sort((a, b) => b.occurencies - a.occurencies)
+      : []
+  );
+
   const tabs = ['account', 'moderation', 'hardware', 'danger'] as const;
   const tab = $derived(
     tabs.find((t) => t === page.url.searchParams.get('tab')) ?? ('account' as const)
@@ -588,7 +597,7 @@
             <h2>IP addresses <small>Most used first</small></h2>
             {#if ips.state.status === 'ready'}
               <ul class="ip-list">
-                {#each [...ips.state.data].sort((a, b) => b.occurencies - a.occurencies) as row (row.ip)}
+                {#each ownIps as row (row.ip)}
                   <li>
                     <code>{row.ip}</code>
                     <span>{row.occurencies} {row.occurencies === 1 ? 'login' : 'logins'}</span>
