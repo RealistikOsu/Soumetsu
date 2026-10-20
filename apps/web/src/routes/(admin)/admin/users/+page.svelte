@@ -27,23 +27,25 @@
   text={users.state.status === 'ready'
     ? `${number(users.state.data.total)} ${term ? 'matching accounts' : 'accounts'}. Search by username, ID or email.`
     : 'Search by username, ID or email.'}
-/>
-
-<form
-  class="listing-search admin-search"
-  onsubmit={(event) => {
-    event.preventDefault();
-    go(1, search.trim());
-  }}
 >
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input
-    type="search"
-    bind:value={search}
-    placeholder="Username or email"
-    aria-label="Search users"
-  />
-</form>
+  {#snippet extra()}
+    <form
+      class="find-box"
+      onsubmit={(event) => {
+        event.preventDefault();
+        go(1, search.trim());
+      }}
+    >
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="search"
+        bind:value={search}
+        placeholder="Username, ID or email"
+        aria-label="Search users"
+      />
+    </form>
+  {/snippet}
+</AdminHead>
 
 <div class="table-wrap">
   <table class="board admin-table c-green">
@@ -73,9 +75,7 @@
             <td class="dim">{fullDate(user.registered)}</td>
             <td class="dim">{user.lastSeen ? timeAgo(user.lastSeen) : 'Never'}</td>
             <td class="actions">
-              <a class="btn btn-small" href="/admin/users/{user.id}">
-                <i class="fa-solid fa-pen-to-square"></i>Edit
-              </a>
+              <a class="btn btn-small" href="/admin/users/{user.id}">Edit</a>
             </td>
           </tr>
         {:else}

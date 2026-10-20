@@ -319,6 +319,8 @@ export interface ClanRow {
   name: string;
   description: string;
   tag: string;
+  members: number;
+  owner: { id: number; username: string } | null;
 }
 
 export const adminClans = (page: number, q: string, signal?: AbortSignal) =>

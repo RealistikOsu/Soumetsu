@@ -27,82 +27,96 @@
       flash.show('error', describe(error));
     }
   }
+
+  const colours: Record<string, string> = {
+    Cheating: 'c-red',
+    Multiaccounting: 'c-orange',
+    'Inappropriate profile': 'c-pink',
+    'Insulting people': 'c-purple',
+    Spam: 'c-yellow'
+  };
+
+  // Website and !report reasons both read "Label - detail".
+  function split(reason: string) {
+    const at = reason.indexOf(' - ');
+    return at < 0
+      ? { label: reason, detail: '' }
+      : { label: reason.slice(0, at), detail: reason.slice(at + 3) };
+  }
 </script>
 
 <AdminHead
   heading="Player reports"
-  text="Reports from profiles and from !report in game, which also saves the player's recent chat."
+  text="From profiles and from !report in game, which also saves their recent chat."
 >
   {#snippet extra()}
-    <a class="btn" href={all ? '/admin/reports' : '/admin/reports?all=1'}>
-      {all ? 'Only open ones' : 'Show resolved too'}
-    </a>
+    <nav class="seg">
+      <a class:active={!all} href="/admin/reports">Open</a>
+      <a class:active={all} href="/admin/reports?all=1">All</a>
+    </nav>
   {/snippet}
 </AdminHead>
 
-<div class="table-wrap">
-  <table class="board admin-table c-red">
-    <thead>
-      <tr>
-        <th class="player">Reported</th>
-        <th>Reason</th>
-        <th class="player">By</th>
-        <th>When</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if reports.state.status === 'ready'}
-        {#each reports.state.data.rows as report (report.id)}
-          <tr>
-            <td class="player">
-              <a class="who" href="/admin/users/{report.to_uid}">
-                <Avatar id={report.to_uid} /><b>{report.to_name ?? report.to_uid}</b>
-              </a>
-            </td>
-            <td class="note report-reason">
-              {report.reason}
-              {#if report.chatlog}
-                <details>
-                  <summary>Their recent chat</summary>
-                  <pre>{report.chatlog}</pre>
-                </details>
-              {/if}
-            </td>
-            <td class="player">
-              <a class="who" href="/admin/users/{report.from_uid}">
-                <Avatar id={report.from_uid} /><b>{report.from_name ?? report.from_uid}</b>
-              </a>
-            </td>
-            <td class="dim" title={dateTime(report.time)}>{timeAgo(report.time)}</td>
-            <td>
-              {#if report.resolved_at}
-                <span class="dim">Resolved by {report.resolved_name ?? 'someone'}</span>
-              {:else}
-                <button class="btn" type="button" onclick={() => resolve(report.id)}>Resolve</button
-                >
-              {/if}
-            </td>
-          </tr>
-        {:else}
-          <tr><td colspan="5" class="empty-note">No reports.</td></tr>
-        {/each}
-      {:else if reports.state.status === 'loading'}
-        {#each [0, 1, 2, 3] as n (n)}
-          <tr><td colspan="5"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
-        {/each}
-      {:else}
-        <tr><td colspan="5" class="empty-note">Couldn't load the reports.</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
-
-{#if reports.state.status === 'ready' && reports.state.data.pages > 1}
-  <Pager
-    page={current}
-    pages={reports.state.data.pages}
-    hasNext={current < reports.state.data.pages}
-    onpage={(p) => goto(`/admin/reports?${all ? 'all=1&' : ''}p=${p}`)}
-  />
+{#if reports.state.status === 'ready'}
+  <div class="cases">
+    {#each reports.state.data.rows as report (report.id)}
+      {@const { label, detail } = split(report.reason)}
+      <article class="case">
+        <Avatar id={report.to_uid} />
+        <div class="case-line">
+          <a href="/admin/users/{report.to_uid}">{report.to_name ?? report.to_uid}</a>
+          <span class="admin-tag {colours[label] ?? 'c-grey'}">{label}</span>
+        </div>
+        <div class="case-side">
+          {#if report.resolved_at}
+            <span class="faint">Resolved by {report.resolved_name ?? 'someone'}</span>
+          {:else}
+            <button class="act go c-green" type="button" onclick={() => resolve(report.id)}>
+              <i class="fa-solid fa-check"></i>Resolve
+            </button>
+          {/if}
+        </div>
+        <p class="case-sub">
+          Reported by
+          <a class="by" href="/admin/users/{report.from_uid}"
+            ><Avatar id={report.from_uid} />{report.from_name ?? report.from_uid}</a
+          >
+          · <time title={dateTime(report.time)}>{timeAgo(report.time)}</time>
+          {#if detail}<br /><q>{detail}</q>{/if}
+        </p>
+        {#if report.chatlog}
+          <details class="chat-log case-more">
+            <summary>
+              <i class="fa-solid fa-comments"></i>Their recent chat<i
+                class="fa-solid fa-chevron-down"
+              ></i>
+            </summary>
+            <pre>{report.chatlog}</pre>
+          </details>
+        {/if}
+      </article>
+    {:else}
+      <div class="empty-state">
+        <i class="fa-solid fa-circle-check"></i>
+        <b>{all ? 'No reports yet' : 'Nothing to look at'}</b>
+        {#if !all}<span>Every report has been handled.</span>{/if}
+      </div>
+    {/each}
+  </div>
+  {#if reports.state.data.pages > 1}
+    <Pager
+      page={current}
+      pages={reports.state.data.pages}
+      hasNext={current < reports.state.data.pages}
+      onpage={(p) => goto(`/admin/reports?${all ? 'all=1&' : ''}p=${p}`)}
+    />
+  {/if}
+{:else if reports.state.status === 'loading'}
+  <div class="cases">
+    {#each [0, 1, 2] as n (n)}
+      <span class="skel" style="width: 100%; height: 76px"></span>
+    {/each}
+  </div>
+{:else}
+  <p class="panel empty-note">Couldn't load the reports.</p>
 {/if}

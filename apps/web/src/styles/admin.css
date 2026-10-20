@@ -244,6 +244,482 @@
     line-height: 18px;
   }
 
+  /* shared pieces of the list pages */
+  .admin-head {
+    margin-bottom: 16px;
+  }
+
+  .admin-head > :last-child:not(:first-child) {
+    margin-left: auto;
+  }
+
+  .admin-head h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .admin-head p {
+    font-size: 14px;
+  }
+
+  .admin-table.board {
+    border-radius: var(--radius);
+  }
+
+  .admin-table.board th {
+    padding: 12px 16px;
+    color: var(--faint);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .admin-table.board td {
+    padding: 10px 16px;
+  }
+
+  .admin-table.board tr:hover td {
+    background: rgb(255 255 255 / 0.02);
+  }
+
+  .admin-table .who .avatar {
+    border-radius: 7px;
+  }
+
+  .admin-tag {
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--accent) 65%, #fff);
+    font-weight: 500;
+  }
+
+  .admin-table .btn-small,
+  .act {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--panel-2);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .admin-table .btn-small:hover,
+  .act:hover {
+    background: var(--active);
+  }
+
+  .act.go {
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: color-mix(in srgb, var(--accent) 60%, #fff);
+  }
+
+  .act.go:hover {
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .act:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .seg {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+
+  .seg a,
+  .seg button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .seg a:hover,
+  .seg button:hover {
+    color: var(--text);
+  }
+
+  .seg .active {
+    background: var(--active);
+    color: #fff;
+  }
+
+  .seg small {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    font-size: 11px;
+    line-height: 17px;
+  }
+
+  .find-box {
+    position: relative;
+    width: 280px;
+  }
+
+  .find-box input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  .find-box input:focus {
+    border-color: var(--blue);
+    outline: none;
+  }
+
+  .find-box i {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    color: var(--faint);
+    font-size: 13px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  /* reports and requests read as cards: who, what, and the call to make */
+  .cases {
+    display: grid;
+    gap: 10px;
+  }
+
+  .case {
+    display: grid;
+    grid-template-areas:
+      'pic line side'
+      'pic sub side';
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+
+  .case.flat {
+    grid-template-areas:
+      'line side'
+      'sub side';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .case > .avatar,
+  .case > .clan-icon {
+    grid-area: pic;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .case > .clan-icon {
+    font-size: 15px;
+  }
+
+  .case-line {
+    grid-area: line;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    min-width: 0;
+    font-size: 14px;
+  }
+
+  .case-line > a {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .case-line > a:hover {
+    color: var(--link);
+  }
+
+  .case-sub {
+    grid-area: sub;
+    min-width: 0;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .case-sub q {
+    color: var(--text);
+  }
+
+  .case-sub time {
+    color: var(--faint);
+  }
+
+  .case-side {
+    grid-area: side;
+    display: flex;
+    gap: 8px;
+  }
+
+  .case-more {
+    grid-column: 1 / -1;
+  }
+
+  .by {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    font-weight: 600;
+    vertical-align: middle;
+  }
+
+  .by:hover {
+    color: var(--link);
+  }
+
+  .by .avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    object-fit: cover;
+  }
+
+  /* the map's cover runs under the whole card, faded so the text stays readable */
+  .case.on-cover {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 84px;
+  }
+
+  .case.on-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgb(24 24 24 / 0.8), rgb(24 24 24 / 0.94)),
+      var(--cover) center / cover no-repeat;
+  }
+
+  .case.on-cover .case-sub {
+    color: #cfcfcf;
+  }
+
+  .mode-icons {
+    display: inline-flex;
+    gap: 4px;
+  }
+
+  .mode-icons img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .empty-state {
+    display: grid;
+    place-items: center;
+    gap: 6px;
+    padding: 48px 16px;
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .empty-state i {
+    color: var(--green);
+    font-size: 26px;
+  }
+
+  .empty-state b {
+    color: var(--text);
+  }
+
+  /* logs, a day at a time */
+  .day-label {
+    margin: 24px 0 8px;
+    color: var(--faint);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .day-label:first-child {
+    margin-top: 0;
+  }
+
+  .log-feed {
+    margin: 0;
+    padding: 4px 16px;
+    border-radius: var(--radius);
+    background: var(--panel);
+    list-style: none;
+  }
+
+  .log-feed li {
+    display: grid;
+    grid-template-columns: 32px 30px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+
+  .log-feed li:first-child {
+    border-top: 0;
+  }
+
+  .log-feed li > i {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  .log-feed .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+  }
+
+  .log-feed p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .log-feed p b,
+  .log-feed p a {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .log-feed p small {
+    display: block;
+    margin-top: 2px;
+    color: var(--faint);
+    font-size: 13px;
+  }
+
+  .log-feed time {
+    color: var(--faint);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .chat-log {
+    margin-top: 8px;
+    border-radius: 8px;
+    background: var(--bg);
+  }
+
+  .chat-log summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: var(--muted);
+    font-size: 13px;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .chat-log summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .chat-log summary .fa-chevron-down {
+    margin-left: auto;
+    font-size: 11px;
+    transition: transform 0.15s;
+  }
+
+  .chat-log[open] summary .fa-chevron-down {
+    transform: rotate(180deg);
+  }
+
+  .chat-log pre {
+    margin: 0;
+    padding: 0 12px 10px;
+    overflow-x: auto;
+    color: var(--muted);
+    font:
+      13px / 1.6 ui-monospace,
+      monospace;
+    white-space: pre-wrap;
+  }
+
+  @media (max-width: 700px) {
+    .admin-head > :last-child:not(:first-child),
+    .find-box {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .case {
+      grid-template-areas:
+        'pic line'
+        'pic sub'
+        'side side';
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .case.flat,
+    .case.on-cover {
+      grid-template-areas:
+        'line'
+        'sub'
+        'side';
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .case-side {
+      margin-top: 8px;
+    }
+
+    .log-feed li {
+      grid-template-columns: 32px minmax(0, 1fr);
+    }
+
+    .log-feed .avatar {
+      display: none;
+    }
+
+    .log-feed time {
+      grid-column: 2;
+    }
+  }
+
   /* searching happens in a modal over the page */
   .admin-palette {
     width: min(600px, calc(100vw - 32px));

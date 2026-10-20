@@ -4,6 +4,7 @@
   import { adminClans } from '$lib/api/admin';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
+  import Avatar from '$lib/components/Avatar.svelte';
   import ClanBadge from '$lib/components/ClanBadge.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import { number } from '$lib/format';
@@ -23,74 +24,69 @@
 <AdminHead
   heading="Clans"
   text={list.state.status === 'ready'
-    ? `${number(list.state.data.total)} ${term ? 'matching clans' : 'clans'}. Search by name or tag.`
+    ? `${number(list.state.data.total)} ${term ? 'matching clans' : 'clans'}.`
     : 'Search by name or tag.'}
-/>
-
-<form
-  class="listing-search admin-search"
-  onsubmit={(event) => {
-    event.preventDefault();
-    go(1, search.trim());
-  }}
 >
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input
-    type="search"
-    bind:value={search}
-    placeholder="Clan name or tag"
-    aria-label="Search clans"
-  />
-</form>
+  {#snippet extra()}
+    <form
+      class="find-box"
+      onsubmit={(event) => {
+        event.preventDefault();
+        go(1, search.trim());
+      }}
+    >
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="search"
+        bind:value={search}
+        placeholder="Name or tag"
+        aria-label="Search clans"
+      />
+    </form>
+  {/snippet}
+</AdminHead>
 
-<div class="table-wrap">
-  <table class="board admin-table c-purple">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th class="player">Clan</th>
-        <th>Tag</th>
-        <th>Description</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if list.state.status === 'ready'}
-        {#each list.state.data.clans as clan (clan.id)}
-          <tr>
-            <td class="dim">{clan.id}</td>
-            <td class="player">
-              <a class="who" href="/admin/clans/{clan.id}">
-                <ClanBadge id={clan.id} tag={clan.tag} size="small" /><b>{clan.name}</b>
-              </a>
-            </td>
-            <td><span class="clan-tag">[{clan.tag}]</span></td>
-            <td class="note">{clan.description}</td>
-            <td class="actions">
-              <a class="btn btn-small" href="/admin/clans/{clan.id}">
-                <i class="fa-solid fa-pen-to-square"></i>Edit
-              </a>
-            </td>
-          </tr>
-        {:else}
-          <tr><td colspan="5" class="empty-note">No clans found.</td></tr>
-        {/each}
-      {:else if list.state.status === 'loading'}
-        {#each [0, 1, 2, 3, 4, 5, 6, 7] as n (n)}
-          <tr><td colspan="5"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
-        {/each}
-      {:else}
-        <tr><td colspan="5" class="empty-note">Couldn't load clans.</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
-
-{#if list.state.status === 'ready' && list.state.data.pages > 1}
-  <Pager
-    page={current}
-    pages={list.state.data.pages}
-    hasNext={current < list.state.data.pages}
-    onpage={(p) => go(p)}
-  />
+{#if list.state.status === 'ready'}
+  <div class="cases">
+    {#each list.state.data.clans as clan (clan.id)}
+      <article class="case">
+        <ClanBadge id={clan.id} tag={clan.tag} size="small" />
+        <div class="case-line">
+          <span class="admin-tag c-purple">{clan.tag}</span>
+          <a href="/admin/clans/{clan.id}">{clan.name}</a>
+          <span class="faint">#{clan.id}</span>
+        </div>
+        <div class="case-side"><a class="act" href="/admin/clans/{clan.id}">Manage</a></div>
+        <p class="case-sub">
+          {#if clan.description}{clan.description} ·{/if}
+          {#if clan.owner}
+            owned by
+            <a class="by" href="/admin/users/{clan.owner.id}"
+              ><Avatar id={clan.owner.id} />{clan.owner.username}</a
+            > ·
+          {/if}
+          {clan.members}
+          {clan.members === 1 ? 'member' : 'members'}
+        </p>
+      </article>
+    {:else}
+      <p class="panel empty-note">No clans found.</p>
+    {/each}
+  </div>
+  {#if list.state.data.pages > 1}
+    <Pager
+      page={current}
+      pages={list.state.data.pages}
+      hasNext={current < list.state.data.pages}
+      onpage={(p) => go(p)}
+    />
+  {/if}
+{:else if list.state.status === 'loading'}
+  <div class="cases">
+    {#each [0, 1, 2, 3] as n (n)}
+      <span class="skel" style="width: 100%; height: 72px"></span>
+    {/each}
+  </div>
+{:else}
+  <p class="panel empty-note">Couldn't load clans.</p>
 {/if}
