@@ -9,17 +9,19 @@
     background: var(--panel);
   }
 
+  /* title, areas and search share one row, so the tabs read as the bar itself */
   .admin-bar-row {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding-top: 12px;
+    align-items: stretch;
+    gap: 8px;
+    min-height: 52px;
   }
 
   .admin-title {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-right: 12px;
     color: var(--text);
     font-size: 16px;
     font-weight: 600;
@@ -31,6 +33,7 @@
 
   .admin-find {
     display: flex;
+    align-self: center;
     align-items: center;
     gap: 10px;
     width: 260px;
@@ -74,7 +77,6 @@
   .admin-areas {
     display: flex;
     gap: 4px;
-    margin-top: 6px;
     overflow-x: auto;
   }
 
@@ -82,7 +84,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 12px;
+    padding: 0 12px;
+    border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
     color: var(--muted);
     font-size: 14px;
@@ -101,6 +104,18 @@
   .admin-areas a.active {
     border-bottom-color: var(--accent);
     color: #fff;
+  }
+
+  .admin-areas .home i {
+    color: var(--muted);
+  }
+
+  .admin-areas .home.active {
+    border-bottom-color: var(--text);
+  }
+
+  .admin-areas .home.active i {
+    color: var(--text);
   }
 
   .admin-areas small,
@@ -169,7 +184,14 @@
   }
 
   .launcher h2 i {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
     color: var(--accent);
+    font-size: 12px;
   }
 
   .launcher div {
@@ -486,60 +508,207 @@
 
   /* dashboard */
 
-  .services {
+  .dash-hero {
+    position: relative;
+    isolation: isolate;
     display: flex;
-    gap: 16px;
-    margin-left: auto;
-    padding-bottom: 2px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 24px;
+    min-height: 150px;
+    margin-bottom: 16px;
+    padding: 24px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: #000 center 40% / cover no-repeat;
   }
 
-  .service {
+  .dash-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.25));
+  }
+
+  .dash-hero h1 {
+    margin: 0;
+    font-size: 30px;
+  }
+
+  .dash-hero p {
+    min-height: 1.5em;
+    margin: 4px 0 0;
+    color: #d8d8d8;
+  }
+
+  .dash-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .dash-services span {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: var(--muted);
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.55);
+    color: #e6e6e6;
     font-size: 13px;
   }
 
-  .service i {
-    color: var(--online);
+  .dash-services i {
+    color: var(--faint);
     font-size: 8px;
   }
 
-  .dash-top {
+  .dash-services .up i {
+    color: var(--online);
+  }
+
+  .dash-services .down i {
+    color: var(--red);
+  }
+
+  .dash-stats {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 12px;
-    margin-top: 20px;
+    gap: 24px;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    background: var(--panel);
   }
 
-  .online-card {
+  .dash-online {
     position: relative;
-    display: grid;
-    align-content: start;
-    gap: 2px;
     min-height: 150px;
-    padding: 18px 20px 76px;
+    padding-bottom: 72px;
   }
 
-  .online-now {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
+  .dash-stats small {
+    display: block;
+    color: var(--faint);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
-  .online-now b {
+  .dash-online b {
+    display: block;
+    color: var(--green);
     font-size: 36px;
     font-weight: 600;
-    line-height: 1;
+    line-height: 1.1;
   }
 
-  .online-now span {
-    color: var(--muted);
-  }
-
-  .online-card .faint {
+  .dash-online .faint {
     font-size: 13px;
+  }
+
+  .dash-counters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: center;
+    gap: 20px 16px;
+  }
+
+  .dash-counters > div {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .dash-counters > div > i {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
+    font-size: 17px;
+  }
+
+  .dash-counters b {
+    display: block;
+    margin-top: 2px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .dash-attention {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0 32px;
+  }
+
+  .dash-attention a {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+    color: var(--muted);
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+
+  .dash-attention a:hover {
+    background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+  }
+
+  .dash-attention b {
+    min-width: 44px;
+    color: var(--accent);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .dash-attention span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dash-attention em {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  .dash-attention i {
+    color: var(--accent);
+    font-size: 13px;
+    opacity: 0.6;
+    transition:
+      transform 0.15s,
+      opacity 0.15s;
+  }
+
+  .dash-attention a:hover i {
+    opacity: 1;
+    transform: translateX(3px);
+  }
+
+  /* tables sit in plain cards; the old coloured top edge was a stripe */
+  .admin-table.board {
+    border-top: 0;
+  }
+
+  .user-box h2 a {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
   }
 
   .spark {
@@ -548,6 +717,8 @@
     bottom: 0;
     left: 0;
     height: 64px;
+    overflow: hidden;
+    border-radius: 6px;
   }
 
   .spark svg {
@@ -587,53 +758,6 @@
     font-size: 20px;
   }
 
-  .attention {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .attention a {
-    display: grid;
-    align-content: start;
-    gap: 4px;
-    padding: 16px;
-  }
-
-  .attention a:hover {
-    background: var(--panel-2);
-  }
-
-  .attention a > i {
-    margin-bottom: 6px;
-    color: var(--accent);
-    font-size: 18px;
-  }
-
-  .attention b {
-    font-weight: 600;
-  }
-
-  .attention span {
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .attention em {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    color: var(--accent);
-    font-size: 13px;
-    font-style: normal;
-    font-weight: 500;
-  }
-
-  .attention em i {
-    font-size: 11px;
-  }
-
   .song-cell {
     width: 100%;
     max-width: 0;
@@ -670,7 +794,7 @@
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
     column-gap: 12px;
-    padding: 10px 16px;
+    padding: 10px 0;
   }
 
   .feed li + li {
@@ -2345,17 +2469,37 @@
   @container (max-width: 880px) {
     .admin-grid,
     .user-split,
-    .dash-top {
+    .dash-stats {
       grid-template-columns: minmax(0, 1fr);
     }
   }
 
   @media (max-width: 960px) {
+    .admin-bar-row {
+      flex-wrap: wrap;
+      gap: 0 8px;
+      padding-top: 10px;
+    }
+
+    .admin-areas {
+      order: 3;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .admin-areas a {
+      padding: 10px 12px;
+    }
+
+    .admin-find {
+      margin-left: auto;
+    }
+
     .admin-main {
       padding-top: 16px;
     }
 
-    .attention,
+    .dash-attention,
     .suggests {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
@@ -2371,7 +2515,12 @@
   }
 
   @media (max-width: 640px) {
-    .services {
+    .dash-hero {
+      min-height: 0;
+      padding: 18px;
+    }
+
+    .dash-services {
       margin-left: 0;
     }
 
@@ -2434,7 +2583,7 @@
     }
 
     .field-pair,
-    .attention,
+    .dash-attention,
     .suggests,
     .stats-counters,
     .bits {

@@ -94,6 +94,18 @@
           <a class="admin-title" href="/admin"
             ><i class="fa-solid fa-shield-halved"></i>RealistikPanel</a
           >
+          <nav class="admin-areas" aria-label="Admin areas">
+            <a class="home" class:active={page.url.pathname === '/admin'} href="/admin">
+              <i class="fa-solid fa-gauge-high"></i>Dashboard
+            </a>
+            {#each areas as item (item.key)}
+              {@const count = waitingIn(item.pages, counts)}
+              <a class="{item.colour} {item === area ? 'active' : ''}" href={item.pages[0].href}>
+                <i class="fa-solid {item.icon}"></i>{item.name}
+                {#if count}<small>{count}</small>{/if}
+              </a>
+            {/each}
+          </nav>
           <button
             class="admin-find"
             type="button"
@@ -105,15 +117,6 @@
             <kbd>/</kbd>
           </button>
         </div>
-        <nav class="admin-areas" aria-label="Admin areas">
-          {#each areas as item (item.key)}
-            {@const count = waitingIn(item.pages, counts)}
-            <a class="{item.colour} {item === area ? 'active' : ''}" href={item.pages[0].href}>
-              <i class="fa-solid {item.icon}"></i>{item.name}
-              {#if count}<small>{count}</small>{/if}
-            </a>
-          {/each}
-        </nav>
       </div>
       {#if area}
         <nav class="wrap admin-pages {area.colour}" aria-label="{area.name} pages">
