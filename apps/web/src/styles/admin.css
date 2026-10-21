@@ -1904,7 +1904,7 @@
     min-width: 0;
   }
 
-  .admin-form .field input,
+  .admin-form .field input:not([type='checkbox'], [type='radio']),
   .admin-form .field textarea,
   .admin-form .field select {
     width: 100%;
@@ -2014,7 +2014,7 @@
     color: var(--muted);
   }
 
-  .dialog-body .field input,
+  .dialog-body .field input:not([type='checkbox'], [type='radio']),
   .dialog-body .field textarea {
     width: 100%;
     max-width: none;
