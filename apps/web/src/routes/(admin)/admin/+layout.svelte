@@ -145,6 +145,7 @@
       waiting={counts}
       canUsers={hasPrivilege(user.privileges, Privilege.AdminManageUsers)}
       canIps={hasPrivilege(user.privileges, Privilege.PanelViewIps)}
+      canMaps={hasPrivilege(user.privileges, Privilege.AdminAccessRap)}
     />
   </div>
 {/if}

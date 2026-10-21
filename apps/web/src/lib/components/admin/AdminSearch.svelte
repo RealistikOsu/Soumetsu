@@ -2,9 +2,11 @@
   import { tick } from 'svelte';
   import { goto } from '$app/navigation';
   import type { AdminArea, Waiting } from '$lib/admin';
-  import { adminUsers, ipUsers } from '$lib/api/admin';
+  import { adminUsers, findMaps, ipUsers } from '$lib/api/admin';
   import { query } from '$lib/api/query.svelte';
+  import { coverUrl } from '$lib/assets';
   import Avatar from '$lib/components/Avatar.svelte';
+  import { mapRef } from '$lib/mapLinks';
   import { recentUsers, type RecentUser } from './recent';
 
   let {
@@ -12,13 +14,15 @@
     areas,
     waiting,
     canUsers,
-    canIps
+    canIps,
+    canMaps
   }: {
     open?: boolean;
     areas: AdminArea[];
     waiting: Record<Waiting, number> | null;
     canUsers: boolean;
     canIps: boolean;
+    canMaps: boolean;
   } = $props();
 
   type Row =
@@ -32,6 +36,7 @@
         count: number;
       }
     | { kind: 'user'; href: string; user: RecentUser; note?: string }
+    | { kind: 'map'; href: string; setId: number; title: string; note: string }
     | { kind: 'more'; href: string; label: string };
 
   let dialog = $state<HTMLDialogElement>();
@@ -42,6 +47,9 @@
 
   const q = $derived(term.trim());
   const isIp = $derived(/^\d{1,3}(\.\d{1,3}){1,3}$/.test(q));
+  const ref = $derived(canMaps && !isIp ? mapRef(q) : null);
+  // A bare number could be a user, a beatmap or a set; a link can only be a map.
+  const isLink = $derived(!!ref && !(ref.beatmap && ref.set));
 
   const pages = $derived(
     areas.flatMap((area) => area.pages.map((p) => ({ ...p, colour: area.colour, area: area.name })))
@@ -50,11 +58,17 @@
   // Typing fast shouldn't fire a search per key, so each one waits a moment and is dropped if another follows.
   const found = query(async (signal) => {
     const text = q;
-    if (!open || !text || (!canUsers && !isIp) || (isIp && !canIps)) return null;
+    const maps = ref;
+    const users = canUsers && !isLink;
+    if (!open || !text || (!users && !isIp && !maps) || (isIp && !canIps)) return null;
     await new Promise((resolve) => setTimeout(resolve, 200));
     if (signal.aborted) return null;
-    if (isIp) return { ip: await ipUsers(text, signal), users: [] };
-    return { ip: null, users: (await adminUsers(1, text, signal)).users.slice(0, 6) };
+    if (isIp) return { ip: await ipUsers(text, signal), users: [], maps: null };
+    const [userRows, mapRows] = await Promise.all([
+      users ? adminUsers(1, text, signal).then((data) => data.users.slice(0, 6)) : [],
+      maps ? findMaps(maps, signal) : null
+    ]);
+    return { ip: null, users: userRows, maps: mapRows };
   });
 
   const sections = $derived.by(() => {
@@ -94,12 +108,34 @@
         rows: data.users.map((user) => ({ kind: 'user', href: `/admin/users/${user.id}`, user }))
       });
     }
+    const maps: Row[] = [];
+    if (data?.maps?.beatmap) {
+      const { id, setId, song, diff } = data.maps.beatmap;
+      maps.push({
+        kind: 'map',
+        href: `/admin/ranking/${id}`,
+        setId,
+        title: song,
+        note: `${diff} · Beatmap #${id}`
+      });
+    }
+    if (data?.maps?.set) {
+      const { id, song } = data.maps.set;
+      maps.push({
+        kind: 'map',
+        href: `/admin/ranking/${id}?set`,
+        setId: id,
+        title: song,
+        note: `Set #${id}`
+      });
+    }
+    if (maps.length) out.push({ title: 'Beatmaps', rows: maps });
     const lower = q.toLowerCase();
     const hits = pages
       .filter((p) => `${p.label} ${p.keywords}`.toLowerCase().includes(lower))
       .slice(0, 4);
     if (hits.length) out.push({ title: 'Pages', rows: hits.map(pageRow) });
-    if (canUsers) {
+    if (canUsers && !isLink) {
       out.push({
         title: 'More',
         rows: [
@@ -115,7 +151,9 @@
   });
 
   const rows = $derived(sections.flatMap((s) => s.rows));
-  const searching = $derived(found.state.status === 'loading' && !!q && (canUsers || isIp));
+  const searching = $derived(
+    found.state.status === 'loading' && !!q && (canUsers || isIp || !!ref)
+  );
 
   $effect(() => {
     if (!dialog) return;
@@ -161,7 +199,7 @@
       bind:this={input}
       bind:value={term}
       type="search"
-      placeholder={canUsers ? 'Name, ID, email, Discord ID, IP or a page' : 'Search pages'}
+      placeholder={canUsers ? 'Name, ID, email, Discord ID, IP, map or a page' : 'Search pages'}
       aria-label="Search"
       autocomplete="off"
       oninput={() => (sel = 0)}
@@ -195,6 +233,9 @@
             {:else if row.user.group.name}
               <span class="tag {row.user.group.colour}">{row.user.group.name}</span>
             {/if}
+          {:else if row.kind === 'map'}
+            <img class="cover" src={coverUrl(row.setId)} alt="" loading="lazy" />
+            <span class="who">{row.title}<small>{row.note}</small></span>
           {:else}
             <i class="fa-solid fa-magnifying-glass"></i>{row.label}
           {/if}

@@ -1,6 +1,7 @@
 import type { Waiting } from '$lib/admin';
 import type { Game } from './casino';
 import type { GradeName } from '$lib/grades';
+import type { MapRef } from '$lib/mapLinks';
 import type { Mod } from '$lib/mods';
 import { siteApi } from './site';
 
@@ -221,6 +222,14 @@ export interface Suggestion {
 
 export const suggestions = (signal?: AbortSignal) =>
   siteApi.get<Suggestion[]>('/admin/ranking', undefined, signal);
+
+export interface FoundMaps {
+  beatmap: { id: number; setId: number; song: string; diff: string } | null;
+  set: { id: number; song: string } | null;
+}
+
+export const findMaps = (ref: MapRef, signal?: AbortSignal) =>
+  siteApi.get<FoundMaps>('/admin/beatmaps/find', { ...ref }, signal);
 
 export interface RankingSet {
   setId: number;

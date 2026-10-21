@@ -816,7 +816,8 @@
     font-size: 13px;
   }
 
-  .palette-results .avatar {
+  .palette-results .avatar,
+  .palette-results .cover {
     width: 32px;
     height: 32px;
     flex: none;

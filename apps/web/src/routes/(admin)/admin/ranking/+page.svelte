@@ -5,21 +5,18 @@
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import SectionTitle from '$lib/components/SectionTitle.svelte';
   import SetCreator from '$lib/components/admin/SetCreator.svelte';
+  import { mapRef } from '$lib/mapLinks';
 
   const suggested = query((signal) => suggestions(signal));
 
   let link = $state('');
 
-  // A difficulty link ends in its own id, which opens the whole set; otherwise take the first number.
-  function idOf(text: string) {
-    const difficulty = text.match(/#[a-z]+\/(\d+)/i);
-    return (difficulty ?? text.match(/(\d+)/))?.[1];
-  }
-
+  // A difficulty opens its whole set. A bare number is tried as a difficulty first, then as a set.
   function open(event: SubmitEvent) {
     event.preventDefault();
-    const id = idOf(link);
-    if (id) goto(`/admin/ranking/${id}`);
+    const ref = mapRef(link);
+    if (ref?.beatmap) goto(`/admin/ranking/${ref.beatmap}`);
+    else if (ref?.set) goto(`/admin/ranking/${ref.set}?set`);
   }
 </script>
 
@@ -27,14 +24,14 @@
 
 <form class="panel rank-form c-lblue" onsubmit={open}>
   <div class="field">
-    <label for="bmapid">Beatmap link or ID</label>
+    <label for="bmapid">Beatmap or set link, or ID</label>
     <div class="inline-save">
       <input
         id="bmapid"
         bind:value={link}
         placeholder="https://osu.ppy.sh/beatmapsets/2448588#osu/5358459"
       />
-      <button class="btn btn-blue" type="submit" disabled={!idOf(link)}>Open</button>
+      <button class="btn btn-blue" type="submit" disabled={!mapRef(link)}>Open</button>
     </div>
     <small>A difficulty link opens its whole set.</small>
   </div>
