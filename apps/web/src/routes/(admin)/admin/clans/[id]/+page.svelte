@@ -9,7 +9,6 @@
   import Avatar from '$lib/components/Avatar.svelte';
   import ClanBadge from '$lib/components/ClanBadge.svelte';
   import Flag from '$lib/components/Flag.svelte';
-  import SectionTitle from '$lib/components/SectionTitle.svelte';
   import { flash } from '$lib/flash.svelte';
   import { timeAgo } from '$lib/format';
 
@@ -53,28 +52,42 @@
   <p class="panel empty-note">{describe(loaded.state.error)}</p>
 {:else if loaded.state.status === 'ready' && form}
   {@const clan = loaded.state.data}
-  <section class="panel clan-head c-purple">
-    <ClanBadge id={clan.id} tag={clan.tag} size="large" />
-    <div>
-      <span class="clan-tag">[{clan.tag}]</span>
-      <h1>{clan.name}</h1>
-      <p class="muted">{clan.description}</p>
+  {@const owner = clan.members.find((m) => m.owner)}
+  <section class="user-head clan-head-v2">
+    <div class="user-top">
+      <ClanBadge id={clan.id} tag={clan.tag} size="large" />
+      <div class="user-who">
+        <div class="user-name">
+          <h1>{clan.name}</h1>
+          <span class="admin-tag c-purple">{clan.tag}</span>
+        </div>
+        <div class="user-meta">
+          <span>ID <b>{clan.id}</b></span>
+          {#if owner}
+            <span>Owned by <a href="/admin/users/{owner.id}"><b>{owner.username}</b></a></span>
+          {/if}
+          <span>{clan.members.length} of {clan.limit} members</span>
+        </div>
+        {#if clan.description}<p class="clan-desc">{clan.description}</p>{/if}
+      </div>
+      <div class="user-actions">
+        <a class="btn" href="/c/{clan.id}">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>Clan page
+        </a>
+      </div>
     </div>
-    <a class="btn" href="/c/{clan.id}">
-      <i class="fa-solid fa-arrow-up-right-from-square"></i>View clan
-    </a>
   </section>
 
-  <div class="admin-grid">
-    <div>
-      <SectionTitle colour="c-purple" icon="fa-pen-to-square">Clan</SectionTitle>
+  <div class="user-split">
+    <div class="user-main">
       <form
-        class="panel form-panel admin-form c-purple"
+        class="user-box"
         onsubmit={(event) => {
           event.preventDefault();
           if (form) run(() => saveAdminClan(id, form!), 'Clan edited successfully!');
         }}
       >
+        <h2>Details</h2>
         <div class="field-pair">
           <div class="field">
             <label for="clan-name">Name</label>
@@ -93,43 +106,45 @@
           <label for="clan-limit">Member limit</label>
           <input id="clan-limit" type="number" min="1" bind:value={form.limit} />
         </div>
-        <div class="form-actions">
+        <div class="form-foot">
           <button class="btn btn-green" type="submit" disabled={busy}>
             <i class="fa-solid fa-floppy-disk"></i>Save
           </button>
         </div>
       </form>
-      <button class="btn btn-red delete-clan" type="button" onclick={() => (deleting = true)}>
-        <i class="fa-solid fa-trash-can"></i>Delete clan
-      </button>
+      <div class="user-box danger-rows">
+        <h2>Danger zone</h2>
+        <button type="button" onclick={() => (deleting = true)}>
+          <i class="fa-solid fa-trash-can"></i>
+          <span>Delete clan<small>Everyone leaves it. This can't be undone</small></span>
+        </button>
+      </div>
     </div>
 
-    <aside>
-      <h2 class="section-title c-teal">
-        <i class="fa-solid fa-users"></i>Members<small>{clan.members.length} of {clan.limit}</small>
-      </h2>
-      <ol class="panel member-list c-teal">
+    <aside class="user-box">
+      <h2>Members <small>{clan.members.length} of {clan.limit}</small></h2>
+      <ol class="member-rows">
         {#each clan.members as member (member.id)}
           <li>
-            <a class="who" href="/admin/users/{member.id}">
-              <Flag country={member.country} /><Avatar id={member.id} /><b>{member.username}</b>
-            </a>
-            {#if member.owner}<AdminTag colour="c-orange">Owner</AdminTag>{/if}
-            <span class="dim" title="Registered">{timeAgo(member.registered)}</span>
-            <span class="kick-slot">
-              {#if !member.owner}
-                <button
-                  class="btn btn-small"
-                  type="button"
-                  onclick={() => (kicking = { id: member.id, username: member.username })}
-                >
-                  Kick
-                </button>
-              {/if}
+            <span class="who-line">
+              <a class="who" href="/admin/users/{member.id}">
+                <Flag country={member.country} /><Avatar id={member.id} /><b>{member.username}</b>
+              </a>
+              {#if member.owner}<AdminTag colour="c-orange">Owner</AdminTag>{/if}
             </span>
+            <span class="dim" title="Registered">{timeAgo(member.registered)}</span>
+            {#if !member.owner}
+              <button
+                class="act"
+                type="button"
+                onclick={() => (kicking = { id: member.id, username: member.username })}
+              >
+                Kick
+              </button>
+            {/if}
           </li>
         {:else}
-          <li class="empty-note">Nobody is in this clan.</li>
+          <li class="faint">Nobody is in this clan.</li>
         {/each}
       </ol>
     </aside>

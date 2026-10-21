@@ -4,7 +4,6 @@
   import type { RankStatus } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
-  import AdminDialog from '$lib/components/admin/AdminDialog.svelte';
   import Stars from '$lib/components/Stars.svelte';
   import { statusOf } from '$lib/beatmaps';
   import { flash } from '$lib/flash.svelte';
@@ -21,7 +20,6 @@
     ranked === 2 || ranked === 3 ? 'ranked' : ranked === 5 ? 'loved' : 'unranked';
 
   let picks = $state<Record<number, RankStatus>>({});
-  let dialog = $state<RankStatus | null>(null);
   let busy = $state(false);
 
   $effect(() => {
@@ -43,30 +41,34 @@
       await rankSet(id, isSet, body);
       flash.show('success', success);
       version++;
-      dialog = null;
     } catch (error) {
       flash.show('error', describe(error));
     }
     busy = false;
   }
 
-  const words = {
-    ranked: [
-      'Rank the whole set?',
-      'Every difficulty becomes ranked and starts giving pp. The ranking webhook posts it on Discord.',
-      'Rank set'
-    ],
-    loved: [
-      'Love the whole set?',
-      'Every difficulty becomes loved. Loved maps give no pp.',
-      'Love set'
-    ],
-    unranked: [
-      'Unrank the whole set?',
-      'Every difficulty goes back to unranked and stops giving pp.',
-      'Unrank set'
-    ]
-  } as const;
+  const options = [
+    ['ranked', 'Ranked', 'c-lblue', 'fa-angles-up'],
+    ['loved', 'Loved', 'c-pink', 'fa-heart'],
+    ['unranked', 'Unranked', 'c-grey', 'fa-xmark']
+  ] as const;
+
+  // Moving every difficulty to one status goes through the whole-set call, so Discord gets one post.
+  function save() {
+    if (set.state.status !== 'ready') return;
+    const values = Object.values(picks);
+    const single = values.every((value) => value === values[0]);
+    if (single && values.length === set.state.data.difficulties.length) {
+      send({ all: values[0] }, `Set ${values[0]}.`);
+    } else {
+      send({ changes }, 'Beatmaps updated.');
+    }
+  }
+
+  const discard = () => {
+    if (set.state.status !== 'ready') return;
+    picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, valueOf(d.ranked)]));
+  };
 </script>
 
 <a class="back" href="/admin/ranking"><i class="fa-solid fa-arrow-left"></i>Ranking</a>
@@ -77,113 +79,108 @@
   <span class="skel" style="width: 100%; height: 150px"></span>
 {:else}
   {@const data = set.state.data}
-  <section class="panel set-head c-lblue" style="--cover:url({data.cover})">
-    <div class="score-bg"></div>
-    <div>
-      <h1>{data.title}</h1>
-      <p>
-        {#if data.creator}mapped by <b>{data.creator}</b> ·&nbsp;{/if}set {data.setId}
-      </p>
-    </div>
-    <div class="set-actions">
-      <a class="btn" href="/beatmaps/{data.difficulties[0].id}">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i>View beatmap
-      </a>
-      <button class="btn btn-blue" type="button" onclick={() => (dialog = 'ranked')}>
-        <i class="fa-solid fa-angles-up"></i>Rank set
-      </button>
-      <button class="btn" type="button" onclick={() => (dialog = 'loved')}>
-        <i class="fa-solid fa-heart"></i>Love set
-      </button>
-      <button class="btn" type="button" onclick={() => (dialog = 'unranked')}>
-        <i class="fa-solid fa-xmark"></i>Unrank set
-      </button>
+  {@const counts = options.map(([value, label, colour]) => ({
+    label,
+    colour,
+    count: data.difficulties.filter((d) => valueOf(d.ranked) === value).length
+  }))}
+  <section class="user-head set-head-v2" style="background-image: url({data.cover})">
+    <div class="user-top">
+      <div class="user-who">
+        <div class="user-name"><h1>{data.title}</h1></div>
+        <div class="user-meta">
+          {#if data.creator}<span>Mapped by <b>{data.creator}</b></span>{/if}
+          <span>Set <b>{data.setId}</b></span>
+          <span
+            >{data.difficulties.length}
+            {data.difficulties.length === 1 ? 'difficulty' : 'difficulties'}</span
+          >
+        </div>
+        <div class="user-pills">
+          {#each counts.filter((c) => c.count) as c (c.label)}
+            <span class={c.colour}>{c.count} {c.label.toLowerCase()}</span>
+          {/each}
+        </div>
+      </div>
+      <div class="user-actions">
+        <a class="btn" href="/beatmaps/{data.difficulties[0].id}">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>Beatmap
+        </a>
+      </div>
     </div>
   </section>
 
-  <h2 class="section-title c-lblue"><i class="fa-solid fa-layer-group"></i>Difficulties</h2>
-  <form
-    onsubmit={(event) => {
-      event.preventDefault();
-      send({ changes }, 'Beatmaps updated.');
-    }}
-  >
-    <div class="table-wrap">
-      <table class="board admin-table c-lblue">
-        <thead>
-          <tr>
-            <th>Difficulty</th>
-            <th>Stars</th>
-            <th>Now</th>
-            <th>Change to</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each data.difficulties as diff (diff.id)}
-            {@const status = statusOf(diff.ranked)}
-            <tr>
-              <td
-                ><img class="mode-icon" src="/img/modes/mode-{diff.mode}.png" alt="" /><a
-                  href="/beatmaps/{diff.id}">{diff.name}</a
-                ></td
+  <div class="whole-set">
+    <span>Set every difficulty to</span>
+    {#each options as [value, label, colour, icon] (value)}
+      <button
+        class="act {value === 'unranked' ? '' : `go ${colour}`}"
+        type="button"
+        onclick={() => (picks = Object.fromEntries(data.difficulties.map((d) => [d.id, value])))}
+      >
+        <i class="fa-solid {icon}"></i>{label}
+      </button>
+    {/each}
+  </div>
+
+  <div class="table-wrap">
+    <table class="board admin-table">
+      <thead>
+        <tr><th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th></th></tr>
+      </thead>
+      <tbody>
+        {#each data.difficulties as diff (diff.id)}
+          {@const status = statusOf(diff.ranked)}
+          <tr class:changed={picks[diff.id] !== valueOf(diff.ranked)}>
+            <td>
+              <span class="diff-name">
+                <img src="/img/modes/mode-{diff.mode}.png" alt="" />{diff.name}
+              </span>
+            </td>
+            <td><Stars value={diff.stars} /></td>
+            <td>
+              <span class="map-status {status.colour}">
+                <i class="fa-solid {status.icon}"></i>{status.name}
+              </span>
+            </td>
+            <td>
+              <div class="status-pick" role="radiogroup" aria-label="Status of {diff.name}">
+                {#each options as [value, label, colour, icon] (value)}
+                  <label class={colour}>
+                    <input
+                      type="radio"
+                      name="status-{diff.id}"
+                      {value}
+                      bind:group={picks[diff.id]}
+                    />
+                    <span><i class="fa-solid {icon}"></i>{label}</span>
+                  </label>
+                {/each}
+              </div>
+            </td>
+            <td class="actions">
+              <a
+                class="btn btn-small"
+                href="/beatmaps/{diff.id}"
+                title="Beatmap page"
+                aria-label="Beatmap page for {diff.name}"
               >
-              <td><Stars value={diff.stars} /></td>
-              <td>
-                <span class="map-status {status.colour}">
-                  <i class="fa-solid {status.icon}"></i>{status.name}
-                </span>
-              </td>
-              <td class="field">
-                <select
-                  id="status-{diff.id}"
-                  aria-label="Status of {diff.name}"
-                  bind:value={picks[diff.id]}
-                >
-                  <option value="ranked">Ranked</option>
-                  <option value="loved">Loved</option>
-                  <option value="unranked">Unranked</option>
-                </select>
-              </td>
-              <td class="actions">
-                <a class="btn btn-small" href="/beatmaps/{diff.id}">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i>Page
-                </a>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-green" type="submit" disabled={busy || !changes.length}>
-        <i class="fa-solid fa-floppy-disk"></i>Save changes
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+
+  {#if changes.length}
+    <div class="save-bar">
+      <span>{changes.length} unsaved {changes.length === 1 ? 'change' : 'changes'}</span>
+      <button class="btn" type="button" onclick={discard}>Discard</button>
+      <button class="btn btn-green" type="button" disabled={busy} onclick={save}>
+        <i class="fa-solid fa-floppy-disk"></i>Save
       </button>
     </div>
-  </form>
-
-  {#each ['ranked', 'loved', 'unranked'] as const as status (status)}
-    <AdminDialog
-      bind:open={
-        () => dialog === status,
-        (value) => {
-          if (!value && dialog === status) dialog = null;
-        }
-      }
-      title={words[status][0]}
-      colour="c-red"
-    >
-      <p>{words[status][1]}</p>
-      {#snippet footer()}
-        <button class="btn" onclick={() => (dialog = null)}>Cancel</button>
-        <button
-          class="btn btn-red"
-          disabled={busy}
-          onclick={() => send({ all: status }, `Set ${status}.`)}
-        >
-          {words[status][2]}
-        </button>
-      {/snippet}
-    </AdminDialog>
-  {/each}
+  {/if}
 {/if}

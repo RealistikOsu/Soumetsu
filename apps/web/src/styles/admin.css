@@ -752,6 +752,357 @@
     }
   }
 
+  /* ranking */
+  .link-form {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+
+  .link-form label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .link-form small {
+    color: var(--faint);
+    font-size: 13px;
+  }
+
+  /* a text box with its icon and button inside one frame */
+  .framed-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+
+  .framed-input:focus-within {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent);
+  }
+
+  .framed-input i {
+    color: var(--faint);
+  }
+
+  .framed-input:focus-within i {
+    color: var(--link);
+  }
+
+  .framed-input input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 15px;
+  }
+
+  .framed-input .btn {
+    height: 36px;
+  }
+
+  .suggest-label {
+    margin-top: 28px;
+  }
+
+  .map-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .map-tile {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: end;
+    gap: 2px;
+    min-height: 150px;
+    padding: 14px 16px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    color: var(--text);
+  }
+
+  .map-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(rgb(20 20 20 / 0.35), rgb(20 20 20 / 0.95) 75%),
+      var(--cover) center / cover no-repeat;
+  }
+
+  .motion & .map-tile::before {
+    transition: transform 0.3s;
+  }
+
+  .map-tile:hover::before {
+    transform: scale(1.03);
+  }
+
+  .map-tile > span {
+    color: #cfcfcf;
+    font-size: 13px;
+  }
+
+  .map-tile .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    color: var(--muted);
+  }
+
+  .set-head-v2 .user-top {
+    padding-top: 64px;
+  }
+
+  .whole-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0;
+    padding: 10px 10px 10px 16px;
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+
+  .whole-set span {
+    margin-right: auto;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .diff-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+  }
+
+  .diff-name img {
+    width: 18px;
+  }
+
+  .admin-table tr.changed td {
+    background: color-mix(in srgb, var(--lblue) 7%, transparent);
+  }
+
+  /* each difficulty picks its status from three buttons, like the whole-set bar */
+  .status-pick {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 8px;
+    background: var(--bg);
+  }
+
+  .status-pick label {
+    position: relative;
+  }
+
+  .status-pick input {
+    position: absolute;
+    width: 1px;
+    opacity: 0;
+  }
+
+  .status-pick span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    color: var(--faint);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .status-pick span:hover {
+    color: var(--text);
+  }
+
+  .status-pick input:checked + span {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    color: color-mix(in srgb, var(--accent) 60%, #fff);
+  }
+
+  .status-pick input:focus-visible + span {
+    outline: 2px solid var(--accent);
+  }
+
+  /* a clan's page */
+  .user-head.clan-head-v2 {
+    background: color-mix(in srgb, var(--purple) 14%, var(--panel));
+  }
+
+  .user-head.clan-head-v2::before {
+    display: none;
+  }
+
+  .clan-head-v2 .user-top {
+    padding-top: 22px;
+  }
+
+  .clan-head-v2 .clan-icon.large {
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+    font-size: 26px;
+  }
+
+  .clan-desc {
+    margin: 8px 0 0;
+    color: #d0d0d0;
+    font-size: 14px;
+  }
+
+  .user-box .field + .field,
+  .user-box .field-pair + .field {
+    margin-top: 14px;
+  }
+
+  .user-box .field-pair .field {
+    margin-top: 0;
+  }
+
+  .form-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .member-rows {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .member-rows li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2px 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+
+  .member-rows li:first-child {
+    border-top: 0;
+  }
+
+  .member-rows .who-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .member-rows .who {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+
+  .member-rows .who .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .member-rows .dim {
+    grid-column: 1;
+    padding-left: 28px;
+    color: var(--faint);
+    font-size: 12px;
+  }
+
+  .member-rows .act {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* a reported conversation, as chat bubbles */
+  .convo {
+    display: grid;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 18px;
+    border-radius: var(--radius);
+    background: var(--panel);
+    list-style: none;
+  }
+
+  .convo li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 75%;
+  }
+
+  .convo li.me {
+    flex-direction: row-reverse;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .convo .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+  }
+
+  .convo li > div {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--panel-2);
+  }
+
+  .convo li.flagged > div {
+    background: color-mix(in srgb, var(--orange) 16%, var(--panel-2));
+  }
+
+  .convo b {
+    margin-right: 8px;
+    font-size: 13px;
+  }
+
+  .convo time {
+    color: var(--faint);
+    font-size: 12px;
+  }
+
+  .convo p {
+    margin: 2px 0 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .convo .admin-tag {
+    margin-top: 6px;
+  }
+
   /* searching happens in a modal over the page */
   .admin-palette {
     width: min(600px, calc(100vw - 32px));
@@ -3021,6 +3372,18 @@
   }
 
   @media (max-width: 640px) {
+    .convo li {
+      max-width: 92%;
+    }
+
+    .status-pick span {
+      padding: 5px 8px;
+    }
+
+    .status-pick span i {
+      display: none;
+    }
+
     .dash-hero {
       min-height: 0;
       padding: 18px;

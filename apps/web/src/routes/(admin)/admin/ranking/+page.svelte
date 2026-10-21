@@ -3,7 +3,6 @@
   import { suggestions } from '$lib/api/admin';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
-  import SectionTitle from '$lib/components/SectionTitle.svelte';
   import SetCreator from '$lib/components/admin/SetCreator.svelte';
   import { mapRef } from '$lib/mapLinks';
 
@@ -22,32 +21,34 @@
 
 <AdminHead heading="Ranking" text="Rank, love or unrank a beatmap set." />
 
-<form class="panel rank-form c-lblue" onsubmit={open}>
-  <div class="field">
-    <label for="bmapid">Beatmap or set link, or ID</label>
-    <div class="inline-save">
-      <input
-        id="bmapid"
-        bind:value={link}
-        placeholder="https://osu.ppy.sh/beatmapsets/2448588#osu/5358459"
-      />
-      <button class="btn btn-blue" type="submit" disabled={!mapRef(link)}>Open</button>
-    </div>
-    <small>A difficulty link opens its whole set.</small>
+<form class="link-form" onsubmit={open}>
+  <label for="bmapid">Beatmap or set link, or ID</label>
+  <div class="framed-input">
+    <i class="fa-solid fa-link"></i>
+    <input
+      id="bmapid"
+      bind:value={link}
+      placeholder="https://osu.ppy.sh/beatmapsets/2448588#osu/5358459"
+      autocomplete="off"
+    />
+    <button class="btn btn-blue" type="submit" disabled={!mapRef(link)}>Open set</button>
   </div>
+  <small>A difficulty link opens its whole set.</small>
 </form>
 
-<SectionTitle colour="c-pink" icon="fa-fire">Most played unranked maps</SectionTitle>
-<div class="suggests">
+<h2 class="day-label suggest-label">Most played unranked maps</h2>
+<div class="map-tiles">
   {#if suggested.state.status === 'ready'}
     {#each suggested.state.data as map (map.beatmapId)}
-      <a class="panel suggest" href="/admin/ranking/{map.beatmapId}">
-        <span class="suggest-cover" style="background-image:url({map.cover})"></span>
+      <a class="map-tile" href="/admin/ranking/{map.beatmapId}" style="--cover: url({map.cover})">
         <b>{map.song}</b>
-        <span class="muted">[{map.diff}]<SetCreator setId={map.setId} before=" · " /></span>
-        <span class="suggest-foot">
-          {#each map.modes as mode (mode)}<img src="/img/modes/mode-{mode}.png" alt="" />{/each}
-          <span>{map.difficulties} {map.difficulties === 1 ? 'difficulty' : 'difficulties'}</span>
+        <span>[{map.diff}]<SetCreator setId={map.setId} before=" · " /></span>
+        <span class="row">
+          <span class="mode-icons">
+            {#each map.modes as mode (mode)}<img src="/img/modes/mode-{mode}.png" alt="" />{/each}
+          </span>
+          {map.difficulties}
+          {map.difficulties === 1 ? 'difficulty' : 'difficulties'}
         </span>
       </a>
     {:else}
@@ -55,7 +56,7 @@
     {/each}
   {:else if suggested.state.status === 'loading'}
     {#each [0, 1, 2, 3] as n (n)}
-      <div class="panel"><span class="skel" style="width: 100%; height: 150px"></span></div>
+      <span class="skel" style="width: 100%; height: 150px"></span>
     {/each}
   {:else}
     <p class="panel empty-note">Couldn't load suggestions.</p>
