@@ -4,7 +4,7 @@
   import { actionLogs } from '$lib/api/admin';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
-  import AdminTag from '$lib/components/admin/AdminTag.svelte';
+  import { logLook } from '$lib/components/admin/look';
   import Avatar from '$lib/components/Avatar.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import { dayLabel, timeAgo } from '$lib/format';
@@ -33,40 +33,41 @@
   });
 </script>
 
-<AdminHead
-  heading="Action logs"
-  text="Everything staff have done through the panel, newest first."
-/>
-
-<form
-  class="listing-search admin-search"
-  onsubmit={(event) => {
-    event.preventDefault();
-    go(1, search.trim());
-  }}
->
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input
-    type="search"
-    bind:value={search}
-    placeholder="Filter by staff member or action"
-    aria-label="Filter logs"
-  />
-</form>
+<AdminHead heading="Action logs" text="Everything staff have done through the panel, newest first.">
+  {#snippet extra()}
+    <form
+      class="find-box"
+      onsubmit={(event) => {
+        event.preventDefault();
+        go(1, search.trim());
+      }}
+    >
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="search"
+        bind:value={search}
+        placeholder="Staff member or action"
+        aria-label="Filter logs"
+      />
+    </form>
+  {/snippet}
+</AdminHead>
 
 {#if logs.state.status === 'ready'}
   {#each days as day (day.label)}
-    <h2 class="log-day">{day.label}</h2>
-    <ol class="panel log-list">
+    <h2 class="day-label">{day.label}</h2>
+    <ol class="log-feed">
       {#each day.rows as row (row.id)}
-        <li>
+        {@const look = logLook(row.text)}
+        <li class={look.colour}>
+          <i class="fa-solid {look.icon}"></i>
           <Avatar id={row.userid} />
           <p>
             <a href="/admin/users/{row.userid}">{row.username ?? row.userid}</a>
             {row.text}
+            {#if row.through}<small>{row.through}</small>{/if}
           </p>
           <time>{timeAgo(row.datetime)}</time>
-          <AdminTag colour="c-grey">{row.through}</AdminTag>
         </li>
       {/each}
     </ol>
@@ -82,11 +83,7 @@
     />
   {/if}
 {:else if logs.state.status === 'loading'}
-  <ol class="panel log-list">
-    {#each [0, 1, 2, 3, 4, 5] as n (n)}
-      <li><span class="skel" style="grid-column: 1 / -1; height: 30px"></span></li>
-    {/each}
-  </ol>
+  <span class="skel" style="width: 100%; height: 300px"></span>
 {:else}
   <p class="panel empty-note">Couldn't load the logs.</p>
 {/if}

@@ -7,7 +7,6 @@
   import AdminDialog from '$lib/components/admin/AdminDialog.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
-  import Flag from '$lib/components/Flag.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import SetCreator from '$lib/components/admin/SetCreator.svelte';
   import { flash } from '$lib/flash.svelte';
@@ -37,90 +36,75 @@
 
 <AdminHead
   heading="Rank requests"
-  text="Maps players want ranked. Reviewing opens the whole set."
+  text={list.state.status === 'ready' && list.state.data.requests.length
+    ? 'Maps players want ranked. Reviewing opens the whole set.'
+    : 'Maps players want ranked.'}
 />
 
-<div class="table-wrap">
-  <table class="board admin-table c-pink">
-    <thead>
-      <tr>
-        <th>Map</th>
-        <th>Modes</th>
-        <th class="player">Requested by</th>
-        <th>When</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if list.state.status === 'ready'}
-        {#each list.state.data.requests as request (request.id)}
-          {@const target = request.setId ?? 0}
-          <tr>
-            <td class="song-cell">
-              <a class="request-map" href="/admin/ranking/{target}?set">
-                {#if request.cover}<img src={request.cover} alt="" loading="lazy" />{/if}
-                <span>
-                  <b>{request.song}</b>
-                  <small>
-                    {#if request.setId}<SetCreator
-                        setId={request.setId}
-                        after=" · "
-                      />{/if}{request.difficulties}
-                    {request.difficulties === 1 ? 'difficulty' : 'difficulties'}
-                  </small>
-                </span>
-              </a>
-            </td>
-            <td class="modes-cell">
-              {#each request.modes as mode (mode)}<img
-                  src="/img/modes/mode-{mode}.png"
-                  alt=""
-                />{/each}
-            </td>
-            <td class="player">
-              <a class="who" href="/users/{request.requester.id}">
-                <Flag country={request.requester.country} /><Avatar id={request.requester.id} /><b>
-                  {request.requester.username}
-                </b>
-              </a>
-            </td>
-            <td class="dim">{timeAgo(request.time)}</td>
-            <td class="actions">
-              <a class="btn btn-small" href="/admin/ranking/{target}?set">
-                <i class="fa-solid fa-angles-up"></i>Review
-              </a>
-              <button
-                class="btn btn-small btn-icon"
-                type="button"
-                title="Dismiss request"
-                aria-label="Dismiss request"
-                onclick={() => (dismissing = request.id)}
-              >
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </td>
-          </tr>
-        {:else}
-          <tr><td colspan="5" class="empty-note">The queue is empty.</td></tr>
-        {/each}
-      {:else if list.state.status === 'loading'}
-        {#each [0, 1, 2, 3, 4, 5] as n (n)}
-          <tr><td colspan="5"><span class="skel" style="width: 100%; height: 36px"></span></td></tr>
-        {/each}
-      {:else}
-        <tr><td colspan="5" class="empty-note">{describe(list.state.error)}</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
-
-{#if list.state.status === 'ready' && list.state.data.pages > 1}
-  <Pager
-    page={current}
-    pages={list.state.data.pages}
-    hasNext={current < list.state.data.pages}
-    onpage={(p) => goto(`/admin/requests${p > 1 ? `?p=${p}` : ''}`)}
-  />
+{#if list.state.status === 'ready'}
+  <div class="cases">
+    {#each list.state.data.requests as request (request.id)}
+      {@const target = request.setId ?? 0}
+      <article
+        class="case flat on-cover"
+        style={request.cover ? `--cover: url(${request.cover})` : undefined}
+      >
+        <div class="case-line">
+          <a href="/admin/ranking/{target}?set">{request.song}</a>
+          <span class="mode-icons">
+            {#each request.modes as mode (mode)}<img
+                src="/img/modes/mode-{mode}.png"
+                alt=""
+              />{/each}
+          </span>
+        </div>
+        <div class="case-side">
+          <button
+            class="act"
+            type="button"
+            title="Dismiss"
+            aria-label="Dismiss"
+            onclick={() => (dismissing = request.id)}
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <a class="act go c-pink" href="/admin/ranking/{target}?set">Review set</a>
+        </div>
+        <p class="case-sub">
+          {#if request.setId}<SetCreator
+              setId={request.setId}
+              after=" · "
+            />{/if}{request.difficulties}
+          {request.difficulties === 1 ? 'difficulty' : 'difficulties'} · requested by
+          <a class="by" href="/admin/users/{request.requester.id}"
+            ><Avatar id={request.requester.id} />{request.requester.username}</a
+          >
+          · <time>{timeAgo(request.time)}</time>
+        </p>
+      </article>
+    {:else}
+      <div class="empty-state">
+        <i class="fa-solid fa-circle-check"></i>
+        <b>The queue is empty</b>
+      </div>
+    {/each}
+  </div>
+  {#if list.state.data.pages > 1}
+    <Pager
+      page={current}
+      pages={list.state.data.pages}
+      hasNext={current < list.state.data.pages}
+      onpage={(p) => goto(`/admin/requests${p > 1 ? `?p=${p}` : ''}`)}
+    />
+  {/if}
+{:else if list.state.status === 'loading'}
+  <div class="cases">
+    {#each [0, 1, 2, 3] as n (n)}
+      <span class="skel" style="width: 100%; height: 84px"></span>
+    {/each}
+  </div>
+{:else}
+  <p class="panel empty-note">{describe(list.state.error)}</p>
 {/if}
 
 <AdminDialog

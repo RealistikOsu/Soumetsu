@@ -530,6 +530,38 @@
     color: #cfcfcf;
   }
 
+  .case-sub a {
+    color: var(--text);
+  }
+
+  .case-sub a:hover {
+    color: var(--link);
+  }
+
+  .case-sub .pp {
+    color: var(--yellow);
+  }
+
+  .votes {
+    display: inline-flex;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .votes span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .votes .up {
+    color: var(--green);
+  }
+
+  .votes .down {
+    color: #ff7b7b;
+  }
+
   .mode-icons {
     display: inline-flex;
     gap: 4px;
