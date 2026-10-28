@@ -2543,12 +2543,18 @@
     margin-bottom: 0;
   }
 
-  .user-box input:not([type='checkbox']),
+  .user-box input:not([type='checkbox'], [type='radio'], .num-in),
   .user-box select,
   .user-box textarea {
     width: 100%;
     min-width: 0;
-    max-width: none;
+    max-width: 100%;
+  }
+
+  /* dragging the corner wider would push the box out of its card */
+  textarea {
+    max-width: 100%;
+    resize: vertical;
   }
 
   .user-box select,
