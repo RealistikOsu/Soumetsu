@@ -217,8 +217,9 @@ async function recordRankers(userId: number, beatmapIds: number[], status: numbe
 }
 
 export async function rankSet(by: Ranker, setId: number, status: number) {
+  // Same rows the panel lists: difficulties marked -1 are left alone, as loadSet hides them.
   const present = await db.beatmaps.findMany({
-    where: { beatmapset_id: setId },
+    where: { beatmapset_id: setId, ranked: { not: -1 } },
     select: { beatmap_md5: true, beatmap_id: true, song_name: true, mode: true }
   });
   if (!present.length) throw new Failure(404, 'Beatmap not found.');
@@ -229,7 +230,7 @@ export async function rankSet(by: Ranker, setId: number, status: number) {
   }
 
   await db.beatmaps.updateMany({
-    where: { beatmapset_id: setId, mode: { in: modes } },
+    where: { beatmapset_id: setId, mode: { in: modes }, ranked: { not: -1 } },
     data: { ranked: status, ranked_status_freezed: true }
   });
   await recordRankers(

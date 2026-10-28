@@ -1103,6 +1103,224 @@
     margin-top: 6px;
   }
 
+  /* settings: a card per group, a row per setting with its control on the right */
+  .user-box + .user-box,
+  form > .user-box + .user-box {
+    margin-top: 16px;
+  }
+
+  .set-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+
+  .user-box > h2 + .set-row {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .set-row > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .set-row b {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .set-row p {
+    margin: 2px 0 0;
+    color: var(--faint);
+  }
+
+  .user-box > .set-row + .field,
+  .user-box > .field + .field {
+    margin-top: 14px;
+  }
+
+  .framed-thumb {
+    width: 30px;
+    height: 30px;
+    margin-right: 4px;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+
+  .num-in {
+    width: 90px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  .num-in:focus {
+    border-color: var(--blue);
+    outline: none;
+  }
+
+  .coin-in {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .coin-in i {
+    color: var(--yellow);
+  }
+
+  .badge-grid .badge-card {
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+
+  .value-code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg);
+    font-size: 13px;
+  }
+
+  .swatches {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+  }
+
+  .swatches label {
+    position: relative;
+  }
+
+  .swatches input {
+    position: absolute;
+    width: 1px;
+    opacity: 0;
+  }
+
+  .swatches span {
+    display: block;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .swatches input:checked + span {
+    box-shadow:
+      0 0 0 2px var(--panel-2),
+      0 0 0 4px var(--accent);
+  }
+
+  .swatches input:focus-visible + span {
+    outline: 2px solid var(--text);
+    outline-offset: 4px;
+  }
+
+  /* permissions turn red when the group has them, so a group reads at a glance */
+  .perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 6px;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .perm {
+    position: relative;
+  }
+
+  .perm input {
+    position: absolute;
+    width: 1px;
+    opacity: 0;
+  }
+
+  .perm span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .perm span::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  .perm input:checked + span {
+    background: color-mix(in srgb, var(--red) 12%, var(--bg));
+    color: var(--text);
+  }
+
+  .perm input:checked + span::before {
+    border-color: var(--red);
+    background: var(--red);
+  }
+
+  .perm input:focus-visible + span {
+    outline: 2px solid var(--red);
+  }
+
+  .pool-tabs {
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    background: var(--bg);
+  }
+
+  .pool-tabs img {
+    width: 16px;
+  }
+
+  .table-wrap.in-box {
+    margin: 14px -18px -18px;
+  }
+
+  .table-wrap.in-box .board {
+    border-radius: 0 0 var(--radius) var(--radius);
+    background: none;
+  }
+
+  .user-box .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .user-box .field-row .field {
+    flex: 1 1 160px;
+    margin: 0;
+  }
+
+  .user-box h2 small {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+  }
+
   /* searching happens in a modal over the page */
   .admin-palette {
     width: min(600px, calc(100vw - 32px));

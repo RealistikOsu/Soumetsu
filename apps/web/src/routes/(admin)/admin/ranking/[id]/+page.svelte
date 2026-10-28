@@ -41,6 +41,7 @@
       await rankSet(id, isSet, body);
       flash.show('success', success);
       version++;
+      wholeSet = null;
     } catch (error) {
       flash.show('error', describe(error));
     }
@@ -53,20 +54,24 @@
     ['unranked', 'Unranked', 'c-grey', 'fa-xmark']
   ] as const;
 
-  // Moving every difficulty to one status goes through the whole-set call, so Discord gets one post.
-  function save() {
+  // Set by the "every difficulty" buttons and cleared by any single change, so the whole-set call
+  // (one Discord post) only runs when that's what was asked for.
+  let wholeSet = $state<RankStatus | null>(null);
+
+  function setAll(value: RankStatus) {
     if (set.state.status !== 'ready') return;
-    const values = Object.values(picks);
-    const single = values.every((value) => value === values[0]);
-    if (single && values.length === set.state.data.difficulties.length) {
-      send({ all: values[0] }, `Set ${values[0]}.`);
-    } else {
-      send({ changes }, 'Beatmaps updated.');
-    }
+    picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, value]));
+    wholeSet = value;
+  }
+
+  function save() {
+    if (wholeSet) send({ all: wholeSet }, `Set ${wholeSet}.`);
+    else send({ changes }, 'Beatmaps updated.');
   }
 
   const discard = () => {
     if (set.state.status !== 'ready') return;
+    wholeSet = null;
     picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, valueOf(d.ranked)]));
   };
 </script>
@@ -116,7 +121,7 @@
       <button
         class="act {value === 'unranked' ? '' : `go ${colour}`}"
         type="button"
-        onclick={() => (picks = Object.fromEntries(data.difficulties.map((d) => [d.id, value])))}
+        onclick={() => setAll(value)}
       >
         <i class="fa-solid {icon}"></i>{label}
       </button>

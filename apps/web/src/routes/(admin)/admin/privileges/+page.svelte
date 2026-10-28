@@ -57,20 +57,21 @@
       editing.privileges & bit ? editing.privileges & ~bit : editing.privileges | bit;
   }
 
+  // The stored names come from RealistikPanel; each shows as the site colour next to it.
   const colours = [
-    ['danger', 'Red'],
-    ['warning', 'Yellow'],
-    ['success', 'Green'],
-    ['info', 'Blue'],
-    ['primary', 'Purple'],
-    ['', 'Grey']
+    ['', 'Grey', 'c-grey'],
+    ['danger', 'Red', 'c-red'],
+    ['warning', 'Yellow', 'c-yellow'],
+    ['success', 'Green', 'c-green'],
+    ['info', 'Blue', 'c-blue'],
+    ['primary', 'Purple', 'c-purple']
   ];
 </script>
 
 <AdminHead heading="Privileges" text="Groups of permissions you can put users in.">
   {#snippet extra()}
     <button
-      class="btn btn-blue head-action"
+      class="act go c-blue"
       type="button"
       onclick={() => (editing = { id: null, name: '', colour: '', privileges: 3 })}
     >
@@ -96,7 +97,7 @@
           <tr>
             <td class="dim">{group.id}</td>
             <td><AdminTag colour={group.tone}>{group.name}</AdminTag></td>
-            <td><code>{group.privileges}</code></td>
+            <td><code class="value-code">{group.privileges}</code></td>
             <td class="dim">
               {granted(group.privileges)}
               {granted(group.privileges) === 1 ? 'permission' : 'permissions'}
@@ -116,7 +117,7 @@
                 <i class="fa-solid fa-pen"></i>Edit
               </button>
               <button
-                class="icon-btn"
+                class="btn btn-small"
                 type="button"
                 aria-label="Delete {group.name}"
                 onclick={() => (deleting = group)}
@@ -156,14 +157,14 @@
       </div>
       <div class="field">
         <label for="priv-colour">Colour</label>
-        <select id="priv-colour" bind:value={editing.colour}>
-          {#each colours as [value, label] (value)}
-            <option {value}>{label}</option>
+        <div class="swatches" id="priv-colour" role="radiogroup" aria-label="Colour">
+          {#each colours as [value, label, tone] (value)}
+            <label class={tone} title={label}>
+              <input type="radio" name="priv-colour" {value} bind:group={editing.colour} />
+              <span></span>
+            </label>
           {/each}
-          {#if !colours.some(([value]) => value === editing?.colour)}
-            <option value={editing.colour}>{editing.colour}</option>
-          {/if}
-        </select>
+        </div>
       </div>
     </div>
     <div class="field">
@@ -171,14 +172,15 @@
       <input id="priv-value" type="number" min="0" bind:value={editing.privileges} />
       <small>Tick what the group can do below, or type the number in.</small>
     </div>
-    <div class="bits">
+    <div class="perm-grid">
       {#each permissions as [bit, label] (bit)}
-        <label class="check">
+        <label class="perm" title="Bit {bit}">
           <input
             type="checkbox"
             checked={(editing.privileges & bit) === bit}
             onchange={() => toggle(bit)}
-          />{label}<code>{bit}</code>
+          />
+          <span>{label}</span>
         </label>
       {/each}
     </div>

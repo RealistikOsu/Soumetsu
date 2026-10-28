@@ -36,6 +36,8 @@
       () => setDailyChallenge(startsAt, Number(beatmap), freemod, theme),
       'Daily challenge saved.'
     );
+
+  const today = new Date().toISOString().slice(0, 10);
 </script>
 
 <AdminHead
@@ -43,7 +45,8 @@
   text="One osu!standard map per day, for stable and lazer. It runs for 24 hours from its start (all times are UTC). Changes to the running challenge apply straight away."
 />
 
-<div class="panel form-panel c-teal admin-form">
+<section class="user-box">
+  <h2>Schedule a challenge <small>Saving on a day that has one replaces it</small></h2>
   <div class="field-row">
     <div class="field">
       <label for="challenge-start">Starts (UTC)</label>
@@ -76,67 +79,71 @@
       disabled={busy || !beatmap || !startsAt}
       onclick={save}
     >
-      <i class="fa-solid fa-floppy-disk"></i>Save
+      <i class="fa-solid fa-plus"></i>Schedule
     </button>
   </div>
-  <small class="dim">
-    The challenge ends 24 hours after it starts, or when the next one starts. A day has one
-    challenge, so saving another start on the same UTC date replaces it. The map stays hidden from
-    players until it starts. Freemod takes every mod, and vanilla, Relax and Autopilot plays share
-    the board; without it only scores without mods count.
+  <small class="faint">
+    The challenge ends 24 hours after it starts, or when the next one starts. The map stays hidden
+    from players until it starts. Freemod takes every mod, and vanilla, Relax and Autopilot plays
+    share the board; without it only scores without mods count.
   </small>
-</div>
+</section>
 
-<div class="table-wrap">
-  <table class="board admin-table c-teal">
-    <thead>
-      <tr><th>Date</th><th>Beatmap</th><th>Theme</th><th>Starts (UTC)</th><th>Mods</th><th></th></tr
-      >
-    </thead>
-    <tbody>
-      {#if daily.state.status === 'ready'}
-        {#each daily.state.data as challenge (challenge.date)}
-          <tr>
-            <td>{challenge.date}</td>
-            <td class="note">
-              <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
-            </td>
-            <td class="dim">{challenge.theme ?? ''}</td>
-            <td class="dim">{challenge.startsAt.replace('T', ' ')}</td>
-            <td class="dim">{challenge.freemod ? 'Freemod' : 'No mods'}</td>
-            <td class="actions">
-              <button
-                class="btn btn-small"
-                type="button"
-                disabled={busy}
-                onclick={() => {
-                  beatmap = String(challenge.beatmapId);
-                  startsAt = challenge.startsAt;
-                  freemod = challenge.freemod;
-                  theme = challenge.theme ?? '';
-                }}
-              >
-                Edit
-              </button>
-              <button
-                class="btn btn-small"
-                type="button"
-                disabled={busy}
-                onclick={() =>
-                  run(() => removeDailyChallenge(challenge.date), 'Daily challenge removed.')}
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
-        {:else}
-          <tr><td colspan="6" class="empty-note">Nothing scheduled.</td></tr>
-        {/each}
-      {:else if daily.state.status === 'loading'}
-        <tr><td colspan="6"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
-      {:else}
-        <tr><td colspan="6" class="empty-note">{describe(daily.state.error)}</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
+<h2 class="day-label suggest-label">Scheduled</h2>
+{#if daily.state.status === 'ready'}
+  <div class="cases">
+    {#each daily.state.data as challenge (challenge.date)}
+      <article class="case flat">
+        <div class="case-line">
+          <span
+            class="admin-tag {challenge.date === today
+              ? 'c-green'
+              : challenge.date > today
+                ? 'c-teal'
+                : 'c-grey'}"
+          >
+            {challenge.date === today ? 'Today' : challenge.date}
+          </span>
+          <a href="/b/{challenge.beatmapId}">{challenge.song ?? `#${challenge.beatmapId}`}</a>
+          {#if challenge.theme}<span class="admin-tag c-teal">{challenge.theme}</span>{/if}
+        </div>
+        <div class="case-side">
+          <button
+            class="act"
+            type="button"
+            disabled={busy}
+            onclick={() => {
+              beatmap = String(challenge.beatmapId);
+              startsAt = challenge.startsAt;
+              freemod = challenge.freemod;
+              theme = challenge.theme ?? '';
+            }}
+          >
+            Edit
+          </button>
+          <button
+            class="act"
+            type="button"
+            aria-label="Remove"
+            disabled={busy}
+            onclick={() =>
+              run(() => removeDailyChallenge(challenge.date), 'Daily challenge removed.')}
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+        <p class="case-sub">
+          Starts {challenge.startsAt.replace('T', ' ')} UTC · {challenge.freemod
+            ? 'Freemod'
+            : 'No mods'}
+        </p>
+      </article>
+    {:else}
+      <p class="panel empty-note">Nothing scheduled.</p>
+    {/each}
+  </div>
+{:else if daily.state.status === 'loading'}
+  <span class="skel" style="width: 100%; height: 120px"></span>
+{:else}
+  <p class="panel empty-note">{describe(daily.state.error)}</p>
+{/if}

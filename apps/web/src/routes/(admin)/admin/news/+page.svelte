@@ -115,51 +115,49 @@
 
 <AdminHead heading="News" text="Posts shown on /news, the home page and in lazer.">
   {#snippet extra()}
-    <button class="btn btn-blue head-action" type="button" onclick={() => open(null)}>
+    <button class="act go c-blue" type="button" onclick={() => open(null)}>
       <i class="fa-solid fa-plus"></i>New post
     </button>
   {/snippet}
 </AdminHead>
 
-<div class="table-wrap">
-  {#if list.state.status === 'ready'}
-    {#if list.state.data.length}
-      <table class="board admin-table c-blue">
-        <thead>
-          <tr><th>Title</th><th>State</th><th>Updated</th><th></th></tr>
-        </thead>
-        <tbody>
-          {#each list.state.data as post (post.slug)}
-            <tr>
-              <td><b>{post.title}</b> <small><code>{post.slug}</code></small></td>
-              <td>{post.publishedAt ? 'Published' : 'Draft'}</td>
-              <td>{post.updatedAt ? dateTime(fromIso(post.updatedAt)) : '–'}</td>
-              <td class="actions">
-                <button class="btn btn-small" type="button" onclick={() => open(post)}>
-                  <i class="fa-solid fa-pen"></i>Edit
-                </button>
-                <button
-                  class="icon-btn"
-                  type="button"
-                  aria-label="Delete {post.title}"
-                  onclick={() => (deleting = post)}
-                >
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+{#if list.state.status === 'ready'}
+  <div class="cases">
+    {#each list.state.data as post (post.slug)}
+      <article class="case flat">
+        <div class="case-line">
+          <a href="/news/{post.slug}">{post.title}</a>
+          <span class="admin-tag {post.publishedAt ? 'c-green' : 'c-grey'}">
+            {post.publishedAt ? 'Published' : 'Draft'}
+          </span>
+        </div>
+        <div class="case-side">
+          <button class="act" type="button" onclick={() => open(post)}>
+            <i class="fa-solid fa-pen"></i>Edit
+          </button>
+          <button
+            class="act"
+            type="button"
+            aria-label="Delete {post.title}"
+            onclick={() => (deleting = post)}
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+        <p class="case-sub">
+          <code>/news/{post.slug}</code>
+          {#if post.updatedAt}· updated <time>{dateTime(fromIso(post.updatedAt))}</time>{/if}
+        </p>
+      </article>
     {:else}
-      <p class="empty-note">No posts yet.</p>
-    {/if}
-  {:else if list.state.status === 'loading'}
-    <span class="skel" style="width: 100%; height: 120px"></span>
-  {:else}
-    <p class="empty-note">{describe(list.state.error)}</p>
-  {/if}
-</div>
+      <p class="panel empty-note">No posts yet.</p>
+    {/each}
+  </div>
+{:else if list.state.status === 'loading'}
+  <span class="skel" style="width: 100%; height: 120px"></span>
+{:else}
+  <p class="panel empty-note">{describe(list.state.error)}</p>
+{/if}
 
 <AdminDialog
   bind:open={

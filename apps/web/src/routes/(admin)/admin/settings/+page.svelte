@@ -4,6 +4,8 @@
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
+  import { countChanges } from '$lib/components/admin/changes';
+  import SaveBar from '$lib/components/admin/SaveBar.svelte';
   import { flash } from '$lib/flash.svelte';
   import { sanitise } from '$lib/sanitise';
   import { site } from '$lib/site.svelte';
@@ -17,6 +19,9 @@
     if (loaded.state.status === 'ready') form = { ...loaded.state.data };
   });
 
+  const loadedForm = $derived(loaded.state.status === 'ready' ? loaded.state.data : null);
+  const changes = $derived(countChanges(form, loadedForm));
+
   async function save(event: SubmitEvent) {
     event.preventDefault();
     if (!form) return;
@@ -25,6 +30,7 @@
       await saveSystemSettings(form);
       flash.show('success', 'Successfully edited the system settings!');
       await site.load();
+      loaded.reload();
     } catch (error) {
       flash.show('error', describe(error));
     }
@@ -50,54 +56,58 @@
 {#if loaded.state.status === 'error'}
   <p class="panel empty-note">{describe(loaded.state.error)}</p>
 {:else if form}
-  <form class="panel form-panel admin-form settings-form c-orange" onsubmit={save}>
-    {#each switches as [key, title, text] (key)}
-      <div class="setting">
-        <div>
-          <b>{title}</b>
-          <p>{text}</p>
-        </div>
-        <label class="switch"><input type="checkbox" bind:checked={form[key]} /><span></span></label
-        >
-      </div>
-    {/each}
-    <div class="field">
-      <label for="globalalert">Global alert <span class="faint">(HTML)</span></label>
-      <textarea id="globalalert" rows="3" maxlength="512" bind:value={form.globalAlert}></textarea>
-      <small>Shown on every page.</small>
-      <div class="alert-preview" hidden={!form.globalAlert.trim()}>
-        <span class="faint">Preview</span>
-        <div class="notice alert c-blue">
-          <i class="fa-solid fa-circle-info notice-icon"></i>
+  <form onsubmit={save}>
+    <section class="user-box">
+      <h2>Switches</h2>
+      {#each switches as [key, title, text] (key)}
+        <div class="set-row">
           <div>
-            <b>Something interesting for you about RealistikOsu...</b>
-            {@html sanitise(form.globalAlert)}
+            <b>{title}</b>
+            <p>{text}</p>
+          </div>
+          <label class="switch"
+            ><input type="checkbox" bind:checked={form[key]} /><span></span></label
+          >
+        </div>
+      {/each}
+    </section>
+    <section class="user-box">
+      <h2>Alerts</h2>
+      <div class="field">
+        <label for="globalalert">Global alert <span class="faint">HTML</span></label>
+        <textarea id="globalalert" rows="3" maxlength="512" bind:value={form.globalAlert}
+        ></textarea>
+        <small>Shown on every page.</small>
+        <div class="alert-preview" hidden={!form.globalAlert.trim()}>
+          <span class="faint">Preview</span>
+          <div class="notice alert c-blue">
+            <i class="fa-solid fa-circle-info notice-icon"></i>
+            <div>
+              <b>Something interesting for you about RealistikOsu...</b>
+              {@html sanitise(form.globalAlert)}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="field">
-      <label for="homealert">Home page alert <span class="faint">(HTML)</span></label>
-      <textarea
-        id="homealert"
-        rows="3"
-        maxlength="512"
-        placeholder="Empty, so nothing shows"
-        bind:value={form.homeAlert}></textarea>
-      <small>Shown on the home page only.</small>
-      <div class="alert-preview" hidden={!form.homeAlert.trim()}>
-        <span class="faint">Preview</span>
-        <div class="notice alert c-blue">
-          <i class="fa-solid fa-circle-info notice-icon"></i>
-          <div>{@html sanitise(form.homeAlert)}</div>
+      <div class="field">
+        <label for="homealert">Home page alert <span class="faint">HTML</span></label>
+        <textarea
+          id="homealert"
+          rows="3"
+          maxlength="512"
+          placeholder="Empty, so nothing shows"
+          bind:value={form.homeAlert}></textarea>
+        <small>Shown on the home page only.</small>
+        <div class="alert-preview" hidden={!form.homeAlert.trim()}>
+          <span class="faint">Preview</span>
+          <div class="notice alert c-blue">
+            <i class="fa-solid fa-circle-info notice-icon"></i>
+            <div>{@html sanitise(form.homeAlert)}</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-green" type="submit" disabled={saving}>
-        <i class="fa-solid fa-floppy-disk"></i>Save
-      </button>
-    </div>
+    </section>
+    <SaveBar {changes} busy={saving} ondiscard={() => loadedForm && (form = { ...loadedForm })} />
   </form>
 {:else}
   <span class="skel" style="width: 100%; height: 300px"></span>

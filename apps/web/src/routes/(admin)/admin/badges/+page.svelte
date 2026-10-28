@@ -46,7 +46,7 @@
 <AdminHead heading="Badges" text="Shown on profiles. Give them to people from their edit page.">
   {#snippet extra()}
     <button
-      class="btn btn-blue head-action"
+      class="act go c-blue"
       type="button"
       onclick={() => (editing = { id: null, name: '', icon: '' })}
     >
@@ -59,21 +59,22 @@
   {#if list.state.status === 'ready'}
     {#each list.state.data as badge (badge.id)}
       {@const look = badgeIcon(badge.icon)}
-      <div class="panel badge-card {look.colour}">
+      <div class="badge-card {look.colour}">
         <span class="badge-icon"><i class={look.icon}></i></span>
         <div>
           <b>{badge.name}</b>
           <span class="badge-meta">#{badge.id} · <code>{badge.icon}</code></span>
         </div>
         <button
-          class="btn btn-small"
+          class="act"
           type="button"
+          aria-label="Edit {badge.name}"
           onclick={() => (editing = { id: badge.id, name: badge.name, icon: badge.icon })}
         >
-          <i class="fa-solid fa-pen"></i>Edit
+          <i class="fa-solid fa-pen"></i>
         </button>
         <button
-          class="icon-btn"
+          class="act"
           type="button"
           aria-label="Delete {badge.name}"
           onclick={() => (deleting = badge)}

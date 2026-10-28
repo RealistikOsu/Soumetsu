@@ -70,11 +70,9 @@
 <AdminHead heading="Lazer" text="Ranked play settings and its map pool for osu!lazer." />
 
 {#if settings.state.status === 'ready' && settings.state.data}
-  <h2 class="section-title c-orange">
-    <i class="fa-solid fa-scale-balanced"></i>Ranked play rating
-  </h2>
-  <div class="panel form-panel admin-form settings-form c-orange">
-    <div class="setting">
+  <section class="user-box">
+    <h2>Ranked play rating</h2>
+    <div class="set-row">
       <div>
         <b>Rating changes</b>
         <p>
@@ -92,18 +90,19 @@
         <span></span>
       </label>
     </div>
-  </div>
+  </section>
 {/if}
 
-<h2 class="section-title c-purple"><i class="fa-solid fa-layer-group"></i>Ranked play pool</h2>
-<div class="panel form-panel c-purple admin-form">
+<section class="user-box">
+  <h2>Ranked play pool</h2>
+  <nav class="seg pool-tabs" aria-label="Pool">
+    {#each pools as option, index (index)}
+      <button class:active={index === poolIndex} type="button" onclick={() => (poolIndex = index)}>
+        <img src="/img/modes/mode-{option.ruleset}.png" alt="" />{option.label}
+      </button>
+    {/each}
+  </nav>
   <div class="field-row">
-    <div class="field">
-      <label for="pool-ruleset">Pool</label>
-      <select id="pool-ruleset" bind:value={poolIndex}>
-        {#each pools as option, index (index)}<option value={index}>{option.label}</option>{/each}
-      </select>
-    </div>
     <div class="field">
       <label for="pool-map">Beatmap ID</label>
       <input id="pool-map" type="number" min="1" bind:value={poolMap} />
@@ -123,44 +122,43 @@
       <i class="fa-solid fa-plus"></i>Add
     </button>
   </div>
-</div>
-
-<div class="table-wrap">
-  <table class="board admin-table c-purple">
-    <thead>
-      <tr><th>Beatmap</th><th>Stars</th><th></th></tr>
-    </thead>
-    <tbody>
-      {#if pool.state.status === 'ready'}
-        {#each pool.state.data as entry (entry.beatmapId)}
-          <tr>
-            <td class="note">
-              <a href="/b/{entry.beatmapId}">{entry.song ?? `#${entry.beatmapId}`}</a>
-            </td>
-            <td>{entry.stars.toFixed(2)}</td>
-            <td>
-              <button
-                class="btn btn-small"
-                type="button"
-                disabled={busy}
-                onclick={() =>
-                  run(
-                    () => removePoolEntry(selectedPool, entry.beatmapId),
-                    'Removed from the pool.'
-                  )}
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
+  <div class="table-wrap in-box">
+    <table class="board admin-table c-purple">
+      <thead>
+        <tr><th>Beatmap</th><th>Stars</th><th></th></tr>
+      </thead>
+      <tbody>
+        {#if pool.state.status === 'ready'}
+          {#each pool.state.data as entry (entry.beatmapId)}
+            <tr>
+              <td class="note">
+                <a href="/b/{entry.beatmapId}">{entry.song ?? `#${entry.beatmapId}`}</a>
+              </td>
+              <td>{entry.stars.toFixed(2)}</td>
+              <td>
+                <button
+                  class="btn btn-small"
+                  type="button"
+                  disabled={busy}
+                  onclick={() =>
+                    run(
+                      () => removePoolEntry(selectedPool, entry.beatmapId),
+                      'Removed from the pool.'
+                    )}
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          {:else}
+            <tr><td colspan="3" class="empty-note">No maps in this pool.</td></tr>
+          {/each}
+        {:else if pool.state.status === 'loading'}
+          <tr><td colspan="3"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
         {:else}
-          <tr><td colspan="3" class="empty-note">No maps in this pool.</td></tr>
-        {/each}
-      {:else if pool.state.status === 'loading'}
-        <tr><td colspan="3"><span class="skel" style="width: 100%; height: 22px"></span></td></tr>
-      {:else}
-        <tr><td colspan="3" class="empty-note">{describe(pool.state.error)}</td></tr>
-      {/if}
-    </tbody>
-  </table>
-</div>
+          <tr><td colspan="3" class="empty-note">{describe(pool.state.error)}</td></tr>
+        {/if}
+      </tbody>
+    </table>
+  </div>
+</section>
