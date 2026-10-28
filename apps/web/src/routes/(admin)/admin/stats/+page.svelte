@@ -51,49 +51,60 @@
 
 <AdminHead heading="Statistics" text="Activity across the server." />
 
-<div class="counters admin-counters stats-counters">
-  {#each cards as { colour, icon, text, value } (text)}
-    <div class={colour}>
-      <i class="fa-solid {icon}"></i>
-      <b>
-        {#if value === null}<span class="skel" style="width: 60px"></span>{:else}<CountUp
-            {value}
-          />{/if}
-      </b>
-      {text}
-    </div>
-  {/each}
-</div>
-
-<h2 class="section-title c-blue">
-  <i class="fa-solid fa-chart-column"></i>Registrations <small>last 7 days</small>
-</h2>
-<div class="panel bars c-blue" use:inView>
-  {#if stats.state.status === 'ready'}
-    {#each stats.state.data.days as day, i (day.end)}
-      <div class="reg-bar" style="--h:{(day.registered / peak) * 100}%;--i:{i}">
-        <b>{day.registered}</b><span>{label(day.end)}</span>
+<section class="dash-stats stats-strip">
+  <div class="dash-counters">
+    {#each cards as { colour, icon, text, value } (text)}
+      <div class={colour}>
+        <i class="fa-solid {icon}"></i>
+        <span>
+          <small>{text}</small>
+          <b>
+            {#if value === null}<span class="skel" style="width: 60px"></span>{:else}<CountUp
+                {value}
+              />{/if}
+          </b>
+        </span>
       </div>
     {/each}
-  {/if}
+  </div>
+</section>
+
+<div class="user-split stats-split">
+  <section class="user-box">
+    <h2>Registrations <small>Last 7 days</small></h2>
+    <div class="reg-bars" use:inView>
+      {#if stats.state.status === 'ready'}
+        {#each stats.state.data.days as day, i (day.end)}
+          <div class="reg-col" style="--h:{(day.registered / peak) * 100}%;--i:{i}">
+            <b>{day.registered}</b><span></span><small>{label(day.end)}</small>
+          </div>
+        {/each}
+      {/if}
+    </div>
+  </section>
+  <aside class="user-box">
+    <h2>Big plays <small>Newest first</small></h2>
+    <form
+      class="framed-input"
+      onsubmit={(event) => {
+        event.preventDefault();
+        goto(`/admin/stats?minpp=${Math.max(0, Number(field) || 0)}`, { keepFocus: true });
+      }}
+    >
+      <i class="fa-solid fa-filter"></i>
+      <label for="minpp" class="muted">At least</label>
+      <input id="minpp" type="number" min="0" step="50" bind:value={field} />
+      <span class="muted">pp</span>
+    </form>
+    <p class="faint stats-note">Passed plays at or above this, across every mode.</p>
+  </aside>
 </div>
 
-<div class="section-title chart-head c-purple">
-  <h2><i class="fa-solid fa-fire"></i>Big plays</h2>
-  <form
-    class="pp-filter"
-    onsubmit={(event) => {
-      event.preventDefault();
-      goto(`/admin/stats?minpp=${Math.max(0, Number(field) || 0)}`, { keepFocus: true });
-    }}
-  >
-    <label for="minpp">At least</label>
-    <input id="minpp" type="number" min="0" step="50" bind:value={field} />
-    <span>pp</span>
-  </form>
-</div>
-<PlayTable
-  plays={stats.state.status === 'ready' ? stats.state.data.plays : []}
-  loading={stats.state.status === 'loading'}
-  accuracy
-/>
+<section class="user-box">
+  <h2>Plays over {minPp}pp</h2>
+  <PlayTable
+    plays={stats.state.status === 'ready' ? stats.state.data.plays : []}
+    loading={stats.state.status === 'loading'}
+    accuracy
+  />
+</section>

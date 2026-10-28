@@ -5,6 +5,7 @@
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import AdminTag from '$lib/components/admin/AdminTag.svelte';
+  import Avatar from '$lib/components/Avatar.svelte';
   import Pager from '$lib/components/Pager.svelte';
 
   const current = $derived(Math.max(1, Number(page.url.searchParams.get('p')) || 1));
@@ -22,31 +23,42 @@
 
 <AdminHead
   heading="Console"
-  text="Errors and warnings the frontend hit, with who was using it at the time."
+  text="Errors and warnings the site hit, with who was using it at the time."
 />
 
 {#if logs.state.status === 'ready'}
-  <div class="tracebacks">
+  <div class="game-cards">
     {#each logs.state.data.rows as row, i (`${row.time}-${i}`)}
       {@const error = row.level === 'error'}
       <details
-        class="panel traceback {error ? 'c-red' : 'c-yellow'}"
+        class="game-card trace {error ? 'c-red' : 'c-yellow'}"
         open={i === 0 && current === 1}
       >
         <summary>
-          <AdminTag colour={error ? 'c-red' : 'c-yellow'}>{error ? 'Error' : 'Warning'}</AdminTag>
-          <span class="first-line">{row.message}</span>
-          <span class="who-when">
+          <AdminTag colour={error ? 'c-red' : 'c-yellow'}>
+            <i class="fa-solid {error ? 'fa-circle-xmark' : 'fa-triangle-exclamation'}"></i>
+            {error ? 'Error' : 'Warning'}
+          </AdminTag>
+          <code class="first-line">{row.message}</code>
+          <span class="go">
             {#if row.userId !== null}
-              <a class="who" href="/admin/users/{row.userId}"><b>{row.username}</b></a>
+              <a class="by" href="/admin/users/{row.userId}"
+                ><Avatar id={row.userId} />{row.username}</a
+              >
+            {:else}
+              <span class="faint">No one logged in</span>
             {/if}
             <time>{stamp(row.time)}</time>
+            <i class="fa-solid fa-chevron-down"></i>
           </span>
         </summary>
         <pre>{row.stack}</pre>
       </details>
     {:else}
-      <p class="panel empty-note">Nothing has gone wrong.</p>
+      <div class="empty-state">
+        <i class="fa-solid fa-circle-check"></i>
+        <b>Nothing has gone wrong</b>
+      </div>
     {/each}
   </div>
   {#if logs.state.data.pages > 1}
