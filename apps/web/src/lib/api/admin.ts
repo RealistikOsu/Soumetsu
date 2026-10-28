@@ -256,6 +256,8 @@ export interface RankRequest {
   cover: string | null;
   difficulties: number;
   modes: number[];
+  // False for maps nobody has played here, which come from the mirror until someone opens them.
+  stored: boolean;
   requester: { id: number; username: string; country: string };
 }
 

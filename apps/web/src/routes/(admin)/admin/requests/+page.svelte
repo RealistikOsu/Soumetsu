@@ -51,6 +51,13 @@
       >
         <div class="case-line">
           <a href="/admin/ranking/{target}?set">{request.song}</a>
+          {#if !request.stored}
+            <span
+              class="admin-tag c-grey"
+              title="Nobody has played it here, so it's read from the mirror"
+              >Not played here yet</span
+            >
+          {/if}
           <span class="mode-icons">
             {#each request.modes as mode (mode)}<img
                 src="/img/modes/mode-{mode}.png"

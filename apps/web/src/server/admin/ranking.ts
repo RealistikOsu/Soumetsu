@@ -53,6 +53,73 @@ export async function creatorOf(setId: number) {
   return body?.creator ?? null;
 }
 
+interface MirrorSet {
+  id: number;
+  artist: string;
+  title: string;
+  creator: string;
+  user_id: number;
+  last_updated: string | null;
+  beatmaps: {
+    id: number;
+    version: string;
+    difficulty_rating: number;
+    mode_int: number;
+    status: string;
+    ar: number;
+    od: number;
+    cs: number;
+    hp: number;
+    bpm: number;
+    hit_length: number;
+    total_length: number;
+    max_combo: number | null;
+    checksum: string;
+  }[];
+}
+
+const MIRROR_STATUSES: Record<string, number> = { ranked: 2, approved: 3, qualified: 4, loved: 5 };
+
+export async function mirrorSet(setId: number) {
+  const response = await fetch(`${config.mirrorUrl}/api/v2/beatmapsets/${setId}`, {
+    signal: AbortSignal.timeout(4000)
+  }).catch(() => null);
+  if (!response?.ok) return null;
+  return (await response.json().catch(() => null)) as MirrorSet | null;
+}
+
+// A difficulty link names a beatmap, which the mirror maps to its set.
+export async function mirrorSetOfBeatmap(beatmapId: number) {
+  const response = await fetch(`${config.mirrorUrl}/api/v2/beatmaps/${beatmapId}`, {
+    signal: AbortSignal.timeout(4000)
+  }).catch(() => null);
+  if (!response?.ok) return null;
+  const body = (await response.json().catch(() => null)) as { set_id?: number } | null;
+  return body?.set_id ?? null;
+}
+
+// The score service adds a map the first time someone plays it, so a set nobody has played isn't stored
+// and can't be ranked. Its difficulties are copied in from the mirror; INSERT IGNORE leaves any the score
+// service already wrote alone.
+export async function importSet(setId: number) {
+  const set = await mirrorSet(setId);
+  if (!set?.beatmaps?.length) return;
+  const updated = set.last_updated ? Math.floor(Date.parse(set.last_updated) / 1000) : 0;
+  const rows = set.beatmaps.map((b) => {
+    const stars = [0, 0, 0, 0];
+    stars[b.mode_int] = b.difficulty_rating;
+    return Prisma.sql`(${b.id}, ${set.id}, ${b.checksum}, ${`${set.artist} - ${set.title} [${b.version}]`},
+      ${b.version}, ${b.ar}, ${b.cs}, ${b.hp}, ${b.od}, ${b.mode_int}, ${stars[0]}, ${stars[1]},
+      ${stars[2]}, ${stars[3]}, ${b.max_combo ?? 0}, ${b.hit_length}, ${b.total_length},
+      ${Math.round(b.bpm)}, ${MIRROR_STATUSES[b.status] ?? 0}, ${updated}, ${set.user_id})`;
+  });
+  await db.$executeRaw`
+    INSERT IGNORE INTO beatmaps (beatmap_id, beatmapset_id, beatmap_md5, song_name, diff_name, ar, cs, hp,
+      od, mode, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania, max_combo, hit_length,
+      total_length, bpm, ranked, latest_update, mapper_id)
+    VALUES ${Prisma.join(rows)}`;
+}
+
 // How many difficulties each set has and in which modes, for a whole page of sets in one query.
 export async function setSummaries(setIds: number[]) {
   const rows = await db.beatmaps.findMany({
@@ -126,7 +193,8 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
         where: { beatmap_id: id },
         select: { beatmapset_id: true }
       });
-  const setId = diff?.beatmapset_id ?? id;
+  const setId = diff?.beatmapset_id ?? (isSet ? id : ((await mirrorSetOfBeatmap(id)) ?? id));
+  if (!(await db.beatmaps.count({ where: { beatmapset_id: setId } }))) await importSet(setId);
 
   const all = await db.$queryRaw<Row[]>`
     SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, difficulty_taiko,
