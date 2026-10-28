@@ -11,6 +11,7 @@
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
+  import Avatar from '$lib/components/Avatar.svelte';
   import Pager from '$lib/components/Pager.svelte';
   import { shopDecorations, supporterDecorations } from '$lib/decorations';
   import { flash } from '$lib/flash.svelte';
@@ -143,191 +144,228 @@
   text="Prices, the spotlight rotation, the monthly supporter picks and recent purchases."
 />
 
-<h2 class="section-title c-pink"><i class="fa-solid fa-store"></i>Items</h2>
-{#if items.state.status === 'error'}
-  <p class="empty-note">{describe(items.state.error)}</p>
-{:else}
-  <div class="table-wrap">
-    <table class="board admin-table c-pink">
-      <thead>
-        <tr><th>Item</th><th>Key</th><th>Price</th><th>Enabled</th><th>Sort</th><th></th></tr>
-      </thead>
-      <tbody>
-        {#each rows as row (row.id)}
-          <tr>
-            <td>{row.name}</td>
-            <td class="note">{row.item_key ?? row.type}</td>
-            <td>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                aria-label="Price for {row.name}"
-                bind:value={row.price}
-              />
-            </td>
-            <td>
-              <input type="checkbox" aria-label="Enabled: {row.name}" bind:checked={row.enabled} />
-            </td>
-            <td>
-              <input
-                type="number"
-                step="1"
-                aria-label="Sort order for {row.name}"
-                bind:value={row.sort_order}
-              />
-            </td>
-            <td>
-              <button class="btn" type="button" disabled={busy} onclick={() => saveItem(row)}>
-                Save
-              </button>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-{/if}
+<section class="user-box">
+  <h2>Items</h2>
+  {#if items.state.status === 'error'}
+    <p class="muted">{describe(items.state.error)}</p>
+  {:else}
+    <div class="table-wrap in-box">
+      <table class="board admin-table">
+        <thead>
+          <tr><th>Item</th><th>Key</th><th>Price</th><th>Enabled</th><th>Sort</th><th></th></tr>
+        </thead>
+        <tbody>
+          {#each rows as row (row.id)}
+            <tr>
+              <td><b>{row.name}</b></td>
+              <td><code class="value-code">{row.item_key ?? row.type}</code></td>
+              <td>
+                <span class="coin-in">
+                  <input
+                    class="num-in"
+                    type="number"
+                    min="1"
+                    step="1"
+                    aria-label="Price for {row.name}"
+                    bind:value={row.price}
+                  /><i class="fa-solid fa-coins"></i>
+                </span>
+              </td>
+              <td>
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    aria-label="Enabled: {row.name}"
+                    bind:checked={row.enabled}
+                  /><span></span>
+                </label>
+              </td>
+              <td>
+                <input
+                  class="num-in small"
+                  type="number"
+                  step="1"
+                  aria-label="Sort order for {row.name}"
+                  bind:value={row.sort_order}
+                />
+              </td>
+              <td class="actions">
+                <button class="act" type="button" disabled={busy} onclick={() => saveItem(row)}>
+                  Save
+                </button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
+</section>
 
 {#if settings.state.status === 'ready'}
   {@const current = settings.state.data}
+  <div class="user-split">
+    <div class="user-main">
+      <section class="user-box">
+        <h2>Spotlight windows</h2>
+        {#each windows as window, index (index)}
+          <div class="field-row">
+            <div class="field">
+              <label for="sp-key-{index}">Decoration</label>
+              <select id="sp-key-{index}" bind:value={window.key}>
+                {#each shopDecorations as deco (deco.key)}
+                  <option value={deco.key}>{deco.name}</option>
+                {/each}
+              </select>
+            </div>
+            <div class="field">
+              <label for="sp-from-{index}">From</label>
+              <input id="sp-from-{index}" type="datetime-local" bind:value={window.from} />
+            </div>
+            <div class="field">
+              <label for="sp-until-{index}">Until</label>
+              <input id="sp-until-{index}" type="datetime-local" bind:value={window.until} />
+            </div>
+            <button
+              class="act"
+              type="button"
+              aria-label="Remove window {index + 1}"
+              onclick={() => (windows = windows.filter((_, i) => i !== index))}
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        {:else}
+          <p class="muted">No windows.</p>
+        {/each}
+        <div class="form-foot">
+          <button class="act" type="button" onclick={addWindow}>
+            <i class="fa-solid fa-plus"></i>Add window
+          </button>
+          <button
+            class="btn btn-green"
+            type="button"
+            disabled={busy}
+            onclick={() => saveSpotlight(current)}
+          >
+            <i class="fa-solid fa-floppy-disk"></i>Save
+          </button>
+        </div>
+      </section>
 
-  <h2 class="section-title c-pink"><i class="fa-solid fa-coins"></i>Supporter price</h2>
-  <div class="panel form-panel admin-form settings-form c-pink">
-    <div class="field">
-      <label for="shop-price">Price of a supporter decoration</label>
-      <input id="shop-price" type="number" min="1" step="1" bind:value={price} />
+      <section class="user-box">
+        <h2>
+          Supporter picks, {current.picks.month}
+          <small>{current.supporterPins[current.picks.month] ? 'Pinned' : 'Random'}</small>
+        </h2>
+        <p class="muted">This month: {current.picks.keys.map(nameOf).join(', ')}</p>
+        <div class="field-row">
+          {#each [0, 1, 2] as index (index)}
+            <div class="field">
+              <label for="pick-{index}">Pick {index + 1}</label>
+              <select id="pick-{index}" bind:value={picks[index]}>
+                {#each supporterDecorations as deco (deco.key)}
+                  <option value={deco.key}>{deco.name}</option>
+                {/each}
+              </select>
+            </div>
+          {/each}
+        </div>
+        <div class="form-foot">
+          <button
+            class="act"
+            type="button"
+            disabled={busy || !current.supporterPins[current.picks.month]}
+            onclick={() => clearOverride(current)}
+          >
+            Clear override
+          </button>
+          <button
+            class="btn btn-green"
+            type="button"
+            disabled={busy}
+            onclick={() => saveOverride(current)}
+          >
+            <i class="fa-solid fa-floppy-disk"></i>Save override
+          </button>
+        </div>
+      </section>
     </div>
-    <button
-      class="btn btn-blue"
-      type="button"
-      disabled={busy}
-      onclick={() => saveSettings(current, { supporterPrice: Number(price) }, 'Price saved.')}
-    >
-      <i class="fa-solid fa-floppy-disk"></i>Save
-    </button>
-  </div>
 
-  <h2 class="section-title c-pink"><i class="fa-solid fa-lightbulb"></i>Spotlight windows</h2>
-  <div class="panel form-panel admin-form settings-form c-pink">
-    {#each windows as window, index (index)}
-      <div class="field-row">
-        <div class="field">
-          <label for="sp-key-{index}">Decoration</label>
-          <select id="sp-key-{index}" bind:value={window.key}>
-            {#each shopDecorations as deco (deco.key)}
-              <option value={deco.key}>{deco.name}</option>
-            {/each}
-          </select>
+    <aside>
+      <section class="user-box">
+        <h2>Supporter price</h2>
+        <div class="set-row">
+          <div>
+            <b>Supporter decoration</b>
+            <p>What each monthly pick costs supporters.</p>
+          </div>
+          <span class="coin-in">
+            <input
+              class="num-in"
+              type="number"
+              min="1"
+              step="1"
+              aria-label="Price of a supporter decoration"
+              bind:value={price}
+            /><i class="fa-solid fa-coins"></i>
+          </span>
         </div>
-        <div class="field">
-          <label for="sp-from-{index}">From</label>
-          <input id="sp-from-{index}" type="datetime-local" bind:value={window.from} />
+        <div class="form-foot">
+          <button
+            class="btn btn-green"
+            type="button"
+            disabled={busy}
+            onclick={() => saveSettings(current, { supporterPrice: Number(price) }, 'Price saved.')}
+          >
+            <i class="fa-solid fa-floppy-disk"></i>Save
+          </button>
         </div>
-        <div class="field">
-          <label for="sp-until-{index}">Until</label>
-          <input id="sp-until-{index}" type="datetime-local" bind:value={window.until} />
-        </div>
-        <button
-          class="btn"
-          type="button"
-          aria-label="Remove window {index + 1}"
-          onclick={() => (windows = windows.filter((_, i) => i !== index))}
-        >
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-    {:else}
-      <p class="note">No windows.</p>
-    {/each}
-    <div class="form-actions">
-      <button class="btn" type="button" onclick={addWindow}>
-        <i class="fa-solid fa-plus"></i>Add window
-      </button>
-      <button
-        class="btn btn-blue"
-        type="button"
-        disabled={busy}
-        onclick={() => saveSpotlight(current)}
-      >
-        <i class="fa-solid fa-floppy-disk"></i>Save
-      </button>
-    </div>
-  </div>
-
-  <h2 class="section-title c-pink">
-    <i class="fa-solid fa-heart"></i>Supporter picks, {current.picks.month}
-  </h2>
-  <div class="panel form-panel admin-form settings-form c-pink">
-    <p class="note">
-      This month: {current.picks.keys.map(nameOf).join(', ')}
-      {current.supporterPins[current.picks.month] ? '(pinned)' : '(random)'}
-    </p>
-    <div class="field-row">
-      {#each [0, 1, 2] as index (index)}
-        <div class="field">
-          <label for="pick-{index}">Pick {index + 1}</label>
-          <select id="pick-{index}" bind:value={picks[index]}>
-            {#each supporterDecorations as deco (deco.key)}
-              <option value={deco.key}>{deco.name}</option>
-            {/each}
-          </select>
-        </div>
-      {/each}
-    </div>
-    <div class="form-actions">
-      <button
-        class="btn"
-        type="button"
-        disabled={busy || !current.supporterPins[current.picks.month]}
-        onclick={() => clearOverride(current)}
-      >
-        Clear override
-      </button>
-      <button
-        class="btn btn-blue"
-        type="button"
-        disabled={busy}
-        onclick={() => saveOverride(current)}
-      >
-        <i class="fa-solid fa-floppy-disk"></i>Save override
-      </button>
-    </div>
+      </section>
+    </aside>
   </div>
 {:else if settings.state.status === 'error'}
-  <p class="empty-note">{describe(settings.state.error)}</p>
+  <p class="panel empty-note">{describe(settings.state.error)}</p>
 {/if}
 
-<h2 class="section-title c-pink"><i class="fa-solid fa-receipt"></i>Recent purchases</h2>
-{#if purchases.state.status === 'ready'}
-  {@const data = purchases.state.data}
-  <div class="table-wrap">
-    <table class="board admin-table c-pink">
-      <thead>
-        <tr><th>Player</th><th>Item</th><th>Paid</th><th>When</th></tr>
-      </thead>
-      <tbody>
-        {#each data.purchases as purchase (purchase.id)}
-          <tr>
-            <td><a href="/admin/users/{purchase.user_id}">{purchase.username}</a></td>
-            <td>{purchase.item.name}</td>
-            <td>{purchase.price_paid}</td>
-            <td>{fullDate(Date.parse(purchase.bought_at) / 1000)}</td>
-          </tr>
-        {:else}
-          <tr><td colspan="4" class="note">Nothing bought yet.</td></tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-  {#if data.total > 50}
-    <Pager
-      page={purchasePage}
-      pages={Math.ceil(data.total / 50)}
-      hasNext={purchasePage * 50 < data.total}
-      onpage={(p) => (purchasePage = p)}
-    />
+<section class="user-box purchases-box">
+  <h2>Recent purchases</h2>
+  {#if purchases.state.status === 'ready'}
+    {@const data = purchases.state.data}
+    <div class="table-wrap in-box">
+      <table class="board admin-table">
+        <thead>
+          <tr><th>Player</th><th>Item</th><th>Paid</th><th>When</th></tr>
+        </thead>
+        <tbody>
+          {#each data.purchases as purchase (purchase.id)}
+            <tr>
+              <td>
+                <a class="who" href="/admin/users/{purchase.user_id}"
+                  ><Avatar id={purchase.user_id} /><b>{purchase.username}</b></a
+                >
+              </td>
+              <td>{purchase.item.name}</td>
+              <td class="dim">
+                <span class="coin-in"><i class="fa-solid fa-coins"></i>{purchase.price_paid}</span>
+              </td>
+              <td class="dim">{fullDate(Date.parse(purchase.bought_at) / 1000)}</td>
+            </tr>
+          {:else}
+            <tr><td colspan="4" class="faint">Nothing bought yet.</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+    {#if data.total > 50}
+      <Pager
+        page={purchasePage}
+        pages={Math.ceil(data.total / 50)}
+        hasNext={purchasePage * 50 < data.total}
+        onpage={(p) => (purchasePage = p)}
+      />
+    {/if}
+  {:else if purchases.state.status === 'error'}
+    <p class="muted">{describe(purchases.state.error)}</p>
   {/if}
-{:else if purchases.state.status === 'error'}
-  <p class="empty-note">{describe(purchases.state.error)}</p>
-{/if}
+</section>

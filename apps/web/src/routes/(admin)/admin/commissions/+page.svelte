@@ -9,6 +9,8 @@
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
+  import { countChanges } from '$lib/components/admin/changes';
+  import SaveBar from '$lib/components/admin/SaveBar.svelte';
   import { taskText, templateKeys } from '$lib/commissions';
   import { flash } from '$lib/flash.svelte';
 
@@ -55,6 +57,11 @@
   $effect(() => {
     if (settings.state.status === 'ready') form = toForm(settings.state.data);
   });
+
+  const loadedForm = $derived(
+    settings.state.status === 'ready' ? toForm(settings.state.data) : null
+  );
+  const changes = $derived(countChanges(form, loadedForm));
 
   function build(current: Form): CommissionSettings | null {
     const famousMaps = [];
@@ -113,133 +120,167 @@
 <AdminHead heading="Commissions" text="Daily tasks, rewards and what the generator picks from." />
 
 {#if form}
-  <h2 class="section-title c-green"><i class="fa-solid fa-sliders"></i>Day</h2>
-  <div class="panel form-panel admin-form settings-form c-green">
-    <div class="setting">
-      <div>
-        <b>Lazer commissions</b>
-        <p>
-          Off rolls no tasks that need lazer, and swaps out the ones players already rolled today.
-        </p>
-      </div>
-      <label class="switch">
-        <input type="checkbox" bind:checked={form.lazerTasks} /><span></span>
-      </label>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="cm-tasks">Tasks per day</label>
-        <input id="cm-tasks" type="number" min="1" step="1" bind:value={form.tasksPerDay} />
-      </div>
-      <div class="field">
-        <label for="cm-min">Minimum day points</label>
-        <input id="cm-min" type="number" min="1" step="1" bind:value={form.minDayPoints} />
-      </div>
-    </div>
-  </div>
-
-  <h2 class="section-title c-green"><i class="fa-solid fa-coins"></i>Rewards</h2>
-  <div class="panel form-panel admin-form settings-form c-green">
-    {#each form.thresholds as threshold, index (index)}
-      <div class="field-row">
-        <div class="field">
-          <label for="cm-points-{index}">Chest {index + 1} points</label>
+  <div class="user-split">
+    <div class="user-main">
+      <section class="user-box">
+        <h2>Day</h2>
+        <div class="set-row">
+          <div>
+            <b>Lazer commissions</b>
+            <p>
+              Off rolls no tasks that need lazer, and swaps out the ones players already rolled
+              today.
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" bind:checked={form.lazerTasks} /><span></span>
+          </label>
+        </div>
+        <div class="set-row">
+          <div>
+            <b>Tasks per day</b>
+            <p>How many commissions each player gets.</p>
+          </div>
           <input
-            id="cm-points-{index}"
+            class="num-in"
             type="number"
             min="1"
             step="1"
-            bind:value={threshold.points}
+            aria-label="Tasks per day"
+            bind:value={form.tasksPerDay}
           />
         </div>
-        <div class="field">
-          <label for="cm-coins-{index}">Chest {index + 1} coins</label>
+        <div class="set-row">
+          <div>
+            <b>Minimum day points</b>
+            <p>Points needed before chests unlock.</p>
+          </div>
           <input
-            id="cm-coins-{index}"
+            class="num-in"
             type="number"
-            min="0"
+            min="1"
             step="1"
-            bind:value={threshold.coins}
+            aria-label="Minimum day points"
+            bind:value={form.minDayPoints}
           />
         </div>
-      </div>
-    {/each}
-  </div>
+      </section>
 
-  <h2 class="section-title c-green"><i class="fa-solid fa-layer-group"></i>Tier points</h2>
-  <div class="panel form-panel admin-form settings-form c-green">
-    <div class="field-row">
-      <div class="field">
-        <label for="cm-easy">Easy</label>
-        <input id="cm-easy" type="number" min="1" step="1" bind:value={form.tierPoints.easy} />
-      </div>
-      <div class="field">
-        <label for="cm-medium">Medium</label>
-        <input id="cm-medium" type="number" min="1" step="1" bind:value={form.tierPoints.medium} />
-      </div>
-      <div class="field">
-        <label for="cm-hard">Hard</label>
-        <input id="cm-hard" type="number" min="1" step="1" bind:value={form.tierPoints.hard} />
-      </div>
-    </div>
-  </div>
-
-  <h2 class="section-title c-green"><i class="fa-solid fa-user-astronaut"></i>Artists</h2>
-  <div class="panel form-panel admin-form settings-form c-green">
-    <div class="field">
-      <label for="cm-artists">One artist per line</label>
-      <textarea id="cm-artists" rows="8" bind:value={form.artists}></textarea>
-    </div>
-  </div>
-
-  <h2 class="section-title c-green"><i class="fa-solid fa-star"></i>Famous maps</h2>
-  <div class="panel form-panel admin-form settings-form c-green">
-    <div class="field">
-      <label for="cm-maps">One per line: beatmap ID, then the name</label>
-      <textarea id="cm-maps" rows="6" bind:value={form.famousMaps}></textarea>
-    </div>
-  </div>
-
-  <h2 class="section-title c-green"><i class="fa-solid fa-scale-balanced"></i>Template weights</h2>
-  <div class="table-wrap">
-    <table class="board admin-table c-green">
-      <thead>
-        <tr><th>Commission</th><th>Tier</th><th>Weight</th></tr>
-      </thead>
-      <tbody>
-        {#each templateKeys as key (key)}
-          {@const info = infoOf(key)}
-          <tr>
-            <td>
-              {describeTemplate(key)}
-              <div class="note">{key}{info ? ` · ${info.family}` : ''}</div>
-            </td>
-            <td class="note">{info?.tier ?? ''}</td>
-            <td>
+      <section class="user-box">
+        <h2>Tier points</h2>
+        <div class="tiers">
+          {#each [['easy', 'Easy', 'c-green'], ['medium', 'Medium', 'c-yellow'], ['hard', 'Hard', 'c-red']] as const as [key, label, colour] (key)}
+            <label class={colour}>
+              {label}
               <input
+                class="num-in"
+                type="number"
+                min="1"
+                step="1"
+                bind:value={form.tierPoints[key]}
+              />
+            </label>
+          {/each}
+        </div>
+      </section>
+
+      <section class="user-box">
+        <h2>Template weights <small>Higher comes up more</small></h2>
+        <div class="table-wrap in-box">
+          <table class="board admin-table">
+            <thead>
+              <tr><th>Commission</th><th>Tier</th><th>Weight</th></tr>
+            </thead>
+            <tbody>
+              {#each templateKeys as key (key)}
+                {@const info = infoOf(key)}
+                <tr>
+                  <td>
+                    {describeTemplate(key)}
+                    <div class="note">{key}{info ? ` · ${info.family}` : ''}</div>
+                  </td>
+                  <td>
+                    {#if info?.tier}
+                      <span
+                        class="admin-tag {info.tier === 'easy'
+                          ? 'c-green'
+                          : info.tier === 'medium'
+                            ? 'c-yellow'
+                            : 'c-red'}">{info.tier}</span
+                      >
+                    {/if}
+                  </td>
+                  <td>
+                    <input
+                      class="num-in"
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="1"
+                      aria-label="Weight for {key}"
+                      bind:value={form.weights[key]}
+                    />
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <aside>
+      <section class="user-box">
+        <h2>Rewards</h2>
+        {#each form.thresholds as threshold, index (index)}
+          <div class="set-row">
+            <div>
+              <b>Chest {index + 1}</b>
+              <p>
+                At
+                <input
+                  class="num-in small"
+                  type="number"
+                  min="1"
+                  step="1"
+                  aria-label="Chest {index + 1} points"
+                  bind:value={threshold.points}
+                />
+                points
+              </p>
+            </div>
+            <span class="coin-in">
+              <input
+                class="num-in"
                 type="number"
                 min="0"
-                step="any"
-                placeholder="1"
-                aria-label="Weight for {key}"
-                bind:value={form.weights[key]}
-              />
-            </td>
-          </tr>
+                step="1"
+                aria-label="Chest {index + 1} coins"
+                bind:value={threshold.coins}
+              /><i class="fa-solid fa-coins"></i>
+            </span>
+          </div>
         {/each}
-      </tbody>
-    </table>
+      </section>
+      <section class="user-box">
+        <h2><label for="cm-artists">Artists</label> <small>One per line</small></h2>
+        <textarea id="cm-artists" rows="8" bind:value={form.artists}></textarea>
+      </section>
+      <section class="user-box">
+        <h2><label for="cm-maps">Famous maps</label> <small>ID, then the name</small></h2>
+        <textarea id="cm-maps" rows="6" bind:value={form.famousMaps}></textarea>
+      </section>
+    </aside>
   </div>
 
-  <div class="panel form-panel admin-form settings-form c-green">
-    <button class="btn btn-blue" type="button" disabled={busy} onclick={save}>
-      <i class="fa-solid fa-floppy-disk"></i>Save
-    </button>
-  </div>
+  <SaveBar
+    {changes}
+    {busy}
+    ondiscard={() => loadedForm && (form = structuredClone($state.snapshot(loadedForm)))}
+    onsave={save}
+  />
 {:else if settings.state.status === 'loading'}
-  <div class="panel form-panel c-green">
-    <span class="skel" style="width: 100%; height: 22px"></span>
-  </div>
+  <span class="skel" style="width: 100%; height: 300px"></span>
 {:else if settings.state.status === 'error'}
-  <p class="empty-note">{describe(settings.state.error)}</p>
+  <p class="panel empty-note">{describe(settings.state.error)}</p>
 {/if}
