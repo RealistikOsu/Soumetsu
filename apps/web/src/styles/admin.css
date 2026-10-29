@@ -2821,7 +2821,7 @@
     align-items: start;
   }
 
-  [type='radio']) {
+  .field-pair input:not([type='checkbox'], [type='radio']) {
     width: 100%;
     min-width: 0;
     max-width: none;
