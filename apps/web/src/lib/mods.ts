@@ -5,6 +5,10 @@ export interface Mod {
 
 const DEFAULT_RATE: Record<string, number> = { DT: 1.5, NC: 1.5, HT: 0.75 };
 
+// The patcher sends NC as DT with pitch adjustment on.
+export const shownAcronym = (mod: Mod) =>
+  mod.acronym === 'DT' && mod.settings?.adjust_pitch ? 'NC' : mod.acronym;
+
 // The API always lists CL first, and PF also implies SD, so neither is shown.
 const hidden = (mod: Mod, all: Mod[]) =>
   mod.acronym === 'CL' || (mod.acronym === 'SD' && all.some((m) => m.acronym === 'PF'));
@@ -14,9 +18,10 @@ export function modsText(mods: Mod[]) {
   const names = mods
     .filter((mod) => !hidden(mod, mods))
     .map((mod) => {
+      const acronym = shownAcronym(mod);
       const rate = mod.settings?.speed_change;
-      const custom = rate && Math.abs(rate - (DEFAULT_RATE[mod.acronym] ?? 1)) > 0.001;
-      return custom ? `${mod.acronym}(${rate}x)` : mod.acronym;
+      const custom = rate && Math.abs(rate - (DEFAULT_RATE[acronym] ?? 1)) > 0.001;
+      return custom ? `${acronym}(${rate}x)` : acronym;
     });
   return names.length ? `+${names.join('')}` : '';
 }

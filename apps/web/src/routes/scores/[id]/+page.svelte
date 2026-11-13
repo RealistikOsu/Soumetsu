@@ -17,6 +17,7 @@
   import { gradeClass, gradeFromRank, gradeLabel } from '$lib/grades';
   import { hitRows } from '$lib/lazerHits';
   import { modeNames, relaxNames } from '$lib/modes';
+  import { shownAcronym } from '$lib/mods';
   import { m } from '$lib/paraglide/messages';
 
   const stableName = (variant: number) =>
@@ -75,7 +76,7 @@
     (score?.mods ?? [])
       .filter((mod) => mod.acronym !== 'CL')
       .map((mod) => ({
-        acronym: mod.acronym,
+        acronym: shownAcronym(mod),
         rate: mod.settings?.speed_change ? `${mod.settings.speed_change}x` : ''
       }))
   );
