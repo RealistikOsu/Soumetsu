@@ -460,13 +460,95 @@
 
 /* api reference: Scalar, themed with the site's own colours */
 
-.api-docs {
-  min-height: 60vh;
-  border-top: 1px solid var(--line);
+.api-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--header);
+}
+
+.api-bar .logo img {
+  display: block;
+  height: 26px;
+  width: auto;
+}
+
+.api-bar b {
+  font-size: 15px;
+}
+
+.api-switch {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.api-switch a {
+  padding: 3px 12px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.api-switch a:hover {
+  color: var(--text);
+}
+
+.api-switch a.active {
+  background: var(--active);
+  color: var(--text);
+}
+
+.api-switch small {
+  color: var(--faint);
+}
+
+.api-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.api-back:hover {
+  color: var(--text);
+}
+
+.api-failed {
+  padding: 48px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .api-bar > b,
+  .api-switch small {
+    display: none;
+  }
+
+  .api-back {
+    font-size: 0;
+  }
+
+  .api-back i {
+    font-size: 14px;
+  }
 }
 
 /* Scalar puts its dark-mode class on <body>, and its search dialog renders there too. */
 body.dark-mode {
+  /* keeps Scalar's sticky sidebar and headings below the bar above */
+  --scalar-custom-header-height: 52px;
   --scalar-font: 'DM Sans', system-ui, sans-serif;
   --scalar-radius: 4px;
   --scalar-radius-lg: var(--radius);
@@ -505,4 +587,9 @@ body.dark-mode {
   --scalar-sidebar-color-active: var(--link);
   --scalar-sidebar-search-background: var(--bg);
   --scalar-sidebar-search-border-color: var(--line);
+}
+
+/* the bar above switches between v1 and v2 */
+.api-docs .document-selector {
+  display: none;
 }

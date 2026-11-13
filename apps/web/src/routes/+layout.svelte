@@ -2,6 +2,7 @@
   import { fadeImages } from '@soumetsu/ui';
   import { onMount, type Snippet } from 'svelte';
   import { afterNavigate, onNavigate } from '$app/navigation';
+  import { page } from '$app/state';
   import FloatTip from '$lib/components/FloatTip.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import Header from '$lib/components/Header.svelte';
@@ -16,6 +17,9 @@
   import '../styles/index.css';
 
   let { children }: { children: Snippet } = $props();
+
+  // The API reference brings its own sidebar and search, so it takes the whole screen.
+  const bare = $derived(page.route.id === '/doc/api');
 
   onMount(() => {
     document.documentElement.lang = getLocale();
@@ -51,9 +55,9 @@
 
 <svelte:window onclickcapture={nameCover} />
 
-<Header />
+{#if !bare}<Header />{/if}
 {@render children()}
-<Footer />
+{#if !bare}<Footer />{/if}
 <LoadBar />
 <FloatTip />
 <Toasts />
