@@ -251,6 +251,7 @@
   "common_error_beatmap_delete_ranked": "Ranked, qualified and loved maps can't be deleted.",
   "footer_terms": "Terms",
   "footer_privacy": "Privacy",
+  "footer_api": "API",
   "common_error_2fa_invalid_code": "That code isn't right.",
   "common_error_2fa_challenge_expired": "That took too long. Log in again.",
   "common_error_2fa_setup_link_required": "Staff need to use the emailed setup link.",

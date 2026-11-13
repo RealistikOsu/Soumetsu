@@ -251,6 +251,7 @@
   "common_error_beatmap_delete_ranked": "Map ranked, qualified i loved nie da się usunąć.",
   "footer_terms": "Regulamin",
   "footer_privacy": "Prywatność",
+  "footer_api": "API",
   "common_error_2fa_invalid_code": "Zły kod.",
   "common_error_2fa_challenge_expired": "Trwało to za długo. Zaloguj się jeszcze raz.",
   "common_error_2fa_setup_link_required": "Staff konfiguruje weryfikację przez link z maila.",

@@ -27,6 +27,13 @@
         </div>
       </a>
     {/each}
+    <a class="panel doc-card c-green" href="/doc/api">
+      <i class="fa-solid fa-code"></i>
+      <div>
+        <b>{m.support_api_title()}</b>
+        <p>{m.support_api_card()}</p>
+      </div>
+    </a>
   {:else if list.state.status === 'error'}
     <p class="panel empty-note">{m.support_doc_error()}</p>
   {:else}

@@ -457,3 +457,52 @@
   outline: 2px solid var(--link);
   background: rgb(104 173 242 / 0.15);
 }
+
+/* api reference: Scalar, themed with the site's own colours */
+
+.api-docs {
+  min-height: 60vh;
+  border-top: 1px solid var(--line);
+}
+
+/* Scalar puts its dark-mode class on <body>, and its search dialog renders there too. */
+body.dark-mode {
+  --scalar-font: 'DM Sans', system-ui, sans-serif;
+  --scalar-radius: 4px;
+  --scalar-radius-lg: var(--radius);
+  --scalar-radius-xl: var(--radius);
+
+  --scalar-background-1: var(--bg);
+  --scalar-background-2: var(--panel);
+  --scalar-background-3: var(--panel-2);
+  --scalar-background-accent: color-mix(in srgb, var(--blue) 18%, transparent);
+  --scalar-border-color: var(--line);
+
+  --scalar-color-1: var(--text);
+  --scalar-color-2: var(--muted);
+  --scalar-color-3: var(--faint);
+  --scalar-color-accent: var(--link);
+  --scalar-link-color: var(--link);
+  --scalar-link-color-hover: #fff;
+
+  --scalar-button-1: var(--button);
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: var(--blue);
+
+  --scalar-color-green: var(--green);
+  --scalar-color-red: var(--red);
+  --scalar-color-yellow: var(--yellow);
+  --scalar-color-blue: var(--blue);
+  --scalar-color-orange: var(--orange);
+  --scalar-color-purple: var(--purple);
+
+  --scalar-sidebar-background-1: var(--header);
+  --scalar-sidebar-color-1: var(--text);
+  --scalar-sidebar-color-2: var(--muted);
+  --scalar-sidebar-border-color: var(--line);
+  --scalar-sidebar-item-hover-background: var(--active);
+  --scalar-sidebar-item-active-background: var(--active);
+  --scalar-sidebar-color-active: var(--link);
+  --scalar-sidebar-search-background: var(--bg);
+  --scalar-sidebar-search-border-color: var(--line);
+}

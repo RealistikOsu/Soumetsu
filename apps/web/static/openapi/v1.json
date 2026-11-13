@@ -1,0 +1,6187 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RealistikOsu API v1 (legacy)",
+    "version": "1.0",
+    "description": "The old Ripple-style API. It is kept running for existing bots and tools, but it is no longer maintained. New projects should use v2. Public endpoints work without a token. Endpoints marked with a lock need one, and a token also lets restricted users see themselves. Errors are `{ \"code\", \"message\" }` with the HTTP status set to `code`. Send `pls200` to always get HTTP 200, or `callback=name` to get JSONP."
+  },
+  "servers": [
+    {
+      "url": "https://ussr.pl"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users"
+    },
+    {
+      "name": "Scores"
+    },
+    {
+      "name": "Beatmaps"
+    },
+    {
+      "name": "Leaderboard"
+    },
+    {
+      "name": "Clans"
+    },
+    {
+      "name": "Badges"
+    },
+    {
+      "name": "Friends"
+    },
+    {
+      "name": "Self"
+    },
+    {
+      "name": "Comments"
+    },
+    {
+      "name": "Misc"
+    },
+    {
+      "name": "osu! API compatible",
+      "description": "The old osu! API v1 format, where every value is a string. The routes are also available as `/api/v1/get_*`. The `k` key is not checked."
+    }
+  ],
+  "paths": {
+    "/api/v1/ping": {
+      "get": {
+        "tags": ["Misc"],
+        "summary": "Check the API and your token",
+        "operationId": "ping",
+        "description": "Works without a token, and then `user_id` is 0.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/surprise_me": {
+      "get": {
+        "tags": ["Misc"],
+        "summary": "Random sentences",
+        "operationId": "surpriseMe",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SurpriseMeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/blog/posts": {
+      "get": {
+        "tags": ["Misc"],
+        "summary": "Latest blog posts",
+        "operationId": "blogPosts",
+        "description": "Proxies the old Ripple blog feed and caches it for five minutes.",
+        "parameters": [
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Maximum number of posts. All posts when omitted."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogPostsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/hmrapi/topdonors": {
+      "get": {
+        "tags": ["Misc"],
+        "summary": "Current supporters",
+        "operationId": "topDonors",
+        "description": "Up to 8 supporters, latest expiry first.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopDonorsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Find a user or list users",
+        "operationId": "getUsers",
+        "description": "With a valid `id` or `name` this returns that one user. Without, it lists users using the list-mode filters. Restricted users are hidden unless you are them or staff.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          },
+          {
+            "name": "nname",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "List mode: username to match (case and spaces ignored)."
+          },
+          {
+            "name": "iid",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "List mode: user ID."
+          },
+          {
+            "name": "privileges",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "List mode: exact privilege value."
+          },
+          {
+            "name": "has_privileges",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "List mode: users with any of these privilege bits."
+          },
+          {
+            "name": "has_not_privileges",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "List mode: users with none of these privilege bits."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "List mode: two-letter country code."
+          },
+          {
+            "name": "name_aka",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "List mode: exact `username_aka`."
+          },
+          {
+            "name": "privilege_group",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "List mode: privilege group name."
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "List mode: repeat to match several user IDs."
+          },
+          {
+            "name": "names",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "List mode: repeat to match several usernames."
+          },
+          {
+            "name": "names_aka",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "List mode: repeat to match several `username_aka` values."
+          },
+          {
+            "name": "countries",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "List mode: repeat to match several countries."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Repeat to sort by several fields. Each is `field` or `field,asc|desc`. Allowed fields: id, username, privileges, donor_expire, latest_activity, silence_end. Defaults to `id,asc`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/UserResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UsersResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/whatid": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Look up a user ID by name",
+        "operationId": "userWhatId",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Username."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatIdResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/full": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Full user profile",
+        "operationId": "getUserFull",
+        "description": "Needs `id` or `name`. Staff-only fields are left out.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserFullResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/achievements": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "A user's achievements",
+        "operationId": "getUserAchievements",
+        "description": "Lists every achievement with an `achieved` flag. The user is looked up by `id` only.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/most_played": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Most played beatmaps of a user",
+        "operationId": "getUserMostPlayed",
+        "description": "Needs `id` or `name`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only count this mode. Also sent to the total count, so give it with `id`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MostPlayedResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/userpage": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "A user's userpage",
+        "operationId": "getUserUserpage",
+        "description": "Needs `id` or `name`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserpageResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/lookup": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Search usernames",
+        "operationId": "lookupUsers",
+        "description": "Returns up to 25 users whose name contains the text.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Part of a username."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/get_activity": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Recent activity of a user",
+        "operationId": "getUserActivity",
+        "description": "Up to 5 log entries from the last 30 days.",
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "0 osu!, 1 taiko, 2 catch, 3 mania."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/followers": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Follower counts of a user",
+        "operationId": "getFollowerCounts",
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowerCountsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/best": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Best scores of a user",
+        "operationId": "getUserScoresBest",
+        "description": "Needs `id` or `name`. Ranked and approved maps only, best by pp.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only this mode."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/recent": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Recent scores of a user",
+        "operationId": "getUserScoresRecent",
+        "description": "Needs `id` or `name`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only this mode."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["recent"]
+            },
+            "description": "`recent` keeps only passes from the last 24 hours."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/first": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "First place scores of a user",
+        "operationId": "getUserScoresFirst",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Defaults to 0."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserFirstScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/first/oldest": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "First places",
+        "operationId": "getFirstPlaces",
+        "description": "Fixed page size of 25. The body `code` is always 0 and `total` is not reliable.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Page number, starting at 0."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "c_mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirstPlacesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/pinned": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Pinned scores of a user",
+        "operationId": "getUserScoresPinned",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Defaults to 0."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Scores"],
+        "summary": "Pin a score",
+        "operationId": "pinScore",
+        "description": "Needs the Write privilege on the token. Uses query parameters, not a body.",
+        "parameters": [
+          {
+            "name": "score_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Score ID. Must be your own."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/pinned/info": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Who pinned a score",
+        "operationId": "getPinnedInfo",
+        "description": "404 when the score isn't pinned.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Score ID."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinnedInfoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/scores/pinned/delete": {
+      "post": {
+        "tags": ["Scores"],
+        "summary": "Unpin a score",
+        "operationId": "unpinScore",
+        "description": "Needs the Write privilege on the token. Uses query parameters, not a body.",
+        "parameters": [
+          {
+            "name": "score_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Score ID."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/scores": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Scores on a beatmap",
+        "operationId": "getScores",
+        "description": "Best scores only. Give at least one of `md5`, `b` or `id`.",
+        "parameters": [
+          {
+            "name": "md5",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Beatmap MD5, repeat for several."
+          },
+          {
+            "name": "b",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Beatmap ID."
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Score ID, repeat for several."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only this mode."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Repeat to sort by several fields. Each is `field` or `field,asc|desc`. Allowed fields: pp, score, accuracy, id. Defaults to `pp,desc then score,desc`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeatmapScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/scores/most_watched": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Most watched replays of a user",
+        "operationId": "getMostWatchedScores",
+        "description": "Needs `id` or `name`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID, or `self` for the token's owner. Give this or `name`."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Username. Used when `id` is not given."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only this mode."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MostWatchedScoresResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/hmrapi/top_plays": {
+      "get": {
+        "tags": ["Scores"],
+        "summary": "Top plays by pp",
+        "operationId": "getTopPlays",
+        "description": "Vanilla scores only.",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 50
+            },
+            "description": "How many scores. No upper limit is enforced."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopPlaysResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/beatmaps": {
+      "get": {
+        "tags": ["Beatmaps"],
+        "summary": "Get beatmaps",
+        "operationId": "getBeatmaps",
+        "description": "With `b` this returns one beatmap, flattened into the response. Otherwise it returns a list filtered by the other parameters.",
+        "parameters": [
+          {
+            "name": "b",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Beatmap ID. Switches to the single-beatmap response."
+          },
+          {
+            "name": "bb",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Beatmap ID, repeat for several."
+          },
+          {
+            "name": "s",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Beatmap set ID, repeat for several."
+          },
+          {
+            "name": "md5",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Beatmap MD5, repeat for several."
+          },
+          {
+            "name": "song_name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Exact song name."
+          },
+          {
+            "name": "ranked_status_frozen",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["0", "1"]
+            },
+            "description": "Filter on the frozen flag."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Repeat to sort by several fields. Each is `field` or `field,asc|desc`. Allowed fields: beatmapset_id, beatmap_id, id, ar, od, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania, max_combo, latest_update, playcount, passcount. Defaults to `beatmap_id,desc`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/BeatmapResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BeatmapListResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/beatmaps/search": {
+      "get": {
+        "tags": ["Beatmaps"],
+        "summary": "Search beatmaps",
+        "operationId": "searchBeatmaps",
+        "description": "Matches song name or MD5. Only maps with a frozen ranked status are searched, and at most 100 sets come back.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Text to look for."
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Game mode."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Ranked status to match."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeatmapSearchResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/beatmaps/rank_requests/status": {
+      "get": {
+        "tags": ["Beatmaps"],
+        "summary": "Rank request queue",
+        "operationId": "getRankRequestStatus",
+        "description": "With a token that has ReadConfidential it also reports what you can submit.",
+        "security": [
+          {},
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankRequestStatusResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/beatmaps/rank_requests": {
+      "post": {
+        "tags": ["Beatmaps"],
+        "summary": "Request a beatmap to be ranked",
+        "operationId": "submitRankRequest",
+        "description": "Needs the Write privilege on the token. Send `id` or `set_id`. Limited to 5 tries a minute.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Beatmap ID."
+                  },
+                  "set_id": {
+                    "type": "integer",
+                    "description": "Beatmap set ID."
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankRequestStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/hmrapi/top_beatmaps": {
+      "get": {
+        "tags": ["Beatmaps"],
+        "summary": "Most played beatmaps",
+        "operationId": "getTopBeatmaps",
+        "description": "The five most played.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopBeatmapsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/leaderboard": {
+      "get": {
+        "tags": ["Leaderboard"],
+        "summary": "Global or country leaderboard",
+        "operationId": "getLeaderboard",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Defaults to 0."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["pp", "score", "coins"],
+              "default": "pp"
+            },
+            "description": "What to rank by."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Two-letter country code."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            },
+            "description": "Page size."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/hypothetical-rank": {
+      "get": {
+        "tags": ["Leaderboard"],
+        "summary": "Rank for a pp value",
+        "operationId": "getHypotheticalRank",
+        "description": "The rank a player with this much pp would have.",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "required": true,
+            "description": "0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2]
+            },
+            "required": true,
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "pp",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "required": true,
+            "description": "Performance points."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HypotheticalRankResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/badges": {
+      "get": {
+        "tags": ["Badges"],
+        "summary": "List badges",
+        "operationId": "getBadges",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return only this badge."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResponseBase"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "badges": {
+                          "type": ["array", "null"],
+                          "items": {
+                            "$ref": "#/components/schemas/Badge"
+                          }
+                        }
+                      },
+                      "required": ["badges"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/badges/members": {
+      "get": {
+        "tags": ["Badges"],
+        "summary": "Users with a badge",
+        "operationId": "getBadgeMembers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Badge ID."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResponseBase"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "members": {
+                          "type": ["array", "null"],
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      },
+                      "required": ["members"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "List clans",
+        "operationId": "getClans",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return only this clan."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClansResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans/members": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "Members of a clan",
+        "operationId": "getClanMembers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Clan ID."
+          },
+          {
+            "name": "r",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Only members with this permission level (1 member, 8 owner)."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanMembersResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans/stats": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "Stats and rank of a clan",
+        "operationId": "getClanStats",
+        "description": "If the clan doesn't exist the body `code` is 0 and nothing else is returned.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Clan ID."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanStatsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans/stats/all": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "Clan leaderboard",
+        "operationId": "getClanStatsAll",
+        "description": "Clans ranked by weighted pp.",
+        "parameters": [
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2],
+              "default": 0
+            },
+            "description": "0 vanilla, 1 relax, 2 autopilot."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            },
+            "description": "Page size."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanStatsAllResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans/isclan": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "Clan of a user",
+        "operationId": "getUserClan",
+        "description": "`clan` is all zeroes when the user is in no clan.",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsClanResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/clans/getinvite": {
+      "get": {
+        "tags": ["Clans"],
+        "summary": "Clan invite link",
+        "operationId": "getClanInvite",
+        "description": "Only works for the owner of the clan, with their own user ID. The body `code` is 0 on success.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Your user ID."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanInviteResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/friends": {
+      "get": {
+        "tags": ["Friends"],
+        "summary": "Your friends",
+        "operationId": "getFriends",
+        "description": "Needs the ReadConfidential privilege on the token.",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Repeat to sort by several fields. Each is `field` or `field,asc|desc`. Allowed fields: id, username, latest_activity. Defaults to `id,asc`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/friends/with": {
+      "get": {
+        "tags": ["Friends"],
+        "summary": "Check a friendship",
+        "operationId": "getFriendship",
+        "description": "Needs the ReadConfidential privilege on the token.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "User ID to check."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendshipResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/friends/add": {
+      "post": {
+        "tags": ["Friends"],
+        "summary": "Add a friend",
+        "operationId": "addFriend",
+        "description": "Needs the Write privilege on the token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "integer",
+                    "description": "User ID."
+                  }
+                },
+                "required": ["user"]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendshipResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/friends/del": {
+      "post": {
+        "tags": ["Friends"],
+        "summary": "Remove a friend",
+        "operationId": "removeFriend",
+        "description": "Needs the Write privilege on the token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "integer",
+                    "description": "User ID."
+                  }
+                },
+                "required": ["user"]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendshipResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/mitsuha/followers_friends": {
+      "get": {
+        "tags": ["Friends"],
+        "summary": "Your followers",
+        "operationId": "getFollowers",
+        "description": "Supporters only. Lists people who follow you but you don't follow back, plus the ones you do.",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Repeat to sort by several fields. Each is `field` or `field,asc|desc`. Allowed fields: id, username, latest_activity. Defaults to `id,asc`."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Page size. Larger values are capped at the maximum."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowersResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not a supporter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/self": {
+      "get": {
+        "tags": ["Self"],
+        "summary": "Your profile",
+        "operationId": "getSelf",
+        "description": "Returns 404 without a valid token.",
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/self/donor_info": {
+      "get": {
+        "tags": ["Self"],
+        "summary": "Your supporter status",
+        "operationId": "getSelfDonorInfo",
+        "description": "Needs the ReadConfidential privilege on the token.",
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DonorInfoResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/self/favourite_mode": {
+      "get": {
+        "tags": ["Self"],
+        "summary": "Your favourite mode",
+        "operationId": "getSelfFavouriteMode",
+        "description": "Needs the ReadConfidential privilege on the token.",
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteModeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/self/settings": {
+      "get": {
+        "tags": ["Self"],
+        "summary": "Your settings",
+        "operationId": "getSelfSettings",
+        "description": "Needs the ReadConfidential privilege on the token.",
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Self"],
+        "summary": "Change your settings",
+        "operationId": "updateSelfSettings",
+        "description": "Needs the Write privilege on the token. Returns the settings after the change.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsUpdate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/self/userpage": {
+      "post": {
+        "tags": ["Self"],
+        "summary": "Change your userpage",
+        "operationId": "updateSelfUserpage",
+        "description": "Needs the Write privilege on the token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string",
+                    "description": "New userpage content."
+                  }
+                },
+                "required": ["data"]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserpageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/comments": {
+      "get": {
+        "tags": ["Comments"],
+        "summary": "Profile comments",
+        "operationId": "getComments",
+        "description": "404 if the profile is missing or has comments turned off.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Profile owner's user ID."
+          },
+          {
+            "name": "p",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "default": 5
+            },
+            "description": "Page size. At most 5."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Comments"],
+        "summary": "Post a comment",
+        "operationId": "postComment",
+        "description": "Needs the Write privilege on the token. The body is the comment text itself, 3 to 380 bytes.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Profile owner's user ID."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 380
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/comments/info": {
+      "get": {
+        "tags": ["Comments"],
+        "summary": "Comment count",
+        "operationId": "getCommentInfo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Profile owner's user ID."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentInfoResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/comments/delete": {
+      "post": {
+        "tags": ["Comments"],
+        "summary": "Delete a comment",
+        "operationId": "deleteComment",
+        "description": "Needs the Write privilege on the token. Allowed for the author, the profile owner and staff.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Comment ID."
+          }
+        ],
+        "security": [
+          {
+            "RippleTokenHeader": []
+          },
+          {
+            "TokenQuery": []
+          },
+          {
+            "KeyQuery": []
+          },
+          {
+            "TokenCookie": []
+          },
+          {
+            "OAuthBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid token, or it lacks the required privilege.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseBase"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_user": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Get a user",
+        "operationId": "peppyGetUser",
+        "description": "Returns an empty array when `u` is missing or unknown. Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "u",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Username or user ID."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "`string` forces a username lookup. Otherwise a number is tried as an ID first, then as a username."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeppyUser"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_user_recent": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Recent scores of a user",
+        "operationId": "peppyGetUserRecent",
+        "description": "Vanilla scores only, newest first. Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "u",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Username or user ID."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "`string` forces a username lookup. Otherwise a number is tried as an ID first, then as a username."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "description": "Number of scores."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeppyUserScore"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_user_best": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Best scores of a user",
+        "operationId": "peppyGetUserBest",
+        "description": "Vanilla scores only, by pp (by score for catch). Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "u",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Username or user ID."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "`string` forces a username lookup. Otherwise a number is tried as an ID first, then as a username."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "Number of scores."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeppyUserScore"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_scores": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Scores on a beatmap",
+        "operationId": "peppyGetScores",
+        "description": "The body is `null` when there are no scores. Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "b",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Beatmap ID. Returns an empty array without it."
+          },
+          {
+            "name": "u",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only this user's scores. Without it, best scores only."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Same as in `get_user`."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 0
+            },
+            "description": "Mode: 0 osu!, 1 taiko, 2 catch, 3 mania."
+          },
+          {
+            "name": "mods",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Only scores that include all of these mods. Bit 128 selects the relax scores and bit 4096 the autopilot scores."
+          },
+          {
+            "name": "rx",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1, 2]
+            },
+            "description": "Extra parameter: 1 relax, 2 autopilot."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Number of scores."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": ["array", "null"],
+                  "items": {
+                    "$ref": "#/components/schemas/PeppyBeatmapScore"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_beatmaps": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Get beatmaps",
+        "operationId": "peppyGetBeatmaps",
+        "description": "`since`, `u` and `type` are ignored. The body is `null` when nothing matches. Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "s",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Beatmap set ID."
+          },
+          {
+            "name": "b",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Beatmap ID. Limits the result to one beatmap."
+          },
+          {
+            "name": "h",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Beatmap MD5."
+          },
+          {
+            "name": "m",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "description": "Only maps with a difficulty in this mode."
+          },
+          {
+            "name": "a",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["0", "1"]
+            },
+            "description": "`1` keeps converts out when `m` is not 0."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 500
+            },
+            "description": "Number of beatmaps."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": ["array", "null"],
+                  "items": {
+                    "$ref": "#/components/schemas/PeppyBeatmap"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/get_match": {
+      "get": {
+        "tags": ["osu! API compatible"],
+        "summary": "Get a multiplayer match",
+        "operationId": "peppyGetMatch",
+        "description": "Not implemented. Always returns an empty array. Also served under `/api/v1/get_*`.",
+        "parameters": [
+          {
+            "name": "k",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Accepted for compatibility. The server doesn't check it, so any value works."
+          },
+          {
+            "name": "mp",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Match ID. Ignored."
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "maxItems": 0,
+                  "items": {}
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "RippleTokenHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Ripple-Token",
+        "description": "Ripple API token."
+      },
+      "TokenQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token",
+        "description": "Ripple API token as a query parameter."
+      },
+      "KeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "k",
+        "description": "Same as `token`. Used when `token` is absent."
+      },
+      "TokenCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "rt",
+        "description": "Token from the `rt` cookie. Used when nothing else is sent."
+      },
+      "OAuthBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "OAuth access token in `Authorization: Bearer`. Scopes are `read_confidential` and `write`."
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error. The HTTP status matches `code` unless `pls200` was sent.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponseBase"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ResponseBase": {
+        "type": "object",
+        "description": "Every v1 response starts with these fields. On errors only these are returned.",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Mirrors the HTTP status unless `pls200` is sent. A few handlers forget to set it and return 0."
+          },
+          "message": {
+            "type": "string",
+            "description": "Only present on errors and a few success messages."
+          }
+        },
+        "required": ["code"]
+      },
+      "Timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Stored as a unix timestamp, serialised as an RFC 3339 date-time."
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "username_aka": {
+            "type": "string"
+          },
+          "registered_on": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "privileges": {
+            "type": "integer",
+            "description": "User privilege bitfield."
+          },
+          "latest_activity": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "country": {
+            "type": "string",
+            "description": "Two-letter country code."
+          },
+          "coins": {
+            "type": "integer"
+          },
+          "name_decoration": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "username_aka",
+          "registered_on",
+          "privileges",
+          "latest_activity",
+          "country",
+          "coins",
+          "name_decoration"
+        ]
+      },
+      "UserResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "$ref": "#/components/schemas/User"
+          }
+        ]
+      },
+      "UsersResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "users": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "required": ["users"]
+          }
+        ]
+      },
+      "ModeStats": {
+        "type": "object",
+        "properties": {
+          "ranked_score": {
+            "type": "integer"
+          },
+          "total_score": {
+            "type": "integer"
+          },
+          "playcount": {
+            "type": "integer"
+          },
+          "play_time": {
+            "type": "integer",
+            "description": "Seconds."
+          },
+          "replays_watched": {
+            "type": "integer"
+          },
+          "total_hits": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "number"
+          },
+          "accuracy": {
+            "type": "number"
+          },
+          "pp": {
+            "type": "integer"
+          },
+          "max_combo": {
+            "type": "integer"
+          },
+          "global_leaderboard_rank": {
+            "type": ["integer", "null"]
+          },
+          "country_leaderboard_rank": {
+            "type": ["integer", "null"]
+          }
+        },
+        "required": [
+          "ranked_score",
+          "total_score",
+          "playcount",
+          "play_time",
+          "replays_watched",
+          "total_hits",
+          "level",
+          "accuracy",
+          "pp",
+          "max_combo",
+          "global_leaderboard_rank",
+          "country_leaderboard_rank"
+        ]
+      },
+      "ModeStatsSet": {
+        "type": "object",
+        "properties": {
+          "std": {
+            "$ref": "#/components/schemas/ModeStats"
+          },
+          "taiko": {
+            "$ref": "#/components/schemas/ModeStats"
+          },
+          "ctb": {
+            "$ref": "#/components/schemas/ModeStats"
+          },
+          "mania": {
+            "$ref": "#/components/schemas/ModeStats"
+          }
+        },
+        "required": ["std", "taiko", "ctb", "mania"]
+      },
+      "Badge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "icon"]
+      },
+      "Clan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "description", "tag", "icon"]
+      },
+      "UserFullResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "past_usernames": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "stats": {
+                "type": "object",
+                "properties": {
+                  "vn": {
+                    "$ref": "#/components/schemas/ModeStatsSet"
+                  },
+                  "rx": {
+                    "$ref": "#/components/schemas/ModeStatsSet"
+                  },
+                  "ap": {
+                    "$ref": "#/components/schemas/ModeStatsSet"
+                  }
+                },
+                "required": ["vn", "rx", "ap"]
+              },
+              "play_style": {
+                "type": "integer"
+              },
+              "favourite_mode": {
+                "type": "integer"
+              },
+              "badges": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Badge"
+                }
+              },
+              "clan": {
+                "$ref": "#/components/schemas/Clan",
+                "description": "All fields are empty when the user is in no clan."
+              },
+              "custom_badge": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Badge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "silence_info": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  },
+                  "end": {
+                    "$ref": "#/components/schemas/Timestamp"
+                  }
+                },
+                "required": ["reason", "end"]
+              }
+            },
+            "required": [
+              "past_usernames",
+              "stats",
+              "play_style",
+              "favourite_mode",
+              "badges",
+              "clan",
+              "custom_badge",
+              "silence_info"
+            ]
+          }
+        ]
+      },
+      "WhatIdResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              }
+            },
+            "required": ["id"]
+          }
+        ]
+      },
+      "UserpageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "userpage": {
+                "type": "string",
+                "description": "Raw userpage content, empty if none."
+              }
+            },
+            "required": ["userpage"]
+          }
+        ]
+      },
+      "LookupResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "users": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "name_decoration": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "username", "name_decoration"]
+                }
+              }
+            },
+            "required": ["users"]
+          }
+        ]
+      },
+      "Achievement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "achieved": {
+            "type": "boolean"
+          },
+          "info": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "time": {
+                "type": "integer",
+                "description": "Unix timestamp, 0 if not achieved."
+              }
+            },
+            "required": ["id", "time"]
+          }
+        },
+        "required": ["id", "name", "desc", "file", "achieved", "info"]
+      },
+      "AchievementsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "achievements": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Achievement"
+                }
+              }
+            },
+            "required": ["achievements"]
+          }
+        ]
+      },
+      "Difficulty": {
+        "type": "object",
+        "properties": {
+          "std": {
+            "type": "number"
+          },
+          "taiko": {
+            "type": "number"
+          },
+          "ctb": {
+            "type": "number"
+          },
+          "mania": {
+            "type": "number"
+          }
+        },
+        "required": ["std", "taiko", "ctb", "mania"]
+      },
+      "Beatmap": {
+        "type": "object",
+        "properties": {
+          "beatmap_id": {
+            "type": "integer"
+          },
+          "beatmapset_id": {
+            "type": "integer"
+          },
+          "beatmap_md5": {
+            "type": "string"
+          },
+          "song_name": {
+            "type": "string"
+          },
+          "ar": {
+            "type": "number"
+          },
+          "od": {
+            "type": "number"
+          },
+          "difficulty": {
+            "type": "number",
+            "description": "Same as `difficulty2.std`."
+          },
+          "difficulty2": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "max_combo": {
+            "type": "integer"
+          },
+          "hit_length": {
+            "type": "integer",
+            "description": "Seconds."
+          },
+          "ranked": {
+            "type": "integer",
+            "description": "0 pending, 1 needs update, 2 ranked, 3 approved, 4 qualified, 5 loved."
+          },
+          "ranked_status_frozen": {
+            "type": "integer",
+            "description": "1 if the ranked status is locked."
+          },
+          "latest_update": {
+            "$ref": "#/components/schemas/Timestamp"
+          }
+        },
+        "required": [
+          "beatmap_id",
+          "beatmapset_id",
+          "beatmap_md5",
+          "song_name",
+          "ar",
+          "od",
+          "difficulty",
+          "difficulty2",
+          "max_combo",
+          "hit_length",
+          "ranked",
+          "ranked_status_frozen",
+          "latest_update"
+        ]
+      },
+      "BeatmapResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "$ref": "#/components/schemas/Beatmap"
+          }
+        ]
+      },
+      "BeatmapListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "beatmaps": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Beatmap"
+                }
+              }
+            },
+            "required": ["beatmaps"]
+          }
+        ]
+      },
+      "BeatmapSearchResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "beatmapsets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "beatmapset_id": {
+                      "type": "integer"
+                    },
+                    "children": {
+                      "type": ["array", "null"],
+                      "items": {
+                        "$ref": "#/components/schemas/Beatmap"
+                      }
+                    }
+                  },
+                  "required": ["beatmapset_id", "children"]
+                }
+              }
+            },
+            "required": ["beatmapsets"]
+          }
+        ]
+      },
+      "Score": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "beatmap_md5": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          },
+          "max_combo": {
+            "type": "integer"
+          },
+          "full_combo": {
+            "type": "boolean"
+          },
+          "mods": {
+            "type": "integer",
+            "description": "Mod bitfield."
+          },
+          "count_300": {
+            "type": "integer"
+          },
+          "count_100": {
+            "type": "integer"
+          },
+          "count_50": {
+            "type": "integer"
+          },
+          "count_geki": {
+            "type": "integer"
+          },
+          "count_katu": {
+            "type": "integer"
+          },
+          "count_miss": {
+            "type": "integer"
+          },
+          "time": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "play_mode": {
+            "type": "integer"
+          },
+          "accuracy": {
+            "type": "number"
+          },
+          "pp": {
+            "type": "number"
+          },
+          "rank": {
+            "type": "string",
+            "description": "Grade, e.g. SS, S, A."
+          },
+          "completed": {
+            "type": "integer",
+            "description": "0 quit, 1 failed, 2 passed, 3 best."
+          },
+          "playback_rate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "beatmap_md5",
+          "score",
+          "max_combo",
+          "full_combo",
+          "mods",
+          "count_300",
+          "count_100",
+          "count_50",
+          "count_geki",
+          "count_katu",
+          "count_miss",
+          "time",
+          "play_mode",
+          "accuracy",
+          "pp",
+          "rank",
+          "completed",
+          "playback_rate"
+        ]
+      },
+      "UserScore": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Score"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "beatmap": {
+                "$ref": "#/components/schemas/Beatmap"
+              }
+            },
+            "required": ["beatmap"]
+          }
+        ]
+      },
+      "UserScoresResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scores": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/UserScore"
+                }
+              }
+            },
+            "required": ["scores"]
+          }
+        ]
+      },
+      "UserFirstScoresResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "string",
+                "description": "Number of first places, as a string."
+              },
+              "scores": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/UserScore"
+                }
+              }
+            },
+            "required": ["total", "scores"]
+          }
+        ]
+      },
+      "BeatmapScore": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Score"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "required": ["user"]
+          }
+        ]
+      },
+      "BeatmapScoresResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scores": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/BeatmapScore"
+                }
+              }
+            },
+            "required": ["scores"]
+          }
+        ]
+      },
+      "FirstPlace": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Score"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "beatmap": {
+                "$ref": "#/components/schemas/Beatmap"
+              },
+              "UserID": {
+                "type": "integer",
+                "description": "Capitalised, the Go struct has no json tag."
+              },
+              "Username": {
+                "type": "string"
+              }
+            },
+            "required": ["beatmap", "UserID", "Username"]
+          }
+        ]
+      },
+      "FirstPlacesResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "first_places": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/FirstPlace"
+                }
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": ["first_places", "total"]
+          }
+        ]
+      },
+      "MostWatchedScore": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Score"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "watched_count": {
+                "type": "integer"
+              },
+              "beatmap": {
+                "$ref": "#/components/schemas/Beatmap"
+              }
+            },
+            "required": ["watched_count", "beatmap"]
+          }
+        ]
+      },
+      "MostWatchedScoresResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scores": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/MostWatchedScore"
+                }
+              }
+            },
+            "required": ["scores"]
+          }
+        ]
+      },
+      "MostPlayedResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "string"
+              },
+              "beatmaps": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "beatmap": {
+                      "$ref": "#/components/schemas/Beatmap"
+                    },
+                    "playcount": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["beatmap", "playcount"]
+                }
+              }
+            },
+            "required": ["total", "beatmaps"]
+          }
+        ]
+      },
+      "PinnedInfoResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pinned": {
+                "type": "object",
+                "properties": {
+                  "userid": {
+                    "type": "integer"
+                  },
+                  "scoreid": {
+                    "type": "integer"
+                  },
+                  "pinned_at": {
+                    "type": "integer",
+                    "description": "Unix timestamp."
+                  }
+                },
+                "required": ["userid", "scoreid", "pinned_at"]
+              }
+            },
+            "required": ["pinned"]
+          }
+        ]
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "op": {
+            "type": "integer",
+            "description": "User ID of the author."
+          },
+          "username": {
+            "type": "string"
+          },
+          "name_decoration": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "posted_at": {
+            "type": "integer",
+            "description": "Unix timestamp."
+          }
+        },
+        "required": ["id", "op", "username", "name_decoration", "message", "posted_at"]
+      },
+      "CommentsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "comments": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            },
+            "required": ["comments"]
+          }
+        ]
+      },
+      "CommentInfoResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "disabled": {
+                "type": "boolean"
+              }
+            },
+            "required": ["total", "disabled"]
+          }
+        ]
+      },
+      "LeaderboardUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "chosen_mode": {
+                "$ref": "#/components/schemas/ModeStats"
+              },
+              "play_style": {
+                "type": "integer"
+              },
+              "favourite_mode": {
+                "type": "integer"
+              }
+            },
+            "required": ["chosen_mode", "play_style", "favourite_mode"]
+          }
+        ]
+      },
+      "LeaderboardResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "users": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/LeaderboardUser"
+                }
+              }
+            },
+            "required": ["users"]
+          }
+        ]
+      },
+      "HypotheticalRankResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rank": {
+                "type": "integer"
+              }
+            },
+            "required": ["rank"]
+          }
+        ]
+      },
+      "BlogPost": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "creator": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": ["user_id", "name", "username"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imported_url": {
+            "type": "string"
+          },
+          "unique_slug": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "string"
+          },
+          "word_count": {
+            "type": "integer"
+          },
+          "reading_time": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "creator",
+          "title",
+          "created_at",
+          "updated_at",
+          "imported_url",
+          "unique_slug",
+          "snippet",
+          "word_count",
+          "reading_time"
+        ]
+      },
+      "BlogPostsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "posts": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/BlogPost"
+                }
+              }
+            },
+            "required": ["posts"]
+          }
+        ]
+      },
+      "RankRequestStatusResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "queue_size": {
+                "type": "integer"
+              },
+              "max_per_user": {
+                "type": "integer"
+              },
+              "submitted": {
+                "type": "integer",
+                "description": "Requests in the queue over the last 24 hours."
+              },
+              "submitted_by_user": {
+                "type": "integer",
+                "description": "Only with a token that has ReadConfidential."
+              },
+              "can_submit": {
+                "type": "boolean",
+                "description": "Only with a token that has ReadConfidential."
+              },
+              "next_expiration": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              }
+            },
+            "required": ["queue_size", "max_per_user", "submitted", "next_expiration"]
+          }
+        ]
+      },
+      "ClansResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "clans": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Clan"
+                }
+              }
+            },
+            "required": ["clans"]
+          }
+        ]
+      },
+      "ClanMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "username_aka": {
+            "type": "string"
+          },
+          "registered_on": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "privileges": {
+            "type": "integer"
+          },
+          "latest_activity": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "country": {
+            "type": "string"
+          },
+          "name_decoration": {
+            "type": "string"
+          },
+          "user_color": {
+            "type": "string"
+          },
+          "ranked_score_std": {
+            "type": "integer"
+          },
+          "total_score_std": {
+            "type": "integer"
+          },
+          "playcount_std": {
+            "type": "integer"
+          },
+          "replays_watched_std": {
+            "type": "integer"
+          },
+          "total_hits_std": {
+            "type": "integer"
+          },
+          "pp_std": {
+            "type": "integer"
+          },
+          "ranked_score_taiko": {
+            "type": "integer"
+          },
+          "total_score_taiko": {
+            "type": "integer"
+          },
+          "playcount_taiko": {
+            "type": "integer"
+          },
+          "replays_watched_taiko": {
+            "type": "integer"
+          },
+          "total_hits_taiko": {
+            "type": "integer"
+          },
+          "pp_taiko": {
+            "type": "integer"
+          },
+          "ranked_score_ctb": {
+            "type": "integer",
+            "description": "Always 0, this endpoint only reads std and taiko."
+          },
+          "total_score_ctb": {
+            "type": "integer"
+          },
+          "playcount_ctb": {
+            "type": "integer"
+          },
+          "replays_watched_ctb": {
+            "type": "integer"
+          },
+          "total_hits_ctb": {
+            "type": "integer"
+          },
+          "pp_ctb": {
+            "type": "integer"
+          },
+          "ranked_score_mania": {
+            "type": "integer"
+          },
+          "total_score_mania": {
+            "type": "integer"
+          },
+          "playcount_mania": {
+            "type": "integer"
+          },
+          "replays_watched_mania": {
+            "type": "integer"
+          },
+          "total_hits_mania": {
+            "type": "integer"
+          },
+          "pp_mania": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "username_aka",
+          "registered_on",
+          "privileges",
+          "latest_activity",
+          "country",
+          "name_decoration",
+          "user_color",
+          "ranked_score_std",
+          "total_score_std",
+          "playcount_std",
+          "replays_watched_std",
+          "total_hits_std",
+          "pp_std",
+          "ranked_score_taiko",
+          "total_score_taiko",
+          "playcount_taiko",
+          "replays_watched_taiko",
+          "total_hits_taiko",
+          "pp_taiko",
+          "ranked_score_ctb",
+          "total_score_ctb",
+          "playcount_ctb",
+          "replays_watched_ctb",
+          "total_hits_ctb",
+          "pp_ctb",
+          "ranked_score_mania",
+          "total_score_mania",
+          "playcount_mania",
+          "replays_watched_mania",
+          "total_hits_mania",
+          "pp_mania"
+        ]
+      },
+      "ClanMembersResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "members": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/ClanMember"
+                }
+              }
+            },
+            "required": ["members"]
+          }
+        ]
+      },
+      "ClanStatsAllResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "clans": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "tag": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "chosen_mode": {
+                      "$ref": "#/components/schemas/ModeStats",
+                      "description": "Only pp, ranked_score, total_score and playcount are filled in."
+                    },
+                    "rank": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["id", "name", "description", "tag", "icon", "chosen_mode", "rank"]
+                }
+              }
+            },
+            "required": ["clans"]
+          }
+        ]
+      },
+      "ClanStatsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "chosen_mode": {
+                "$ref": "#/components/schemas/ModeStats",
+                "description": "Only pp, ranked_score, total_score and playcount are filled in."
+              },
+              "rank": {
+                "type": "integer"
+              }
+            },
+            "required": ["id", "chosen_mode", "rank"]
+          }
+        ]
+      },
+      "IsClanResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "clan": {
+                "type": "object",
+                "properties": {
+                  "clan": {
+                    "type": "integer"
+                  },
+                  "user": {
+                    "type": "integer"
+                  },
+                  "perms": {
+                    "type": "integer",
+                    "description": "1 member, 8 owner."
+                  }
+                },
+                "required": ["clan", "user", "perms"]
+              }
+            },
+            "required": ["clan"]
+          }
+        ]
+      },
+      "ClanInviteResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "invite": {
+                "type": "string"
+              }
+            },
+            "required": ["invite"]
+          }
+        ]
+      },
+      "Friend": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "is_mutual": {
+                "type": "boolean"
+              }
+            },
+            "required": ["is_mutual"]
+          }
+        ]
+      },
+      "FriendsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "friends": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Friend"
+                }
+              }
+            },
+            "required": ["friends"]
+          }
+        ]
+      },
+      "FriendshipResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "friend": {
+                "type": "boolean"
+              },
+              "mutual": {
+                "type": "boolean"
+              }
+            },
+            "required": ["friend", "mutual"]
+          }
+        ]
+      },
+      "DonorInfoResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "has_donor": {
+                "type": "boolean"
+              },
+              "expiration": {
+                "$ref": "#/components/schemas/Timestamp"
+              }
+            },
+            "required": ["has_donor", "expiration"]
+          }
+        ]
+      },
+      "FavouriteModeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "favourite_mode": {
+                "type": "integer"
+              }
+            },
+            "required": ["favourite_mode"]
+          }
+        ]
+      },
+      "SettingsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "username": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "flags": {
+                "type": "integer"
+              },
+              "can_custom_badge": {
+                "type": "boolean"
+              },
+              "username_aka": {
+                "type": ["string", "null"]
+              },
+              "favourite_mode": {
+                "type": ["integer", "null"]
+              },
+              "custom_badge": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "show": {
+                    "type": ["boolean", "null"]
+                  }
+                },
+                "required": ["name", "icon", "show"],
+                "description": "Empty unless the user can have a custom badge."
+              },
+              "play_style": {
+                "type": ["integer", "null"]
+              },
+              "disabled_comments": {
+                "type": ["boolean", "null"]
+              }
+            },
+            "required": [
+              "id",
+              "username",
+              "email",
+              "flags",
+              "can_custom_badge",
+              "username_aka",
+              "favourite_mode",
+              "custom_badge",
+              "play_style",
+              "disabled_comments"
+            ]
+          }
+        ]
+      },
+      "SettingsUpdate": {
+        "type": "object",
+        "description": "Every field is optional, and omitted fields are left alone.",
+        "properties": {
+          "username_aka": {
+            "type": "string"
+          },
+          "favourite_mode": {
+            "type": "integer",
+            "description": "0 to 3, other values are ignored."
+          },
+          "custom_badge": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "show": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "description": "Ignored unless the user can have a custom badge."
+          },
+          "play_style": {
+            "type": "integer"
+          },
+          "disabled_comments": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PingResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "integer",
+                "description": "0 when no token was sent."
+              },
+              "privileges": {
+                "type": "integer",
+                "description": "Token privilege bitfield."
+              },
+              "user_privileges": {
+                "type": "integer",
+                "description": "Account privilege bitfield."
+              },
+              "privileges_string": {
+                "type": "string"
+              },
+              "user_privileges_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "privileges",
+              "user_privileges",
+              "privileges_string",
+              "user_privileges_string"
+            ]
+          }
+        ]
+      },
+      "SurpriseMeResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cats": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 100,
+                "maxItems": 100
+              }
+            },
+            "required": ["cats"]
+          }
+        ]
+      },
+      "TopDonorsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "users": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "username_aka": {
+                      "type": "string"
+                    },
+                    "registered_on": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    },
+                    "latest_activity": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "expiration": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "username_aka",
+                    "registered_on",
+                    "latest_activity",
+                    "country",
+                    "expiration"
+                  ]
+                }
+              }
+            },
+            "required": ["users"]
+          }
+        ]
+      },
+      "TopBeatmapsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "beatmaps": {
+                "type": ["array", "null"],
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Beatmap"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "playcount": {
+                          "type": "integer"
+                        },
+                        "bpm": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["playcount", "bpm"]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": ["beatmaps"]
+          }
+        ]
+      },
+      "TopPlay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "beatmap_md5": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          },
+          "max_combo": {
+            "type": "integer"
+          },
+          "full_combo": {
+            "type": "boolean"
+          },
+          "mods": {
+            "type": "integer",
+            "description": "Mod bitfield."
+          },
+          "count_300": {
+            "type": "integer"
+          },
+          "count_100": {
+            "type": "integer"
+          },
+          "count_50": {
+            "type": "integer"
+          },
+          "count_geki": {
+            "type": "integer"
+          },
+          "count_katu": {
+            "type": "integer"
+          },
+          "count_miss": {
+            "type": "integer"
+          },
+          "time": {
+            "$ref": "#/components/schemas/Timestamp"
+          },
+          "play_mode": {
+            "type": "integer"
+          },
+          "accuracy": {
+            "type": "number"
+          },
+          "pp": {
+            "type": "number"
+          },
+          "rank": {
+            "type": "string",
+            "description": "Grade, e.g. SS, S, A."
+          },
+          "completed": {
+            "type": "integer",
+            "description": "0 quit, 1 failed, 2 passed, 3 best."
+          },
+          "beatmap": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Beatmap"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "playcount": {
+                    "type": "integer"
+                  },
+                  "bpm": {
+                    "type": "integer"
+                  }
+                },
+                "required": ["playcount", "bpm"]
+              }
+            ]
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": ["id", "username"]
+          }
+        },
+        "required": [
+          "id",
+          "beatmap_md5",
+          "score",
+          "max_combo",
+          "full_combo",
+          "mods",
+          "count_300",
+          "count_100",
+          "count_50",
+          "count_geki",
+          "count_katu",
+          "count_miss",
+          "time",
+          "play_mode",
+          "accuracy",
+          "pp",
+          "rank",
+          "completed",
+          "beatmap",
+          "user"
+        ]
+      },
+      "TopPlaysResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scores": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/TopPlay"
+                }
+              }
+            },
+            "required": ["scores"]
+          }
+        ]
+      },
+      "ActivityResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "logs": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "song_name": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "time": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    },
+                    "scoreid": {
+                      "type": "integer"
+                    },
+                    "beatmap_id": {
+                      "type": "integer"
+                    },
+                    "rank": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["song_name", "body", "time", "scoreid", "beatmap_id", "rank"]
+                }
+              }
+            },
+            "required": ["logs"]
+          }
+        ]
+      },
+      "FollowerCountsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "subscount": {
+                "type": "string",
+                "description": "Followers the user doesn't follow back, as a string."
+              },
+              "allFriended": {
+                "type": "string",
+                "description": "Everyone who follows the user, as a string."
+              }
+            },
+            "required": ["subscount", "allFriended"]
+          }
+        ]
+      },
+      "FollowersResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "subs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "username_aka": {
+                      "type": "string"
+                    },
+                    "privileges": {
+                      "type": "integer"
+                    },
+                    "registered_on": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    },
+                    "latest_activity": {
+                      "$ref": "#/components/schemas/Timestamp"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "is_subbed": {
+                      "type": "boolean",
+                      "description": "True if you follow them back."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "username_aka",
+                    "privileges",
+                    "registered_on",
+                    "latest_activity",
+                    "country",
+                    "is_subbed"
+                  ]
+                }
+              }
+            },
+            "required": ["subs"]
+          }
+        ]
+      },
+      "PeppyUser": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "username": {
+            "type": "string"
+          },
+          "join_date": {
+            "type": "string",
+            "description": "Not filled in, always the zero date."
+          },
+          "count300": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count100": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count50": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "playcount": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "ranked_score": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "total_score": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "pp_rank": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "level": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "pp_raw": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "accuracy": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count_rank_ss": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count_rank_ssh": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count_rank_s": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count_rank_sh": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "count_rank_a": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "country": {
+            "type": "string"
+          },
+          "pp_country_rank": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "events": {
+            "type": ["array", "null"],
+            "items": {}
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "join_date",
+          "count300",
+          "count100",
+          "count50",
+          "playcount",
+          "ranked_score",
+          "total_score",
+          "pp_rank",
+          "level",
+          "pp_raw",
+          "accuracy",
+          "count_rank_ss",
+          "count_rank_ssh",
+          "count_rank_s",
+          "count_rank_sh",
+          "count_rank_a",
+          "country",
+          "pp_country_rank",
+          "events"
+        ]
+      },
+      "PeppyUserScore": {
+        "type": "object",
+        "properties": {
+          "beatmap_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "score": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "maxcombo": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count50": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count100": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count300": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countmiss": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countkatu": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countgeki": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "perfect": {
+            "type": "string",
+            "description": "1 for a full combo, otherwise 0."
+          },
+          "enabled_mods": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "date": {
+            "type": "string",
+            "description": "`YYYY-MM-DD HH:MM:SS`, UTC."
+          },
+          "rank": {
+            "type": "string"
+          },
+          "pp": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "playback_rate": {
+            "type": "string",
+            "description": "Extra field, not in the real osu! API."
+          }
+        },
+        "required": [
+          "beatmap_id",
+          "score",
+          "maxcombo",
+          "count50",
+          "count100",
+          "count300",
+          "countmiss",
+          "countkatu",
+          "countgeki",
+          "perfect",
+          "enabled_mods",
+          "user_id",
+          "date",
+          "rank",
+          "pp",
+          "playback_rate"
+        ]
+      },
+      "PeppyBeatmapScore": {
+        "type": "object",
+        "properties": {
+          "score_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "username": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "maxcombo": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count50": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count100": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "count300": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countmiss": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countkatu": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "countgeki": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "perfect": {
+            "type": "string",
+            "description": "1 for a full combo, otherwise 0."
+          },
+          "enabled_mods": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "date": {
+            "type": "string",
+            "description": "`YYYY-MM-DD HH:MM:SS`, UTC."
+          },
+          "rank": {
+            "type": "string"
+          },
+          "pp": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "playback_rate": {
+            "type": "string",
+            "description": "Extra field, not in the real osu! API."
+          }
+        },
+        "required": [
+          "score_id",
+          "username",
+          "score",
+          "maxcombo",
+          "count50",
+          "count100",
+          "count300",
+          "countmiss",
+          "countkatu",
+          "countgeki",
+          "perfect",
+          "enabled_mods",
+          "user_id",
+          "date",
+          "rank",
+          "pp",
+          "playback_rate"
+        ]
+      },
+      "PeppyBeatmap": {
+        "type": "object",
+        "properties": {
+          "beatmapset_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "beatmap_id": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "approved": {
+            "type": "string",
+            "description": "-1 WIP, 0 pending, 1 ranked, 2 approved, 3 qualified, 4 loved."
+          },
+          "total_length": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "hit_length": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "version": {
+            "type": "string"
+          },
+          "file_md5": {
+            "type": "string"
+          },
+          "diff_size": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "diff_overall": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "diff_approach": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "diff_drain": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "approved_date": {
+            "type": "string"
+          },
+          "last_update": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "creator": {
+            "type": "string",
+            "description": "Always empty."
+          },
+          "bpm": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "source": {
+            "type": "string",
+            "description": "Always empty."
+          },
+          "tags": {
+            "type": "string",
+            "description": "Always empty."
+          },
+          "genre_id": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "language_id": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "favourite_count": {
+            "type": "string",
+            "description": "Always 0."
+          },
+          "playcount": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "passcount": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "max_combo": {
+            "type": "string",
+            "description": "Numeric value sent as a string."
+          },
+          "difficultyrating": {
+            "type": "string",
+            "description": "Rating of the first mode that has one."
+          }
+        },
+        "required": [
+          "beatmapset_id",
+          "beatmap_id",
+          "approved",
+          "total_length",
+          "hit_length",
+          "version",
+          "file_md5",
+          "diff_size",
+          "diff_overall",
+          "diff_approach",
+          "diff_drain",
+          "mode",
+          "approved_date",
+          "last_update",
+          "artist",
+          "title",
+          "creator",
+          "bpm",
+          "source",
+          "tags",
+          "genre_id",
+          "language_id",
+          "favourite_count",
+          "playcount",
+          "passcount",
+          "max_combo",
+          "difficultyrating"
+        ]
+      }
+    }
+  }
+}

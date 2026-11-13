@@ -10,6 +10,7 @@
   <a href="/team">{m.footer_team()}</a>
   <a href="/doc/terms">{m.footer_terms()}</a>
   <a href="/doc/privacy">{m.footer_privacy()}</a>
+  <a href="/doc/api">{m.footer_api()}</a>
   <a href="https://github.com/RealistikOsu"><i class="fa-brands fa-github"></i>GitHub</a>
   <LanguagePicker up />
 </footer>

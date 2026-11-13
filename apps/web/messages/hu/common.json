@@ -251,6 +251,7 @@
   "common_error_beatmap_delete_ranked": "Rankolt, qualified és loved mapeket nem lehet törölni.",
   "footer_terms": "Feltételek",
   "footer_privacy": "Adatvédelem",
+  "footer_api": "API",
   "common_error_2fa_invalid_code": "Rossz a kód.",
   "common_error_2fa_challenge_expired": "Ez túl sokáig tartott. Lépj be újra.",
   "common_error_2fa_setup_link_required": "A staff az e-mailben kapott linkkel állítja be.",
