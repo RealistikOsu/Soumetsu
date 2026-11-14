@@ -41,6 +41,8 @@ export const config = {
   twitch: { id: optional('TWITCH_APP_CLIENT_ID'), secret: optional('TWITCH_APP_CLIENT_SECRET') },
   stripe: { key: optional('STRIPE_SECRET_KEY'), webhookSecret: optional('STRIPE_WEBHOOK_SECRET') },
   paypalEmail: optional('PAYPAL_EMAIL_ADDRESS'),
+  // DogStatsD agent. An empty host turns metrics off.
+  statsd: { host: optional('STATSD_HOST'), port: Number(optional('STATSD_PORT') || 8125) },
   freekassa: {
     merchantId: optional('FREEKASSA_MERCHANT_ID'),
     secret1: optional('FREEKASSA_SECRET_WORD_1'),

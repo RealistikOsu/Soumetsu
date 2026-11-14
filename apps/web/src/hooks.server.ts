@@ -3,6 +3,7 @@ import { record } from '$server/admin/console';
 import { startCommissionNotices } from '$server/commissions/notices';
 import { config } from '$server/config';
 import { previewFor } from '$server/preview';
+import { timing } from '$server/statsd';
 import { resolveUser } from '$server/users';
 
 export const init: ServerInit = () => {
@@ -78,7 +79,7 @@ async function legacyTarget(url: URL) {
   return null;
 }
 
-export const handle: Handle = async ({ event, resolve }) => {
+const render: Handle = async ({ event, resolve }) => {
   if (event.request.method !== 'GET' || event.url.pathname.startsWith('/site-api')) {
     return resolve(event);
   }
@@ -126,6 +127,17 @@ export const handle: Handle = async ({ event, resolve }) => {
   });
   // The preload list for heavy pages like profiles outgrows nginx's proxy buffer and turns into a 502.
   response.headers.delete('link');
+  return response;
+};
+
+export const handle: Handle = async (input) => {
+  const started = performance.now();
+  const response = await render(input);
+  timing(
+    'soumetsu.request.time',
+    performance.now() - started,
+    `route:${input.event.route.id ?? 'unmatched'},status:${Math.floor(response.status / 100)}xx`
+  );
   return response;
 };
 
