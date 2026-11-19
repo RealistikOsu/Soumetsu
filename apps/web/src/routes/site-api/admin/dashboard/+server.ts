@@ -1,13 +1,15 @@
 import { Privilege } from '$lib/auth/privileges';
 import { requirePrivilege } from '$server/auth';
 import { counter, serverTotals } from '$server/admin/common';
+import { rankableModes, visibleRequests } from '$server/admin/ranking';
 import { db } from '$server/db';
 import { latestPlays } from '$server/admin/plays';
 import { handle, ok } from '$server/respond';
 
 // The same figures the panel's dashboard showed, plus what needs a staff member's attention.
 export const GET = handle(async ({ request }) => {
-  await requirePrivilege(request, Privilege.AdminAccessRap);
+  const caller = await requirePrivilege(request, Privilege.AdminAccessRap);
+  const requests = visibleRequests(rankableModes(caller.privileges));
   const week = Math.floor(Date.now() / 1000) - 7 * 24 * 3600;
 
   const [
@@ -24,12 +26,8 @@ export const GET = handle(async ({ request }) => {
   ] = await Promise.all([
     counter('ripple:registered_users'),
     serverTotals(),
-    db.rank_requests.count({ where: { blacklisted: false } }),
-    db.rank_requests.findFirst({
-      where: { blacklisted: false },
-      orderBy: { id: 'asc' },
-      select: { time: true }
-    }),
+    db.$queryRawUnsafe<{ total: bigint }[]>(`SELECT COUNT(*) AS total ${requests}`),
+    db.$queryRawUnsafe<{ time: number }[]>(`SELECT rr.time ${requests} ORDER BY rr.id LIMIT 1`),
     db.users.count({ where: { frozen: { not: 0 } } }),
     db.users.findFirst({
       where: { frozen: { not: 0 } },
@@ -51,7 +49,7 @@ export const GET = handle(async ({ request }) => {
 
   return ok({
     counters: { registered, ...totals },
-    pendingRequests: { total: pending, oldest: oldest?.time ?? null },
+    pendingRequests: { total: Number(pending[0].total), oldest: oldest[0]?.time ?? null },
     frozen: { total: frozen, soonest: soonest ?? null },
     restrictions: {
       week: Number(restricted[0]?.total ?? 0),

@@ -28,6 +28,22 @@ export function rankableModes(privileges: number) {
   return MODE_BITS.flatMap((bit, mode) => (privileges & bit ? [mode] : []));
 }
 
+// The queued requests a staff member may see: those whose set or difficulty is in a mode they can rank, and the
+// ones nobody has played yet, which aren't stored so have no mode. Two EXISTS let MySQL use the set and beatmap id
+// indexes; one join with an OR scanned every beatmap. The modes are integers from rankableModes.
+export function visibleRequests(modes: number[]) {
+  if (!modes.length) return 'FROM rank_requests rr WHERE 1 = 0';
+  const list = modes.join(',');
+  return `FROM rank_requests rr
+    WHERE rr.blacklisted = 0 AND (
+      EXISTS (SELECT 1 FROM beatmaps b
+        WHERE rr.type = 's' AND b.beatmapset_id = rr.bid AND b.mode IN (${list}))
+      OR EXISTS (SELECT 1 FROM beatmaps b
+        WHERE rr.type = 'b' AND b.beatmap_id = rr.bid AND b.mode IN (${list}))
+      OR (rr.type = 's' AND NOT EXISTS (SELECT 1 FROM beatmaps b WHERE b.beatmapset_id = rr.bid))
+      OR (rr.type = 'b' AND NOT EXISTS (SELECT 1 FROM beatmaps b WHERE b.beatmap_id = rr.bid)))`;
+}
+
 export const coverOf = (setId: number) =>
   `https://assets.ppy.sh/beatmaps/${setId}/covers/cover.jpg`;
 

@@ -7,7 +7,8 @@ import {
   mirrorSetOfBeatmap,
   rankableModes,
   setSummaries,
-  splitName
+  splitName,
+  visibleRequests
 } from '$server/admin/ranking';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
@@ -28,15 +29,7 @@ export const GET = handle(async ({ request, url }) => {
   const modes = rankableModes(caller.privileges);
   if (!modes.length) throw new Failure(403, 'You do not have permission to rank this beatmap.');
 
-  // Two EXISTS let MySQL use the set and beatmap id indexes; one join with an OR scanned every beatmap.
-  const where = `FROM rank_requests rr
-    WHERE rr.blacklisted = 0 AND (
-      EXISTS (SELECT 1 FROM beatmaps b
-        WHERE rr.type = 's' AND b.beatmapset_id = rr.bid AND b.mode IN (${modes.join(',')}))
-      OR EXISTS (SELECT 1 FROM beatmaps b
-        WHERE rr.type = 'b' AND b.beatmap_id = rr.bid AND b.mode IN (${modes.join(',')}))
-      OR (rr.type = 's' AND NOT EXISTS (SELECT 1 FROM beatmaps b WHERE b.beatmapset_id = rr.bid))
-      OR (rr.type = 'b' AND NOT EXISTS (SELECT 1 FROM beatmaps b WHERE b.beatmap_id = rr.bid)))`;
+  const where = visibleRequests(modes);
   const [rows, total] = await Promise.all([
     db.$queryRawUnsafe<Row[]>(
       `SELECT rr.id, rr.userid, rr.bid, rr.type, rr.time ${where}
