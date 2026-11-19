@@ -462,6 +462,10 @@ export function bbcodeToHtml(source: string) {
   });
 }
 
+// Alerts take BBCode only, so any raw tag an admin types shows as text.
+export const alertToHtml = (source: string) =>
+  bbcodeToHtml(source.replaceAll('<', '&lt;').replaceAll('>', '&gt;'));
+
 // Boxes and spoiler boxes open and close from a click on their button.
 export function bbcodeBoxes(node: HTMLElement) {
   const onClick = (event: MouseEvent) => {

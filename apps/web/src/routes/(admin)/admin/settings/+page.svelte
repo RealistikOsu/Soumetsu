@@ -3,11 +3,11 @@
   import type { SystemSettings } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
+  import { alertToHtml } from '$lib/bbcode';
   import AdminHead from '$lib/components/admin/AdminHead.svelte';
   import { countChanges } from '$lib/components/admin/changes';
   import SaveBar from '$lib/components/admin/SaveBar.svelte';
   import { flash } from '$lib/flash.svelte';
-  import { sanitise } from '$lib/sanitise';
   import { site } from '$lib/site.svelte';
 
   const loaded = query((signal) => systemSettings(signal));
@@ -74,7 +74,7 @@
     <section class="user-box">
       <h2>Alerts</h2>
       <div class="field">
-        <label for="globalalert">Global alert <span class="faint">HTML</span></label>
+        <label for="globalalert">Global alert <span class="faint">BBCode</span></label>
         <textarea id="globalalert" rows="3" maxlength="512" bind:value={form.globalAlert}
         ></textarea>
         <small>Shown on every page.</small>
@@ -84,13 +84,13 @@
             <i class="fa-solid fa-circle-info notice-icon"></i>
             <div>
               <b>Something interesting for you about RealistikOsu...</b>
-              {@html sanitise(form.globalAlert)}
+              {@html alertToHtml(form.globalAlert)}
             </div>
           </div>
         </div>
       </div>
       <div class="field">
-        <label for="homealert">Home page alert <span class="faint">HTML</span></label>
+        <label for="homealert">Home page alert <span class="faint">BBCode</span></label>
         <textarea
           id="homealert"
           rows="3"
@@ -102,7 +102,7 @@
           <span class="faint">Preview</span>
           <div class="notice alert c-blue">
             <i class="fa-solid fa-circle-info notice-icon"></i>
-            <div>{@html sanitise(form.homeAlert)}</div>
+            <div>{@html alertToHtml(form.homeAlert)}</div>
           </div>
         </div>
       </div>

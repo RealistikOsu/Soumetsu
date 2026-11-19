@@ -1,8 +1,8 @@
 <script lang="ts">
   import { isPublic } from '$lib/auth/privileges';
   import { session } from '$lib/auth/session.svelte';
+  import { alertToHtml } from '$lib/bbcode';
   import { m } from '$lib/paraglide/messages';
-  import { sanitise } from '$lib/sanitise';
   import { site } from '$lib/site.svelte';
 
   const restricted = $derived(session.user !== null && !isPublic(session.user.privileges));
@@ -44,7 +44,7 @@
         <i class="fa-solid fa-circle-info notice-icon"></i>
         <div>
           <b>{m.common_alert_global_title()}</b>
-          {@html sanitise(info.globalAlert)}
+          {@html alertToHtml(info.globalAlert)}
         </div>
       </div>
     {/if}
