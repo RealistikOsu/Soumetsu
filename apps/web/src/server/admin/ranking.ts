@@ -1,3 +1,4 @@
+import { isServerOnlySet } from '$lib/assets';
 import { Privilege } from '$lib/auth/privileges';
 import { Prisma } from '$server/generated/client';
 import { config } from '$server/config';
@@ -221,15 +222,23 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
     FROM beatmaps WHERE beatmapset_id = ${setId} AND ranked != -1`;
   if (!all.length) throw new Failure(404, 'Beatmap not found.');
 
+  // The game database keeps every difficulty a set ever had, while the mirror lists only the current ones, so
+  // older versions would crowd the page with maps nobody can play. Custom sets stay whole: a difficulty
+  // submitted a moment ago may not be on the mirror yet.
+  const mirror = isServerOnlySet(setId) ? null : await mirrorSet(setId);
+  const current = new Set(mirror?.beatmaps?.map((b) => b.id));
+  const live = current.size ? all.filter((row) => current.has(row.beatmap_id)) : all;
+  const listed = live.length ? live : all;
+
   const modes = rankableModes(privileges);
-  const rows = all.filter((row) => modes.includes(row.mode));
+  const rows = listed.filter((row) => modes.includes(row.mode));
   if (!rows.length) throw new Failure(403, 'You do not have permission to rank this beatmap.');
 
-  const [stars, creator] = await Promise.all([starRatings(rows), creatorOf(setId)]);
+  const stars = await starRatings(rows);
   return {
     setId,
     title: splitName(all[0].song_name).song,
-    creator,
+    creator: mirror?.creator ?? (await creatorOf(setId)),
     cover: coverOf(setId),
     difficulties: rows
       .map((row) => ({
