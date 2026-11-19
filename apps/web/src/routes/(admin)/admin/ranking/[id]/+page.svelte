@@ -29,8 +29,10 @@
     if (set.state.status !== 'ready') return;
     picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, valueOf(d.ranked)]));
     dodge = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.dodge]));
-    offsets = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.offset]));
-    savedOffsets = { ...offsets };
+    // Built apart from `offsets` so this effect never reads what it writes, which made it loop.
+    const loaded = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.offset]));
+    offsets = loaded;
+    savedOffsets = { ...loaded };
   });
 
   const changes = $derived(
