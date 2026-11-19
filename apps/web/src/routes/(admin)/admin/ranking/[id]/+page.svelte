@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { rankingSet, rankSet } from '$lib/api/admin';
+  import { rankingSet, rankSet, setDodgeTheBeat } from '$lib/api/admin';
   import type { RankStatus } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
@@ -20,11 +20,13 @@
     ranked === 2 || ranked === 3 ? 'ranked' : ranked === 5 ? 'loved' : 'unranked';
 
   let picks = $state<Record<number, RankStatus>>({});
+  let dodge = $state<Record<number, boolean>>({});
   let busy = $state(false);
 
   $effect(() => {
     if (set.state.status !== 'ready') return;
     picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, valueOf(d.ranked)]));
+    dodge = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.dodge]));
   });
 
   const changes = $derived(
@@ -43,6 +45,20 @@
       version++;
       wholeSet = null;
     } catch (error) {
+      flash.show('error', describe(error));
+    }
+    busy = false;
+  }
+
+  // Saved straight away and apart from the status changes, so it doesn't touch what is still unsaved.
+  async function toggleDodge(beatmapId: number) {
+    const on = dodge[beatmapId];
+    busy = true;
+    try {
+      await setDodgeTheBeat(id, isSet, beatmapId, on);
+      flash.show('success', on ? 'Marked as dodge the beat.' : 'No longer dodge the beat.');
+    } catch (error) {
+      dodge[beatmapId] = !on;
       flash.show('error', describe(error));
     }
     busy = false;
@@ -131,7 +147,10 @@
   <div class="table-wrap">
     <table class="board admin-table">
       <thead>
-        <tr><th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th></th></tr>
+        <tr>
+          <th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th>Dodge the beat</th><th
+          ></th>
+        </tr>
       </thead>
       <tbody>
         {#each data.difficulties as diff (diff.id)}
@@ -162,6 +181,19 @@
                   </label>
                 {/each}
               </div>
+            </td>
+            <td>
+              {#if diff.mode === 2}
+                <label class="switch" title="The lowest score ranks first and no pp is awarded"
+                  ><input
+                    type="checkbox"
+                    aria-label="Dodge the beat for {diff.name}"
+                    bind:checked={dodge[diff.id]}
+                    disabled={busy}
+                    onchange={() => toggleDodge(diff.id)}
+                  /><span></span></label
+                >
+              {/if}
             </td>
             <td class="actions">
               <a

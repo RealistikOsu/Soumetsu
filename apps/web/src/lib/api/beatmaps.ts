@@ -22,6 +22,7 @@ export interface Beatmap {
   updated_at: number;
   ranked_status_frozen: boolean;
   mapper_id: number;
+  dodge_the_beat: boolean;
 }
 
 export interface BeatmapScore {

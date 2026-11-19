@@ -68,6 +68,7 @@
     maxCombo: number;
     passes: number | null;
     plays: number | null;
+    dodge: boolean;
   }
 
   interface Loaded {
@@ -129,7 +130,8 @@
         drain: b.hit_length,
         maxCombo: b.max_combo,
         passes: mine?.passcount ?? null,
-        plays: mine?.playcount ?? null
+        plays: mine?.playcount ?? null,
+        dodge: mine?.dodge_the_beat ?? false
       };
     };
     const fromOurs = (m: Beatmap): Diff => {
@@ -149,7 +151,8 @@
         drain: m.hit_length,
         maxCombo: m.max_combo,
         passes: m.passcount,
-        plays: m.playcount
+        plays: m.playcount,
+        dodge: m.dodge_the_beat
       };
     };
 
@@ -313,6 +316,14 @@
             <span class="map-status {diff.status.colour}">
               <i class="fa-solid {diff.status.icon}"></i>{diff.status.name}
             </span>
+            {#if diff.dodge}
+              <span
+                class="map-status c-orange"
+                title="Avoid every object. The lowest score ranks first."
+              >
+                <i class="fa-solid fa-person-running"></i>Dodge the beat
+              </span>
+            {/if}
           </h2>
           <dl class="bars">
             {#each bars as [label, value] (label)}

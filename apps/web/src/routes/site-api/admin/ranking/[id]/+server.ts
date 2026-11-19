@@ -1,7 +1,7 @@
 import { Privilege } from '$lib/auth/privileges';
 import { requirePrivilege } from '$server/auth';
 import { bodyOf, idOf } from '$server/admin/common';
-import { loadSet, rankDifficulty, rankSet, STATUSES } from '$server/admin/ranking';
+import { loadSet, rankDifficulty, rankSet, setDodgeTheBeat, STATUSES } from '$server/admin/ranking';
 import type { StatusName } from '$server/admin/ranking';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
@@ -14,9 +14,11 @@ export const GET = handle(async ({ request, params, url }) => {
 interface Body {
   all: StatusName;
   changes: { beatmapId: number; status: StatusName }[];
+  dodge?: { beatmapId: number; on: boolean };
 }
 
-// Either the whole set moves to one status, or a list of single difficulties does.
+// Either the whole set moves to one status, a list of single difficulties does, or one difficulty is marked
+// as dodge the beat.
 export const POST = handle(async ({ request, params, url }) => {
   const caller = await requirePrivilege(request, Privilege.AdminAccessRap);
   const id = idOf(params);
@@ -27,6 +29,11 @@ export const POST = handle(async ({ request, params, url }) => {
     username: user?.username ?? String(caller.id),
     privileges: caller.privileges
   };
+
+  if (body.dodge) {
+    await setDodgeTheBeat(by, Number(body.dodge.beatmapId), Boolean(body.dodge.on));
+    return ok();
+  }
 
   if (body.all) {
     if (!(body.all in STATUSES)) throw new Failure(400, 'auth.validation_error');

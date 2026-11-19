@@ -236,11 +236,21 @@ export interface RankingSet {
   title: string;
   creator: string | null;
   cover: string;
-  difficulties: { id: number; name: string; mode: number; stars: number; ranked: number }[];
+  difficulties: {
+    id: number;
+    name: string;
+    mode: number;
+    stars: number;
+    ranked: number;
+    dodge: boolean;
+  }[];
 }
 
 export const rankingSet = (id: number, isSet: boolean, signal?: AbortSignal) =>
   siteApi.get<RankingSet>(`/admin/ranking/${id}`, isSet ? { set: 1 } : undefined, signal);
+
+export const setDodgeTheBeat = (id: number, isSet: boolean, beatmapId: number, on: boolean) =>
+  siteApi.post(`/admin/ranking/${id}${isSet ? '?set=1' : ''}`, { dodge: { beatmapId, on } });
 
 export const rankSet = (
   id: number,

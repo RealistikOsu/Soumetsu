@@ -44,6 +44,7 @@ model beatmaps {
   ranked                 Int                      @default(0) @db.TinyInt
   latest_update          Int                      @default(0)
   ranked_status_freezed  Boolean                  @default(false)
+  dodge_the_beat         Boolean                  @default(false)
   pp_100                 Int                      @default(0)
   pp_99                  Int                      @default(0)
   pp_98                  Int                      @default(0)

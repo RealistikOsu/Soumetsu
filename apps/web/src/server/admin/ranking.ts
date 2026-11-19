@@ -149,6 +149,7 @@ interface Row {
   difficulty_mania: number;
   ranked: number;
   max_combo: number | null;
+  dodge_the_beat: number;
 }
 
 async function starRatings(rows: Row[]) {
@@ -198,7 +199,7 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
 
   const all = await db.$queryRaw<Row[]>`
     SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, difficulty_taiko,
-      difficulty_ctb, difficulty_mania, ranked, max_combo
+      difficulty_ctb, difficulty_mania, ranked, max_combo, dodge_the_beat
     FROM beatmaps WHERE beatmapset_id = ${setId} AND ranked != -1`;
   if (!all.length) throw new Failure(404, 'Beatmap not found.');
 
@@ -218,7 +219,8 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
         name: splitName(row.song_name).diff,
         mode: row.mode,
         stars: stars.get(row.beatmap_id) ?? storedStars(row),
-        ranked: row.ranked
+        ranked: row.ranked,
+        dodge: Boolean(row.dodge_the_beat)
       }))
       .sort((a, b) => a.stars - b.stars)
   };
@@ -334,4 +336,27 @@ export async function rankDifficulty(by: Ranker, beatmapId: number, status: numb
   await announce(by, row.beatmapset_id, beatmapId, row.song_name, status);
   await refresh([row.beatmap_md5]);
   await rapLog(by.id, `${verb[status]} the beatmap ${row.song_name} (${beatmapId})`);
+}
+
+const CATCH = 2;
+
+// A dodge the beat difficulty is played by avoiding every object, so the game servers sort its board lowest
+// score first and never award pp for it. Only catch maps can be one.
+export async function setDodgeTheBeat(by: Ranker, beatmapId: number, on: boolean) {
+  const row = await db.beatmaps.findFirst({
+    where: { beatmap_id: beatmapId, ranked: { not: -1 } },
+    select: { mode: true, beatmap_md5: true, song_name: true }
+  });
+  if (!row) throw new Failure(404, 'Beatmap not found.');
+  if (row.mode !== CATCH) throw new Failure(400, 'Only catch difficulties can be dodge the beat.');
+  if (!rankableModes(by.privileges).includes(CATCH)) {
+    throw new Failure(403, 'Insufficient privileges to change catch beatmaps.');
+  }
+
+  await db.beatmaps.updateMany({ where: { beatmap_id: beatmapId }, data: { dodge_the_beat: on } });
+  await refresh([row.beatmap_md5]);
+  await rapLog(
+    by.id,
+    `${on ? 'marked' : 'unmarked'} the beatmap ${row.song_name} (${beatmapId}) as dodge the beat`
+  );
 }
