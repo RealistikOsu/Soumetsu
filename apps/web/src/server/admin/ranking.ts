@@ -368,20 +368,92 @@ export async function rankDifficulty(by: Ranker, beatmapId: number, status: numb
 
 const CATCH = 2;
 
-// A dodge the beat difficulty is played by avoiding every object, so the game servers sort its board lowest
-// score first and never award pp for it. Only catch maps can be one.
+const BOARDS = [
+  { table: 'scores', relax: 0 },
+  { table: 'scores_relax', relax: 1 },
+  { table: 'scores_ap', relax: 2 }
+] as const;
+
+// A dodge the beat map ranks by how much of it was avoided, which the Pentagon stores as the accuracy, then by
+// the lower score. Every other map ranks by score, or by pp for relax and autopilot. The accuracy column is a
+// single precision float, so it is compared rounded.
+const rankOrder = (dodge: boolean, relax: number) =>
+  dodge
+    ? 'ROUND(s.accuracy, 4) DESC, s.score ASC, s.time ASC, s.id ASC'
+    : `${relax === 0 ? 's.score' : 's.pp'} DESC, s.time ASC, s.id ASC`;
+
+// The play each player keeps as their best is the one the map's own rule picks.
+const bestOrder = (dodge: boolean) =>
+  dodge
+    ? 'ROUND(accuracy, 4) DESC, score ASC, time ASC, id ASC'
+    : 'pp DESC, score DESC, time ASC, id ASC';
+
+// Marking a map, or unmarking it, changes what its scores mean, so the ones already on it follow: the accuracy
+// swaps between the share caught and the share avoided, each player's best play is picked again, and the
+// first places are rebuilt from the new order.
+export async function reorderBoards(
+  tx: Prisma.TransactionClient,
+  md5: string,
+  dodge: boolean,
+  hasLeaderboard: boolean
+) {
+  for (const { table, relax } of BOARDS) {
+    await tx.$executeRawUnsafe(
+      `UPDATE ${table} SET accuracy = 100 - accuracy WHERE beatmap_md5 = ?`,
+      md5
+    );
+    await tx.$executeRawUnsafe(
+      `UPDATE ${table} s
+       JOIN (SELECT id, ROW_NUMBER() OVER (PARTITION BY userid, play_mode ORDER BY ${bestOrder(dodge)}) AS rn
+             FROM ${table} WHERE beatmap_md5 = ? AND completed IN (2, 3)) r ON r.id = s.id
+       SET s.completed = IF(r.rn = 1, 3, 2)`,
+      md5
+    );
+    await tx.$executeRawUnsafe(
+      'DELETE FROM first_places WHERE beatmap_md5 = ? AND relax = ?',
+      md5,
+      relax
+    );
+    if (!hasLeaderboard) continue;
+
+    await tx.$executeRawUnsafe(
+      `INSERT INTO first_places (score_id, user_id, score, max_combo, full_combo, mods, \`300_count\`,
+         \`100_count\`, \`50_count\`, cgekis_count, ckatus_count, miss_count, timestamp, mode, completed,
+         accuracy, pp, play_time, beatmap_md5, relax)
+       SELECT id, userid, score, max_combo, full_combo, mods, \`300_count\`, \`100_count\`, \`50_count\`,
+         gekis_count, katus_count, misses_count, time, play_mode, completed, accuracy, pp, playtime,
+         beatmap_md5, ?
+       FROM (SELECT s.*, ROW_NUMBER() OVER (PARTITION BY s.play_mode ORDER BY ${rankOrder(dodge, relax)}) AS rn
+             FROM ${table} s JOIN users u ON u.id = s.userid
+             WHERE s.beatmap_md5 = ? AND s.completed = 3 AND u.privileges & 1 > 0) t
+       WHERE rn = 1`,
+      relax,
+      md5
+    );
+  }
+}
+
+// A dodge the beat difficulty is played by avoiding every object, so the game servers rank its board by how much
+// was avoided and never award pp for it. Only catch maps can be one.
 export async function setDodgeTheBeat(by: Ranker, beatmapId: number, on: boolean) {
   const row = await db.beatmaps.findFirst({
     where: { beatmap_id: beatmapId, ranked: { not: -1 } },
-    select: { mode: true, beatmap_md5: true, song_name: true }
+    select: { mode: true, beatmap_md5: true, song_name: true, ranked: true, dodge_the_beat: true }
   });
   if (!row) throw new Failure(404, 'Beatmap not found.');
   if (row.mode !== CATCH) throw new Failure(400, 'Only catch difficulties can be dodge the beat.');
   if (!rankableModes(by.privileges).includes(CATCH)) {
     throw new Failure(403, 'Insufficient privileges to change catch beatmaps.');
   }
+  if (row.dodge_the_beat === on) return;
 
-  await db.beatmaps.updateMany({ where: { beatmap_id: beatmapId }, data: { dodge_the_beat: on } });
+  await db.$transaction(async (tx) => {
+    await tx.beatmaps.updateMany({
+      where: { beatmap_id: beatmapId },
+      data: { dodge_the_beat: on }
+    });
+    await reorderBoards(tx, row.beatmap_md5, on, row.ranked >= 2);
+  });
   await refresh([row.beatmap_md5]);
   await rapLog(
     by.id,
