@@ -122,6 +122,7 @@
   <span class="skel" style="width: 100%; height: 150px"></span>
 {:else}
   {@const data = set.state.data}
+  {@const hasCatch = data.difficulties.some((d) => d.mode === 2)}
   {@const counts = options.map(([value, label, colour]) => ({
     label,
     colour,
@@ -170,9 +171,9 @@
     <table class="board admin-table">
       <thead>
         <tr>
-          <th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th>Offset</th><th
-            >Dodge the beat</th
-          ><th></th>
+          <th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th>Offset</th>
+          {#if hasCatch}<th>Dodge the beat</th>{/if}
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -218,19 +219,21 @@
                 onchange={() => saveOffset(diff.id)}
               />
             </td>
-            <td>
-              {#if diff.mode === 2}
-                <label class="switch" title="The lowest score ranks first and no pp is awarded"
-                  ><input
-                    type="checkbox"
-                    aria-label="Dodge the beat for {diff.name}"
-                    bind:checked={dodge[diff.id]}
-                    disabled={busy}
-                    onchange={() => toggleDodge(diff.id)}
-                  /><span></span></label
-                >
-              {/if}
-            </td>
+            {#if hasCatch}
+              <td>
+                {#if diff.mode === 2}
+                  <label class="switch" title="The lowest score ranks first and no pp is awarded"
+                    ><input
+                      type="checkbox"
+                      aria-label="Dodge the beat for {diff.name}"
+                      bind:checked={dodge[diff.id]}
+                      disabled={busy}
+                      onchange={() => toggleDodge(diff.id)}
+                    /><span></span></label
+                  >
+                {/if}
+              </td>
+            {/if}
             <td class="actions">
               <a
                 class="btn btn-small"
