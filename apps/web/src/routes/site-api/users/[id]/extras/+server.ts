@@ -47,7 +47,7 @@ export const GET = handle(async ({ params, request }) => {
     (caller !== null && (caller.privileges & MANAGE_USERS) !== 0);
   if (!visible) return ok({ visibility: 'hidden' });
 
-  const [stats, banner, bancho, names, badges, comments, rankedSets, mappedSets] =
+  const [stats, banner, bancho, names, badges, comments, rankedSets, mappedSets, online] =
     await Promise.all([
       db.$queryRaw<StatsExtras[]>`
       SELECT username_aka, favourite_mode, prefer_relax, play_style, custom_badge_icon,
@@ -73,14 +73,15 @@ export const GET = handle(async ({ params, request }) => {
       WHERE r.user_id = ${id}`,
       db.$queryRaw<{ total: bigint }[]>`
       SELECT COUNT(DISTINCT beatmapset_id) AS total FROM beatmaps
-      WHERE beatmapset_id >= 1000000000 AND mapper_id = ${id} AND ranked != -1`
+      WHERE beatmapset_id >= 1000000000 AND mapper_id = ${id} AND ranked != -1`,
+      isOnline(id)
     ]);
   const extras = stats[0];
   const now = Math.floor(Date.now() / 1000);
 
   return ok({
     visibility: 'visible',
-    online: await isOnline(id),
+    online,
     nameDecoration: user.name_decoration || null,
     frozen: user.frozen !== 0,
     silence: user.silence_end > now ? { end: user.silence_end, reason: user.silence_reason } : null,
