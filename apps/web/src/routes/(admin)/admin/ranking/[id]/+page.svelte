@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { rankingSet, rankSet, setDodgeTheBeat } from '$lib/api/admin';
+  import { rankingSet, rankSet, setDodgeTheBeat, setOnlineOffset } from '$lib/api/admin';
   import type { RankStatus } from '$lib/api/admin';
   import { describe } from '$lib/api/messages';
   import { query } from '$lib/api/query.svelte';
@@ -21,12 +21,16 @@
 
   let picks = $state<Record<number, RankStatus>>({});
   let dodge = $state<Record<number, boolean>>({});
+  let offsets = $state<Record<number, number>>({});
+  let savedOffsets: Record<number, number> = {};
   let busy = $state(false);
 
   $effect(() => {
     if (set.state.status !== 'ready') return;
     picks = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, valueOf(d.ranked)]));
     dodge = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.dodge]));
+    offsets = Object.fromEntries(set.state.data.difficulties.map((d) => [d.id, d.offset]));
+    savedOffsets = { ...offsets };
   });
 
   const changes = $derived(
@@ -59,6 +63,22 @@
       flash.show('success', on ? 'Marked as dodge the beat.' : 'No longer dodge the beat.');
     } catch (error) {
       dodge[beatmapId] = !on;
+      flash.show('error', describe(error));
+    }
+    busy = false;
+  }
+
+  // Also saved straight away: the game servers hand the number to every client that opens the map.
+  async function saveOffset(beatmapId: number) {
+    const ms = Number(offsets[beatmapId]);
+    if (ms === savedOffsets[beatmapId]) return;
+    busy = true;
+    try {
+      await setOnlineOffset(id, isSet, beatmapId, ms);
+      savedOffsets[beatmapId] = ms;
+      flash.show('success', `Online offset set to ${ms}ms.`);
+    } catch (error) {
+      offsets[beatmapId] = savedOffsets[beatmapId];
       flash.show('error', describe(error));
     }
     busy = false;
@@ -148,8 +168,9 @@
     <table class="board admin-table">
       <thead>
         <tr>
-          <th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th>Dodge the beat</th><th
-          ></th>
+          <th>Difficulty</th><th>Stars</th><th>Now</th><th>Change to</th><th>Offset</th><th
+            >Dodge the beat</th
+          ><th></th>
         </tr>
       </thead>
       <tbody>
@@ -181,6 +202,19 @@
                   </label>
                 {/each}
               </div>
+            </td>
+            <td>
+              <input
+                class="offset-input"
+                type="number"
+                step="1"
+                min="-1000"
+                max="1000"
+                aria-label="Online offset of {diff.name} in milliseconds"
+                bind:value={offsets[diff.id]}
+                disabled={busy}
+                onchange={() => saveOffset(diff.id)}
+              />
             </td>
             <td>
               {#if diff.mode === 2}

@@ -45,6 +45,7 @@ model beatmaps {
   latest_update          Int                      @default(0)
   ranked_status_freezed  Boolean                  @default(false)
   dodge_the_beat         Boolean                  @default(false)
+  online_offset          Int                      @default(0) @db.SmallInt
   pp_100                 Int                      @default(0)
   pp_99                  Int                      @default(0)
   pp_98                  Int                      @default(0)

@@ -243,6 +243,7 @@ export interface RankingSet {
     stars: number;
     ranked: number;
     dodge: boolean;
+    offset: number;
   }[];
 }
 
@@ -251,6 +252,9 @@ export const rankingSet = (id: number, isSet: boolean, signal?: AbortSignal) =>
 
 export const setDodgeTheBeat = (id: number, isSet: boolean, beatmapId: number, on: boolean) =>
   siteApi.post(`/admin/ranking/${id}${isSet ? '?set=1' : ''}`, { dodge: { beatmapId, on } });
+
+export const setOnlineOffset = (id: number, isSet: boolean, beatmapId: number, ms: number) =>
+  siteApi.post(`/admin/ranking/${id}${isSet ? '?set=1' : ''}`, { offset: { beatmapId, ms } });
 
 export const rankSet = (
   id: number,

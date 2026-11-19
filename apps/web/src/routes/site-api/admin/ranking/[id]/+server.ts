@@ -1,7 +1,14 @@
 import { Privilege } from '$lib/auth/privileges';
 import { requirePrivilege } from '$server/auth';
 import { bodyOf, idOf } from '$server/admin/common';
-import { loadSet, rankDifficulty, rankSet, setDodgeTheBeat, STATUSES } from '$server/admin/ranking';
+import {
+  loadSet,
+  rankDifficulty,
+  rankSet,
+  setDodgeTheBeat,
+  setOnlineOffset,
+  STATUSES
+} from '$server/admin/ranking';
 import type { StatusName } from '$server/admin/ranking';
 import { db } from '$server/db';
 import { Failure, handle, ok } from '$server/respond';
@@ -15,10 +22,11 @@ interface Body {
   all: StatusName;
   changes: { beatmapId: number; status: StatusName }[];
   dodge?: { beatmapId: number; on: boolean };
+  offset?: { beatmapId: number; ms: number };
 }
 
 // Either the whole set moves to one status, a list of single difficulties does, or one difficulty is marked
-// as dodge the beat.
+// as dodge the beat, or one is given an online offset.
 export const POST = handle(async ({ request, params, url }) => {
   const caller = await requirePrivilege(request, Privilege.AdminAccessRap);
   const id = idOf(params);
@@ -32,6 +40,11 @@ export const POST = handle(async ({ request, params, url }) => {
 
   if (body.dodge) {
     await setDodgeTheBeat(by, Number(body.dodge.beatmapId), Boolean(body.dodge.on));
+    return ok();
+  }
+
+  if (body.offset) {
+    await setOnlineOffset(by, Number(body.offset.beatmapId), Number(body.offset.ms));
     return ok();
   }
 

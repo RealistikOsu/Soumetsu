@@ -150,6 +150,7 @@ interface Row {
   ranked: number;
   max_combo: number | null;
   dodge_the_beat: number;
+  online_offset: number;
 }
 
 async function starRatings(rows: Row[]) {
@@ -199,7 +200,8 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
 
   const all = await db.$queryRaw<Row[]>`
     SELECT beatmap_id, beatmapset_id, beatmap_md5, song_name, mode, difficulty_std, difficulty_taiko,
-      difficulty_ctb, difficulty_mania, ranked, max_combo, dodge_the_beat
+      difficulty_ctb, difficulty_mania, ranked, max_combo, dodge_the_beat,
+      online_offset
     FROM beatmaps WHERE beatmapset_id = ${setId} AND ranked != -1`;
   if (!all.length) throw new Failure(404, 'Beatmap not found.');
 
@@ -220,7 +222,8 @@ export async function loadSet(id: number, privileges: number, isSet = false) {
         mode: row.mode,
         stars: stars.get(row.beatmap_id) ?? storedStars(row),
         ranked: row.ranked,
-        dodge: Boolean(row.dodge_the_beat)
+        dodge: Boolean(row.dodge_the_beat),
+        offset: row.online_offset
       }))
       .sort((a, b) => a.stars - b.stars)
   };
@@ -359,4 +362,28 @@ export async function setDodgeTheBeat(by: Ranker, beatmapId: number, on: boolean
     by.id,
     `${on ? 'marked' : 'unmarked'} the beatmap ${row.song_name} (${beatmapId}) as dodge the beat`
   );
+}
+
+const MAX_OFFSET = 1000;
+
+// The clients add this many milliseconds to the map's audio timing, and the leaderboard response carries it.
+export async function setOnlineOffset(by: Ranker, beatmapId: number, ms: number) {
+  if (!Number.isInteger(ms) || Math.abs(ms) > MAX_OFFSET) {
+    throw new Failure(
+      400,
+      `The offset must be a whole number of milliseconds within ${MAX_OFFSET}.`
+    );
+  }
+  const row = await db.beatmaps.findFirst({
+    where: { beatmap_id: beatmapId, ranked: { not: -1 } },
+    select: { mode: true, beatmap_md5: true, song_name: true }
+  });
+  if (!row) throw new Failure(404, 'Beatmap not found.');
+  if (!rankableModes(by.privileges).includes(row.mode)) {
+    throw new Failure(403, `Insufficient privileges to change mode ${row.mode} beatmaps.`);
+  }
+
+  await db.beatmaps.updateMany({ where: { beatmap_id: beatmapId }, data: { online_offset: ms } });
+  await refresh([row.beatmap_md5]);
+  await rapLog(by.id, `set the online offset of ${row.song_name} (${beatmapId}) to ${ms}ms`);
 }

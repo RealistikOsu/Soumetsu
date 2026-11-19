@@ -905,6 +905,10 @@
     background: color-mix(in srgb, var(--lblue) 7%, transparent);
   }
 
+  .offset-input {
+    width: 80px;
+  }
+
   /* each difficulty picks its status from three buttons, like the whole-set bar */
   .status-pick {
     display: inline-flex;
